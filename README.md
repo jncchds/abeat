@@ -1,6 +1,7 @@
 # ABeat by CHDS
 
 Automatic Beat Saber map generator: audio file in, playable map (all difficulties, walls, bombs, lights) out.
+Songs come from an uploaded file or a YouTube / YouTube Music link (only use audio you have the rights to).
 A web UI lets you listen, inspect and tune the generator; the same server runs locally or in Docker.
 
 ```
@@ -27,13 +28,15 @@ Data (uploads, analyses, maps, settings) lives in the `/data` volume.
 
 ### Local
 
-Requirements: .NET 10 SDK and [uv](https://docs.astral.sh/uv/) (it installs its own Python).
+Requirements: .NET 10 SDK, Node.js 20+ and [uv](https://docs.astral.sh/uv/) (it installs its own Python).
 
 ```bash
 cd analysis && uv sync --extra ml && cd ..     # drop --extra ml for the light version
+(cd src/abeat-ui && npm install && npm run build)   # builds the UI into src/Abeat.Web/wwwroot
 dotnet run --project src/Abeat.Web             # web UI on http://localhost:5080
 # or the CLI:
 dotnet run --project src/Abeat.Cli -- generate "Artist - Song.mp3" -d all
+dotnet run --project src/Abeat.Cli -- generate "https://music.youtube.com/watch?v=..." -d all
 dotnet run --project src/Abeat.Cli -- check path/to/any/map.zip    # flow report for any map
 ```
 
@@ -72,7 +75,8 @@ ones (`abeat check`), so the weights can be calibrated against maps people like.
 | `analysis/` | Python worker (`abeat-analyze analyze|synth`), uv project |
 | `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer, generator, analyzer, packager |
 | `src/Abeat.Cli` | `abeat generate|analyze|check|settings|synth` |
-| `src/Abeat.Web` | ASP.NET Core API + static web UI (`wwwroot/`) |
+| `src/Abeat.Web` | ASP.NET Core API, serves the built UI from `wwwroot/` |
+| `src/abeat-ui` | React 19 + TypeScript + Vite UI (ABook layout, Beat Saber palette) |
 | `tests/` | xUnit tests for the core |
 
 ## Status / next steps
@@ -81,6 +85,7 @@ ones (`abeat check`), so the weights can be calibrated against maps people like.
 - Learned rhythm selection (which onsets humans map) trained on BeatSaver maps, exported to ONNX.
 - Arcs/chains, BPM changes for live-tempo songs, smarter bomb patterns.
 - Desktop packaging (e.g. Photino window around the same web UI).
+- Optional Chroma (custom colours, gradients, lighting) and Noodle Extensions (custom note/wall paths) output, declared as map requirements/suggestions.
 
 ## Credits
 

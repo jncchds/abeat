@@ -10,3 +10,5 @@ data/
 samples/
 tests/
 *.zip
+**/node_modules/
+src/Abeat.Web/wwwroot/

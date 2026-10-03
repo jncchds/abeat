@@ -4,6 +4,16 @@
 #   docker build -t abeat --build-arg ML=0 .  (librosa only; much smaller, less accurate beats)
 #   docker run -p 8080:8080 -v abeat-data:/data abeat
 
+# ── React UI ──
+FROM node:22-alpine AS ui-build
+WORKDIR /ui
+COPY src/abeat-ui/package*.json ./
+RUN npm ci
+COPY src/abeat-ui/ ./
+COPY VERSION /VERSION
+RUN npx tsc -b && npx vite build --outDir ./dist --emptyOutDir
+
+# ── .NET server ──
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY src/Abeat.Core/Abeat.Core.csproj src/Abeat.Core/
@@ -38,6 +48,7 @@ RUN if [ "$ML" = "1" ]; then uv sync --frozen --extra ml; else uv sync --frozen;
  && mkdir -p /data /opt/abeat/torch && chown -R app:app /data /opt/abeat/torch
 
 COPY --from=build /app /opt/abeat/app
+COPY --from=ui-build /ui/dist /opt/abeat/app/wwwroot
 ENV ABEAT_ANALYSIS_DIR=/opt/abeat/analysis \
     ABEAT_DATA=/data \
     ASPNETCORE_URLS=http://+:8080

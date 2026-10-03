@@ -91,6 +91,8 @@ public static class MapReader
                 if (type == 3) dm.Bombs.Add(new BombNote(b, x, y));
                 else if (type is 0 or 1) dm.Notes.Add(new ColorNote(b, x, y, (Hand)type, (CutDirection)Int(n, "_cutDirection")));
             }
+            foreach (var e in j["_events"]?.AsArray() ?? [])
+                dm.Lights.Add(new LightEvent(Num(e, "_time"), Int(e, "_type"), Int(e, "_value"), e?["_floatValue"] is null ? 1 : Num(e, "_floatValue")));
             foreach (var o in j["_obstacles"]?.AsArray() ?? [])
             {
                 int type = Int(o, "_type");
@@ -106,6 +108,8 @@ public static class MapReader
                 dm.Bombs.Add(new BombNote(Num(n, "b"), Int(n, "x"), Int(n, "y")));
             foreach (var o in j["obstacles"]?.AsArray() ?? [])
                 dm.Obstacles.Add(new Obstacle(Num(o, "b"), Num(o, "d"), Int(o, "x"), Int(o, "y"), Int(o, "w"), Int(o, "h")));
+            foreach (var e in j["basicBeatmapEvents"]?.AsArray() ?? [])
+                dm.Lights.Add(new LightEvent(Num(e, "b"), Int(e, "et"), Int(e, "i"), e?["f"] is null ? 1 : Num(e, "f")));
         }
         else // v4: objects reference shared data arrays by index
         {

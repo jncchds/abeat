@@ -14,3 +14,5 @@ __pycache__/
 *.egg
 data/
 /samples/*.json
+src/Abeat.Web/wwwroot/
+node_modules/

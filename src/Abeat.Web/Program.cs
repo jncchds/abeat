@@ -21,5 +21,7 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 MapEndpoints.Map(app);
 app.MapGet("/healthz", () => "ok");
+// client-side routes (/songs/{id}) are served by the React app
+app.MapFallbackToFile("index.html");
 
 app.Run();
