@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.1.3 — 2026-10-03
+
+- Phone-friendly song page: header, player and A/B pickers stack and wrap, difficulty buttons fit (or scroll), two compact report-card columns, side-by-side player views, no horizontal page scroll; timeline pinch-to-zoom and −/+ zoom buttons.
+
 ## v0.1.2 — 2026-10-03
 
 - Versions in the web app: every generation is kept (auto-regenerate updates a single draft), versions can be deleted or pruned to the two being compared, and their settings loaded back; maps record the app version and stay aligned after re-analysis.
