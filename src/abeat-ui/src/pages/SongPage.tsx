@@ -12,6 +12,7 @@ import ReportCards from '../components/ReportCards'
 import SettingsPanel from '../components/SettingsPanel'
 import Timeline from '../components/Timeline'
 import ToggleField from '../components/ToggleField'
+import AddToPlaylist from '../components/AddToPlaylist'
 import VersionsPanel, { type Side } from '../components/VersionsPanel'
 import VocalSelect from '../components/VocalSelect'
 import { useDebug } from '../hooks/useDebug'
@@ -83,9 +84,12 @@ export default function SongPage() {
   const ready = status === 'Ready'
 
   useEffect(() => { getDefaults().then(r => setDefaults(r.data.settings)) }, [])
-  const [httpsPort, setHttpsPort] = useState<number | null>(null)
-  useEffect(() => { getConfig().then(r => setHttpsPort(r.data.httpsPort)).catch(() => {}) }, [])
-  // ArcViewer is an https page: it can fetch the zip directly (noProxy) from https or from localhost,
+  const [config, setConfig] = useState<{ httpsPort: number | null; arcViewer: boolean }>({ httpsPort: null, arcViewer: false })
+  useEffect(() => { getConfig().then(r => setConfig(r.data)).catch(() => {}) }, [])
+  const httpsPort = config.httpsPort
+  // ArcViewer (Unity) refuses plain-http downloads except from localhost, so from other devices both the
+  // bundled viewer and the zip go through the https listener (self-signed: accept it once per device).
+  // The public viewer is an https page too: it can fetch the zip directly (noProxy) from https or localhost,
   // never from a plain-http LAN address, and its CORS proxy cannot reach the LAN at all
   const zipOrigin = location.protocol === 'https:' || location.hostname === 'localhost' || !httpsPort
     ? location.origin : `https://${location.hostname}:${httpsPort}`
@@ -290,15 +294,25 @@ export default function SongPage() {
         </div>
         <div className="song-actions">
           {ready && <a className="btn" href={zipUrl(id, zipVersion)} title="Downloads version A">⬇ Download map</a>}
-          {ready && (
-            <a className="btn btn-secondary" target="_blank" rel="noopener noreferrer"
-              title={zipOrigin.startsWith('https:') && location.protocol !== 'https:'
-                ? `First time on this device: open ${zipOrigin} once and accept the certificate warning`
-                : 'Opens version A in ArcViewer'}
-              href={`https://allpoland.github.io/ArcViewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id, zipVersion))}&noProxy=true`}>
-              ArcViewer
-            </a>
-          )}
+          {ready && (config.arcViewer
+            ? (
+              <a className="btn btn-secondary" target="_blank" rel="noopener noreferrer"
+                title={zipOrigin.startsWith('https:') && location.protocol !== 'https:'
+                  ? `Opens version A in ArcViewer over https. First time on this device: accept the certificate warning of ${zipOrigin}`
+                  : 'Opens version A in the bundled ArcViewer'}
+                href={`${zipOrigin}/arcviewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id, zipVersion))}&noProxy=true`}>
+                ArcViewer
+              </a>
+            )
+            : (
+              <a className="btn btn-secondary" target="_blank" rel="noopener noreferrer"
+                title={zipOrigin.startsWith('https:') && location.protocol !== 'https:'
+                  ? `First time on this device: open ${zipOrigin} once and accept the certificate warning`
+                  : 'Opens version A in ArcViewer (allpoland.github.io; run scripts/fetch-arcviewer.sh to bundle it)'}
+                href={`https://allpoland.github.io/ArcViewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id, zipVersion))}&noProxy=true`}>
+                ArcViewer
+              </a>
+            ))}
           {meta && <VocalSelect compact value={vocals} onChange={v => { setVocalPick({ id, v }); if (v === 'lyrics') setLyricsOpen(true) }} />}
           {ready && (
             <button className={`btn-secondary${showLyrics ? ' active' : ''}`} onClick={() => setLyricsOpen(o => !o)}
@@ -340,9 +354,9 @@ export default function SongPage() {
           </Player>
 
           <div className="compare-bar">
-            <SidePicker name="A" color={SIDE_A} side={sideA} versions={list} labels={labels} onChange={n => setSide('a', n)} />
+            <SidePicker name="A" color={SIDE_A} side={sideA} versions={list} labels={labels} onChange={n => setSide('a', n)} songId={id} />
             {sideB
-              ? <SidePicker name="B" color={SIDE_B} side={sideB} versions={list} labels={labels} onChange={n => setSide('b', n)}
+              ? <SidePicker name="B" color={SIDE_B} side={sideB} versions={list} labels={labels} onChange={n => setSide('b', n)} songId={id}
                   onClear={() => setSide('b', null)} />
               : <button className="btn-secondary add-b" style={{ borderColor: SIDE_B, color: SIDE_B }} onClick={onAddB}>+ Compare with B</button>}
             {cmp && (
@@ -425,10 +439,11 @@ interface SidePickerProps {
   labels: Record<string, string>
   onChange: (next: Partial<Side>) => void
   onClear?: () => void
+  songId: string
 }
 
 /** Version + difficulty selector for one side of the comparison. */
-function SidePicker({ name, color, side, versions, labels, onChange, onClear }: SidePickerProps) {
+function SidePicker({ name, color, side, versions, labels, onChange, onClear, songId }: SidePickerProps) {
   const v = versions.find(x => x.id === side.v)
   return (
     <div className="side-picker" style={{ borderColor: color }}>
@@ -442,6 +457,7 @@ function SidePicker({ name, color, side, versions, labels, onChange, onClear }: 
             onClick={() => onChange({ d })}>{diffLabel(d)}</button>
         ))}
       </div>
+      {v?.kind === 'abeat' && <AddToPlaylist songId={songId} version={v.id} />}
       {onClear && <button className="icon-btn" title="Stop comparing" onClick={onClear}>✕</button>}
     </div>
   )

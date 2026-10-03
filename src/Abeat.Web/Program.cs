@@ -1,6 +1,8 @@
 using System.Text.Json.Serialization;
 using Abeat.Web;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,7 @@ builder.Services.ConfigureHttpJsonOptions(o =>
     o.SerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals;
 });
 builder.Services.AddSingleton<SongStore>();
+builder.Services.AddSingleton<PlaylistStore>();
 builder.Services.AddSingleton<AnalysisQueue>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<AnalysisQueue>());
 
@@ -40,9 +43,41 @@ var staticFiles = new StaticFileOptions
 };
 app.UseDefaultFiles();
 app.UseStaticFiles(staticFiles);
+
+// ArcViewer (GPL-3.0, github.com/AllPoland/ArcViewer), fetched by scripts/fetch-arcviewer.sh and served
+// from the same origin, so it can open map zips without HTTPS or CORS workarounds
+var arcViewerDir = builder.Configuration["ABEAT_ARCVIEWER_DIR"] ?? Path.Combine(app.Environment.ContentRootPath, "arcviewer");
+bool arcViewer = File.Exists(Path.Combine(arcViewerDir, "index.html"));
+if (arcViewer)
+{
+    var types = new FileExtensionContentTypeProvider();
+    types.Mappings[".data"] = "application/octet-stream";
+    var arcFiles = new PhysicalFileProvider(Path.GetFullPath(arcViewerDir));
+    // its asset paths are relative: /arcviewer must become /arcviewer/ (a mapped route would also match
+    // /arcviewer/ and keep the static files from serving it)
+    app.Use(async (ctx, next) =>
+    {
+        if (ctx.Request.Path.Value == "/arcviewer") ctx.Response.Redirect("/arcviewer/" + ctx.Request.QueryString);
+        else await next();
+    });
+    app.UseDefaultFiles(new DefaultFilesOptions { FileProvider = arcFiles, RequestPath = "/arcviewer" });
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        FileProvider = arcFiles,
+        RequestPath = "/arcviewer",
+        ContentTypeProvider = types,
+        // same file names in every ArcViewer release, so no "immutable" here
+        OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl =
+            ctx.File.Name.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ? "no-cache" : "public, max-age=604800",
+    });
+}
+// routing after the static files, so "/arcviewer/" is rewritten to its index.html instead of being
+// matched by the SPA fallback first
+app.UseRouting();
 MapEndpoints.Map(app);
+PlaylistEndpoints.Map(app);
 app.MapGet("/healthz", () => "ok");
-app.MapGet("/api/config", () => new { httpsPort });
+app.MapGet("/api/config", () => new { httpsPort, arcViewer });
 // client-side routes (/songs/{id}) are served by the React app
 app.MapFallbackToFile("index.html", staticFiles);
 

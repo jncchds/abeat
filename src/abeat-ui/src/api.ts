@@ -123,7 +123,7 @@ export interface Defaults { settings: GeneratorSettings }
 
 const http = axios.create({ baseURL: '/api' })
 
-export const getConfig = () => http.get<{ httpsPort: number | null }>('/config')
+export const getConfig = () => http.get<{ httpsPort: number | null; arcViewer: boolean }>('/config')
 export const getDefaults = () => http.get<Defaults>('/defaults')
 export const getSongs = () => http.get<SongMeta[]>('/songs')
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[] }>(`/songs/${id}`)
@@ -156,6 +156,33 @@ export function uploadSong(file: File, beats: string, stems: boolean, vocals: st
 
 export const addSongUrl = (url: string, beats: string, stems: boolean, vocals: string) =>
   http.post<SongMeta>('/songs/url', { url, beats, stems, vocals })
+
+export interface PlaylistSummary { id: string; title: string; createdUtc: string; count: number }
+export interface PlaylistEntry {
+  index: number
+  songId: string
+  version: string
+  addedUtc: string
+  title: string
+  artist: string
+  number: number
+  appVersion?: string | null
+  createdUtc?: string | null
+  difficulties: string[]
+  missing: boolean
+}
+export interface PlaylistDetails { id: string; title: string; createdUtc: string; entries: PlaylistEntry[] }
+
+export const getPlaylists = () => http.get<PlaylistSummary[]>('/playlists')
+export const createPlaylist = (title: string) => http.post<PlaylistSummary>('/playlists', { title })
+export const getPlaylist = (id: string) => http.get<PlaylistDetails>(`/playlists/${id}`)
+export const renamePlaylist = (id: string, title: string) => http.patch<PlaylistSummary>(`/playlists/${id}`, { title })
+export const deletePlaylist = (id: string) => http.delete(`/playlists/${id}`)
+export const addToPlaylist = (id: string, songId: string, version: string) =>
+  http.post<PlaylistSummary>(`/playlists/${id}/entries`, { songId, version })
+export const removeFromPlaylist = (id: string, index: number) => http.delete<PlaylistSummary>(`/playlists/${id}/entries/${index}`)
+export const playlistZipUrl = (id: string) => `/api/playlists/${id}/download.zip`
+export const playlistBplistUrl = (id: string) => `/api/playlists/${id}/playlist.bplist`
 
 export const audioUrl = (id: string) => `/api/songs/${id}/audio`
 export const coverUrl = (id: string) => `/api/songs/${id}/cover`

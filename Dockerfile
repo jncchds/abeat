@@ -15,6 +15,12 @@ COPY src/abeat-ui/ ./
 COPY VERSION /VERSION
 RUN npx tsc -b && npx vite build --outDir ./dist --emptyOutDir
 
+# ── ArcViewer web build (GPL-3.0, github.com/AllPoland/ArcViewer), served at /arcviewer/ ──
+FROM alpine:3 AS arcviewer
+RUN apk add --no-cache curl
+COPY scripts/fetch-arcviewer.sh /fetch-arcviewer.sh
+RUN sh /fetch-arcviewer.sh /arcviewer
+
 # ── .NET server ──
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
@@ -56,6 +62,7 @@ RUN EXTRAS=""; [ "$ML" = "1" ] && EXTRAS="--extra ml"; [ "$LYRICS" = "1" ] && EX
 
 COPY --from=build /app /opt/abeat/app
 COPY --from=ui-build /ui/dist /opt/abeat/app/wwwroot
+COPY --from=arcviewer /arcviewer /opt/abeat/app/arcviewer
 ENV ABEAT_ANALYSIS_DIR=/opt/abeat/analysis \
     ABEAT_DATA=/data \
     ASPNETCORE_URLS=http://+:8080 \

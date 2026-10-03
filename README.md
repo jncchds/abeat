@@ -44,6 +44,14 @@ dotnet run --project src/Abeat.Cli -- check path/to/any/map.zip    # flow report
 
 Web data defaults to `~/.local/share/abeat` (set `ABEAT_DATA` to change).
 
+`scripts/fetch-arcviewer.sh` downloads [ArcViewer](https://github.com/AllPoland/ArcViewer) (GPL-3.0, ~80 MB)
+so the web app can open maps in it from the same server (the Docker image includes it). Without it the
+ArcViewer button uses the public site.
+
+**Playlists**: add versions from a song page ("＋ playlist"), then download the playlist zip and import
+it in BSManager (Maps → Import; the `.bplist` inside goes to Playlists → Import). BSManager's one-click
+links only work for maps published on BeatSaver.
+
 ## How it works
 
 **Analysis** (`analysis/`, Python): beat tracking with [beat_this](https://github.com/CPJKU/beat_this)

@@ -1,5 +1,10 @@
 # Release notes
 
+## v0.1.7 — 2026-10-03
+
+- ArcViewer bundled: `scripts/fetch-arcviewer.sh` fetches its web build (pinned v0.8.1, GPL-3.0, credited in the sidebar) and the server serves it at /arcviewer/, and from other devices it opens over the https listener (ArcViewer refuses plain-http downloads except from localhost; accept the self-signed certificate once); Docker images include it.
+- Playlists: add generated versions from the song page, manage them on a playlist page, download one zip (all maps + .bplist) for BSManager's map import, or the .bplist alone; in game each map's subtitle shows its version.
+
 ## v0.1.6 — 2026-10-03
 
 - Songs added by link are downloaded once: re-analysis reuses the audio, title, artist and cover in the work dir instead of calling yt-dlp again (also for songs downloaded before this change).

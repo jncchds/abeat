@@ -12,3 +12,5 @@ tests/
 *.zip
 **/node_modules/
 src/Abeat.Web/wwwroot/
+src/Abeat.Web/arcviewer/
+src/Abeat.Web/data/

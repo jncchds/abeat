@@ -88,6 +88,19 @@ human ones (`abeat check`).
   `GET /compare?a=&ad=&b=&bd=` runs `MapComparer` on any two (version, difficulty) pairs (B = reference).
   All versions are re-timed onto the current analysis grid (`Generations.OnGrid`), so they stay
   aligned after a re-analysis.
+- Playlists (`PlaylistStore`, `data/playlists/{id}.json`): entries are (song, generation). `/api/playlists`
+  CRUD, `POST /{id}/entries`, `GET /{id}/download.zip` (one folder per entry with Info.dat `_songSubName`
+  set to "ABeat #n", plus a `.bplist` referencing each map by level hash = SHA-1 of Info.dat + difficulty
+  files in Info.dat order) and `/{id}/playlist.bplist`. Human reference maps can't be added. BSManager's
+  one-click links (`beatsaver://`, `bsplaylist://`) resolve maps through api.beatsaver.com only, so
+  generated maps are installed with BSManager's zip import instead.
+- ArcViewer (GPL-3.0, AllPoland) is fetched by `scripts/fetch-arcviewer.sh` (pinned v0.8.1 deploy commit)
+  into the git-ignored `src/Abeat.Web/arcviewer` (Docker: `/opt/abeat/app/arcviewer`, or
+  `ABEAT_ARCVIEWER_DIR`) and served same-origin at `/arcviewer/`; `/api/config` reports `arcViewer`
+  and the UI falls back to the public site without it. ArcViewer (Unity) refuses plain-http downloads
+  except from localhost, so other devices open it and the zip through the https listener
+  (`ABEAT_HTTPS_PORT`, self-signed LAN certificate). Routing runs after the static files so the SPA
+  fallback doesn't swallow `/arcviewer/`.
 - Lyrics: `GET|PUT /api/songs/{id}/lyrics` (`lyrics.txt`), passed to the worker on re-analysis.
 - Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
   human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served as
