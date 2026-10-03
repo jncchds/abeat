@@ -1,0 +1,16 @@
+bin/
+obj/
+.vs/
+*.user
+.venv/
+__pycache__/
+*.pyc
+/work/
+/out/
+/samples/*.wav
+/samples/*.mp3
+/samples/*.ogg
+/samples/*.flac
+*.egg
+/data/
+/samples/*.json

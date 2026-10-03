@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "abeat-web",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "src/Abeat.Web", "--no-launch-profile", "--urls", "http://localhost:5080"],
+      "env": { "ABEAT_DATA": "data" },
+      "port": 5080
+    }
+  ]
+}

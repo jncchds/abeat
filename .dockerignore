@@ -1,0 +1,12 @@
+**/bin/
+**/obj/
+analysis/.venv/
+**/__pycache__/
+.git/
+.claude/
+work/
+out/
+data/
+samples/
+tests/
+*.zip
