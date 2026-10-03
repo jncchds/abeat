@@ -11,7 +11,7 @@ CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
 CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
 const string Usage = """
-abeat - automatic Beat Saber map generator
+ABeat by CHDS - automatic Beat Saber map generator
 
 usage:
   abeat generate <audio file | analysis dir> [options]

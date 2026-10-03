@@ -107,6 +107,7 @@ main { padding: 16px; min-width: 0; }
 .issues li { font-size: 12px; padding: 3px 8px; border-radius: 6px; background: var(--panel2); cursor: pointer; }
 .issues li:hover { outline: 1px solid var(--accent); }
 
+.credits { text-align: center; color: var(--muted); font-size: 12px; padding: 16px; border-top: 1px solid var(--line); }
 .drop { position: fixed; inset: 0; background: rgba(15, 17, 23, .85); border: 3px dashed var(--accent); display: flex; align-items: center; justify-content: center; font-size: 28px; z-index: 50; }
 
 @media (max-width: 900px) {

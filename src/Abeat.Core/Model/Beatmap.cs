@@ -54,7 +54,7 @@ public sealed class MapSet
     public string SongName { get; set; } = "";
     public string SongSubName { get; set; } = "";
     public string SongAuthor { get; set; } = "";
-    public string LevelAuthor { get; set; } = "abeat";
+    public string LevelAuthor { get; set; } = "ABeat by CHDS";
     public double Bpm { get; set; }
     public double PreviewStart { get; set; }
     public double PreviewDuration { get; set; } = 12;

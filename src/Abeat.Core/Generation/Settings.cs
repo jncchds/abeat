@@ -99,7 +99,7 @@ public sealed record GeneratorSettings
     public bool CrouchWalls { get; init; } = true;
     /// <summary>Reset-signalling bombs (Normal and up) and accent bombs (Hard and up).</summary>
     public bool Bombs { get; init; } = true;
-    public string LevelAuthor { get; init; } = "abeat";
+    public string LevelAuthor { get; init; } = "ABeat by CHDS";
 
     public DifficultyProfile Profile(DifficultyName d) =>
         ProfileOverrides.TryGetValue(d, out var p) ? p : DifficultyProfile.Default(d);

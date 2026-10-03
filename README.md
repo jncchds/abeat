@@ -1,6 +1,6 @@
-# abeat
+# ABeat by CHDS
 
-Automatic Beat Saber map generator: audio file in, playable map (all difficulties, walls, lights) out.
+Automatic Beat Saber map generator: audio file in, playable map (all difficulties, walls, bombs, lights) out.
 A web UI lets you listen, inspect and tune the generator; the same server runs locally or in Docker.
 
 ```
@@ -79,5 +79,10 @@ ones (`abeat check`), so the weights can be calibrated against maps people like.
 
 - Calibrate `FlowWeights` and the flow score against curated BeatSaver maps (`abeat check`).
 - Learned rhythm selection (which onsets humans map) trained on BeatSaver maps, exported to ONNX.
-- Arcs/chains, bombs for intentional resets, BPM changes for live-tempo songs.
+- Arcs/chains, BPM changes for live-tempo songs, smarter bomb patterns.
 - Desktop packaging (e.g. Photino window around the same web UI).
+
+## Credits
+
+ABeat is made by **CHDS**, designed and built together with **Claude** (Anthropic's AI assistant,
+via Claude Code), which co-wrote the analysis worker, generator, web UI and Docker setup.

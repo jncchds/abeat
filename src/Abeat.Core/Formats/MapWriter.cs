@@ -34,7 +34,7 @@ public static class MapWriter
         ["_environmentName"] = map.Environment,
         ["_allDirectionsEnvironmentName"] = "GlassDesertEnvironment",
         ["_songTimeOffset"] = 0,
-        ["_customData"] = new JsonObject { ["_generator"] = "abeat" },
+        ["_customData"] = new JsonObject { ["_generator"] = "ABeat by CHDS" },
         ["_difficultyBeatmapSets"] = new JsonArray
         {
             new JsonObject

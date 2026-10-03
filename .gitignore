@@ -12,5 +12,5 @@ __pycache__/
 /samples/*.ogg
 /samples/*.flac
 *.egg
-/data/
+data/
 /samples/*.json

@@ -1,4 +1,4 @@
-// abeat web UI: song list + upload, timeline, front view, reports and generator settings.
+// ABeat by CHDS — web UI: song list + upload, timeline, front view, reports and generator settings.
 const $ = (id) => document.getElementById(id);
 const audio = $('audio');
 
