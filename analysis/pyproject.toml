@@ -21,6 +21,12 @@ ml = [
     "torchaudio>=2.3",
     "beat-this",
     "demucs>=4.0.1",
+    "torchcrepe>=0.0.24",
+]
+# Whisper transcription for "lyric syllables" vocal onsets (--vocals lyrics without --lyrics-file).
+# Install with: uv sync --extra ml --extra lyrics
+lyrics = [
+    "faster-whisper>=1.2.1",
 ]
 
 [project.scripts]

@@ -7,11 +7,13 @@ import {
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
+import LyricsPanel from '../components/LyricsPanel'
 import ReportCards from '../components/ReportCards'
 import SettingsPanel from '../components/SettingsPanel'
 import Timeline from '../components/Timeline'
 import ToggleField from '../components/ToggleField'
 import VersionsPanel, { type Side } from '../components/VersionsPanel'
+import VocalSelect from '../components/VocalSelect'
 import { useDebug } from '../hooks/useDebug'
 import { useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
@@ -68,6 +70,8 @@ export default function SongPage() {
   const [autoRegen, setAutoRegen] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // vocal onset method for the next re-analysis (defaults to the song's current one)
+  const [vocalPick, setVocalPick] = useState<{ id: string; v: string } | null>(null)
   const [follow, setFollow] = useState(true)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
   const debug = useDebug()
@@ -248,9 +252,11 @@ export default function SongPage() {
     navigate('/')
   }
 
+  const vocals = vocalPick?.id === id ? vocalPick.v : meta?.analysis.vocalOnsets ?? 'flux'
   const onReanalyze = async () => {
     if (!meta) return
-    await reanalyze(id, meta.analysis)
+    // sung notes and lyric syllables work on the separated vocals, so they switch stems on
+    await reanalyze(id, { ...meta.analysis, vocalOnsets: vocals, stems: meta.analysis.stems || vocals !== 'flux' })
     await refresh()
   }
 
@@ -290,7 +296,9 @@ export default function SongPage() {
               ArcViewer
             </a>
           )}
-          <button className="btn-secondary" onClick={onReanalyze} disabled={!ready && status !== 'Failed'}>Re-analyze</button>
+          {meta && <VocalSelect compact value={vocals} onChange={v => setVocalPick({ id, v })} />}
+          <button className="btn-secondary" onClick={onReanalyze} disabled={!ready && status !== 'Failed'}
+            title="Runs the analysis again (separated stems are reused) and adds a new version">Re-analyze</button>
           <button className="delete-btn" onClick={onDelete}>Delete</button>
         </div>
       </div>
@@ -365,6 +373,7 @@ export default function SongPage() {
                 <ReportCards difficulties={byVersion[sideB.v]} selected={sideB.d} onSelect={d => setSide('b', { d })}
                   vsHuman={versionB?.kind === 'abeat' ? versionB.vsHuman : null} title={`B · ${labels[sideB.v] ?? ''}`} color={SIDE_B} />
               )}
+              <LyricsPanel id={id} analysis={analysis} usesLyrics={vocals === 'lyrics'} />
               <div className="card issues-card">
                 <h3>
                   Flow issues {current && <span className="muted">{showA ? 'A' : 'B'}</span>}{' '}
@@ -447,6 +456,7 @@ function Facts({ a }: { a: Analysis }) {
       <span><b>{fmtTime(a.audio.durationSec)}</b></span>
       <span>beats: <b>{t.backend}</b></span>
       <span>onsets: <b>{a.layerSource}</b></span>
+      {a.vocalSource && <span>vocals: <b>{a.vocalSource}</b>{a.lyrics ? ` (${a.lyrics.words.length} words${a.lyrics.language ? `, ${a.lyrics.language}` : ''})` : ''}</span>}
       <span>{a.sections.length} sections</span>
       {a.source.url && <a href={a.source.url} target="_blank" rel="noopener noreferrer">source ↗</a>}
       {!t.stable && <span className="warn" title="Detected beats deviate from a constant tempo; notes may drift">⚠ tempo varies ({t.maxDevMs.toFixed(0)} ms)</span>}

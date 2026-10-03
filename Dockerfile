@@ -2,6 +2,8 @@
 # abeat web app: ASP.NET Core server + Python analysis worker in one image.
 #   docker build -t abeat .                 (with beat_this + demucs, CPU torch; ~2.5 GB)
 #   docker build -t abeat --build-arg ML=0 .  (librosa only; much smaller, less accurate beats)
+#   docker build -t abeat --build-arg LYRICS=1 .  (adds Whisper for "lyric syllables" vocal onsets;
+#                                                  its models download on first use)
 #   docker run -p 8080:8080 -v abeat-data:/data abeat
 
 # ── React UI ──
@@ -26,6 +28,7 @@ RUN dotnet publish src/Abeat.Web/Abeat.Web.csproj -c Release -o /app --no-restor
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 ARG ML=1
+ARG LYRICS=0
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
 # JS runtime yt-dlp needs for YouTube links
 COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
@@ -40,9 +43,11 @@ ENV UV_PYTHON_INSTALL_DIR=/opt/python \
 WORKDIR /opt/abeat/analysis
 COPY analysis/pyproject.toml analysis/uv.lock analysis/.python-version ./
 # dependencies first (cached layer), then the worker source
-RUN if [ "$ML" = "1" ]; then uv sync --frozen --no-install-project --extra ml; else uv sync --frozen --no-install-project; fi
+RUN EXTRAS=""; [ "$ML" = "1" ] && EXTRAS="--extra ml"; [ "$LYRICS" = "1" ] && EXTRAS="$EXTRAS --extra ml --extra lyrics"; \
+    uv sync --frozen --no-install-project $EXTRAS
 COPY analysis/src ./src
-RUN if [ "$ML" = "1" ]; then uv sync --frozen --extra ml; else uv sync --frozen; fi \
+RUN EXTRAS=""; [ "$ML" = "1" ] && EXTRAS="--extra ml"; [ "$LYRICS" = "1" ] && EXTRAS="$EXTRAS --extra ml --extra lyrics"; \
+    uv sync --frozen $EXTRAS \
  && if [ "$ML" = "1" ]; then \
       .venv/bin/python -c "from beat_this.inference import Audio2Beats; Audio2Beats(checkpoint_path='final0', device='cpu', dbn=False)" \
       && .venv/bin/python -c "from demucs.pretrained import get_model; get_model('htdemucs')"; \

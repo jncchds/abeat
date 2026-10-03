@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { addSongUrl, errorText, uploadSong } from '../api'
 import ToggleField from '../components/ToggleField'
+import VocalSelect from '../components/VocalSelect'
 import { useSongs } from '../hooks/useSongs'
 
 /** Add a song by upload or link; analysis and a first map then run automatically. */
@@ -11,6 +12,7 @@ export default function HomePage() {
   const [url, setUrl] = useState('')
   const [beats, setBeats] = useState('auto')
   const [stems, setStems] = useState(true)
+  const [vocals, setVocals] = useState('flux')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -29,7 +31,7 @@ export default function HomePage() {
     }
   }
 
-  const onFile = (f?: File) => f && run(() => uploadSong(f, beats, stems))
+  const onFile = (f?: File) => f && run(() => uploadSong(f, beats, stems, vocals))
 
   return (
     <div className="page">
@@ -53,7 +55,7 @@ export default function HomePage() {
           </label>
         </div>
 
-        <form className="card" onSubmit={e => { e.preventDefault(); if (url.trim()) run(() => addSongUrl(url.trim(), beats, stems)) }}>
+        <form className="card" onSubmit={e => { e.preventDefault(); if (url.trim()) run(() => addSongUrl(url.trim(), beats, stems, vocals)) }}>
           <h3>From a link</h3>
           <label>
             YouTube or YouTube Music URL
@@ -73,6 +75,7 @@ export default function HomePage() {
             </select>
           </label>
           <ToggleField label="Separate stems (Demucs)" hint="Isolates vocals so their rhythm leads the map; adds about one song-length of CPU time" checked={stems} onChange={setStems} />
+          {stems && <VocalSelect value={vocals} onChange={setVocals} />}
         </div>
       </div>
 

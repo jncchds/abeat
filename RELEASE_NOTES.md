@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.1.4 — 2026-10-03
+
+- Vocal onsets selectable per song (add-song form, or next to Re-analyze): spectral flux, sung notes (flux onsets kept only where CREPE hears a pitched voice; the melody steers the note row; 83 % of vocal onsets on human notes vs 72 % on Cake By The Ocean) or lyric syllables (MMS forced alignment of pasted lyrics, or a Whisper transcription, split at vowels and snapped to vocal attacks).
+- Lyrics box on the song page (can start from the transcription to correct it); words shown on the timeline.
+- Re-analysis reuses the separated stems, so switching the vocal method skips Demucs. Optional worker extra `lyrics` (faster-whisper) and Docker build arg `LYRICS=1`.
+
 ## v0.1.3 — 2026-10-03
 
 - Phone-friendly song page: header, player and A/B pickers stack and wrap, difficulty buttons fit (or scroll), two compact report-card columns, side-by-side player views, no horizontal page scroll; timeline pinch-to-zoom and −/+ zoom buttons.

@@ -28,7 +28,8 @@ public static class MapEndpoints
             if (file == null || file.Length == 0) return Results.BadRequest("no file");
             var options = new AnalysisOptions(
                 form["beats"].FirstOrDefault() ?? "auto",
-                form["stems"].FirstOrDefault() == "true");
+                form["stems"].FirstOrDefault() == "true",
+                VocalOnsets: VocalOption(form["vocals"].FirstOrDefault()));
             await using var s = file.OpenReadStream();
             var meta = await store.AddAsync(file.FileName, s, options);
             queue.Enqueue(meta.Id);
@@ -39,7 +40,7 @@ public static class MapEndpoints
         {
             if (!Uri.TryCreate(req.Url?.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
                 return Results.BadRequest("expected an http(s) link, e.g. a YouTube or YouTube Music URL");
-            var meta = store.AddUrl(uri.ToString(), new AnalysisOptions(req.Beats ?? "auto", req.Stems));
+            var meta = store.AddUrl(uri.ToString(), new AnalysisOptions(req.Beats ?? "auto", req.Stems, VocalOnsets: VocalOption(req.Vocals)));
             queue.Enqueue(meta.Id);
             return Results.Ok(meta);
         });
@@ -72,12 +73,24 @@ public static class MapEndpoints
         api.MapPost("/songs/{id}/reanalyze", (string id, AnalysisOptions options, SongStore store, AnalysisQueue queue) =>
         {
             if (store.Get(id) is not { } m) return Results.NotFound();
+            options = options with { VocalOnsets = VocalOption(options.VocalOnsets) };
             Generations.List(store, id); // moves a legacy map into the history while its grid still matches
             m.Analysis = options;
             m.Status = SongStatus.Queued;
             store.Save(m);
             queue.Enqueue(id);
             return Results.Ok(m);
+        });
+
+        api.MapGet("/songs/{id}/lyrics", (string id, SongStore store) =>
+            store.Get(id) is null ? Results.NotFound()
+            : Results.Ok(new { text = store.LyricsFile(id) is { } f ? File.ReadAllText(f) : "" }));
+
+        api.MapPut("/songs/{id}/lyrics", (string id, LyricsRequest req, SongStore store) =>
+        {
+            if (store.Get(id) is null) return Results.NotFound();
+            File.WriteAllText(store.LyricsPath(id), req.Text ?? "");
+            return Results.NoContent();
         });
 
         api.MapGet("/songs/{id}/analysis", (string id, SongStore store) =>
@@ -202,8 +215,11 @@ public static class MapEndpoints
         });
     }
 
-    public sealed record UrlRequest(string? Url, string? Beats, bool Stems);
+    public sealed record UrlRequest(string? Url, string? Beats, bool Stems, string? Vocals);
+
+    static string VocalOption(string? v) => v is "notes" or "lyrics" ? v : "flux";
     public sealed record ImportRequest(string Path);
+    public sealed record LyricsRequest(string? Text);
 
     const string HumanId = "human";
 

@@ -24,10 +24,13 @@ usage:
       --work <dir>             analysis work dir (default: ./work/<file name>)
       --beats auto|librosa|beat_this   beat tracker (default auto)
       --no-stems               skip Demucs stem separation (faster; vocals not isolated)
+      --vocals flux|notes|lyrics   vocal onsets: spectral flux (default), sung notes (pitch), or
+                               lyric syllables (Whisper + forced alignment, worker extra "lyrics")
+      --lyrics <file.txt>      lyrics to align for --vocals lyrics (repeats written out); skips Whisper
       --bpm <x>                override detected BPM
       --reanalyze              ignore cached analysis
       --no-lights, --no-walls, --no-zip
-  abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--bpm x]
+  abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--vocals ..] [--bpm x]
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
   abeat settings [file.json]                   write default generator settings to edit
   abeat fetch-maps [--count 20] [--per-mapper 2] [-o work/beatsaver]   curated BeatSaver maps (no mods), top-rated + recent
@@ -94,8 +97,9 @@ static async Task<SongAnalysis> GetAnalysis(Options o)
         }
     }
     var runner = new AnalysisRunner();
+    string? lyricsFile = o.Get("lyrics");
     var sw = Stopwatch.StartNew();
-    var a = await runner.AnalyzeAsync(input, work, AnalysisOpts(o), line => Console.Error.WriteLine(line));
+    var a = await runner.AnalyzeAsync(input, work, AnalysisOpts(o), line => Console.Error.WriteLine(line), lyricsFile: lyricsFile);
     Console.Error.WriteLine($"analysis took {sw.Elapsed.TotalSeconds:0.0}s");
     return a;
 }
@@ -110,7 +114,8 @@ static string UrlWorkName(string url)
 static AnalysisOptions AnalysisOpts(Options o) => new(
     o.Get("beats") ?? "auto",
     !o.Has("no-stems"),
-    o.Get("bpm") is { } b ? double.Parse(b, CultureInfo.InvariantCulture) : null);
+    o.Get("bpm") is { } b ? double.Parse(b, CultureInfo.InvariantCulture) : null,
+    o.Get("vocals") ?? "flux");
 
 static async Task<int> Generate(Options o)
 {

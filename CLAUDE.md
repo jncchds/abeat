@@ -18,12 +18,13 @@ dotnet run --project src/Abeat.Cli -- check <map folder|zip>
 ### Analysis worker (Python, `analysis/`)
 
 ```bash
-uv sync --extra ml          # torch CPU + beat_this + demucs; drop --extra ml for librosa only
-.venv/bin/abeat-analyze analyze <audio|URL> -o <work dir> [--beats auto|librosa|beat_this] [--stems demucs]
+uv sync --extra ml          # torch CPU + beat_this + demucs + torchcrepe; drop --extra ml for librosa only
+uv sync --extra ml --extra lyrics   # + faster-whisper for --vocals lyrics without a lyrics file
+.venv/bin/abeat-analyze analyze <audio|URL> -o <work dir> [--beats auto|librosa|beat_this] [--stems demucs] [--vocals flux|notes|lyrics] [--lyrics-file f]
 .venv/bin/abeat-analyze synth samples/synth128.wav    # deterministic test track with known BPM/offset
 ```
 
-`uv add` re-syncs without extras; run `uv sync --extra ml` afterwards.
+`uv add` re-syncs without extras; run `uv sync --extra ml --extra lyrics` afterwards.
 
 ### Frontend (run from `src/abeat-ui/`)
 

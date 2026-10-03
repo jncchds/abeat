@@ -6,6 +6,7 @@ export interface AnalysisOptions {
   beatBackend: string
   stems: boolean
   bpmOverride?: number | null
+  vocalOnsets?: string
 }
 
 export interface SongMeta {
@@ -34,7 +35,9 @@ export interface Analysis {
   energy: { hopSec: number; values: number[] }
   sections: Section[]
   layerSource: string
+  vocalSource?: string | null
   layers: Record<string, Onset[]>
+  lyrics?: { source: string; language?: string | null; words: { w: string; t: number; e: number }[] } | null
 }
 
 export interface Note { b: number; x: number; y: number; c: number; d: number }
@@ -138,18 +141,21 @@ export const compareVersions = (id: string, a: string, ad: string, b: string, bd
 export interface StemFile { name: string; file: string; bytes: number }
 export const getStems = (id: string) => http.get<StemFile[]>(`/songs/${id}/stems`)
 export const stemUrl = (id: string, file: string) => `/api/songs/${id}/stems/${encodeURIComponent(file)}`
+export const getLyrics = (id: string) => http.get<{ text: string }>(`/songs/${id}/lyrics`)
+export const putLyrics = (id: string, text: string) => http.put(`/songs/${id}/lyrics`, { text })
 export const reanalyze = (id: string, o: AnalysisOptions) => http.post<SongMeta>(`/songs/${id}/reanalyze`, o)
 
-export function uploadSong(file: File, beats: string, stems: boolean) {
+export function uploadSong(file: File, beats: string, stems: boolean, vocals: string) {
   const fd = new FormData()
   fd.append('file', file)
   fd.append('beats', beats)
   fd.append('stems', String(stems))
+  fd.append('vocals', vocals)
   return http.post<SongMeta>('/songs', fd)
 }
 
-export const addSongUrl = (url: string, beats: string, stems: boolean) =>
-  http.post<SongMeta>('/songs/url', { url, beats, stems })
+export const addSongUrl = (url: string, beats: string, stems: boolean, vocals: string) =>
+  http.post<SongMeta>('/songs/url', { url, beats, stems, vocals })
 
 export const audioUrl = (id: string) => `/api/songs/${id}/audio`
 export const coverUrl = (id: string) => `/api/songs/${id}/cover`

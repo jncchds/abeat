@@ -70,14 +70,20 @@ def analyze(args: argparse.Namespace) -> int:
 
     layer_source = "bands"
     st = None
+    lyrics = None
+    vocal_source = None
     if args.stems == "demucs":
-        try:
-            from . import stems
+        st = _cached_stems(out / "stems", len(y), sr)
+        if st is not None:
+            log("reusing separated stems from the work dir")
+        else:
+            try:
+                from . import stems
 
-            log("separating stems with demucs (slow on CPU)")
-            st = stems.separate(padded.stereo, sr)
-        except ImportError:
-            log("demucs not installed (ML extra missing); falling back to frequency bands")
+                log("separating stems with demucs (slow on CPU)")
+                st = stems.separate(padded.stereo, sr)
+            except ImportError:
+                log("demucs not installed (ML extra missing); falling back to frequency bands")
     if st is not None:
         # "mix" (not "full") so stem analyses get their own, low, weight for the whole mix
         layers = {"mix": features.detect_onsets(y, sr, 30, 11000)}
@@ -87,6 +93,19 @@ def analyze(args: argparse.Namespace) -> int:
             else:
                 layers[name] = features.tonal_onsets(sig, sr, refine=name != "vocals")
         layer_source = "demucs"
+        vocal_source = "flux"
+        if "vocals" in st and args.vocals != "flux":
+            try:
+                from . import vocals
+
+                if args.vocals == "notes":
+                    layers["vocals"] = vocals.note_onsets(st["vocals"], sr, log)
+                else:
+                    text = Path(args.lyrics_file).read_text(encoding="utf-8") if args.lyrics_file else None
+                    layers["vocals"], lyrics = vocals.lyric_onsets(st["vocals"], sr, log, args.whisper_model, text)
+                vocal_source = args.vocals
+            except ImportError as e:
+                log(f"vocal {args.vocals} needs an optional extra ({e.name} missing); keeping spectral-flux vocal onsets")
         if args.keep_stems:
             import soundfile as sf
 
@@ -125,7 +144,9 @@ def analyze(args: argparse.Namespace) -> int:
         "energy": energy,
         "sections": secs,
         "layerSource": layer_source,
+        "vocalSource": vocal_source,
         "layers": layers,
+        "lyrics": lyrics,
         "cover": "cover.jpg",
         "preview": {"startSec": round(loudest["start"], 2), "durationSec": 12.0},
     }
@@ -138,6 +159,22 @@ def _first_sound(y: np.ndarray, sr: int, threshold_db: float = -40) -> float:
     peak = np.max(np.abs(y)) + 1e-9
     above = np.nonzero(np.abs(y) > peak * 10 ** (threshold_db / 20))[0]
     return float(above[0] / sr) if len(above) else 0.0
+
+
+def _cached_stems(folder: Path, length: int, sr: int) -> dict[str, np.ndarray] | None:
+    """Stems kept by an earlier analysis of the same audio (same padding, so the same length)."""
+    names = ["drums", "bass", "other", "vocals"]
+    if not all((folder / f"{n}.flac").exists() for n in names):
+        return None
+    import soundfile as sf
+
+    out = {}
+    for n in names:
+        sig, file_sr = sf.read(str(folder / f"{n}.flac"), dtype="float32")
+        if file_sr != sr or abs(len(sig) - length) > sr // 100:
+            return None
+        out[n] = sig[:length] if len(sig) >= length else np.pad(sig, (0, length - len(sig)))
+    return out
 
 
 def synth(args: argparse.Namespace) -> int:
@@ -162,6 +199,11 @@ def main(argv: list[str] | None = None) -> int:
                    help="beat tracker; auto = beat_this if installed, else librosa")
     a.add_argument("--stems", choices=["none", "demucs"], default="none")
     a.add_argument("--keep-stems", action="store_true")
+    a.add_argument("--vocals", choices=["flux", "notes", "lyrics"], default="flux",
+                   help="vocal onsets (needs --stems): spectral flux, sung notes (CREPE pitch) or "
+                        "lyrics syllables (Whisper + forced alignment, extra 'lyrics')")
+    a.add_argument("--whisper-model", default="small", help="faster-whisper model for --vocals lyrics")
+    a.add_argument("--lyrics-file", help="lyrics text (repeats written out) for --vocals lyrics; skips transcription")
     a.add_argument("--bpm", type=float, default=None, help="override detected BPM")
     a.set_defaults(func=analyze)
 

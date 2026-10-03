@@ -15,6 +15,10 @@ public sealed class SongAnalysis
     public List<Section> Sections { get; set; } = [];
     public string LayerSource { get; set; } = "bands";
     public Dictionary<string, List<Onset>> Layers { get; set; } = [];
+    /// <summary>How the vocals layer was detected ("flux", "notes", "lyrics"), null without stems.</summary>
+    public string? VocalSource { get; set; }
+    /// <summary>Transcribed lyrics with word times (vocal onsets from lyrics only).</summary>
+    public LyricsInfo? Lyrics { get; set; }
     public string Cover { get; set; } = "cover.jpg";
     public PreviewInfo Preview { get; set; } = new();
 
@@ -105,6 +109,21 @@ public sealed class Onset
     public double S { get; set; }
     /// <summary>Brightness 0..1 (log spectral centroid), a rough stand-in for pitch height.</summary>
     public double Br { get; set; }
+}
+
+public sealed class LyricsInfo
+{
+    public string Source { get; set; } = "";
+    public string? Language { get; set; }
+    public List<LyricWord> Words { get; set; } = [];
+}
+
+public sealed class LyricWord
+{
+    public string W { get; set; } = "";
+    /// <summary>Start / end in seconds.</summary>
+    public double T { get; set; }
+    public double E { get; set; }
 }
 
 public sealed class PreviewInfo

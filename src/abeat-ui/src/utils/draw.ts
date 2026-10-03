@@ -25,12 +25,13 @@ export interface Track {
   unmatched?: Set<number>
 }
 
-export const LAYOUT = { layersTop: 64, layerH: 9, laneH: 15, splitLaneH: 26, diffH: 18, issuesH: 14 }
+export const LAYOUT = { layersTop: 64, layerH: 9, lyricsH: 14, laneH: 15, splitLaneH: 26, diffH: 18, issuesH: 14 }
 
 const laneHeight = (split: boolean) => (split ? LAYOUT.splitLaneH : LAYOUT.laneH)
 
-export function timelineHeight(layerCount: number, split = false) {
-  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + 8 + 12 * laneHeight(split) + (split ? LAYOUT.diffH : 0) + LAYOUT.issuesH + 4
+export function timelineHeight(layerCount: number, split = false, lyrics = false) {
+  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + (lyrics ? LAYOUT.lyricsH : 0) + 8 + 12 * laneHeight(split)
+    + (split ? LAYOUT.diffH : 0) + LAYOUT.issuesH + 4
 }
 
 /** Beats of notes in `a` without a note in `b` within `tolBeats` (any lane). */
@@ -107,7 +108,8 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
   const split = tracks.length > 1
   const laneH = laneHeight(split)
   const sub = laneH / Math.max(1, tracks.length)
-  const lanesTop = LAYOUT.layersTop + layers.length * LAYOUT.layerH + 8
+  const lyricsTop = LAYOUT.layersTop + layers.length * LAYOUT.layerH
+  const lanesTop = lyricsTop + (a.lyrics?.words.length ? LAYOUT.lyricsH : 0) + 8
   const diffTop = lanesTop + 12 * laneH
   const lanesBottom = diffTop + (split ? LAYOUT.diffH : 0)
   /** Centre of a grid cell's (sub-)lane for track k. */
@@ -168,6 +170,24 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
     }
     g.globalAlpha = 1
   })
+
+  // transcribed lyrics, one word per tick, skipping words that would overlap the previous one
+  if (a.lyrics?.words.length) {
+    g.fillStyle = muted
+    g.fillText('lyrics', 2, lyricsTop + 10)
+    g.font = '10px Inter, system-ui, sans-serif'
+    let lastEnd = 40
+    for (const wd of a.lyrics.words) {
+      if (wd.e < t0 || wd.t > t1) continue
+      const x = X(wd.t)
+      if (x < lastEnd + 3) continue
+      g.fillStyle = accent
+      g.fillRect(x, lyricsTop + 2, 1, LAYOUT.lyricsH - 4)
+      g.fillStyle = text
+      g.fillText(wd.w, x + 3, lyricsTop + 10)
+      lastEnd = x + 3 + g.measureText(wd.w).width
+    }
+  }
 
   // 12 note lanes: rows top layer first (y = 2..0), columns x = 0..3; split lanes are tinted per version
   if (split)

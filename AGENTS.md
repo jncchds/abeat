@@ -18,6 +18,16 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      envelope; pitched stems use mel spectral flux (`tonal_onsets`), because energy rises in them
      fire on consonants, breaths and vibrato at grid-random times. Bass/other flux peaks are moved
      to the attack peak in the preceding 70 ms; vocals stay unrefined (soft attacks)
+   - vocal onsets selectable per song (`--vocals`, `AnalysisOptions.VocalOnsets`, `vocals.py`):
+     `flux` (default); `notes`: flux onsets kept only where CREPE-tiny hears a pitched voice in the
+     next 80 ms (drops breaths/consonants/bleed; Cake By The Ocean: 83 % on human notes vs 72 %),
+     pitch drives brightness (row); `lyrics`: MMS forced alignment (torchaudio) of user lyrics
+     (`--lyrics-file`, song's `lyrics.txt`) or a faster-whisper transcription (extra `lyrics`),
+     one onset per vowel group, shifted ~70 ms earlier (CTC peaks lag) and snapped to the nearest
+     vocal attack; words are stored in `analysis.json` `lyrics` and drawn on the timeline.
+     Pitch-only note segmentation was tried and timed onsets worse than flux (CREPE window blur).
+   - stems kept in `work/stems` are reused by a re-analysis of the same audio (length check), so
+     switching vocal methods skips Demucs
    - energy curve, novelty-based sections snapped to downbeats, clustered labels (A, B, ...)
    - cover: embedded art, thumbnail, or generated from the spectrum
 3. **Rhythm selection** (`RhythmSelector`): onsets snapped to a 1/12-beat grid (sixteenths, plus
@@ -76,6 +86,7 @@ human ones (`abeat check`).
   `GET /compare?a=&ad=&b=&bd=` runs `MapComparer` on any two (version, difficulty) pairs (B = reference).
   All versions are re-timed onto the current analysis grid (`Generations.OnGrid`), so they stay
   aligned after a re-analysis.
+- Lyrics: `GET|PUT /api/songs/{id}/lyrics` (`lyrics.txt`), passed to the worker on re-analysis.
 - Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
   human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served as
   version `human`.

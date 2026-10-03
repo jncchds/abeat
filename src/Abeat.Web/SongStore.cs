@@ -60,6 +60,9 @@ public sealed class SongStore
     public string Dir(string id) => Path.Combine(Root, "songs", id);
     public string WorkDir(string id) => Path.Combine(Dir(id), "work");
     public string ReferenceDir(string id) => Path.Combine(Dir(id), "reference");
+    /// <summary>Lyrics pasted by the user, aligned instead of a transcription when vocal onsets come from lyrics.</summary>
+    public string LyricsPath(string id) => Path.Combine(Dir(id), "lyrics.txt");
+    public string? LyricsFile(string id) => File.Exists(LyricsPath(id)) && new FileInfo(LyricsPath(id)).Length > 0 ? LyricsPath(id) : null;
     /// <summary>Uploads keep their original file name: the worker falls back to "Artist - Title" names when tags are missing.</summary>
     public string SourcePath(SongMeta m) => Path.Combine(Dir(m.Id), "source", m.FileName);
     public LogBuffer Log(string id) => logs.GetOrAdd(id, _ => new LogBuffer());

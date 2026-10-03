@@ -33,7 +33,7 @@ Data (uploads, analyses, maps, settings) lives in the `/data` volume.
 Requirements: .NET 10 SDK, Node.js 20+ and [uv](https://docs.astral.sh/uv/) (it installs its own Python).
 
 ```bash
-cd analysis && uv sync --extra ml && cd ..     # drop --extra ml for the light version
+cd analysis && uv sync --extra ml && cd ..     # drop --extra ml for the light version; add --extra lyrics for Whisper
 (cd src/abeat-ui && npm install && npm run build)   # builds the UI into src/Abeat.Web/wwwroot
 dotnet run --project src/Abeat.Web             # web UI on http://localhost:5080
 # or the CLI:
@@ -51,6 +51,13 @@ Web data defaults to `~/.local/share/abeat` (set `ABEAT_DATA` to change).
 envelopes lag ~50 ms, which players feel), downbeats, energy curve, novelty-based sections with
 labels for repeated parts, and onsets per layer (frequency bands, or [Demucs](https://github.com/facebookresearch/demucs)
 stems with `--stems`). The audio is padded so grid beat 0 is at t = 0 and written as `song.egg`.
+
+**Vocal onsets** (per song, re-analysis reuses the stems): *spectral flux* (default); *sung notes*,
+flux onsets kept only where a pitched voice follows (CREPE), with the melody steering the note row;
+or *lyric syllables*, the lyrics forced-aligned to the vocal stem (MMS aligner) and split into
+syllables at their vowels. Paste the lyrics on the song page (repeats written out), or let Whisper
+transcribe them (`uv sync --extra ml --extra lyrics`); the transcription can be loaded into the
+lyrics box to correct it.
 
 **Rhythm selection** (`RhythmSelector`): onsets are snapped to a 1/12-beat grid (sixteenths, and
 triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×

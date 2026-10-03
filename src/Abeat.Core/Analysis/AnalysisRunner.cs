@@ -4,7 +4,9 @@ namespace Abeat.Core.Analysis;
 
 /// <summary>Stems default on: vocals can only be prioritized once Demucs has isolated them (about one
 /// song-length of CPU time; the worker falls back to frequency bands when Demucs is not installed).</summary>
-public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null);
+/// <param name="VocalOnsets">How vocal-stem onsets are found: "flux" (spectral flux), "notes" (sung notes from
+/// CREPE pitch) or "lyrics" (syllables from Whisper + forced alignment; needs the worker's "lyrics" extra).</param>
+public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null, string VocalOnsets = "flux");
 
 /// <summary>Runs the Python analysis worker (analysis/ uv project) as a subprocess.</summary>
 public sealed class AnalysisRunner
@@ -33,13 +35,15 @@ public sealed class AnalysisRunner
         return null;
     }
 
+    /// <param name="lyricsFile">Lyrics text for <see cref="AnalysisOptions.VocalOnsets"/> = "lyrics" (skips transcription).</param>
     public async Task<SongAnalysis> AnalyzeAsync(string audioPath, string workDir, AnalysisOptions options,
-        Action<string>? log = null, CancellationToken ct = default)
+        Action<string>? log = null, CancellationToken ct = default, string? lyricsFile = null)
     {
         string input = IsUrl(audioPath) ? audioPath : Path.GetFullPath(audioPath);
         var args = new List<string> { "analyze", input, "-o", Path.GetFullPath(workDir), "--beats", options.BeatBackend };
         // keep the separated stems (FLAC in work/stems) for debugging and listening
-        if (options.Stems) args.AddRange(["--stems", "demucs", "--keep-stems"]);
+        if (options.Stems) args.AddRange(["--stems", "demucs", "--keep-stems", "--vocals", options.VocalOnsets ?? "flux"]);
+        if (lyricsFile != null && File.Exists(lyricsFile)) args.AddRange(["--lyrics-file", Path.GetFullPath(lyricsFile)]);
         if (options.BpmOverride is { } bpm) args.AddRange(["--bpm", bpm.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
         await RunWorkerAsync(args, log, ct);
         return SongAnalysis.Load(workDir);

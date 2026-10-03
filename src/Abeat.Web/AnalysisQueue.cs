@@ -29,7 +29,7 @@ public sealed class AnalysisQueue(SongStore store, ILogger<AnalysisQueue> logger
                 store.Save(meta);
                 log.Add($"analysis started ({meta.Analysis})");
                 var runner = new AnalysisRunner();
-                var a = await runner.AnalyzeAsync(store.Input(meta), store.WorkDir(id), meta.Analysis, log.Add, ct);
+                var a = await runner.AnalyzeAsync(store.Input(meta), store.WorkDir(id), meta.Analysis, log.Add, ct, store.LyricsFile(id));
                 store.InvalidateAnalysis(id);
                 meta.Title = string.IsNullOrWhiteSpace(a.Source.Title) ? meta.Title : a.Source.Title;
                 meta.Artist = a.Source.Artist;

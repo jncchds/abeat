@@ -119,7 +119,7 @@ export default function Timeline({ analysis, tracks, labels, audio, follow }: Pr
           ))}
         </div>
       )}
-      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length, tracks.length > 1) }} />
+      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length, tracks.length > 1, !!analysis.lyrics?.words.length) }} />
       <div className="timeline-foot">
         <div className="hint">wheel / pinch: zoom · drag: scroll · click: seek · lanes: top row first, columns left → right</div>
         <div className="zoom-btns">
