@@ -72,6 +72,7 @@ export default function SongPage() {
   const [error, setError] = useState<string | null>(null)
   // vocal onset method for the next re-analysis (defaults to the song's current one)
   const [vocalPick, setVocalPick] = useState<{ id: string; v: string } | null>(null)
+  const [lyricsOpen, setLyricsOpen] = useState(false)
   const [follow, setFollow] = useState(true)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
   const debug = useDebug()
@@ -253,6 +254,8 @@ export default function SongPage() {
   }
 
   const vocals = vocalPick?.id === id ? vocalPick.v : meta?.analysis.vocalOnsets ?? 'flux'
+  // the lyrics box opens with the Lyrics button, and when lyric syllables are picked
+  const showLyrics = ready && lyricsOpen
   const onReanalyze = async () => {
     if (!meta) return
     // sung notes and lyric syllables work on the separated vocals, so they switch stems on
@@ -296,7 +299,11 @@ export default function SongPage() {
               ArcViewer
             </a>
           )}
-          {meta && <VocalSelect compact value={vocals} onChange={v => setVocalPick({ id, v })} />}
+          {meta && <VocalSelect compact value={vocals} onChange={v => { setVocalPick({ id, v }); if (v === 'lyrics') setLyricsOpen(true) }} />}
+          {ready && (
+            <button className={`btn-secondary${showLyrics ? ' active' : ''}`} onClick={() => setLyricsOpen(o => !o)}
+              title="Lyrics to align for lyric-syllable vocal onsets">Lyrics</button>
+          )}
           <button className="btn-secondary" onClick={onReanalyze} disabled={!ready && status !== 'Failed'}
             title="Runs the analysis again (separated stems are reused) and adds a new version">Re-analyze</button>
           <button className="delete-btn" onClick={onDelete}>Delete</button>
@@ -304,6 +311,8 @@ export default function SongPage() {
       </div>
 
       {error && <p className="error-text">{error}</p>}
+
+      {showLyrics && analysis && <LyricsPanel id={id} analysis={analysis} usesLyrics={vocals === 'lyrics'} onClose={() => setLyricsOpen(false)} />}
 
       {!ready && (
         <div className="card progress-card">
@@ -373,7 +382,6 @@ export default function SongPage() {
                 <ReportCards difficulties={byVersion[sideB.v]} selected={sideB.d} onSelect={d => setSide('b', { d })}
                   vsHuman={versionB?.kind === 'abeat' ? versionB.vsHuman : null} title={`B · ${labels[sideB.v] ?? ''}`} color={SIDE_B} />
               )}
-              <LyricsPanel id={id} analysis={analysis} usesLyrics={vocals === 'lyrics'} />
               <div className="card issues-card">
                 <h3>
                   Flow issues {current && <span className="muted">{showA ? 'A' : 'B'}</span>}{' '}

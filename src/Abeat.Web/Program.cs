@@ -31,12 +31,19 @@ builder.Services.AddSingleton<AnalysisQueue>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<AnalysisQueue>());
 
 var app = builder.Build();
+// index.html must revalidate (phones otherwise keep showing an old build after an update); the
+// hashed files under /assets never change, so they can be cached for good
+var staticFiles = new StaticFileOptions
+{
+    OnPrepareResponse = ctx => ctx.Context.Response.Headers.CacheControl =
+        ctx.File.Name.EndsWith(".html", StringComparison.OrdinalIgnoreCase) ? "no-cache" : "public, max-age=31536000, immutable",
+};
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(staticFiles);
 MapEndpoints.Map(app);
 app.MapGet("/healthz", () => "ok");
 app.MapGet("/api/config", () => new { httpsPort });
 // client-side routes (/songs/{id}) are served by the React app
-app.MapFallbackToFile("index.html");
+app.MapFallbackToFile("index.html", staticFiles);
 
 app.Run();

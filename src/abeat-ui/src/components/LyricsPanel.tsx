@@ -6,10 +6,11 @@ interface Props {
   analysis: Analysis
   /** Whether the next re-analysis uses lyric syllables. */
   usesLyrics: boolean
+  onClose?: () => void
 }
 
 /** Lyrics to align instead of a Whisper transcription; can start from the transcription to correct it. */
-export default function LyricsPanel({ id, analysis, usesLyrics }: Props) {
+export default function LyricsPanel({ id, analysis, usesLyrics, onClose }: Props) {
   const [text, setText] = useState<{ id: string; value: string; saved: string } | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -48,13 +49,14 @@ export default function LyricsPanel({ id, analysis, usesLyrics }: Props) {
         <h3>Lyrics</h3>
         {transcript && <button className="btn-secondary" onClick={fromTranscript} title="Replace the text with Whisper's transcription to correct it">From transcription</button>}
         <button onClick={save} disabled={!cur || cur.value === cur.saved}>Save</button>
+        {onClose && <button className="icon-btn" title="Close" onClick={onClose}>✕</button>}
       </div>
       <textarea rows={8} value={cur?.value ?? ''} disabled={!cur} placeholder="Paste the lyrics here, with repeated choruses written out"
         onChange={e => cur && setText({ ...cur, value: e.target.value })} />
       <p className="hint">
         {usesLyrics
           ? 'Aligned to the vocals instead of a transcription on the next re-analysis.'
-          : 'Used when vocal onsets come from lyrics (pick "vocals: lyrics" next to Re-analyze).'}
+          : 'Used when vocal onsets come from lyrics: pick "vocals: lyrics" next to Re-analyze, then Re-analyze.'}
         {' '}Write every line as sung, in order; extra ad-libs are tolerated.
       </p>
       {error && <p className="error-text">{error}</p>}

@@ -1,5 +1,10 @@
 # Release notes
 
+## v0.1.5 — 2026-10-03
+
+- Lyrics box opens from a "Lyrics" button next to Re-analyze (and when lyric syllables are picked), right under the song header; it was buried below the report cards, out of sight on phones.
+- index.html is served with `Cache-Control: no-cache` (hashed assets cached for good), so phones pick up new builds.
+
 ## v0.1.4 — 2026-10-03
 
 - Vocal onsets selectable per song (add-song form, or next to Re-analyze): spectral flux, sung notes (flux onsets kept only where CREPE hears a pitched voice; the melody steers the note row; 83 % of vocal onsets on human notes vs 72 % on Cake By The Ocean) or lyric syllables (MMS forced alignment of pasted lyrics, or a Whisper transcription, split at vowels and snapped to vocal attacks).

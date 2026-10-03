@@ -586,6 +586,6 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 .timeline-foot .hint { flex: 1; }
 .zoom-btns { display: flex; gap: 4px; margin-top: 0.3rem; }
 .zoom-btns .icon-btn { border-color: var(--border); font-size: 1rem; }
-.lyrics-card { margin-top: 0.6rem; }
+.lyrics-card { }
 .lyrics-card textarea { font-size: 0.82rem; line-height: 1.45; resize: vertical; }
 .song-actions select { width: auto; margin: 0; padding: 0.35rem 0.4rem; font-size: 0.82rem; }
