@@ -43,6 +43,7 @@ public static class MapReader
             map.SongAuthor = (string?)info["_songAuthorName"] ?? "";
             map.LevelAuthor = (string?)info["_levelAuthorName"] ?? "";
             map.Bpm = (double?)info["_beatsPerMinute"] ?? 120;
+            map.SongFile = (string?)info["_songFilename"] ?? map.SongFile;
             foreach (var set in info["_difficultyBeatmapSets"]?.AsArray() ?? [])
             {
                 if ((string?)set!["_beatmapCharacteristicName"] != "Standard") continue;
@@ -56,6 +57,7 @@ public static class MapReader
             map.SongName = (string?)info["song"]?["title"] ?? "";
             map.SongAuthor = (string?)info["song"]?["author"] ?? "";
             map.Bpm = (double?)info["audio"]?["bpm"] ?? 120;
+            map.SongFile = (string?)info["audio"]?["songFilename"] ?? map.SongFile;
             foreach (var d in info["difficultyBeatmaps"]?.AsArray() ?? [])
             {
                 if ((string?)d!["characteristic"] != "Standard") continue;
@@ -91,6 +93,8 @@ public static class MapReader
                 if (type == 3) dm.Bombs.Add(new BombNote(b, x, y));
                 else if (type is 0 or 1) dm.Notes.Add(new ColorNote(b, x, y, (Hand)type, (CutDirection)Int(n, "_cutDirection")));
             }
+            dm.BpmChanges = (j["_customData"]?["_BPMChanges"]?.AsArray().Count ?? 0)
+                + (j["_events"]?.AsArray().Count(e => Int(e, "_type") == 100) ?? 0);
             foreach (var e in j["_events"]?.AsArray() ?? [])
                 dm.Lights.Add(new LightEvent(Num(e, "_time"), Int(e, "_type"), Int(e, "_value"), e?["_floatValue"] is null ? 1 : Num(e, "_floatValue")));
             foreach (var o in j["_obstacles"]?.AsArray() ?? [])
@@ -108,6 +112,7 @@ public static class MapReader
                 dm.Bombs.Add(new BombNote(Num(n, "b"), Int(n, "x"), Int(n, "y")));
             foreach (var o in j["obstacles"]?.AsArray() ?? [])
                 dm.Obstacles.Add(new Obstacle(Num(o, "b"), Num(o, "d"), Int(o, "x"), Int(o, "y"), Int(o, "w"), Int(o, "h")));
+            dm.BpmChanges = j["bpmEvents"]?.AsArray().Count(e => Num(e, "b") > 0.001) ?? 0;
             foreach (var e in j["basicBeatmapEvents"]?.AsArray() ?? [])
                 dm.Lights.Add(new LightEvent(Num(e, "b"), Int(e, "et"), Int(e, "i"), e?["f"] is null ? 1 : Num(e, "f")));
         }

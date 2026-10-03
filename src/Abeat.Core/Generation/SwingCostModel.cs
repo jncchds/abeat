@@ -11,17 +11,17 @@ public readonly record struct HandState(
     CutDirection Direction,
     Vec2 Swing,
     Vec2 Exit,
-    Parity Parity,
+    Parity? Parity, // null = free (last swing was horizontal)
     int PrevX = -1,
     int PrevY = -1)
 {
     /// <summary>Hands start low-centre as if they had just swung up, so the first swing is a natural forehand down.</summary>
     public static HandState Initial(Hand h) =>
         new(false, double.NegativeInfinity, h == Hand.Left ? 1 : 2, 0, CutDirection.Up, new Vec2(0, 1),
-            new Vec2(h == Hand.Left ? 1 : 2, 1.6), Parity.Backhand);
+            new Vec2(h == Hand.Left ? 1 : 2, 1.6), Model.Parity.Backhand);
 
     public HandState After(double time, int x, int y, CutDirection dir, Vec2 swing, Hand hand) =>
-        new(true, time, x, y, dir, swing, new Vec2(x, y) + swing * SwingCostModel.HalfSwing, Model.Swing.ParityOf(hand, swing),
+        new(true, time, x, y, dir, swing, new Vec2(x, y) + swing * SwingCostModel.HalfSwing, Model.Swing.ParityAfter(hand, swing),
             Active ? X : -1, Active ? Y : -1);
 }
 
@@ -38,10 +38,17 @@ public sealed class SwingCostModel(FlowWeights w)
     public const double HalfSwing = 0.6;
     /// <summary>Gap after which a hand can comfortably reset (re-wind) between swings.</summary>
     public const double ResetGapSec = 1.0;
+    /// <summary>Same-hand notes closer than this are one swing (sliders / windows).</summary>
+    public const double SliderGapSec = 0.09;
 
     public FlowWeights Weights => w;
 
     /// <summary>The swing vector a note actually produces: dots continue the natural reversal.</summary>
+    /// <summary>A swing that needs a re-wind: it forces the same parity as the last swing, or points
+    /// (nearly) the same way as the last swing (e.g. two right-cuts in a row).</summary>
+    public static bool IsReset(Hand hand, HandState s, Vec2 v) =>
+        s.Active && ((Swing.FixedParity(hand, v) is { } p && p == s.Parity) || v.AngleTo(s.Swing) < 60);
+
     public static Vec2 EffectiveSwing(HandState s, CutDirection d) =>
         d == CutDirection.Any ? (s.Active ? -s.Swing : new Vec2(0, -1)) : Swing.Vector(d);
 
@@ -54,8 +61,7 @@ public sealed class SwingCostModel(FlowWeights w)
 
         if (s.Active)
         {
-            var parity = Swing.ParityOf(hand, v);
-            if (parity == s.Parity)
+            if (IsReset(hand, s, v))
             {
                 reset = gap < ResetGapSec;
                 c += reset ? w.Reset : w.SlowReset;
@@ -71,7 +77,7 @@ public sealed class SwingCostModel(FlowWeights w)
 
             if (gap < minSameHandGap) c += w.TooFast * (1 - gap / minSameHandGap) + 2;
         }
-        else if (Swing.ParityOf(hand, v) == Parity.Backhand)
+        else if (Swing.FixedParity(hand, v) == Parity.Backhand)
         {
             c += 1.0; // first swing: prefer forehand
         }
@@ -83,11 +89,12 @@ public sealed class SwingCostModel(FlowWeights w)
             c += w.Crossover * (outward < 0 ? 3 : 0.3);
             cross = outward < 0;
         }
-        // crossing over the other hand's recent position
-        if (other.Active && t - other.Time < 0.4 && (hand == Hand.Right ? x < other.X : x > other.X))
+        // reaching past the other hand's recent position (passing in the middle columns is normal)
+        if (other.Active && t - other.Time < 0.4)
         {
-            c += w.Crossover * 2;
-            cross = true;
+            int past = hand == Hand.Right ? other.X - x : x - other.X;
+            if (past >= 1) c += w.Crossover * (past >= 2 ? 2 : 0.3);
+            if (past >= 2) cross = true;
         }
 
         if (y == 1 && x is 1 or 2)

@@ -30,6 +30,9 @@ usage:
   abeat analyze <audio> [-o <work dir>] [--beats ..] [--stems] [--bpm x]
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
   abeat settings [file.json]                   write default generator settings to edit
+  abeat fetch-maps [--count 20] [-o work/beatsaver]   download top-rated curated BeatSaver maps (no mods)
+  abeat compare <map.zip|folder> [--settings f]  re-map the map's own song and compare with the human map
+  abeat bench [dir] [--settings f]             compare every map zip in dir (default work/beatsaver), write bench.csv
   abeat synth <out.wav>                        synthetic test track (128 BPM)
 """;
 
@@ -49,6 +52,9 @@ try
         "check" => Check(opts),
         "settings" => WriteSettings(opts),
         "synth" => await Synth(opts),
+        "fetch-maps" => await FetchMaps(opts),
+        "compare" => await CompareOne(opts),
+        "bench" => await Bench(opts),
         _ => Fail($"unknown command '{args[0]}'\n\n{Usage}"),
     };
 }
@@ -181,6 +187,102 @@ static async Task<int> Synth(Options o)
 {
     string path = o.Positional.FirstOrDefault() ?? "synth128.wav";
     await new AnalysisRunner().SynthAsync(path, line => Console.Error.WriteLine(line));
+    return 0;
+}
+
+static async Task<int> FetchMaps(Options o)
+{
+    int count = int.Parse(o.Get("count") ?? "20");
+    string dir = o.Get("out") ?? Path.Combine("work", "beatsaver");
+    Directory.CreateDirectory(dir);
+    using var bs = new BeatSaverClient();
+    var maps = await bs.TopCuratedAsync(count);
+    foreach (var m in maps)
+    {
+        string path = Path.Combine(dir, $"{m.Id}.zip");
+        if (!File.Exists(path)) await bs.DownloadAsync(m, path);
+        Console.WriteLine($"{m.Id,-6} {m.Bpm,6:0.##} bpm  nps {m.MaxNps,4:0.0}  score {m.Score:0.000}  {m.Name} [{m.Mapper}]");
+    }
+    Console.WriteLine($"{maps.Count} maps in {Path.GetFullPath(dir)} (personal use only; do not redistribute)");
+    return 0;
+}
+
+/// <summary>Extracts the map, analyzes its audio (cached), generates the same difficulties and compares.</summary>
+static async Task<(MapSet human, List<Comparison> results)?> Compare(string input, GeneratorSettings s, bool quiet)
+{
+    string dir = input;
+    if (File.Exists(input) && input.EndsWith(".zip", StringComparison.OrdinalIgnoreCase))
+    {
+        dir = Path.Combine(Path.GetDirectoryName(Path.GetFullPath(input))!, Path.GetFileNameWithoutExtension(input));
+        if (!Directory.Exists(dir)) System.IO.Compression.ZipFile.ExtractToDirectory(input, dir);
+    }
+    var human = MapReader.Read(dir);
+    var diffs = human.Difficulties.Where(d => d.Notes.Count > 0).ToList();
+    if (diffs.Count == 0) { Console.Error.WriteLine($"{input}: no Standard difficulties"); return null; }
+    if (diffs.Any(d => d.BpmChanges > 0)) { Console.Error.WriteLine($"{input}: skipped (BPM changes)"); return null; }
+
+    string song = Path.Combine(dir, human.SongFile);
+    string work = Path.Combine(dir, "abeat-work");
+    SongAnalysis a;
+    if (File.Exists(Path.Combine(work, "analysis.json"))) a = SongAnalysis.Load(work);
+    else
+    {
+        Console.Error.WriteLine($"analyzing {human.SongAuthor} - {human.SongName} ...");
+        a = await new AnalysisRunner().AnalyzeAsync(song, work, new AnalysisOptions(), quiet ? null : line => Console.Error.WriteLine(line));
+    }
+    var gen = MapGenerator.Generate(a, s with { Difficulties = diffs.Select(d => d.Difficulty).ToList() });
+    var results = diffs.Select(h => MapComparer.Compare(h, human.Bpm,
+        gen.Map.Difficulties.First(g => g.Difficulty == h.Difficulty), a.Tempo.Bpm, a.Audio.PadSec)).ToList();
+
+    double ratio = a.Tempo.Bpm / human.Bpm;
+    string bpmNote = Math.Abs(ratio - 1) < 0.005 ? "match" : Math.Abs(ratio - 2) < 0.01 || Math.Abs(ratio - 0.5) < 0.005 ? "octave" : $"x{ratio:0.###}";
+    Console.WriteLine($"{human.SongAuthor} - {human.SongName} [{human.LevelAuthor}]  bpm {a.Tempo.Bpm:0.##} vs {human.Bpm:0.##} ({bpmNote})");
+    foreach (var r in results) Console.WriteLine($"  {r}");
+    return (human, results);
+}
+
+static GeneratorSettings LoadSettings(Options o) => o.Get("settings") is { } sf ? GeneratorSettings.Load(sf) : new GeneratorSettings();
+
+static async Task<int> CompareOne(Options o)
+{
+    string input = o.Positional.FirstOrDefault() ?? throw new ArgumentException("missing map path");
+    return await Compare(input, LoadSettings(o), quiet: false) is null ? 1 : 0;
+}
+
+static async Task<int> Bench(Options o)
+{
+    string dir = o.Positional.FirstOrDefault() ?? Path.Combine("work", "beatsaver");
+    var s = LoadSettings(o);
+    var rows = new List<(string map, double humanBpm, Comparison c)>();
+    foreach (var zip in Directory.EnumerateFiles(dir, "*.zip").Order())
+    {
+        try
+        {
+            if (await Compare(zip, s, quiet: true) is { } r)
+                rows.AddRange(r.results.Select(c => (Path.GetFileNameWithoutExtension(zip), r.human.Bpm, c)));
+        }
+        catch (Exception e) { Console.Error.WriteLine($"{zip}: {e.Message}"); }
+    }
+    if (rows.Count == 0) return 1;
+
+    Console.WriteLine();
+    Console.WriteLine($"{"difficulty",-11} {"n",3} {"F1",5} {"P",5} {"R",5} {"offset",7} {"nps gen/hum",12} {"flow gen/hum",13} {"resets g/h",11} {"dirΔ",5} {"posΔ",5}");
+    foreach (var g in rows.GroupBy(r => r.c.Difficulty).OrderBy(g => g.Key).Append(rows.GroupBy(_ => (DifficultyName)99).First()))
+    {
+        var c = g.Select(r => r.c).ToList();
+        string name = (int)g.Key == 99 ? "ALL" : g.Key.ToString();
+        Console.WriteLine($"{name,-11} {c.Count,3} {c.Average(x => x.F1),5:0.00} {c.Average(x => x.Precision),5:0.00} {c.Average(x => x.Recall),5:0.00} " +
+            $"{c.Average(x => x.OffsetMs),5:0} ms {c.Average(x => x.GeneratedNps),5:0.0}/{c.Average(x => x.HumanNps),-6:0.0} " +
+            $"{c.Average(x => x.GeneratedFlow),6:0.0}/{c.Average(x => x.HumanFlow),-6:0.0} {c.Average(x => x.GeneratedResets),5:0.0}/{c.Average(x => x.HumanResets),-5:0.0} " +
+            $"{c.Average(x => x.DirectionDistance),5:0.00} {c.Average(x => x.PositionDistance),5:0.00}");
+    }
+    var csv = Path.Combine(dir, "bench.csv");
+    File.WriteAllLines(csv, rows.Select(r => string.Join(',', r.map, r.c.Difficulty, r.humanBpm, r.c.F1.ToString("0.000"), r.c.Precision.ToString("0.000"),
+        r.c.Recall.ToString("0.000"), r.c.OffsetMs.ToString("0.0"), r.c.GeneratedNps.ToString("0.00"), r.c.HumanNps.ToString("0.00"),
+        r.c.GeneratedFlow.ToString("0.0"), r.c.HumanFlow.ToString("0.0"), r.c.GeneratedResets, r.c.HumanResets,
+        r.c.DirectionDistance.ToString("0.000"), r.c.PositionDistance.ToString("0.000")))
+        .Prepend("map,difficulty,human_bpm,f1,precision,recall,offset_ms,gen_nps,human_nps,gen_flow,human_flow,gen_resets,human_resets,dir_dist,pos_dist"));
+    Console.WriteLine($"\nper-map rows: {Path.GetFullPath(csv)}");
     return 0;
 }
 

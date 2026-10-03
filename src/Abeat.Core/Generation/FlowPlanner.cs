@@ -65,7 +65,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         {
             var v = SwingCostModel.EffectiveSwing(s, d);
             // prune hard parity breaks early; the cost model would reject them anyway
-            if (mustFlip && Swing.ParityOf(hand, v) == s.Parity) continue;
+            if (mustFlip && SwingCostModel.IsReset(hand, s, v)) continue;
             for (int x = 0; x < 4; x++)
             {
                 if (hand == Hand.Right ? x == 0 : x == 3) continue; // far-side crossovers are never worth it
@@ -160,7 +160,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     /// <summary>States that will behave identically from here on are merged (keep the cheaper one).</summary>
     static long Key(Node n)
     {
-        static long H(HandState s) => s.Active ? 1 + s.X + 4 * (s.Y + 3 * ((int)SwingDir(s) + 9 * (int)s.Parity)) : 0;
+        static long H(HandState s) => s.Active ? 1 + s.X + 4 * (s.Y + 3 * ((int)SwingDir(s) + 9 * (int)(s.Parity ?? (Parity)2))) : 0;
         return H(n.Left) * 1000 + H(n.Right) * 2 + (int)n.LastHand;
     }
 

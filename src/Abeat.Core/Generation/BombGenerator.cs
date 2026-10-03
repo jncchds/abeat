@@ -7,17 +7,22 @@ namespace Abeat.Core.Generation;
 /// Between two same-parity swings (a reset) the motion is unknown, so the path returns null there.</summary>
 public sealed class SaberPath
 {
-    readonly List<(double beat, Vec2 entry, Vec2 exit, Parity parity)> swings = [];
+    /// <summary>reset = this swing re-winds from the previous one (path in between unknown).</summary>
+    readonly List<(double beat, Vec2 entry, Vec2 exit, bool reset)> swings = [];
 
-    public SaberPath(IEnumerable<ColorNote> notes, Hand hand)
+    readonly double Bpm;
+
+    public SaberPath(IEnumerable<ColorNote> notes, Hand hand, double bpm = 120)
     {
+        Bpm = bpm;
         var state = HandState.Initial(hand);
         foreach (var n in notes.Where(n => n.Hand == hand).OrderBy(n => n.Beat))
         {
             if (swings.Count > 0 && Math.Abs(swings[^1].beat - n.Beat) < 1e-3) continue; // stacks: keep first
+            if (state.Active && (n.Beat - swings[^1].beat) * 60 / Bpm < SwingCostModel.SliderGapSec) continue; // sliders
             var v = SwingCostModel.EffectiveSwing(state, n.Direction);
             var c = new Vec2(n.X, n.Y);
-            swings.Add((n.Beat, c - v * SwingCostModel.HalfSwing, c + v * SwingCostModel.HalfSwing, Swing.ParityOf(hand, v)));
+            swings.Add((n.Beat, c - v * SwingCostModel.HalfSwing, c + v * SwingCostModel.HalfSwing, SwingCostModel.IsReset(hand, state, v)));
             state = state.After(0, n.X, n.Y, n.Direction, v, hand);
         }
     }
@@ -32,12 +37,12 @@ public sealed class SaberPath
             if (i == swings.Count - 1 && i >= 0 && beat - swings[i].beat < 0.25) return swings[i].exit;
             return null;
         }
-        var (b0, e0, x0, p0) = swings[i];
-        var (b1, e1, _, p1) = swings[i + 1];
+        var (b0, e0, x0, _) = swings[i];
+        var (b1, e1, _, reset) = swings[i + 1];
         double half = Math.Min(0.2, (b1 - b0) / 4);
         if (beat <= b0 + half) return Lerp(e0, x0, 0.5 + 0.5 * (beat - b0) / half);
         if (beat >= b1 - half) return Lerp(e1, swings[i + 1].exit, 0.5 * (beat - (b1 - half)) / half);
-        if (p0 == p1) return null; // reset: the player re-winds outside the grid
+        if (reset) return null; // the player re-winds outside the grid
         return Lerp(x0, e1, (beat - b0 - half) / (b1 - b0 - 2 * half));
     }
 
@@ -62,7 +67,7 @@ public static class BombGenerator
     public static void Generate(DifficultyMap map, DifficultyProfile p, IReadOnlyList<RhythmEvent> events, GeneratorSettings s, double bpm)
     {
         if (!s.Bombs || p.Name == DifficultyName.Easy) return;
-        var paths = new[] { new SaberPath(map.Notes, Hand.Left), new SaberPath(map.Notes, Hand.Right) };
+        var paths = new[] { new SaberPath(map.Notes, Hand.Left, bpm), new SaberPath(map.Notes, Hand.Right, bpm) };
         var bombs = new List<BombNote>();
         double spb = 60.0 / bpm;
 
@@ -80,7 +85,7 @@ public static class BombGenerator
                 {
                     var nn = notes[i + 1];
                     var nv = SwingCostModel.EffectiveSwing(next, nn.Direction);
-                    if (Swing.ParityOf(hand, nv) == next.Parity)
+                    if (SwingCostModel.IsReset(hand, next, nv))
                     {
                         // where the natural reversal would cut: one cell against the last swing (above a down-cut)
                         var spot = new Vec2(n.X, n.Y) - v;

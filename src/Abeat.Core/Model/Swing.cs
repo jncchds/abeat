@@ -62,14 +62,19 @@ public static class Swing
         return best;
     }
 
-    public static Parity ParityOf(Hand hand, Vec2 v)
+    /// <summary>Parity a swing forces, or null for horizontal swings: players roll the wrist and take
+    /// those either palm-up or palm-down, so after a horizontal cut the next swing may go either way.
+    /// Measured on 20 curated maps (42k swings): fixed horizontal parity flags 2% of swings as resets,
+    /// a free parity 0.17% — curated maps have essentially no resets, so free it is.</summary>
+    public static Parity? FixedParity(Hand hand, Vec2 v)
     {
         if (v.Y < -0.1) return Parity.Forehand;
         if (v.Y > 0.1) return Parity.Backhand;
-        // horizontal: moving toward the body's other side is the forehand motion
-        bool towardInside = hand == Hand.Right ? v.X < 0 : v.X > 0;
-        return towardInside ? Parity.Forehand : Parity.Backhand;
+        return null;
     }
+
+    /// <summary>Parity after a swing; null = free (after a horizontal cut).</summary>
+    public static Parity? ParityAfter(Hand hand, Vec2 v) => FixedParity(hand, v);
 
     public static Parity Flip(Parity p) => p == Parity.Forehand ? Parity.Backhand : Parity.Forehand;
 

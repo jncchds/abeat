@@ -36,6 +36,8 @@ public sealed class DifficultyMap
     public List<Obstacle> Obstacles { get; init; } = [];
     public List<LightEvent> Lights { get; init; } = [];
     public List<BoostEvent> Boosts { get; init; } = [];
+    /// <summary>Tempo changes in the file (read-only info; generated maps use a constant BPM).</summary>
+    public int BpmChanges { get; set; }
 
     public static int Rank(DifficultyName d) => d switch
     {

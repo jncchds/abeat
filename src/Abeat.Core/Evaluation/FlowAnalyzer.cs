@@ -52,6 +52,18 @@ public static class FlowAnalyzer
         double total = 0;
         int resets = 0, bombResets = 0, vision = 0, cross = 0;
 
+        // next directional note per hand, so dots can take the direction that leads into it
+        var nextDir = new Dictionary<ColorNote, ColorNote?>(ReferenceEqualityComparer.Instance);
+        foreach (var hand in new[] { Hand.Left, Hand.Right })
+        {
+            ColorNote? next = null;
+            foreach (var n in notes.Where(n => n.Hand == hand).Reverse())
+            {
+                nextDir[n] = next;
+                if (n.Direction != CutDirection.Any) next = n;
+            }
+        }
+
         int i = 0;
         while (i < notes.Count)
         {
@@ -66,7 +78,20 @@ public static class FlowAnalyzer
                 int h = (int)n.Hand;
                 double t = n.Beat * spb;
                 var s = before[h];
-                var c = model.Physical(n.Hand, s, before[1 - h], t, n.X, n.Y, n.Direction, minSameHandGap);
+                // sliders / windows: a note right after the previous one of this hand is the same swing
+                if (s.Active && t - s.Time < SwingCostModel.SliderGapSec) continue;
+                var dir = n.Direction;
+                if (dir == CutDirection.Any)
+                {
+                    // dots: the player picks the direction that leads cleanly into the next note
+                    var nx = nextDir[n];
+                    if (nx != null && (nx.Beat - n.Beat) * spb < 1.5)
+                    {
+                        var want = -Swing.Vector(nx.Direction);
+                        if (!SwingCostModel.IsReset(n.Hand, s, want) || !s.Active) dir = Swing.FromVector(want);
+                    }
+                }
+                var c = model.Physical(n.Hand, s, before[1 - h], t, n.X, n.Y, dir, minSameHandGap);
                 double cost = c.Physical;
                 if (c.Reset)
                 {
@@ -78,7 +103,7 @@ public static class FlowAnalyzer
                 if (c.Crossover) { cross++; issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.Crossover, cost)); }
                 if (!c.Reset && cost > 8) issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.HighCost, cost));
                 total += cost;
-                states[h] = s.After(t, n.X, n.Y, n.Direction, SwingCostModel.EffectiveSwing(s, n.Direction), n.Hand);
+                states[h] = s.After(t, n.X, n.Y, dir, SwingCostModel.EffectiveSwing(s, dir), n.Hand);
             }
             i = j;
         }
@@ -93,7 +118,7 @@ public static class FlowAnalyzer
         int bombHits = 0;
         if (map.Bombs.Count > 0)
         {
-            var paths = new[] { new SaberPath(notes, Hand.Left), new SaberPath(notes, Hand.Right) };
+            var paths = new[] { new SaberPath(notes, Hand.Left, bpm), new SaberPath(notes, Hand.Right, bpm) };
             foreach (var b in map.Bombs)
                 for (int h = 0; h < 2; h++)
                     if (paths[h].MinDistance(b.Beat, b.X, b.Y, 0.05) < BombGenerator.HitDistance * 0.7)
