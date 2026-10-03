@@ -47,6 +47,8 @@ public sealed class SongAnalysis
 public sealed class SourceInfo
 {
     public string Path { get; set; } = "";
+    /// <summary>Page the audio was downloaded from, when the input was a URL.</summary>
+    public string? Url { get; set; }
     public string Title { get; set; } = "";
     public string Artist { get; set; } = "";
 }

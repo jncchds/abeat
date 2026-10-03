@@ -11,6 +11,8 @@ public sealed record SongMeta
 {
     public required string Id { get; init; }
     public required string FileName { get; init; }
+    /// <summary>Set when the song was added by link; the worker downloads it.</summary>
+    public string? SourceUrl { get; init; }
     public DateTime CreatedUtc { get; init; } = DateTime.UtcNow;
     public SongStatus Status { get; set; } = SongStatus.Queued;
     public string? Error { get; set; }
@@ -71,6 +73,19 @@ public sealed class SongStore
         Save(meta);
         return meta;
     }
+
+    public SongMeta AddUrl(string url, AnalysisOptions options)
+    {
+        string id = Guid.NewGuid().ToString("N")[..12];
+        var meta = new SongMeta { Id = id, FileName = "", SourceUrl = url, Analysis = options, Title = url };
+        Directory.CreateDirectory(Dir(id));
+        metas[id] = meta;
+        Save(meta);
+        return meta;
+    }
+
+    /// <summary>What to hand to the worker: the uploaded file, or the URL to download.</summary>
+    public string Input(SongMeta m) => m.SourceUrl ?? SourcePath(m);
 
     public void Save(SongMeta m) => File.WriteAllText(Path.Combine(Dir(m.Id), "meta.json"), JsonSerializer.Serialize(m, Json));
 

@@ -34,12 +34,18 @@ public sealed class AnalysisRunner
     public async Task<SongAnalysis> AnalyzeAsync(string audioPath, string workDir, AnalysisOptions options,
         Action<string>? log = null, CancellationToken ct = default)
     {
-        var args = new List<string> { "analyze", Path.GetFullPath(audioPath), "-o", Path.GetFullPath(workDir), "--beats", options.BeatBackend };
+        string input = IsUrl(audioPath) ? audioPath : Path.GetFullPath(audioPath);
+        var args = new List<string> { "analyze", input, "-o", Path.GetFullPath(workDir), "--beats", options.BeatBackend };
         if (options.Stems) args.AddRange(["--stems", "demucs"]);
         if (options.BpmOverride is { } bpm) args.AddRange(["--bpm", bpm.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
         await RunWorkerAsync(args, log, ct);
         return SongAnalysis.Load(workDir);
     }
+
+    /// <summary>Inputs the worker downloads itself (YouTube, YouTube Music, ... via yt-dlp).</summary>
+    public static bool IsUrl(string s) =>
+        s.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || s.StartsWith("https://", StringComparison.OrdinalIgnoreCase)
+        || s.StartsWith("ytsearch", StringComparison.OrdinalIgnoreCase);
 
     public Task SynthAsync(string outputWav, Action<string>? log = null, CancellationToken ct = default) =>
         RunWorkerAsync(["synth", Path.GetFullPath(outputWav)], log, ct);

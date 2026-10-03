@@ -16,14 +16,18 @@
         <option value="librosa">beats: librosa</option>
       </select>
       <label class="check" title="Separate stems with Demucs: better rhythm choices, several minutes on CPU"><input type="checkbox" id="stems"> stems</label>
-      <label class="btn primary">Upload audio<input type="file" id="file" accept="audio/*,.mp3,.ogg,.flac,.wav,.m4a,.opus" hidden></label>
+      <form id="urlForm" class="urlForm">
+        <input id="url" type="url" placeholder="Paste a YouTube / YouTube Music link" autocomplete="off">
+        <button class="btn">Add link</button>
+      </form>
+      <label class="btn primary">Upload audio<input type="file" id="file" accept="audio/*,.mp3,.ogg,.flac,.wav,.m4a,.opus,.webm" hidden></label>
     </div>
   </header>
 
   <div class="layout">
     <aside class="songs">
       <ul id="songList"></ul>
-      <p class="hint">Drop an audio file anywhere. Analysis and a first map run automatically.</p>
+      <p class="hint">Drop an audio file anywhere or paste a YouTube link. Analysis and a first map run automatically. Only use audio you have the rights to.</p>
     </aside>
 
     <main id="main">

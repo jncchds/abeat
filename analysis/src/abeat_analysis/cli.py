@@ -27,12 +27,24 @@ def log(msg: str) -> None:
 
 
 def analyze(args: argparse.Namespace) -> int:
-    src = Path(args.input).expanduser().resolve()
+    from . import fetch
+
     out = Path(args.out).expanduser().resolve()
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
 
-    meta = audio_mod.read_metadata(src)
+    source_url = None
+    if fetch.is_url(args.input):
+        got = fetch.fetch(args.input, out / "download", log)
+        src, source_url = got.path, got.url
+        meta = audio_mod.Metadata(title=got.title, artist=got.artist, cover=got.cover)
+    else:
+        src = Path(args.input).expanduser().resolve()
+        meta = audio_mod.read_metadata(src)
+    if args.title:
+        meta.title = args.title
+    if args.artist:
+        meta.artist = args.artist
     log(f"loading {src.name}")
     raw = audio_mod.load_audio(src)
     mono = raw.mono
@@ -87,7 +99,7 @@ def analyze(args: argparse.Namespace) -> int:
     loudest = max(secs, key=lambda s: s["energy"])
     result = {
         "schemaVersion": SCHEMA_VERSION,
-        "source": {"path": str(src), "title": meta.title, "artist": meta.artist},
+        "source": {"path": str(src), "url": source_url, "title": meta.title, "artist": meta.artist},
         "audio": {"file": "song.egg", "durationSec": round(padded.duration, 3), "sampleRate": sr,
                   "padSec": round(pad, 4)},
         "tempo": {
@@ -132,7 +144,9 @@ def main(argv: list[str] | None = None) -> int:
     sub = p.add_subparsers(dest="cmd", required=True)
 
     a = sub.add_parser("analyze", help="analyze an audio file")
-    a.add_argument("input")
+    a.add_argument("input", help="audio file, or a YouTube / YouTube Music URL (downloaded with yt-dlp)")
+    a.add_argument("--title", help="override song title")
+    a.add_argument("--artist", help="override artist")
     a.add_argument("-o", "--out", required=True, help="output work directory")
     a.add_argument("--beats", choices=["auto", "librosa", "beat_this"], default="auto",
                    help="beat tracker; auto = beat_this if installed, else librosa")

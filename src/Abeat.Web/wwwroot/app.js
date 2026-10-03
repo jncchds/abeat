@@ -49,7 +49,7 @@ function renderSongList() {
     const li = document.createElement('li');
     li.className = s.id === state.id ? 'active' : '';
     li.innerHTML = `<span class="name"></span><span class="sub"><span class="badge ${s.status}">${s.status}</span><span class="artist"></span></span>`;
-    li.querySelector('.name').textContent = s.title || s.fileName;
+    li.querySelector('.name').textContent = s.title || s.fileName || s.sourceUrl;
     li.querySelector('.artist').textContent = [s.artist, s.bpm ? `${+s.bpm.toFixed(2)} BPM` : ''].filter(Boolean).join(' · ');
     li.onclick = () => selectSong(s.id);
     ul.appendChild(li);
@@ -62,6 +62,16 @@ async function upload(file) {
   fd.append('beats', $('beats').value);
   fd.append('stems', $('stems').checked ? 'true' : 'false');
   const meta = await api('/songs', { method: 'POST', body: fd });
+  await refreshSongs();
+  await selectSong(meta.id);
+}
+
+async function addUrl(url) {
+  const meta = await api('/songs/url', {
+    method: 'POST', headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ url, beats: $('beats').value, stems: $('stems').checked }),
+  });
+  $('url').value = '';
   await refreshSongs();
   await selectSong(meta.id);
 }
@@ -553,6 +563,11 @@ $('delete').onclick = async () => {
   $('empty').hidden = false;
   audio.removeAttribute('src');
   await refreshSongs();
+};
+$('urlForm').onsubmit = (e) => {
+  e.preventDefault();
+  const url = $('url').value.trim();
+  if (url) addUrl(url).catch((err) => alert(err.message));
 };
 $('file').onchange = (e) => e.target.files[0] && upload(e.target.files[0]).catch((err) => alert(err.message));
 

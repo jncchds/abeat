@@ -28,7 +28,9 @@ h3 { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; letter-spacing
 .brand small { font-weight: 400; color: var(--muted); font-size: 13px; margin-left: 6px; }
 .logo { color: var(--red); letter-spacing: -3px; margin-right: 4px; }
 .logo::first-letter { color: var(--red); }
-.upload { display: flex; gap: 8px; align-items: center; }
+.upload { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.urlForm { display: flex; gap: 6px; }
+.urlForm input { width: 300px; max-width: 50vw; background: var(--panel2); color: var(--text); border: 1px solid var(--line); border-radius: 6px; padding: 6px 8px; font: inherit; }
 
 .btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--panel2); color: var(--text); cursor: pointer; text-decoration: none; font: inherit; white-space: nowrap; }
 .btn:hover { border-color: var(--accent); }

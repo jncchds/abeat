@@ -11,6 +11,7 @@ dependencies = [
     "mutagen>=1.47",
     "pillow>=10.0",
     "imageio-ffmpeg>=0.5",
+    "yt-dlp[default]>=2026.8.19",
 ]
 
 [project.optional-dependencies]

@@ -16,6 +16,8 @@ RUN dotnet publish src/Abeat.Web/Abeat.Web.csproj -c Release -o /app --no-restor
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 ARG ML=1
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+# JS runtime yt-dlp needs for YouTube links
+COPY --from=denoland/deno:bin /deno /usr/local/bin/deno
 ENV UV_PYTHON_INSTALL_DIR=/opt/python \
     UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \

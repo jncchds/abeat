@@ -37,6 +37,15 @@ public static class MapEndpoints
             return Results.Ok(meta);
         }).DisableAntiforgery();
 
+        api.MapPost("/songs/url", (UrlRequest req, SongStore store, AnalysisQueue queue) =>
+        {
+            if (!Uri.TryCreate(req.Url?.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
+                return Results.BadRequest("expected an http(s) link, e.g. a YouTube or YouTube Music URL");
+            var meta = store.AddUrl(uri.ToString(), new AnalysisOptions(req.Beats ?? "auto", req.Stems));
+            queue.Enqueue(meta.Id);
+            return Results.Ok(meta);
+        });
+
         api.MapGet("/songs/{id}", (string id, SongStore store) =>
             store.Get(id) is { } m ? Results.Ok(new { meta = m, log = store.Log(id).Snapshot() }) : Results.NotFound());
 
@@ -113,6 +122,8 @@ public static class MapEndpoints
             return Results.File(zip, "application/zip", $"{name}.zip");
         });
     }
+
+    public sealed record UrlRequest(string? Url, string? Beats, bool Stems);
 
     static object ToDto(SongAnalysis a, GenerationResult r) => new
     {

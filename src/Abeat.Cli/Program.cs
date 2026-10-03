@@ -14,7 +14,7 @@ const string Usage = """
 ABeat by CHDS - automatic Beat Saber map generator
 
 usage:
-  abeat generate <audio file | analysis dir> [options]
+  abeat generate <audio file | YouTube URL | analysis dir> [options]
       -o, --out <dir>          output folder (default: ./out/<Artist - Title>)
       -d, --difficulties <l>   comma list: easy,normal,hard,expert,expertplus|all (default: expert,expertplus)
       --density <x>            note density multiplier (default 1.0)
@@ -68,10 +68,16 @@ static async Task<SongAnalysis> GetAnalysis(Options o)
     string input = o.Positional.FirstOrDefault() ?? throw new ArgumentException("missing input");
     if (Directory.Exists(input) && File.Exists(Path.Combine(input, "analysis.json")))
         return SongAnalysis.Load(input);
-    if (!File.Exists(input)) throw new FileNotFoundException($"not found: {input}");
+    bool url = AnalysisRunner.IsUrl(input);
+    if (!url && !File.Exists(input)) throw new FileNotFoundException($"not found: {input}");
 
-    string work = o.Get("work") ?? Path.Combine("work", Path.GetFileNameWithoutExtension(input));
-    if (!o.Has("reanalyze") && File.Exists(Path.Combine(work, "analysis.json")))
+    string work = o.Get("work") ?? Path.Combine("work", url ? UrlWorkName(input) : Path.GetFileNameWithoutExtension(input));
+    if (url && !o.Has("reanalyze") && File.Exists(Path.Combine(work, "analysis.json")))
+    {
+        Console.Error.WriteLine($"using cached analysis in {work} (--reanalyze to redo)");
+        return SongAnalysis.Load(work);
+    }
+    if (!url && !o.Has("reanalyze") && File.Exists(Path.Combine(work, "analysis.json")))
     {
         var cached = SongAnalysis.Load(work);
         if (Path.GetFullPath(cached.Source.Path) == Path.GetFullPath(input)
@@ -86,6 +92,13 @@ static async Task<SongAnalysis> GetAnalysis(Options o)
     var a = await runner.AnalyzeAsync(input, work, AnalysisOpts(o), line => Console.Error.WriteLine(line));
     Console.Error.WriteLine($"analysis took {sw.Elapsed.TotalSeconds:0.0}s");
     return a;
+}
+
+static string UrlWorkName(string url)
+{
+    var m = System.Text.RegularExpressions.Regex.Match(url, @"[?&]v=([\w-]{6,})|youtu\.be/([\w-]{6,})");
+    if (m.Success) return "yt-" + (m.Groups[1].Success ? m.Groups[1].Value : m.Groups[2].Value);
+    return "url-" + Convert.ToHexString(System.Security.Cryptography.SHA1.HashData(System.Text.Encoding.UTF8.GetBytes(url)))[..10].ToLowerInvariant();
 }
 
 static AnalysisOptions AnalysisOpts(Options o) => new(
