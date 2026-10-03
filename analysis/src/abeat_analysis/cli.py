@@ -82,7 +82,10 @@ def analyze(args: argparse.Namespace) -> int:
         # "mix" (not "full") so stem analyses get their own, low, weight for the whole mix
         layers = {"mix": features.detect_onsets(y, sr, 30, 11000)}
         for name, sig in st.items():
-            layers[name] = features.detect_onsets(sig, sr, 30, 11000, 512 if name in ("bass", "drums") else 256)
+            if name == "drums":
+                layers[name] = features.detect_onsets(sig, sr, 30, 11000, 512)
+            else:
+                layers[name] = features.tonal_onsets(sig, sr, refine=name != "vocals")
         layer_source = "demucs"
         if args.keep_stems:
             import soundfile as sf

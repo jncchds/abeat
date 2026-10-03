@@ -180,6 +180,26 @@ public class GeneratorTests
         };
     }
 
+    [Fact]
+    public void TripletsOnlyForSongsWithTripletFeel()
+    {
+        var straight = FakeAnalysis();
+        Assert.False(RhythmSelector.HasTripletFeel(straight));
+        var expert = new GeneratorSettings();
+        Assert.DoesNotContain(RhythmSelector.Select(straight, expert.Profile(DifficultyName.Expert), expert),
+            e => Math.Round(e.Beat * 12) % 4 == 0 && Math.Round(e.Beat * 12) % 3 != 0);
+
+        // shuffle: hats on the third eighth-triplet instead of the off-beat
+        double spb = 60 / straight.Tempo.Bpm;
+        var hats = straight.Layers["high"].Select(o => new Onset { T = (Math.Floor(o.T / spb) + 2.0 / 3) * spb, S = o.S, Br = o.Br }).ToList();
+        var shuffle = new SongAnalysis
+        {
+            Tempo = straight.Tempo, Audio = straight.Audio, Energy = straight.Energy, Sections = straight.Sections,
+            Layers = new() { ["low"] = straight.Layers["low"], ["high"] = hats },
+        };
+        Assert.True(RhythmSelector.HasTripletFeel(shuffle));
+    }
+
     [Theory]
     [InlineData(DifficultyName.Easy)]
     [InlineData(DifficultyName.Hard)]

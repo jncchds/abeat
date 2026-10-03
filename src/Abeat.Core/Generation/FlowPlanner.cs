@@ -28,9 +28,14 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         public HandState State(Hand h) => h == Hand.Left ? Left : Right;
     }
 
+    /// <summary>Hand that should play each event's layer under the hand-role split, or null for events
+    /// that belong to neither role.</summary>
+    Hand?[] roles = [];
+
     public List<ColorNote> Plan(IReadOnlyList<RhythmEvent> events)
     {
         var w = model.Weights;
+        roles = HandRoles(events, seed);
         var beam = new List<Node> { new() { Left = HandState.Initial(Hand.Left), Right = HandState.Initial(Hand.Right), LastHand = Hand.Left } };
 
         for (int i = 0; i < events.Count; i++)
@@ -95,6 +100,26 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         }
     }
 
+    static readonly HashSet<string> MelodyLayers = ["vocals", "other", "mid"];
+    static readonly HashSet<string> RhythmLayers = ["drums", "bass", "low"];
+
+    /// <summary>Melody layers go to one hand and rhythm layers to the other; the roles swap at every
+    /// section change (the first section's melody hand depends on the seed).</summary>
+    public static Hand?[] HandRoles(IReadOnlyList<RhythmEvent> events, int seed)
+    {
+        var roles = new Hand?[events.Count];
+        int flips = seed & 1;
+        for (int i = 0; i < events.Count; i++)
+        {
+            if (i > 0 && events[i].Section != events[i - 1].Section) flips++;
+            var melodyHand = flips % 2 == 0 ? Hand.Right : Hand.Left;
+            var rhythmHand = melodyHand == Hand.Right ? Hand.Left : Hand.Right;
+            roles[i] = MelodyLayers.Contains(events[i].Layer) ? melodyHand
+                : RhythmLayers.Contains(events[i].Layer) ? rhythmHand : null;
+        }
+        return roles;
+    }
+
     /// <summary>Only the cheapest few continuations of a node can survive the beam; scoring all but
     /// allocating nodes for just these keeps the search fast.</summary>
     const int PerNodeSingle = 16;
@@ -112,6 +137,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                     double gap = e.Time - node.State(hand).Time;
                     if (gap < 0.5) total += 1.5 * (0.5 - gap) / 0.5;
                 }
+                if (roles[i] is { } role && role != hand) total += model.Weights.HandRole;
                 Add(next, node, total, cut, null, e.Time, swing, default);
             }
         }

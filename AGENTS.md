@@ -14,11 +14,17 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - downbeats on the fixed grid (tracker vote or low-band strength)
    - audio padded so grid beat 0 is t = 0 plus a >= 2 s lead-in, written as `song.egg`
    - onsets per layer: frequency bands (`full/low/mid/high`) or Demucs stems
-     (`drums/bass/vocals/other`), each with strength and brightness
+     (`drums/bass/vocals/other`), each with strength and brightness. Drums use the attack
+     envelope; pitched stems use mel spectral flux (`tonal_onsets`), because energy rises in them
+     fire on consonants, breaths and vibrato at grid-random times. Bass/other flux peaks are moved
+     to the attack peak in the preceding 70 ms; vocals stay unrefined (soft attacks)
    - energy curve, novelty-based sections snapped to downbeats, clustered labels (A, B, ...)
    - cover: embedded art, thumbnail, or generated from the spectrum
-3. **Rhythm selection** (`RhythmSelector`): onsets snapped to a 1/12-beat grid (sixteenths and
-   triplets), scored by layer weight x strength x metric position x energy; bars filled to a
+3. **Rhythm selection** (`RhythmSelector`): onsets snapped to a 1/12-beat grid (sixteenths, plus
+   triplets only when the song has a triplet feel: `HasTripletFeel`, >= 12 % of the percussive layer's
+   onset strength on eighth-triplets and 1.5x more than on sixteenth off-beats), scored by layer
+   weight x strength x metric position x energy, with the "e" sixteenth (x0.6), "a" (x0.8) and
+   triplets (x0.85) discounted as human maps rarely use them; bars filled to a
    notes-per-second target that follows section and local energy; strong isolated hits become doubles.
 4. **Flow planning** (`FlowPlanner`): beam search over both hands' states (position, swing vector,
    parity, previous cell). Costs from `SwingCostModel`:
@@ -30,6 +36,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - style: distribution matching against `style-prior.json` (cut directions, cells per hand, learned
      from curated maps by `scripts/style_prior.py`); each beam path tracks running counts and pays
      log(running share / human share), so the mix matches humans instead of collapsing to the mode
+   - hand roles (`FlowWeights.HandRole`): melody-led notes (vocals, other) prefer one hand and
+     rhythm-led notes (drums, bass) the other; the roles swap at section changes. Soft, so flow
+     wins where the layers don't alternate; the CLI reports the share of notes that kept their role
    - parity: vertical/diagonal swings fix forehand/backhand; horizontal cuts free it; a swing within
      60° of the previous one is a reset; travel within 0.75 cells is free
 5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+), dodge walls in note-free

@@ -50,16 +50,19 @@ envelopes lag ~50 ms, which players feel), downbeats, energy curve, novelty-base
 labels for repeated parts, and onsets per layer (frequency bands, or [Demucs](https://github.com/facebookresearch/demucs)
 stems with `--stems`). The audio is padded so grid beat 0 is at t = 0 and written as `song.egg`.
 
-**Rhythm selection** (`RhythmSelector`): onsets are snapped to a 1/12-beat grid (sixteenths and
-triplets), scored by layer weight × strength × metric position × energy, and picked bar by bar to
-hit a notes-per-second target that follows section energy. Strong, isolated hits become doubles.
+**Rhythm selection** (`RhythmSelector`): onsets are snapped to a 1/12-beat grid (sixteenths, and
+triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×
+energy, and picked bar by bar to hit a notes-per-second target that follows section energy. Strong,
+isolated hits become doubles. Vocal, bass and other stems use spectral-flux onsets (one per sung
+syllable or note) rather than energy rises, which fired on consonants and breaths.
 
 **Flow planning** (`FlowPlanner` + `SwingCostModel`): beam search over both sabers' states (position,
 last swing direction, parity). Each candidate cut is scored for:
 
 - *physical flow*: parity resets, angle change vs. a clean reversal, saber travel, swing speed,
   crossovers, vision blocks, over-extension
-- *musical fit*: row follows brightness, accents prefer big vertical swings
+- *musical fit*: row follows brightness, accents prefer big vertical swings; one saber follows the
+  melody (vocals) and the other the rhythm (drums, bass), swapping at section changes
 - *variety*: stagnation penalty and per-phrase target cells keyed by section label, so repeated
   choruses get recognisably similar patterns
 

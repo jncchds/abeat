@@ -1,5 +1,10 @@
 # Release notes
 
+## v0.1.1 — 2026-10-03
+
+- Steadier note timing: vocal/bass/other onsets from spectral flux (was ~8/s of grid-random consonant and breath hits), triplets only for songs with a triplet feel, "e" sixteenths discounted. Cake By The Ocean Expert F1 vs the human map 0.76 → 0.81, band-analysis bench Expert+ 0.70 → 0.74.
+- Hand roles: one saber follows the melody, the other the rhythm, swapping at section changes (`HandRole` weight; CLI reports how many notes kept their role).
+
 ## v0.1.0 — 2026-10-03
 
 - Analysis worker: beat_this/librosa beat tracking, robust grid fit, attack-envelope phase refinement, sections, per-layer onsets, Demucs stems, generated covers.

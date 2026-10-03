@@ -75,6 +75,9 @@ public sealed record FlowWeights
     /// <summary>Pull towards the per-phrase target cell; drives movement around the grid and makes
     /// repeated sections reuse similar patterns.</summary>
     public double Target { get; init; } = 0.45;
+    /// <summary>Hand roles: one saber follows the melody (vocals, other), the other the rhythm (drums,
+    /// bass); the roles swap at section changes. Cost of a single note on the "wrong" hand.</summary>
+    public double HandRole { get; init; } = 0.8;
 }
 
 public sealed record GeneratorSettings

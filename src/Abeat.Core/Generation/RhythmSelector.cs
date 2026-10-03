@@ -107,6 +107,7 @@ public static class RhythmSelector
         var slots = new Dictionary<int, Slot>();
         int grid = SlotsPerBeat / p.Subdivision; // slots per grid step
         int downPhase = a.DownbeatPhase;
+        bool triplets = p.AllowTriplets && HasTripletFeel(a);
 
         foreach (var (layer, onsets) in a.Layers)
         {
@@ -123,7 +124,7 @@ public static class RhythmSelector
                 double errStraight = Math.Abs(exact - straight) / grid; // 0..0.5 of a grid step
                 int index = straight;
                 double err = errStraight;
-                if (p.AllowTriplets)
+                if (triplets)
                 {
                     int trip = (int)Math.Round(exact / 4) * 4; // 1/3 beat
                     double errTrip = Math.Abs(exact - trip) / 4;
@@ -156,10 +157,40 @@ public static class RhythmSelector
                 6 => 0.1,
                 _ => 0,
             };
+            // human maps rarely use the "e" sixteenth, a bit more the "a" (a pickup into the beat);
+            // weak hi-hat sixteenths otherwise rank like real accents
+            double offGrid = posInBeat switch { 3 => 0.6, 9 => 0.8, 4 or 8 => 0.85, _ => 1 };
             double t = a.BeatToSeconds((double)slot.Index / SlotsPerBeat);
-            slot.Score = (slot.Score + metric * Math.Min(1, slot.Score * 2)) * (0.4 + 0.6 * a.EnergyAt(t));
+            slot.Score = (slot.Score + metric * Math.Min(1, slot.Score * 2)) * offGrid * (0.4 + 0.6 * a.EnergyAt(t));
         }
         return slots;
+    }
+
+    /// <summary>Whether the song has a triplet feel: a real share of the most percussive layer's onset
+    /// strength sits on eighth-triplets, clearly more than on sixteenth off-beats. Straight songs keep
+    /// only a few percent there (sloppy timing), and snapping those to triplets made random-looking
+    /// rhythms.</summary>
+    public static bool HasTripletFeel(SongAnalysis a)
+    {
+        var (trip, six) = TripletShares(a);
+        return trip >= 0.12 && trip >= 1.5 * six;
+    }
+
+    /// <summary>Shares of onset strength within 1/48 beat of eighth-triplets and of sixteenth off-beats.</summary>
+    public static (double Triplet, double Sixteenth) TripletShares(SongAnalysis a)
+    {
+        var onsets = new[] { "drums", "high", "full", "mix" }.Select(k => a.Layers.GetValueOrDefault(k)).FirstOrDefault(l => l is { Count: > 0 });
+        if (onsets is null) return (0, 0);
+        double trip = 0, six = 0, total = 0;
+        foreach (var o in onsets)
+        {
+            double ph = a.SecondsToBeat(o.T);
+            static bool Near(double ph, double c) => Math.Abs(((ph - c) % 1 + 1.5) % 1 - 0.5) < 1.0 / 48;
+            total += o.S;
+            if (Near(ph, 1.0 / 3) || Near(ph, 2.0 / 3)) trip += o.S;
+            else if (Near(ph, 0.25) || Near(ph, 0.75)) six += o.S;
+        }
+        return total > 0 ? (trip / total, six / total) : (0, 0);
     }
 
     /// <summary>Strength as 0.25..1 by rank within the layer.</summary>

@@ -133,7 +133,7 @@ static async Task<int> Generate(Options o)
         Console.WriteLine($"  {d.Report}  njs {d.Map.NoteJumpSpeed} jd {jd:0.0}");
         var layers = d.Events.GroupBy(e => e.Layer).OrderByDescending(g => g.Count())
             .Select(g => $"{g.Key} {100.0 * g.Count() / d.Events.Count:0}%");
-        Console.WriteLine($"             notes led by: {string.Join(", ", layers)}");
+        Console.WriteLine($"             notes led by: {string.Join(", ", layers)}  (hand roles kept {d.HandRoleShare:P0})");
     }
 
     string outDir = o.Get("out") ?? Path.Combine("out", MapPackager.FolderName(result.Map));

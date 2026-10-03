@@ -87,6 +87,37 @@ def detect_onsets(y: np.ndarray, sr: int, fmin: float | None = None, fmax: float
     ]
 
 
+def tonal_onsets(y: np.ndarray, sr: int, refine: bool = True) -> list[dict]:
+    """Onsets for pitched stems (vocals, bass, other) from mel spectral flux.
+
+    The energy-rise detector fires on consonants, breaths and vibrato in these stems (~8/s, timed no
+    better than random against the grid); flux reacts to new notes/syllables instead. Flux peaks lag
+    the attack, so with refine=True each one moves to the strongest energy rise in the 70 ms before
+    it. Vocals have soft attacks that the rise misses, so they are better left unrefined.
+    """
+    ya = librosa.resample(y, orig_sr=sr, target_sr=SR) if sr != SR else y
+    env = librosa.onset.onset_strength(y=ya, sr=SR, hop_length=HOP, lag=2, max_size=3)
+    frames = librosa.onset.onset_detect(onset_envelope=env, sr=SR, hop_length=HOP, delta=0.07)
+    if len(frames) == 0:
+        return []
+    times = librosa.frames_to_time(frames, sr=SR, hop_length=HOP)
+    if refine:
+        d, t = attack_envelope(y, sr, 150, 4000, 512)
+        for i, x in enumerate(times):
+            m = (t >= x - 0.07) & (t <= x + 0.02)
+            if m.any() and d[m].max() > 0:
+                times[i] = t[m][np.argmax(d[m])]
+    strength = env[frames]
+    ref = np.percentile(strength, 95)
+    centroid = librosa.feature.spectral_centroid(y=ya, sr=SR, hop_length=HOP)[0]
+    log_c = np.clip(np.log2(np.maximum(centroid, 60) / 60) / np.log2(8000 / 60), 0, 1)
+    cframes = np.minimum(frames + 2, len(log_c) - 1)
+    return [
+        {"t": round(float(x), 4), "s": round(float(min(1.0, s / ref)), 3), "br": round(float(log_c[c]), 3)}
+        for x, s, c in zip(times, strength, cframes)
+    ]
+
+
 def band_onsets(y: np.ndarray, sr: int) -> dict[str, list[dict]]:
     layers = {"full": detect_onsets(y, sr, 30, 11000, BAND_WIN["full"])}
     for name, (lo, hi) in BANDS.items():
