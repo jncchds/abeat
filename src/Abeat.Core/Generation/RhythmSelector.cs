@@ -111,6 +111,9 @@ public static class RhythmSelector
         foreach (var (layer, onsets) in a.Layers)
         {
             if (!s.LayerWeights.TryGetValue(layer, out double w) || w <= 0) continue;
+            // compare layers by rank, not raw strength: a vocal stem has a few sharp spikes and soft
+            // syllables in between, so raw strengths made every vocal onset look weak next to drums
+            var rank = RankStrengths(onsets);
             foreach (var o in onsets)
             {
                 if (o.T < s.LeadInSec) continue;
@@ -126,14 +129,21 @@ public static class RhythmSelector
                     double errTrip = Math.Abs(exact - trip) / 4;
                     if (errTrip < errStraight * 0.4 && errStraight > 0.25) { index = trip; err = errTrip; }
                 }
-                double contribution = w * o.S * (1 - Math.Min(1, err * 1.6));
+                double contribution = w * rank[o] * (1 - Math.Min(1, err * 1.6));
                 if (contribution <= 0) continue;
                 if (!slots.TryGetValue(index, out var slot)) slots[index] = slot = new Slot { Index = index };
-                slot.Score += contribution;
                 slot.BrightnessSum += o.Br * contribution;
                 slot.BrightnessWeight += contribution;
                 slot.ByLayer[layer] = slot.ByLayer.GetValueOrDefault(layer) + contribution;
             }
+        }
+
+        // Strongest layer counts fully, the others only a little: summing everything made beats where
+        // drums, bass and pads coincide outscore a lone vocal syllable even with vocals weighted highest.
+        foreach (var slot in slots.Values)
+        {
+            double top = slot.ByLayer.Values.Max();
+            slot.Score = top + 0.25 * (slot.ByLayer.Values.Sum() - top);
         }
 
         foreach (var slot in slots.Values)
@@ -150,6 +160,15 @@ public static class RhythmSelector
             slot.Score = (slot.Score + metric * Math.Min(1, slot.Score * 2)) * (0.4 + 0.6 * a.EnergyAt(t));
         }
         return slots;
+    }
+
+    /// <summary>Strength as 0.25..1 by rank within the layer.</summary>
+    static Dictionary<Onset, double> RankStrengths(List<Onset> onsets)
+    {
+        var order = onsets.OrderBy(o => o.S).ToList();
+        var rank = new Dictionary<Onset, double>(ReferenceEqualityComparer.Instance);
+        for (int i = 0; i < order.Count; i++) rank[order[i]] = 0.25 + 0.75 * (i + 1) / order.Count;
+        return rank;
     }
 
     static List<RhythmEvent> MarkDoubles(List<RhythmEvent> events, DifficultyProfile p)

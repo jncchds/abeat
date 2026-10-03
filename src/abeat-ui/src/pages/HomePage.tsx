@@ -10,7 +10,7 @@ export default function HomePage() {
   const { songs, refresh } = useSongs()
   const [url, setUrl] = useState('')
   const [beats, setBeats] = useState('auto')
-  const [stems, setStems] = useState(false)
+  const [stems, setStems] = useState(true)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -72,7 +72,7 @@ export default function HomePage() {
               <option value="librosa">librosa (fast, simpler)</option>
             </select>
           </label>
-          <ToggleField label="Separate stems (Demucs)" hint="Better rhythm choices; several minutes per song on CPU" checked={stems} onChange={setStems} />
+          <ToggleField label="Separate stems (Demucs)" hint="Isolates vocals so their rhythm leads the map; adds about one song-length of CPU time" checked={stems} onChange={setStems} />
         </div>
       </div>
 

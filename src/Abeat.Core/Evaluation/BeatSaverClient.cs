@@ -16,17 +16,26 @@ public sealed class BeatSaverClient : IDisposable
 
     public sealed record MapInfo(string Id, string Name, double Bpm, double Duration, string Mapper, double Score, string DownloadUrl, double MaxNps);
 
-    /// <summary>Curated, highest-rated Standard maps that need no mods (no Noodle / Mapping Extensions,
-    /// no AI maps) and have an Expert or Expert+ difficulty with a playable density.</summary>
-    public async Task<List<MapInfo>> TopCuratedAsync(int count, double minNps = 2.5, double maxNps = 9, CancellationToken ct = default)
+    /// <summary>Curated Standard maps that need no mods (no Noodle / Mapping Extensions, no AI maps) and
+    /// have an Expert or Expert+ difficulty with a playable density. Alternates between the highest-rated
+    /// and the most recently curated lists, with at most <paramref name="perMapper"/> maps per mapper, so the
+    /// sample (and the style prior learned from it) is not dominated by one mapper or one era.</summary>
+    public async Task<List<MapInfo>> CuratedAsync(int count, int perMapper = 2, double minNps = 2.5, double maxNps = 9, CancellationToken ct = default)
     {
         var result = new List<MapInfo>();
-        for (int page = 0; page < 20 && result.Count < count; page++)
+        var seen = new HashSet<string>();
+        var mappers = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        string[] sorts = ["Rating", "Curated"];
+        for (int page = 0; page < 40 && result.Count < count; page++)
+        foreach (var sort in sorts)
         {
-            var resp = await http.GetFromJsonAsync<SearchResponse>($"search/text/{page}?sortOrder=Rating&curated=true", Json, ct);
-            if (resp?.Docs is not { Count: > 0 } docs) break;
+            if (result.Count >= count) break;
+            var resp = await http.GetFromJsonAsync<SearchResponse>($"search/text/{page}?sortOrder={sort}&curated=true", Json, ct);
+            if (resp?.Docs is not { Count: > 0 } docs) continue;
             foreach (var d in docs)
             {
+                if (!seen.Add(d.Id)) continue;
+                if (mappers.GetValueOrDefault(d.Metadata.LevelAuthorName) >= perMapper) continue;
                 var v = d.Versions.FirstOrDefault();
                 if (v == null || d.Automapper || d.DeclaredAi is not (null or "None")) continue;
                 var std = v.Diffs.Where(x => x.Characteristic == "Standard").ToList();
@@ -36,6 +45,7 @@ public sealed class BeatSaverClient : IDisposable
                 double nps = top.Max(x => x.Nps);
                 if (nps < minNps || nps > maxNps) continue;
                 result.Add(new MapInfo(d.Id, d.Name, d.Metadata.Bpm, d.Metadata.Duration, d.Metadata.LevelAuthorName, d.Stats.Score, v.DownloadUrl, nps));
+                mappers[d.Metadata.LevelAuthorName] = mappers.GetValueOrDefault(d.Metadata.LevelAuthorName) + 1;
                 if (result.Count >= count) break;
             }
             await Task.Delay(300, ct); // be polite to the API

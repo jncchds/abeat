@@ -8,7 +8,7 @@ const DIR_VEC: [number, number][] = [[0, 1], [0, -1], [-1, 0], [1, 0], [-0.707, 
 const SECTION_COLORS = ['#00a3ff', '#ff1f4b', '#b14dff', '#00e5c7', '#ff7a1a', '#ff3dbb', '#4d6bff', '#c6ff1a']
 
 export const ISSUE_COLOR: Record<string, string> = {
-  Reset: '#ff1f4b', VisionBlock: '#ffb020', Crossover: '#ff7a1a', HighCost: '#8a8fb5', WallClash: '#ff3dbb', BombHit: '#ff3dbb',
+  Reset: '#ff1f4b', VisionBlock: '#ffb020', Crossover: '#ff7a1a', HighCost: '#8a8fb5', WallClash: '#ff3dbb', BombHit: '#ff3dbb', HandClash: '#ff3dbb',
 }
 
 export interface View { pxPerSec: number; start: number }

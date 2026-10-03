@@ -69,12 +69,18 @@ def analyze(args: argparse.Namespace) -> int:
     beats, downbeats = tr.beats + pad, grid_db + pad
 
     layer_source = "bands"
+    st = None
     if args.stems == "demucs":
-        from . import stems
+        try:
+            from . import stems
 
-        log("separating stems with demucs (slow on CPU)")
-        st = stems.separate(padded.stereo, sr)
-        layers = {"full": features.detect_onsets(y, sr, 30, 11000)}
+            log("separating stems with demucs (slow on CPU)")
+            st = stems.separate(padded.stereo, sr)
+        except ImportError:
+            log("demucs not installed (ML extra missing); falling back to frequency bands")
+    if st is not None:
+        # "mix" (not "full") so stem analyses get their own, low, weight for the whole mix
+        layers = {"mix": features.detect_onsets(y, sr, 30, 11000)}
         for name, sig in st.items():
             layers[name] = features.detect_onsets(sig, sr, 30, 11000, 512 if name in ("bass", "drums") else 256)
         layer_source = "demucs"
@@ -83,7 +89,8 @@ def analyze(args: argparse.Namespace) -> int:
 
             (out / "stems").mkdir(exist_ok=True)
             for name, sig in st.items():
-                sf.write(str(out / "stems" / f"{name}.ogg"), sig, sr, format="OGG", subtype="VORBIS")
+                # FLAC, not Ogg: libsndfile's Vorbis encoder segfaults on long mono stems
+                sf.write(str(out / "stems" / f"{name}.flac"), sig, sr, format="FLAC", subtype="PCM_16")
     else:
         log("detecting onsets per frequency band")
         layers = features.band_onsets(y, sr)

@@ -139,7 +139,10 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         if (l.X > r.X) c += 12; // crossed doubles
         else if (l.X == r.X) c += 4; // stacked in one column
         c += 0.5 * Math.Abs(l.Y - r.Y);
-        // inward horizontals swing the sabers into each other
+        double clash = SwingCostModel.DoubleClash(l.X, l.Y, lv, r.X, r.Y, rv);
+        if (double.IsPositiveInfinity(clash)) return clash;
+        c += clash;
+        // both swinging inward collides even with a column between them
         if (lv.X > 0.5 && rv.X < -0.5) c += 10;
         double parallel = lv.AngleTo(rv);
         double mirrored = lv.AngleTo(new Vec2(-rv.X, rv.Y));

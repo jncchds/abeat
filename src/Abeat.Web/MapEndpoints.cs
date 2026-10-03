@@ -158,13 +158,24 @@ public static class MapEndpoints
             });
         });
 
-        // zip is CORS-enabled so ArcViewer (?url=...) can load it when the server is reachable
+        // ArcViewer (a public https page) fetches the zip directly with ?noProxy=true. Browsers send a
+        // private-network preflight before a public site may read from a LAN address.
+        api.MapMethods("/songs/{id}/map.zip", ["OPTIONS"], (HttpContext ctx) =>
+        {
+            ctx.Response.Headers.AccessControlAllowOrigin = "*";
+            ctx.Response.Headers.AccessControlAllowMethods = "GET, OPTIONS";
+            ctx.Response.Headers.AccessControlAllowHeaders = "*";
+            ctx.Response.Headers["Access-Control-Allow-Private-Network"] = "true";
+            return Results.NoContent();
+        });
+
         api.MapGet("/songs/{id}/map.zip", (string id, SongStore store, HttpContext ctx) =>
         {
             var m = store.Get(id);
             var zip = MapDir(store, id) + ".zip";
             if (m == null || !File.Exists(zip)) return Results.NotFound();
             ctx.Response.Headers.AccessControlAllowOrigin = "*";
+            ctx.Response.Headers["Access-Control-Allow-Private-Network"] = "true";
             string name = string.IsNullOrWhiteSpace(m.Artist) ? m.Title : $"{m.Artist} - {m.Title}";
             foreach (char c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
             return Results.File(zip, "application/zip", $"{name}.zip");
@@ -210,7 +221,7 @@ public static class MapEndpoints
         report = new
         {
             report.Notes, report.Nps, report.PeakNps, report.Resets, report.BombResets, report.VisionBlocks,
-            report.Crossovers, report.WallClashes, report.BombHits, report.MeanCost, report.FlowScore, report.LeftShare, lights = d.Lights.Count,
+            report.Crossovers, report.HandClashes, report.WallClashes, report.BombHits, report.MeanCost, report.FlowScore, report.LeftShare, lights = d.Lights.Count,
             issues = report.Issues.Select(i => new { b = i.Beat, hand = (int)i.Hand, kind = i.Kind.ToString(), cost = Math.Round(i.Cost, 2) }),
         },
     };

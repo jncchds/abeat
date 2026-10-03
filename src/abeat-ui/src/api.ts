@@ -50,6 +50,7 @@ export interface Report {
   bombResets: number
   visionBlocks: number
   crossovers: number
+  handClashes: number
   wallClashes: number
   bombHits: number
   meanCost: number
@@ -110,6 +111,7 @@ export interface Defaults { settings: GeneratorSettings }
 
 const http = axios.create({ baseURL: '/api' })
 
+export const getConfig = () => http.get<{ httpsPort: number | null }>('/config')
 export const getDefaults = () => http.get<Defaults>('/defaults')
 export const getSongs = () => http.get<SongMeta[]>('/songs')
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[] }>(`/songs/${id}`)

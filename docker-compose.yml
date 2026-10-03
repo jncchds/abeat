@@ -7,6 +7,7 @@ services:
     image: abeat
     ports:
       - "8080:8080"
+      - "8443:8443"   # https for ArcViewer previews (self-signed)
     volumes:
       - abeat-data:/data
     restart: unless-stopped

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  audioUrl, coverUrl, deleteSong, errorText, generate, getAnalysis, getDefaults, getMap, getReference, getSettings, getSong, reanalyze, zipUrl,
+  audioUrl, coverUrl, deleteSong, errorText, generate, getAnalysis, getConfig, getDefaults, getMap, getReference, getSettings, getSong, reanalyze, zipUrl,
   type Analysis, type GeneratorSettings, type MapData, type Reference, type SongMeta,
 } from '../api'
 import FrontView from '../components/FrontView'
@@ -35,6 +35,12 @@ export default function SongPage() {
   const ready = status === 'Ready'
 
   useEffect(() => { getDefaults().then(r => setDefaults(r.data.settings)) }, [])
+  const [httpsPort, setHttpsPort] = useState<number | null>(null)
+  useEffect(() => { getConfig().then(r => setHttpsPort(r.data.httpsPort)).catch(() => {}) }, [])
+  // ArcViewer is an https page: it can fetch the zip directly (noProxy) from https or from localhost,
+  // never from a plain-http LAN address, and its CORS proxy cannot reach the LAN at all
+  const zipOrigin = location.protocol === 'https:' || location.hostname === 'localhost' || !httpsPort
+    ? location.origin : `https://${location.hostname}:${httpsPort}`
 
   // song meta + log (polls while processing via the songs context changing status)
   useEffect(() => {
@@ -146,8 +152,10 @@ export default function SongPage() {
           {ready && <a className="btn" href={zipUrl(id)}>⬇ Download map</a>}
           {ready && (
             <a className="btn btn-secondary" target="_blank" rel="noopener noreferrer"
-              title="Works when this server is reachable from your browser; otherwise download the zip and drop it into ArcViewer."
-              href={`https://allpoland.github.io/ArcViewer/?url=${encodeURIComponent(location.origin + zipUrl(id))}`}>
+              title={zipOrigin.startsWith('https:') && location.protocol !== 'https:'
+                ? `First time on this device: open ${zipOrigin} once and accept the certificate warning`
+                : 'Opens the map in ArcViewer'}
+              href={`https://allpoland.github.io/ArcViewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id))}&noProxy=true`}>
               ArcViewer
             </a>
           )}

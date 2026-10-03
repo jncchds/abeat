@@ -11,3 +11,7 @@
 - BeatSaver comparison harness (`abeat fetch-maps`, `compare`, `bench`); parity model calibrated on curated maps (horizontal cuts free the wrist, sliders and dots handled).
 - Style prior learned from curated maps (distribution matching for directions and cells), human-level density/doubles per difficulty, travel slack; flow score calibrated so curated maps average ~85.
 - Human reference maps in the web app: local import (`POST /api/admin/import`, localhost only), ABeat / Human / Overlay views and per-difficulty comparison.
+- Doubles where a saber swings into the other hand's note are forbidden (analyzer reports hand clashes).
+- Vocals first: Demucs stems on by default, vocals weighted highest, layers compared by rank, strongest layer leads each slot.
+- fetch-maps: max 2 maps per mapper, rating + recently curated.
+- Optional HTTPS listener with a self-signed LAN certificate (ABEAT_HTTPS_PORT).

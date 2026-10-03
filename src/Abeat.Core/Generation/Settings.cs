@@ -89,10 +89,10 @@ public sealed record GeneratorSettings
     /// <summary>Weight per onset layer. Missing layers get weight 0.</summary>
     public Dictionary<string, double> LayerWeights { get; init; } = new()
     {
-        // band layers (no stem separation)
-        ["full"] = 0.5, ["low"] = 1.0, ["mid"] = 0.8, ["high"] = 0.35,
-        // demucs stems
-        ["drums"] = 1.0, ["bass"] = 0.5, ["vocals"] = 0.9, ["other"] = 0.7,
+        // band layers (no stem separation); "mid" carries most of the vocals
+        ["full"] = 0.5, ["low"] = 0.9, ["mid"] = 1.0, ["high"] = 0.35,
+        // demucs stems: vocals lead, drums keep the pulse, the mix only fills gaps
+        ["vocals"] = 1.5, ["drums"] = 0.9, ["other"] = 0.6, ["bass"] = 0.4, ["mix"] = 0.25,
     };
     /// <summary>Seconds of the song kept free of notes at the start.</summary>
     public double LeadInSec { get; init; } = 1.5;

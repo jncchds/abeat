@@ -51,9 +51,11 @@ COPY --from=build /app /opt/abeat/app
 COPY --from=ui-build /ui/dist /opt/abeat/app/wwwroot
 ENV ABEAT_ANALYSIS_DIR=/opt/abeat/analysis \
     ABEAT_DATA=/data \
-    ASPNETCORE_URLS=http://+:8080
+    ASPNETCORE_URLS=http://+:8080 \
+    ABEAT_HTTP_PORT=8080 \
+    ABEAT_HTTPS_PORT=8443
 USER app
 VOLUME /data
-EXPOSE 8080
+EXPOSE 8080 8443
 WORKDIR /opt/abeat/app
 ENTRYPOINT ["dotnet", "Abeat.Web.dll"]

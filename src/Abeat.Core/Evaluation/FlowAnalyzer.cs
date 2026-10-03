@@ -3,7 +3,7 @@ using Abeat.Core.Model;
 
 namespace Abeat.Core.Evaluation;
 
-public enum IssueKind { Reset, VisionBlock, Crossover, HighCost, WallClash, BombHit }
+public enum IssueKind { Reset, VisionBlock, Crossover, HighCost, WallClash, BombHit, HandClash }
 
 public sealed record FlowIssue(double Beat, Hand Hand, IssueKind Kind, double Cost);
 
@@ -24,6 +24,8 @@ public sealed record FlowReport
     public int Crossovers { get; init; }
     /// <summary>Notes inside a wall while it passes (unplayable).</summary>
     public int WallClashes { get; init; }
+    /// <summary>Doubles where one saber swings into the other hand's note.</summary>
+    public int HandClashes { get; init; }
     /// <summary>Bombs that lie in a saber's swing path.</summary>
     public int BombHits { get; init; }
     public double MeanCost { get; init; }
@@ -35,7 +37,7 @@ public sealed record FlowReport
 
     public override string ToString() =>
         $"{Difficulty,-10} notes {Notes,5}  nps {Nps,5:0.00} (peak {PeakNps,5:0.00})  flow {FlowScore,5:0.0}  " +
-        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  L/R {LeftShare:P0}";
+        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  clash {HandClashes,2}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  L/R {LeftShare:P0}";
 }
 
 /// <summary>Scores a difficulty with the physical part of the swing cost model. Works on any map,
@@ -54,7 +56,7 @@ public static class FlowAnalyzer
         var states = new[] { HandState.Initial(Hand.Left), HandState.Initial(Hand.Right) };
         var issues = new List<FlowIssue>();
         double total = 0;
-        int resets = 0, bombResets = 0, vision = 0, cross = 0;
+        int resets = 0, bombResets = 0, vision = 0, cross = 0, handClashes = 0;
 
         // next directional note per hand, so dots can take the direction that leads into it
         var nextDir = new Dictionary<ColorNote, ColorNote?>(ReferenceEqualityComparer.Instance);
@@ -75,6 +77,15 @@ public static class FlowAnalyzer
             int j = i;
             while (j < notes.Count && notes[j].Beat - notes[i].Beat < 1e-3) j++;
             var before = (HandState[])states.Clone();
+            var beatNotes = notes.Skip(i).Take(j - i).ToList();
+            var ln = beatNotes.FirstOrDefault(n => n.Hand == Hand.Left);
+            var rn = beatNotes.FirstOrDefault(n => n.Hand == Hand.Right);
+            if (ln != null && rn != null && ln.Direction != CutDirection.Any && rn.Direction != CutDirection.Any
+                && SwingCostModel.DoubleClash(ln.X, ln.Y, Swing.Vector(ln.Direction), rn.X, rn.Y, Swing.Vector(rn.Direction)) >= 8)
+            {
+                handClashes++;
+                issues.Add(new FlowIssue(ln.Beat, Hand.Right, IssueKind.HandClash, 0));
+            }
             // with several notes for one hand on a beat (stacks/sliders), score only the first
             foreach (var group in notes.Skip(i).Take(j - i).GroupBy(n => n.Hand))
             {
@@ -150,6 +161,7 @@ public static class FlowAnalyzer
             VisionBlocks = vision,
             Crossovers = cross,
             WallClashes = wallClashes,
+            HandClashes = handClashes,
             BombHits = bombHits,
             MeanCost = mean,
             FlowScore = 100 * Math.Exp(-mean / ScoreScale),

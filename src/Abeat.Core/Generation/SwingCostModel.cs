@@ -114,6 +114,23 @@ public sealed class SwingCostModel(FlowWeights w)
         return new CostBreakdown(c, 0, reset, vision, cross);
     }
 
+    /// <summary>Two simultaneous cuts (a double) where one saber swings towards the other hand's note
+    /// in the same or next column of the same row: the sabers collide. Returns +inf for horizontal
+    /// swings into the other note (e.g. L← and R← side by side: the right saber sweeps through the left
+    /// note), a penalty for inward diagonals there, 0 otherwise.</summary>
+    public static double DoubleClash(int lx, int ly, Vec2 lv, int rx, int ry, Vec2 rv)
+    {
+        if (ly != ry || rx - lx > 1) return 0; // different rows, or a free column between the notes
+        double c = 0;
+        foreach (var (v, inwardSign) in new[] { (lv, 1.0), (rv, -1.0) })
+        {
+            if (v.X * inwardSign < 0.5) continue; // not moving towards the other hand
+            if (Math.Abs(v.Y) < 0.1) return double.PositiveInfinity;
+            c += 8;
+        }
+        return c;
+    }
+
     /// <summary>Hands that stay in one cell feel monotonous even when the flow is perfect.</summary>
     public double Stagnation(HandState s, int x, int y)
     {

@@ -23,14 +23,14 @@ usage:
       --settings <file.json>   load generator settings (see `abeat settings`)
       --work <dir>             analysis work dir (default: ./work/<file name>)
       --beats auto|librosa|beat_this   beat tracker (default auto)
-      --stems                  separate stems with demucs (slow on CPU, better rhythm choices)
+      --no-stems               skip Demucs stem separation (faster; vocals not isolated)
       --bpm <x>                override detected BPM
       --reanalyze              ignore cached analysis
       --no-lights, --no-walls, --no-zip
-  abeat analyze <audio> [-o <work dir>] [--beats ..] [--stems] [--bpm x]
+  abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--bpm x]
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
   abeat settings [file.json]                   write default generator settings to edit
-  abeat fetch-maps [--count 20] [-o work/beatsaver]   download top-rated curated BeatSaver maps (no mods)
+  abeat fetch-maps [--count 20] [--per-mapper 2] [-o work/beatsaver]   curated BeatSaver maps (no mods), top-rated + recent
   abeat compare <map.zip|folder> [--settings f]  re-map the map's own song and compare with the human map
   abeat bench [dir] [--settings f]             compare every map zip in dir (default work/beatsaver), write bench.csv
   abeat synth <out.wav>                        synthetic test track (128 BPM)
@@ -109,7 +109,7 @@ static string UrlWorkName(string url)
 
 static AnalysisOptions AnalysisOpts(Options o) => new(
     o.Get("beats") ?? "auto",
-    o.Has("stems"),
+    !o.Has("no-stems"),
     o.Get("bpm") is { } b ? double.Parse(b, CultureInfo.InvariantCulture) : null);
 
 static async Task<int> Generate(Options o)
@@ -131,6 +131,9 @@ static async Task<int> Generate(Options o)
     {
         double jd = MapGenerator.JumpDistance(a.Tempo.Bpm, d.Map.NoteJumpSpeed, d.Map.NoteJumpOffset);
         Console.WriteLine($"  {d.Report}  njs {d.Map.NoteJumpSpeed} jd {jd:0.0}");
+        var layers = d.Events.GroupBy(e => e.Layer).OrderByDescending(g => g.Count())
+            .Select(g => $"{g.Key} {100.0 * g.Count() / d.Events.Count:0}%");
+        Console.WriteLine($"             notes led by: {string.Join(", ", layers)}");
     }
 
     string outDir = o.Get("out") ?? Path.Combine("out", MapPackager.FolderName(result.Map));
@@ -196,7 +199,7 @@ static async Task<int> FetchMaps(Options o)
     string dir = o.Get("out") ?? Path.Combine("work", "beatsaver");
     Directory.CreateDirectory(dir);
     using var bs = new BeatSaverClient();
-    var maps = await bs.TopCuratedAsync(count);
+    var maps = await bs.CuratedAsync(count, int.Parse(o.Get("per-mapper") ?? "2"));
     foreach (var m in maps)
     {
         string path = Path.Combine(dir, $"{m.Id}.zip");
@@ -302,7 +305,7 @@ static List<DifficultyName> ParseDifficulties(string list)
 
 sealed class Options
 {
-    static readonly HashSet<string> Flags = ["stems", "reanalyze", "no-lights", "no-walls", "no-zip", "verbose", "v"];
+    static readonly HashSet<string> Flags = ["no-stems", "reanalyze", "no-lights", "no-walls", "no-zip", "verbose", "v"];
     static readonly Dictionary<string, string> Short = new() { ["o"] = "out", ["d"] = "difficulties", ["v"] = "verbose" };
 
     public List<string> Positional { get; } = [];

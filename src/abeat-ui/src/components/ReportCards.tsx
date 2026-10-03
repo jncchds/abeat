@@ -30,7 +30,7 @@ export default function ReportCards({ difficulties, selected, onSelect, comparis
               <dt>NPS</dt><dd>{r.nps.toFixed(2)} (peak {r.peakNps.toFixed(2)})</dd>
               <dt>resets</dt><dd>{r.resets}{r.bombResets ? ` (+${r.bombResets} bomb)` : ''}</dd>
               <dt>vision blocks</dt><dd>{r.visionBlocks}</dd>
-              <dt>crossovers</dt><dd>{r.crossovers}</dd>
+              <dt>crossovers / clashes</dt><dd>{r.crossovers} / {r.handClashes}</dd>
               <dt>left / right</dt><dd>{Math.round(r.leftShare * 100)} / {Math.round((1 - r.leftShare) * 100)}</dd>
               <dt>NJS / JD</dt><dd>{d.njs} / {d.jumpDistance.toFixed(1)}</dd>
               <dt>walls</dt><dd>{d.walls.length}{r.wallClashes ? ` (${r.wallClashes} clash)` : ''}</dd>

@@ -133,6 +133,17 @@ public class FlowAnalyzerTests
     }
 
     [Fact]
+    public void SideBySideSameDirectionHorizontalDoubleClashes()
+    {
+        // L← at x1 and R← at x2 in one row: the right saber sweeps through the left note
+        var r = FlowAnalyzer.Analyze(Map(new ColorNote(4, 1, 0, Hand.Left, CutDirection.Left), new ColorNote(4, 2, 0, Hand.Right, CutDirection.Left)), 120);
+        Assert.Equal(1, r.HandClashes);
+        // outward horizontals are fine
+        var ok = FlowAnalyzer.Analyze(Map(new ColorNote(4, 1, 0, Hand.Left, CutDirection.Left), new ColorNote(4, 2, 0, Hand.Right, CutDirection.Right)), 120);
+        Assert.Equal(0, ok.HandClashes);
+    }
+
+    [Fact]
     public void BombBetweenMakesResetIntentional()
     {
         var dm = Map(new ColorNote(0, 2, 0, Hand.Right, CutDirection.Down), new ColorNote(1, 2, 0, Hand.Right, CutDirection.Down));
@@ -180,6 +191,7 @@ public class GeneratorTests
         Assert.NotEmpty(r.Map.Notes);
         Assert.Equal(0, r.Report.Resets);
         Assert.Equal(0, r.Report.Crossovers);
+        Assert.Equal(0, r.Report.HandClashes);
         Assert.InRange(r.Report.LeftShare, 0.35, 0.65);
         Assert.All(r.Map.Notes, n => Assert.InRange(n.X, 0, 3));
         Assert.All(r.Map.Notes, n => Assert.InRange(n.Y, 0, 2));

@@ -2,7 +2,9 @@ using System.Diagnostics;
 
 namespace Abeat.Core.Analysis;
 
-public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = false, double? BpmOverride = null);
+/// <summary>Stems default on: vocals can only be prioritized once Demucs has isolated them (about one
+/// song-length of CPU time; the worker falls back to frequency bands when Demucs is not installed).</summary>
+public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null);
 
 /// <summary>Runs the Python analysis worker (analysis/ uv project) as a subprocess.</summary>
 public sealed class AnalysisRunner
