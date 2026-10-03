@@ -1,5 +1,10 @@
 # Release notes
 
+## v0.1.2 — 2026-10-03
+
+- Versions in the web app: every generation is kept (auto-regenerate updates a single draft), versions can be deleted or pruned to the two being compared, and their settings loaded back; maps record the app version and stay aligned after re-analysis.
+- Comparison: pick any version + difficulty as A and as B (the human map is a version too); split lanes (A top, B bottom), notes only one side has are ringed and marked on an "only" strip, A-vs-B F1 / offset / distribution distances, both player views.
+
 ## v0.1.1 — 2026-10-03
 
 - Steadier note timing: vocal/bass/other onsets from spectral flux (was ~8/s of grid-random consonant and breath hits), triplets only for songs with a triplet feel, "e" sixteenths discounted. Cake By The Ocean Expert F1 vs the human map 0.76 → 0.81, band-analysis bench Expert+ 0.70 → 0.74.

@@ -8,8 +8,6 @@ namespace Abeat.Web;
 
 public static class MapEndpoints
 {
-    public static string MapDir(SongStore store, string id) => Path.Combine(store.Dir(id), "map");
-
     public static void Map(WebApplication app)
     {
         var api = app.MapGroup("/api");
@@ -55,43 +53,11 @@ public static class MapEndpoints
             else
             {
                 var a = store.Analysis(meta.Id)!;
-                var result = await Task.Run(() => MapGenerator.Generate(a, store.Settings(meta.Id)));
-                MapPackager.Write(result.Map, a, MapDir(store, meta.Id), zip: true);
+                var settings = store.Settings(meta.Id);
+                var result = await Task.Run(() => MapGenerator.Generate(a, settings));
+                Generations.Save(store, meta.Id, a, settings, result, draft: false);
             }
             return Results.Ok(meta);
-        });
-
-        // the human map on ABeat's beat grid (same audio, shifted by the analysis padding) plus how the
-        // generated difficulties compare with it
-        api.MapGet("/songs/{id}/reference", (string id, SongStore store) =>
-        {
-            var a = store.Analysis(id);
-            var refDir = store.ReferenceDir(id);
-            if (a == null || !Directory.Exists(refDir)) return Results.NotFound();
-            var human = Abeat.Core.Formats.MapReader.Read(refDir);
-            var genDir = MapDir(store, id);
-            var gen = File.Exists(Path.Combine(genDir, "Info.dat")) ? Abeat.Core.Formats.MapReader.Read(genDir) : null;
-            return Results.Ok(new
-            {
-                mapper = human.LevelAuthor,
-                bpm = human.Bpm,
-                bpmChanges = human.Difficulties.Any(d => d.BpmChanges > 0),
-                difficulties = human.Difficulties.Where(d => d.Notes.Count > 0).Select(h =>
-                {
-                    var onGrid = ToAnalysisGrid(h, human.Bpm, a);
-                    var g = gen?.Difficulties.FirstOrDefault(x => x.Difficulty == h.Difficulty);
-                    var cmp = g == null ? null : MapComparer.Compare(h, human.Bpm, g, a.Tempo.Bpm, a.Audio.PadSec);
-                    return new
-                    {
-                        difficulty = DifficultyDto(a, onGrid, FlowAnalyzer.Analyze(onGrid, a.Tempo.Bpm), null),
-                        comparison = cmp == null ? null : new
-                        {
-                            f1 = cmp.F1, cmp.Precision, cmp.Recall, cmp.OffsetMs, cmp.DirectionDistance, cmp.PositionDistance,
-                            cmp.HumanDoubles, cmp.GeneratedDoubles,
-                        },
-                    };
-                }),
-            });
         });
 
         api.MapGet("/songs/{id}", (string id, SongStore store) =>
@@ -106,6 +72,7 @@ public static class MapEndpoints
         api.MapPost("/songs/{id}/reanalyze", (string id, AnalysisOptions options, SongStore store, AnalysisQueue queue) =>
         {
             if (store.Get(id) is not { } m) return Results.NotFound();
+            Generations.List(store, id); // moves a legacy map into the history while its grid still matches
             m.Analysis = options;
             m.Status = SongStatus.Queued;
             store.Save(m);
@@ -158,29 +125,57 @@ public static class MapEndpoints
         api.MapGet("/songs/{id}/settings", (string id, SongStore store) =>
             store.Get(id) is null ? Results.NotFound() : Results.Ok(store.Settings(id)));
 
-        // Generate with the given settings, save them, write the map + zip, and return everything the
-        // timeline needs (notes, walls, events, reports with issues).
-        api.MapPost("/songs/{id}/generate", async (string id, GeneratorSettings settings, SongStore store) =>
+        // Generate with the given settings and save them as the song's settings. Appends a new version;
+        // draft=true (auto-regenerate) replaces the newest version if it is a draft too.
+        api.MapPost("/songs/{id}/generate", async (string id, GeneratorSettings settings, bool? draft, SongStore store) =>
         {
             var a = store.Analysis(id);
             if (a == null) return Results.NotFound();
             var result = await Task.Run(() => MapGenerator.Generate(a, settings));
             store.SaveSettings(id, settings);
-            MapPackager.Write(result.Map, a, MapDir(store, id), zip: true);
-            return Results.Ok(ToDto(a, result));
+            var gen = Generations.Save(store, id, a, settings, result, draft ?? false);
+            return Results.Ok(new
+            {
+                version = VersionDto(store, id, a, gen, HumanDifficulties(store, id, a)),
+                difficulties = result.Difficulties.Select(d => DifficultyDto(a, d.Map, d.Report, d.Events)),
+            });
         });
 
-        api.MapGet("/songs/{id}/map", (string id, SongStore store) =>
+        // Versions: every saved generation (newest first) plus "human" for an imported reference map.
+        api.MapGet("/songs/{id}/versions", (string id, SongStore store) =>
         {
             var a = store.Analysis(id);
             if (a == null) return Results.NotFound();
-            var dir = MapDir(store, id);
-            if (!File.Exists(Path.Combine(dir, "Info.dat"))) return Results.NotFound();
-            var map = Abeat.Core.Formats.MapReader.Read(dir);
-            return Results.Ok(new
-            {
-                difficulties = map.Difficulties.Select(d => DifficultyDto(a, d, FlowAnalyzer.Analyze(d, a.Tempo.Bpm), null)),
-            });
+            var human = HumanDifficulties(store, id, a);
+            var list = new List<object>();
+            if (human != null && store.Get(id) is { } m)
+                list.Add(new { id = HumanId, kind = "human", label = $"Human · {m.ReferenceMapper}", difficulties = human.Select(d => d.Difficulty.ToString()) });
+            list.AddRange(Generations.List(store, id).Select(g => VersionDto(store, id, a, g, human)));
+            return Results.Ok(list);
+        });
+
+        api.MapGet("/songs/{id}/versions/{version}", (string id, string version, SongStore store) =>
+        {
+            var a = store.Analysis(id);
+            if (a == null || ReadVersion(store, id, version, a) is not { } maps) return Results.NotFound();
+            return Results.Ok(new { difficulties = maps.Select(d => DifficultyDto(a, d, FlowAnalyzer.Analyze(d, a.Tempo.Bpm), null)) });
+        });
+
+        api.MapDelete("/songs/{id}/versions/{version}", (string id, string version, SongStore store) =>
+            Generations.Delete(store, id, version) ? Results.NoContent() : Results.NotFound());
+
+        api.MapGet("/songs/{id}/versions/{version}/settings", (string id, string version, SongStore store) =>
+            Generations.Settings(store, id, version) is { } s ? Results.Ok(s) : Results.NotFound());
+
+        // Any two (version, difficulty) pairs; B is treated as the reference for precision/recall.
+        api.MapGet("/songs/{id}/compare", (string id, string a, string ad, string b, string bd, SongStore store) =>
+        {
+            var an = store.Analysis(id);
+            if (an == null) return Results.NotFound();
+            var ma = ReadVersion(store, id, a, an)?.FirstOrDefault(d => d.Difficulty.ToString() == ad);
+            var mb = ReadVersion(store, id, b, an)?.FirstOrDefault(d => d.Difficulty.ToString() == bd);
+            if (ma == null || mb == null) return Results.NotFound();
+            return Results.Ok(ComparisonDto(MapComparer.Compare(mb, an.Tempo.Bpm, ma, an.Tempo.Bpm, 0)));
         });
 
         // ArcViewer (a public https page) fetches the zip directly with ?noProxy=true. Browsers send a
@@ -194,11 +189,11 @@ public static class MapEndpoints
             return Results.NoContent();
         });
 
-        api.MapGet("/songs/{id}/map.zip", (string id, SongStore store, HttpContext ctx) =>
+        api.MapGet("/songs/{id}/map.zip", (string id, string? version, SongStore store, HttpContext ctx) =>
         {
             var m = store.Get(id);
-            var zip = MapDir(store, id) + ".zip";
-            if (m == null || !File.Exists(zip)) return Results.NotFound();
+            var zip = (version ?? Generations.Latest(store, id)?.Id) is { } gen ? Generations.Zip(store, id, gen) : null;
+            if (m == null || zip == null) return Results.NotFound();
             ctx.Response.Headers.AccessControlAllowOrigin = "*";
             ctx.Response.Headers["Access-Control-Allow-Private-Network"] = "true";
             string name = string.IsNullOrWhiteSpace(m.Artist) ? m.Title : $"{m.Artist} - {m.Title}";
@@ -210,27 +205,39 @@ public static class MapEndpoints
     public sealed record UrlRequest(string? Url, string? Beats, bool Stems);
     public sealed record ImportRequest(string Path);
 
-    /// <summary>Re-times a human map onto the analysis grid: same audio seconds, plus the padding ABeat
-    /// added in front, expressed in ABeat's beats.</summary>
-    static DifficultyMap ToAnalysisGrid(DifficultyMap h, double humanBpm, SongAnalysis a)
+    const string HumanId = "human";
+
+    /// <summary>The imported human map's playable difficulties on the analysis grid, or null.</summary>
+    static List<DifficultyMap>? HumanDifficulties(SongStore store, string id, SongAnalysis a)
     {
-        double B(double beat) => a.SecondsToBeat(beat * 60 / humanBpm + a.Audio.PadSec);
-        double D(double dur) => dur * a.Tempo.Bpm / humanBpm;
-        return new DifficultyMap
-        {
-            Difficulty = h.Difficulty,
-            NoteJumpSpeed = h.NoteJumpSpeed,
-            NoteJumpOffset = h.NoteJumpOffset,
-            Notes = h.Notes.Select(n => n with { Beat = B(n.Beat) }).ToList(),
-            Bombs = h.Bombs.Select(n => n with { Beat = B(n.Beat) }).ToList(),
-            Obstacles = h.Obstacles.Select(o => o with { Beat = B(o.Beat), Duration = D(o.Duration) }).ToList(),
-            Lights = h.Lights.Select(l => l with { Beat = B(l.Beat) }).ToList(),
-        };
+        var dir = store.ReferenceDir(id);
+        if (!Directory.Exists(dir)) return null;
+        var human = Abeat.Core.Formats.MapReader.Read(dir);
+        return [.. human.Difficulties.Where(d => d.Notes.Count > 0).Select(d => Generations.OnGrid(d, human.Bpm, 0, a))];
     }
 
-    static object ToDto(SongAnalysis a, GenerationResult r) => new
+    static List<DifficultyMap>? ReadVersion(SongStore store, string id, string version, SongAnalysis a) =>
+        version == HumanId ? HumanDifficulties(store, id, a)
+        : Generations.Get(store, id, version) is { } g ? Generations.Read(store, id, g, a) : null;
+
+    /// <summary>A generation for the versions list, with note-timing F1 against the human map per difficulty.</summary>
+    static object VersionDto(SongStore store, string id, SongAnalysis a, GenerationMeta g, List<DifficultyMap>? human)
     {
-        difficulties = r.Difficulties.Select(d => DifficultyDto(a, d.Map, d.Report, d.Events)),
+        Dictionary<string, double>? vsHuman = null;
+        if (human != null)
+        {
+            vsHuman = [];
+            foreach (var d in Generations.Read(store, id, g, a))
+                if (human.FirstOrDefault(h => h.Difficulty == d.Difficulty) is { } h)
+                    vsHuman[d.Difficulty.ToString()] = Math.Round(MapComparer.Compare(h, a.Tempo.Bpm, d, a.Tempo.Bpm, 0).F1, 3);
+        }
+        return new { g.Id, kind = "abeat", g.CreatedUtc, g.Draft, g.AppVersion, g.Difficulties, vsHuman };
+    }
+
+    static object ComparisonDto(Comparison c) => new
+    {
+        f1 = c.F1, c.Precision, c.Recall, c.OffsetMs, c.DirectionDistance, c.PositionDistance,
+        aDoubles = c.GeneratedDoubles, bDoubles = c.HumanDoubles, aNps = c.GeneratedNps, bNps = c.HumanNps,
     };
 
     static object DifficultyDto(SongAnalysis a, DifficultyMap d, FlowReport report, IReadOnlyList<RhythmEvent>? events) => new

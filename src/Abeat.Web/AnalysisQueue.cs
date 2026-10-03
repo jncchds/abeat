@@ -1,7 +1,6 @@
 using System.Threading.Channels;
 using Abeat.Core.Analysis;
 using Abeat.Core.Generation;
-using Abeat.Core.Packaging;
 
 namespace Abeat.Web;
 
@@ -40,8 +39,9 @@ public sealed class AnalysisQueue(SongStore store, ILogger<AnalysisQueue> logger
                 meta.Status = SongStatus.Generating;
                 store.Save(meta);
                 log.Add("generating map");
-                var result = await Task.Run(() => MapGenerator.Generate(a, store.Settings(id)), ct);
-                MapPackager.Write(result.Map, a, MapEndpoints.MapDir(store, id), zip: true);
+                var settings = store.Settings(id);
+                var result = await Task.Run(() => MapGenerator.Generate(a, settings), ct);
+                Generations.Save(store, id, a, settings, result, draft: false);
                 foreach (var d in result.Difficulties) log.Add(d.Report.ToString());
 
                 meta.Status = SongStatus.Ready;

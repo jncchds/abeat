@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  audioUrl, coverUrl, deleteSong, errorText, generate, getAnalysis, getConfig, getDefaults, getMap, getReference, getSettings, getSong, reanalyze, zipUrl,
-  type Analysis, type GeneratorSettings, type MapData, type Reference, type SongMeta,
+  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getSettings, getSong,
+  getVersion, getVersions, getVersionSettings, reanalyze, zipUrl,
+  type Analysis, type Comparison, type Difficulty, type GeneratorSettings, type SongMeta, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
@@ -10,10 +11,43 @@ import ReportCards from '../components/ReportCards'
 import SettingsPanel from '../components/SettingsPanel'
 import Timeline from '../components/Timeline'
 import ToggleField from '../components/ToggleField'
+import VersionsPanel, { type Side } from '../components/VersionsPanel'
 import { useDebug } from '../hooks/useDebug'
 import { useSongs } from '../hooks/useSongs'
-import { ISSUE_COLOR } from '../utils/draw'
+import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
 import { diffLabel, fmtTime } from '../utils/format'
+
+type Mode = 'a' | 'b' | 'both'
+
+/** "#3 · Oct 3, 12:03:10 · v0.1.1" for generations (numbered oldest first), the mapper for the human map. */
+function versionLabels(versions: Version[]): Record<string, string> {
+  const gens = versions.filter(v => v.kind === 'abeat').reverse()
+  const out: Record<string, string> = {}
+  for (const v of versions) {
+    if (v.kind === 'human') { out[v.id] = v.label; continue }
+    const when = new Date(v.createdUtc).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+    out[v.id] = `#${gens.indexOf(v) + 1} · ${when}${v.appVersion ? ` · ${/^\d/.test(v.appVersion) ? 'v' : ''}${v.appVersion}` : ''}`
+  }
+  return out
+}
+
+function resolveSides(list: Version[], p: { a?: Side; b?: Side | null }): { a: Side; b: Side | null } | null {
+  if (!list.length) return null
+  const find = (v?: string) => list.find(x => x.id === v)
+  const gens = list.filter(v => v.kind === 'abeat')
+  const av = find(p.a?.v) ?? gens[0] ?? list[0]
+  const a = { v: av.id, d: pickDiff(av, p.a?.d) }
+  if (p.b === null) return { a, b: null }
+  const picked = find(p.b?.v)
+  if (picked) return { a, b: { v: picked.id, d: pickDiff(picked, p.b?.d) } }
+  if (p.b) return { a, b: null } // picked version was deleted
+  const bv = list.find(v => v.kind === 'human') ?? gens.find(v => v.id !== av.id)
+  return { a, b: bv ? { v: bv.id, d: pickDiff(bv, a.d) } : null }
+}
+
+/** Same difficulty if the version has it, else its hardest. */
+const pickDiff = (v: Version | undefined, want?: string) =>
+  v ? (want && v.difficulties.includes(want) ? want : v.difficulties.at(-1) ?? '') : ''
 
 export default function SongPage() {
   const { id = '' } = useParams()
@@ -22,16 +56,20 @@ export default function SongPage() {
   const [meta, setMeta] = useState<SongMeta | null>(null)
   const [log, setLog] = useState<string[]>([])
   // everything loaded for a ready song, tagged with its id so stale data is never shown
-  const [loaded, setLoaded] = useState<{ id: string; analysis: Analysis; map: MapData; settings: GeneratorSettings } | null>(null)
+  const [loaded, setLoaded] = useState<{ id: string; analysis: Analysis; settings: GeneratorSettings } | null>(null)
+  const [versions, setVersions] = useState<{ id: string; list: Version[] } | null>(null)
+  // difficulties per version, per song
+  const [maps, setMaps] = useState<{ id: string; byVersion: Record<string, Difficulty[]> }>({ id: '', byVersion: {} })
+  // what the user picked for A / B (b: undefined = default, null = hidden); validated against the list below
+  const [picked, setPicked] = useState<{ id: string; a?: Side; b?: Side | null }>({ id: '' })
+  const [mode, setMode] = useState<Mode>('both')
+  const [comparison, setComparison] = useState<{ key: string; c: Comparison } | null>(null)
   const [defaults, setDefaults] = useState<GeneratorSettings>()
-  const [diff, setDiff] = useState<string>()
   const [autoRegen, setAutoRegen] = useState(true)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [follow, setFollow] = useState(true)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
-  const [reference, setReference] = useState<{ id: string; ref: Reference } | null>(null)
-  const [view, setView] = useState<'abeat' | 'human' | 'overlay'>('overlay')
   const debug = useDebug()
   // debug: play a single stem in the player instead of the mix (same timing as song.egg)
   const [stemSrc, setStemSrc] = useState<{ id: string; url: string } | null>(null)
@@ -62,61 +100,149 @@ export default function SongPage() {
     return () => { cancelled = true; window.clearInterval(t) }
   }, [id, ready])
 
+  const refreshVersions = useCallback(async () => {
+    const r = await getVersions(id)
+    setVersions({ id, list: r.data })
+    return r.data
+  }, [id])
+
   useEffect(() => {
     if (!ready) return
-    Promise.all([getAnalysis(id), getMap(id), getSettings(id)])
-      .then(([a, m, s]) => {
-        setLoaded({ id, analysis: a.data, map: m.data, settings: s.data })
-        setDiff(d => (m.data.difficulties.some(x => x.name === d) ? d : m.data.difficulties.at(-1)?.name))
+    Promise.all([getAnalysis(id), getSettings(id), getVersions(id)])
+      .then(([a, s, v]) => {
+        setLoaded({ id, analysis: a.data, settings: s.data })
+        setVersions({ id, list: v.data })
       })
       .catch(e => setError(errorText(e)))
   }, [id, ready])
 
-  // the human reference (and its comparison) depends on the generated map, so refetch when it changes
-  const hasReference = !!meta?.referenceMapper
-  const loadedMap = loaded?.id === id ? loaded.map : null
-  useEffect(() => {
-    if (!ready || !hasReference || !loadedMap) return
-    getReference(id).then(r => setReference({ id, ref: r.data })).catch(() => {})
-  }, [id, ready, hasReference, loadedMap])
-  const ref = hasReference && reference?.id === id ? reference.ref : null
-
   const data = ready && loaded?.id === id ? loaded : null
   const analysis = data?.analysis ?? null
-  const map = data?.map ?? null
   const settings = data?.settings ?? null
+  const list = useMemo(() => (versions?.id === id ? versions.list : []), [versions, id])
+  const labels = useMemo(() => versionLabels(list), [list])
+  const byVersion = useMemo(() => (maps.id === id ? maps.byVersion : {}), [maps, id])
 
-  const pending = useRef<GeneratorSettings | null>(null)
-  const runGenerate = useCallback(async (s: GeneratorSettings) => {
-    if (generating) { pending.current = s; return }
+  // A defaults to the newest generation, B to the human map (or the previous generation); picks of
+  // deleted versions fall back
+  const sides = useMemo(() => resolveSides(list, picked.id === id ? picked : {}), [list, picked, id])
+  const sideA = sides?.a ?? null
+  const sideB = sides?.b ?? null
+
+  // load the difficulties of the shown versions
+  useEffect(() => {
+    for (const v of [sideA?.v, sideB?.v]) {
+      if (!v || byVersion[v]) continue
+      getVersion(id, v)
+        .then(r => setMaps(m => ({ id, byVersion: { ...(m.id === id ? m.byVersion : {}), [v]: r.data.difficulties } })))
+        .catch(e => setError(errorText(e)))
+    }
+  }, [id, sideA?.v, sideB?.v, byVersion])
+
+  const diffA = sideA ? byVersion[sideA.v]?.find(d => d.name === sideA.d) : undefined
+  const diffB = sideB ? byVersion[sideB.v]?.find(d => d.name === sideB.d) : undefined
+
+  const compareKey = sideA && sideB ? `${id}|${sideA.v}|${sideA.d}|${sideB.v}|${sideB.d}` : ''
+  useEffect(() => {
+    if (!compareKey) return
+    const [, av, ad, bv, bd] = compareKey.split('|')
+    compareVersions(id, av, ad, bv, bd)
+      .then(r => setComparison({ key: compareKey, c: r.data }))
+      .catch(() => {})
+  }, [id, compareKey])
+  const cmp = comparison?.key === compareKey ? comparison.c : null
+
+  const showB = mode !== 'a' && !!diffB
+  const showA = mode !== 'b' || !diffB
+  const tracks = useMemo<Track[]>(() => {
+    if (!analysis) return []
+    const tol = (0.05 * analysis.tempo.bpm) / 60
+    const out: Track[] = []
+    if (showA && diffA) out.push({ d: diffA, color: SIDE_A, unmatched: showB && diffB ? unmatchedBeats(diffA, diffB, tol) : undefined })
+    if (showB && diffB) out.push({ d: diffB, color: SIDE_B, unmatched: showA && diffA ? unmatchedBeats(diffB, diffA, tol) : undefined })
+    return out
+  }, [analysis, diffA, diffB, showA, showB])
+  const sideLabel = (s: Side, k: 'A' | 'B') => `${k} · ${labels[s.v] ?? ''} · ${diffLabel(s.d)}`
+  const trackLabels = [showA && diffA && sideA ? sideLabel(sideA, 'A') : null, showB && sideB ? sideLabel(sideB, 'B') : null]
+    .filter((x): x is string => !!x)
+
+  const pending = useRef<{ s: GeneratorSettings; draft: boolean } | null>(null)
+  const runGenerate = useCallback(async (s: GeneratorSettings, draft: boolean) => {
+    if (generating) { pending.current = { s, draft }; return }
     setGenerating(true)
     setError(null)
     try {
-      const r = await generate(id, s)
-      setLoaded(l => (l && l.id === id ? { ...l, map: r.data } : l))
-      setDiff(d => (r.data.difficulties.some(x => x.name === d) ? d : r.data.difficulties.at(-1)?.name))
+      const r = await generate(id, s, draft)
+      const v = r.data.version
+      setMaps(m => ({ id, byVersion: { ...(m.id === id ? m.byVersion : {}), [v.id]: r.data.difficulties } }))
+      const fresh = await refreshVersions()
+      const a = { v: v.id, d: pickDiff(v, sideA?.d) }
+      let b = sideB
+      // the old A becomes B when nothing is compared yet (unless it was the draft just replaced)
+      if (!b && sideA && sideA.v !== v.id && fresh.some(x => x.id === sideA.v)) b = sideA
+      setPicked({ id, a, b })
     } catch (e) {
       setError(errorText(e))
     } finally {
       setGenerating(false)
     }
-  }, [id, generating])
+  }, [id, generating, refreshVersions, sideA, sideB])
 
   useEffect(() => {
     if (!generating && pending.current) {
-      const s = pending.current
+      const p = pending.current
       pending.current = null
-      runGenerate(s)
+      runGenerate(p.s, p.draft)
     }
   }, [generating, runGenerate])
 
   const onSettings = (s: GeneratorSettings) => {
     setLoaded(l => (l && l.id === id ? { ...l, settings: s } : l))
-    if (autoRegen) runGenerate(s)
+    if (autoRegen) runGenerate(s, true)
+  }
+
+  const setSide = (side: 'a' | 'b', next: Partial<Side> | null) => {
+    if (!sideA) return
+    if (side === 'b' && next === null) { setPicked({ id, a: sideA, b: null }); return }
+    const old = side === 'a' ? sideA : sideB
+    const v = list.find(x => x.id === (next?.v ?? old?.v))
+    if (!v) return
+    const s = { v: v.id, d: pickDiff(v, next?.d ?? old?.d ?? sideA.d) }
+    setPicked(side === 'a' ? { id, a: s, b: sideB } : { id, a: sideA, b: s })
+  }
+
+  // clicking B on the version already shown as B hides it
+  const onPick = (side: 'a' | 'b', v: string) => setSide(side, side === 'b' && sideB?.v === v ? null : { v })
+
+  const onAddB = () => {
+    const v = list.find(x => x.id !== sideA?.v) ?? list[0]
+    if (v) setSide('b', { v: v.id })
+  }
+
+  const onDeleteVersion = async (v: string) => {
+    if (!confirm(`Delete version ${labels[v] ?? v}?`)) return
+    await deleteVersion(id, v).catch(e => setError(errorText(e)))
+    await refreshVersions()
+  }
+
+  const onPrune = async () => {
+    const doomed = list.filter(v => v.kind === 'abeat' && v.id !== sideA?.v && v.id !== sideB?.v)
+    if (!doomed.length || !confirm(`Delete ${doomed.length} version${doomed.length === 1 ? '' : 's'} (all except A and B)?`)) return
+    for (const v of doomed) await deleteVersion(id, v.id).catch(e => setError(errorText(e)))
+    await refreshVersions()
+  }
+
+  const onLoadSettings = async (v: string) => {
+    try {
+      const r = await getVersionSettings(id, v)
+      setLoaded(l => (l && l.id === id ? { ...l, settings: r.data } : l))
+    } catch (e) {
+      setError(errorText(e))
+    }
   }
 
   const onDelete = async () => {
-    if (!confirm('Delete this song and its map?')) return
+    if (!confirm('Delete this song and all its versions?')) return
     await deleteSong(id)
     await refresh()
     navigate('/')
@@ -128,11 +254,11 @@ export default function SongPage() {
     await refresh()
   }
 
-  const generated = map?.difficulties.find(d => d.name === diff)
-  const human = ref?.difficulties.find(d => d.difficulty.name === diff)?.difficulty
-  const current = view === 'human' && human ? human : generated
-  const ghost = view === 'overlay' ? human : undefined
-  const comparisons = ref ? Object.fromEntries(ref.difficulties.map(d => [d.difficulty.name, d.comparison])) : undefined
+  const current = showA ? diffA : diffB
+  const versionA = list.find(v => v.id === sideA?.v)
+  const versionB = list.find(v => v.id === sideB?.v)
+  // download / ArcViewer: the generation shown as A (the newest one when A is the human map)
+  const zipVersion = versionA?.kind === 'abeat' ? versionA.id : undefined
   const title = meta?.title || meta?.fileName || meta?.sourceUrl || '…'
 
   return (
@@ -154,13 +280,13 @@ export default function SongPage() {
           {analysis && <Facts a={analysis} />}
         </div>
         <div className="song-actions">
-          {ready && <a className="btn" href={zipUrl(id)}>⬇ Download map</a>}
+          {ready && <a className="btn" href={zipUrl(id, zipVersion)} title="Downloads version A">⬇ Download map</a>}
           {ready && (
             <a className="btn btn-secondary" target="_blank" rel="noopener noreferrer"
               title={zipOrigin.startsWith('https:') && location.protocol !== 'https:'
                 ? `First time on this device: open ${zipOrigin} once and accept the certificate warning`
-                : 'Opens the map in ArcViewer'}
-              href={`https://allpoland.github.io/ArcViewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id))}&noProxy=true`}>
+                : 'Opens version A in ArcViewer'}
+              href={`https://allpoland.github.io/ArcViewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id, zipVersion))}&noProxy=true`}>
               ArcViewer
             </a>
           )}
@@ -180,42 +306,70 @@ export default function SongPage() {
         </div>
       )}
 
-      {ready && analysis && map && settings && (
+      {ready && analysis && settings && sideA && (
         <>
           <audio ref={setAudio} src={stemSrc?.id === id ? stemSrc.url : audioUrl(id)} preload="auto" />
           {debug && <DebugPanel id={id} onPreview={url => setStemSrc(url ? { id, url } : null)} />}
           <Player audio={audio} bpm={analysis.tempo.bpm} follow={follow} setFollow={setFollow}>
-            {ref && (
-              <div className="view-switch" title="Overlay: ABeat notes filled, human notes as outlines">
-                {(['abeat', 'human', 'overlay'] as const).map(v => (
-                  <button key={v} className={view === v ? 'active' : ''} onClick={() => setView(v)}>
-                    {v === 'abeat' ? 'ABeat' : v === 'human' ? 'Human' : 'Overlay'}
+            {sideB && (
+              <div className="view-switch" title="Which version the timeline and player view show">
+                {(['a', 'b', 'both'] as const).map(m => (
+                  <button key={m} className={mode === m ? 'active' : ''} onClick={() => setMode(m)}>
+                    {m === 'a' ? 'A' : m === 'b' ? 'B' : 'A + B'}
                   </button>
                 ))}
               </div>
             )}
-            <div className="diff-tabs">
-              {map.difficulties.map(d => (
-                <button key={d.name} className={d.name === diff ? 'active' : ''} onClick={() => setDiff(d.name)}>{diffLabel(d.name)}</button>
-              ))}
-            </div>
           </Player>
 
+          <div className="compare-bar">
+            <SidePicker name="A" color={SIDE_A} side={sideA} versions={list} labels={labels} onChange={n => setSide('a', n)} />
+            {sideB
+              ? <SidePicker name="B" color={SIDE_B} side={sideB} versions={list} labels={labels} onChange={n => setSide('b', n)}
+                  onClear={() => setSide('b', null)} />
+              : <button className="btn-secondary add-b" style={{ borderColor: SIDE_B, color: SIDE_B }} onClick={onAddB}>+ Compare with B</button>}
+            {cmp && (
+              <div className="compare-line compare-ab"
+                title="A against B: note timing F1 at ±50 ms (B as reference), median offset, direction / position distribution distance (0 = same)">
+                <span>A vs B</span>
+                <b>F1 {cmp.f1.toFixed(2)}</b>
+                <span>P {cmp.precision.toFixed(2)} · R {cmp.recall.toFixed(2)}</span>
+                <span>offset {cmp.offsetMs.toFixed(0)} ms</span>
+                <span>nps {cmp.aNps.toFixed(1)} / {cmp.bNps.toFixed(1)}</span>
+                <span>dirΔ {cmp.directionDistance.toFixed(2)}</span>
+                <span>posΔ {cmp.positionDistance.toFixed(2)}</span>
+              </div>
+            )}
+          </div>
+
           <div className="views">
-            <Timeline analysis={analysis} difficulty={current} audio={audio} follow={follow} ghost={ghost} />
-            <FrontView difficulty={current} bpm={analysis.tempo.bpm} audio={audio} />
+            <Timeline analysis={analysis} tracks={tracks} labels={trackLabels} audio={audio} follow={follow} />
+            <div className="front-stack">
+              {tracks.length > 1
+                ? tracks.map((t, k) => (
+                  <FrontView key={k} difficulty={t.d} bpm={analysis.tempo.bpm} audio={audio} color={t.color} label={k === 0 ? 'A' : 'B'} />
+                ))
+                : <FrontView difficulty={current} bpm={analysis.tempo.bpm} audio={audio} />}
+            </div>
           </div>
 
           <div className="bottom-grid">
             <div>
-              <ReportCards difficulties={map.difficulties} selected={diff} onSelect={setDiff} comparisons={comparisons}
-                title={ref ? 'ABeat' : undefined} />
-              {ref && (
-                <ReportCards difficulties={ref.difficulties.map(d => d.difficulty)} selected={diff} onSelect={setDiff}
-                  title={`Human · ${ref.mapper}${ref.bpmChanges ? ' · has BPM changes, overlay approximate' : ''}`} />
+              <VersionsPanel versions={list} labels={labels} a={sideA} b={sideB} onPick={onPick}
+                onDelete={onDeleteVersion} onPrune={onPrune} onLoadSettings={onLoadSettings} />
+              {byVersion[sideA.v] && (
+                <ReportCards difficulties={byVersion[sideA.v]} selected={sideA.d} onSelect={d => setSide('a', { d })}
+                  vsHuman={versionA?.kind === 'abeat' ? versionA.vsHuman : null} title={`A · ${labels[sideA.v] ?? ''}`} color={SIDE_A} />
+              )}
+              {sideB && byVersion[sideB.v] && (
+                <ReportCards difficulties={byVersion[sideB.v]} selected={sideB.d} onSelect={d => setSide('b', { d })}
+                  vsHuman={versionB?.kind === 'abeat' ? versionB.vsHuman : null} title={`B · ${labels[sideB.v] ?? ''}`} color={SIDE_B} />
               )}
               <div className="card issues-card">
-                <h3>Flow issues <span className="muted">{current?.report.issues.length ? `(${current.report.issues.length})` : '— none'}</span></h3>
+                <h3>
+                  Flow issues {current && <span className="muted">{showA ? 'A' : 'B'}</span>}{' '}
+                  <span className="muted">{current?.report.issues.length ? `(${current.report.issues.length})` : '— none'}</span>
+                </h3>
                 <ul className="issue-list">
                   {current?.report.issues.slice(0, 300).map((i, k) => (
                     <li key={k} style={{ borderLeftColor: ISSUE_COLOR[i.kind] }}
@@ -230,7 +384,10 @@ export default function SongPage() {
               <div className="settings-head">
                 <h3>Generator settings</h3>
                 <ToggleField label="Auto" checked={autoRegen} onChange={setAutoRegen} />
-                <button onClick={() => runGenerate(settings)} disabled={generating}>{generating ? 'Generating…' : 'Generate'}</button>
+                <button onClick={() => runGenerate(settings, false)} disabled={generating}
+                  title="Adds a new version (auto-regenerate only updates a draft)">
+                  {generating ? 'Generating…' : 'Generate new version'}
+                </button>
                 <button className="btn-secondary" disabled={!defaults} onClick={() => defaults && onSettings(structuredClone(defaults))}>Defaults</button>
               </div>
               <SettingsPanel settings={settings} defaults={defaults} layers={Object.keys(analysis.layers)}
@@ -239,6 +396,36 @@ export default function SongPage() {
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+interface SidePickerProps {
+  name: 'A' | 'B'
+  color: string
+  side: Side
+  versions: Version[]
+  labels: Record<string, string>
+  onChange: (next: Partial<Side>) => void
+  onClear?: () => void
+}
+
+/** Version + difficulty selector for one side of the comparison. */
+function SidePicker({ name, color, side, versions, labels, onChange, onClear }: SidePickerProps) {
+  const v = versions.find(x => x.id === side.v)
+  return (
+    <div className="side-picker" style={{ borderColor: color }}>
+      <span className="side-name" style={{ background: color }}>{name}</span>
+      <select value={side.v} onChange={e => onChange({ v: e.target.value })} aria-label={`Version ${name}`}>
+        {versions.map(x => <option key={x.id} value={x.id}>{labels[x.id]}{x.kind === 'abeat' && x.draft ? ' · draft' : ''}</option>)}
+      </select>
+      <div className="diff-tabs">
+        {v?.difficulties.map(d => (
+          <button key={d} className={d === side.d ? 'active' : ''} style={d === side.d ? { color, borderColor: color } : undefined}
+            onClick={() => onChange({ d })}>{diffLabel(d)}</button>
+        ))}
+      </div>
+      {onClear && <button className="icon-btn" title="Stop comparing" onClick={onClear}>✕</button>}
     </div>
   )
 }

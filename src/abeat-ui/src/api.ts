@@ -73,6 +73,21 @@ export interface Difficulty {
 
 export interface MapData { difficulties: Difficulty[] }
 
+/** A saved generation, or the imported human map (id "human"). */
+export type Version =
+  | { id: 'human'; kind: 'human'; label: string; difficulties: string[] }
+  | {
+      id: string
+      kind: 'abeat'
+      createdUtc: string
+      draft: boolean
+      appVersion: string
+      difficulties: string[]
+      /** Note-timing F1 against the human map per difficulty (when there is one). */
+      vsHuman: Record<string, number> | null
+    }
+
+/** Version A against version B (B is the reference for precision / recall). */
 export interface Comparison {
   f1: number
   precision: number
@@ -80,16 +95,10 @@ export interface Comparison {
   offsetMs: number
   directionDistance: number
   positionDistance: number
-  humanDoubles: number
-  generatedDoubles: number
-}
-
-/** A human-made map of the same song, already on ABeat's beat grid. */
-export interface Reference {
-  mapper: string
-  bpm: number
-  bpmChanges: boolean
-  difficulties: { difficulty: Difficulty; comparison: Comparison | null }[]
+  aDoubles: number
+  bDoubles: number
+  aNps: number
+  bNps: number
 }
 
 export interface GeneratorSettings {
@@ -117,10 +126,15 @@ export const getSongs = () => http.get<SongMeta[]>('/songs')
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[] }>(`/songs/${id}`)
 export const deleteSong = (id: string) => http.delete(`/songs/${id}`)
 export const getAnalysis = (id: string) => http.get<Analysis>(`/songs/${id}/analysis`)
-export const getMap = (id: string) => http.get<MapData>(`/songs/${id}/map`)
 export const getSettings = (id: string) => http.get<GeneratorSettings>(`/songs/${id}/settings`)
-export const generate = (id: string, s: GeneratorSettings) => http.post<MapData>(`/songs/${id}/generate`, s)
-export const getReference = (id: string) => http.get<Reference>(`/songs/${id}/reference`)
+export const generate = (id: string, s: GeneratorSettings, draft: boolean) =>
+  http.post<{ version: Version; difficulties: Difficulty[] }>(`/songs/${id}/generate`, s, { params: { draft } })
+export const getVersions = (id: string) => http.get<Version[]>(`/songs/${id}/versions`)
+export const getVersion = (id: string, v: string) => http.get<MapData>(`/songs/${id}/versions/${v}`)
+export const deleteVersion = (id: string, v: string) => http.delete(`/songs/${id}/versions/${v}`)
+export const getVersionSettings = (id: string, v: string) => http.get<GeneratorSettings>(`/songs/${id}/versions/${v}/settings`)
+export const compareVersions = (id: string, a: string, ad: string, b: string, bd: string) =>
+  http.get<Comparison>(`/songs/${id}/compare`, { params: { a, ad, b, bd } })
 export interface StemFile { name: string; file: string; bytes: number }
 export const getStems = (id: string) => http.get<StemFile[]>(`/songs/${id}/stems`)
 export const stemUrl = (id: string, file: string) => `/api/songs/${id}/stems/${encodeURIComponent(file)}`
@@ -139,7 +153,7 @@ export const addSongUrl = (url: string, beats: string, stems: boolean) =>
 
 export const audioUrl = (id: string) => `/api/songs/${id}/audio`
 export const coverUrl = (id: string) => `/api/songs/${id}/cover`
-export const zipUrl = (id: string) => `/api/songs/${id}/map.zip`
+export const zipUrl = (id: string, version?: string) => `/api/songs/${id}/map.zip${version ? `?version=${encodeURIComponent(version)}` : ''}`
 
 export function errorText(e: unknown): string {
   if (axios.isAxiosError(e)) return typeof e.response?.data === 'string' ? e.response.data : e.message

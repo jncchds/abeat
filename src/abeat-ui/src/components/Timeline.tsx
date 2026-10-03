@@ -1,23 +1,24 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
-import type { Analysis, Difficulty } from '../api'
-import { drawTimeline, timelineHeight, type View } from '../utils/draw'
+import type { Analysis } from '../api'
+import { drawTimeline, timelineHeight, type Track, type View } from '../utils/draw'
 
 interface Props {
   analysis: Analysis
-  difficulty?: Difficulty
+  /** One map, or two (A on top, B below in every lane). */
+  tracks: Track[]
+  /** Legend per track, e.g. "A · v0.1.1 12:03 · Expert". */
+  labels?: string[]
   audio: HTMLAudioElement | null
   follow: boolean
-  /** Drawn as outlines underneath (human reference in overlay mode). */
-  ghost?: Difficulty
 }
 
 /** Zoomable song timeline: sections, energy, onset layers, the 12 note lanes and flow issues.
  * Redraws itself every frame while playing; wheel zooms, drag scrolls, click seeks. */
-export default function Timeline({ analysis, difficulty, audio, follow, ghost }: Props) {
+export default function Timeline({ analysis, tracks, labels, audio, follow }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const view = useRef<View>({ pxPerSec: 60, start: 0 })
-  const props = useRef({ analysis, difficulty, audio, follow, ghost })
-  useLayoutEffect(() => { props.current = { analysis, difficulty, audio, follow, ghost } })
+  const props = useRef({ analysis, tracks, audio, follow })
+  useLayoutEffect(() => { props.current = { analysis, tracks, audio, follow } })
 
   useEffect(() => {
     view.current.start = 0
@@ -27,13 +28,13 @@ export default function Timeline({ analysis, difficulty, audio, follow, ghost }:
     let raf = 0
     const frame = () => {
       const c = canvas.current
-      const { analysis: a, difficulty: d, audio: au, follow: f, ghost: gh } = props.current
+      const { analysis: a, tracks: tr, audio: au, follow: f } = props.current
       if (c && a) {
         const now = au?.currentTime ?? 0
         const width = c.clientWidth / view.current.pxPerSec
         if (f && au && !au.paused && (now > view.current.start + width * 0.85 || now < view.current.start))
           view.current.start = Math.max(0, now - width * 0.15)
-        drawTimeline(c, a, d, view.current, now, gh)
+        drawTimeline(c, a, tr, view.current, now)
       }
       raf = requestAnimationFrame(frame)
     }
@@ -89,7 +90,18 @@ export default function Timeline({ analysis, difficulty, audio, follow, ghost }:
 
   return (
     <div className="card timeline-card">
-      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length) }} />
+      {tracks.length > 1 && labels && (
+        <div className="timeline-legend">
+          {tracks.map((t, k) => (
+            <span key={k} className="legend-chip" style={{ borderColor: t.color, color: t.color }}>
+              <span className="legend-swatch" style={{ background: t.color }} />
+              {k === 0 ? 'top of each lane' : 'bottom of each lane'}: <b>{labels[k]}</b>
+              {t.unmatched && <span className="muted"> · {t.unmatched.size} only here (ringed)</span>}
+            </span>
+          ))}
+        </div>
+      )}
+      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length, tracks.length > 1) }} />
       <div className="hint">wheel: zoom · drag / shift+wheel: scroll · click: seek · lanes: top row first, columns left → right</div>
     </div>
   )

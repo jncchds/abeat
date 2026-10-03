@@ -2,7 +2,9 @@
 
 Automatic Beat Saber map generator: audio file in, playable map (all difficulties, walls, bombs, lights) out.
 Songs come from an uploaded file or a YouTube / YouTube Music link (only use audio you have the rights to).
-A web UI lets you listen, inspect and tune the generator; the same server runs locally or in Docker.
+A web UI lets you listen, inspect and tune the generator, keeps every generation as a version and
+compares any two (or a generation against an imported human map) lane by lane; the same server runs
+locally or in Docker.
 
 ```
 audio ─▶ analysis worker (Python) ─▶ analysis.json + song.egg + cover.jpg
@@ -74,16 +76,16 @@ ones (`abeat check`), so the weights can be calibrated against maps people like.
 ## Benchmark vs human maps
 
 `abeat fetch-maps` downloads top-rated curated BeatSaver maps (no mods); `abeat bench` re-maps each
-map's own song and compares. Current results on 18 songs / 62 difficulties (2026-10-03):
+map's own song and compares. Current results on 18 songs / 62 difficulties with Demucs stems (2026-10-03):
 
 | | ABeat | human |
 |---|---|---|
 | BPM | exact on 17/18 (1 octave) | |
-| note timing vs human (F1 at ±50 ms) | 0.66 (Expert+ 0.71) | |
+| note timing vs human (F1 at ±50 ms) | 0.69 (Expert 0.71, Expert+ 0.76) | |
 | timing offset | 1–4 ms | |
-| notes per second | 3.2 | 3.5 |
+| notes per second | 3.1 | 3.5 |
 | flow score | 97 | 84 |
-| direction / position distribution distance | 0.17 / 0.22 | 0 |
+| direction / position distribution distance | 0.18 / 0.22 | 0 |
 
 The style prior (`scripts/style_prior.py`) is learned from these maps.
 

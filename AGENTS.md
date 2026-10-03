@@ -59,15 +59,30 @@ human ones (`abeat check`).
 
 ## Web app
 
-- `SongStore`: `data/songs/{id}/` with `source/`, `meta.json`, `work/` (analysis), `settings.json`,
-  `map/` + `map.zip`. File based; survives restarts via the Docker volume.
+- `SongStore`: `data/songs/{id}/` with `source/`, `meta.json`, `work/` (analysis), `settings.json`
+  (current settings), `reference/` (human map) and `generations/{yyyyMMdd-HHmmss-fff}/`
+  (`Generations`: `generation.json` with app version, draft flag and the BPM/padding it was written
+  on, its `settings.json`, `map/` + `map.zip`). File based; survives restarts via the Docker volume.
+  A pre-history `map/` folder is moved into `generations/` on first access.
 - `AnalysisQueue`: one analysis at a time, then generation with the song's saved settings, so every
   upload ends with a downloadable map.
 - API: `/api/songs` (list, upload), `/api/songs/url`, `/api/songs/{id}` (+ `/analysis`, `/audio`,
-  `/cover`, `/settings`, `/map`, `/map.zip` with CORS for ArcViewer, `POST /generate`, `POST /reanalyze`).
+  `/cover`, `/settings`, `/map.zip[?version=]` with CORS for ArcViewer (newest generation by default),
+  `POST /generate[?draft=true]`, `POST /reanalyze`).
+- Versions: every generate appends a generation; `draft=true` (UI auto-regenerate) replaces the newest
+  generation if it is a draft, so tweaking settings does not flood the history.
+  `GET /versions` lists generations (newest first, with note-timing F1 vs the human map per
+  difficulty) plus `human`; `GET|DELETE /versions/{v}`, `GET /versions/{v}/settings`;
+  `GET /compare?a=&ad=&b=&bd=` runs `MapComparer` on any two (version, difficulty) pairs (B = reference).
+  All versions are re-timed onto the current analysis grid (`Generations.OnGrid`), so they stay
+  aligned after a re-analysis.
 - Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
-  human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served by
-  `GET /api/songs/{id}/reference` re-timed onto ABeat's beat grid, with `MapComparer` results.
+  human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served as
+  version `human`.
+- Song page comparison: A (gold) and B (violet) each pick a version + difficulty; with both shown every
+  timeline lane splits into an A row (top) and a B row (bottom), notes without a counterpart in the
+  other version (±50 ms) are ringed in their version's colour and marked on an "only" strip, and the
+  player view shows both grids.
 - UI: React SPA with ABook's layout (collapsible sidebar, theme toggle) and a Beat Saber palette
   (blue saber = accent, red saber = secondary). Canvases redraw per animation frame from the
   `<audio>` element's current time.

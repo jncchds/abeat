@@ -13,10 +13,36 @@ export const ISSUE_COLOR: Record<string, string> = {
 
 export interface View { pxPerSec: number; start: number }
 
-export const LAYOUT = { layersTop: 64, layerH: 9, laneH: 15, issuesH: 14 }
+/** Identity colours of the two compared versions (distinct from the red/blue sabers). */
+export const SIDE_A = '#ffc23d'
+export const SIDE_B = '#b46bff'
 
-export function timelineHeight(layerCount: number) {
-  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + 8 + 12 * LAYOUT.laneH + LAYOUT.issuesH + 4
+/** One map drawn in the lanes. With two tracks every lane is split: track 0 on top, track 1 below. */
+export interface Track {
+  d: Difficulty
+  color: string
+  /** Beats of notes with no note of the other track within the timing tolerance. */
+  unmatched?: Set<number>
+}
+
+export const LAYOUT = { layersTop: 64, layerH: 9, laneH: 15, splitLaneH: 26, diffH: 18, issuesH: 14 }
+
+const laneHeight = (split: boolean) => (split ? LAYOUT.splitLaneH : LAYOUT.laneH)
+
+export function timelineHeight(layerCount: number, split = false) {
+  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + 8 + 12 * laneHeight(split) + (split ? LAYOUT.diffH : 0) + LAYOUT.issuesH + 4
+}
+
+/** Beats of notes in `a` without a note in `b` within `tolBeats` (any lane). */
+export function unmatchedBeats(a: Difficulty, b: Difficulty, tolBeats: number): Set<number> {
+  const bb = [...new Set(b.notes.map(n => n.b))].sort((x, y) => x - y)
+  const out = new Set<number>()
+  let j = 0
+  for (const t of [...new Set(a.notes.map(n => n.b))].sort((x, y) => x - y)) {
+    while (j < bb.length && bb[j] < t - tolBeats) j++
+    if (j >= bb.length || bb[j] > t + tolBeats) out.add(t)
+  }
+  return out
 }
 
 /** Saber-coloured note with a cut arrow (white) or dot. */
@@ -48,17 +74,17 @@ export function drawNote(g: CanvasRenderingContext2D, cx: number, cy: number, si
   g.fill()
 }
 
-/** Outline-only note, used to overlay the human reference map. */
-function drawGhost(g: CanvasRenderingContext2D, cx: number, cy: number, size: number, color: number) {
-  g.strokeStyle = color === 0 ? RED : BLUE
-  g.lineWidth = 1.5
-  const r = size / 2 + 1.5
+/** Ring in the version's colour around a note the other version does not have. */
+function drawRing(g: CanvasRenderingContext2D, cx: number, cy: number, size: number, color: string) {
+  g.strokeStyle = color
+  g.lineWidth = 2
+  const r = size / 2 + 2.5
   g.beginPath()
-  g.roundRect(cx - r, cy - r, r * 2, r * 2, 3)
+  g.roundRect(cx - r, cy - r, r * 2, r * 2, 4)
   g.stroke()
 }
 
-export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, d: Difficulty | undefined, view: View, now: number, ghost?: Difficulty) {
+export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Track[], view: View, now: number) {
   const dpr = window.devicePixelRatio || 1
   const w = canvas.clientWidth, h = canvas.clientHeight
   if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
@@ -78,8 +104,14 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, d: Difficul
   const t1 = t0 + w / pxPerSec
   const X = (t: number) => (t - t0) * pxPerSec
   const layers = Object.keys(a.layers)
+  const split = tracks.length > 1
+  const laneH = laneHeight(split)
+  const sub = laneH / Math.max(1, tracks.length)
   const lanesTop = LAYOUT.layersTop + layers.length * LAYOUT.layerH + 8
-  const lanesBottom = lanesTop + 12 * LAYOUT.laneH
+  const diffTop = lanesTop + 12 * laneH
+  const lanesBottom = diffTop + (split ? LAYOUT.diffH : 0)
+  /** Centre of a grid cell's (sub-)lane for track k. */
+  const laneY = (x: number, y: number, k: number) => lanesTop + ((2 - y) * 4 + x) * laneH + k * sub + sub / 2
   const spb = 60 / a.tempo.bpm
   const beatToSec = (b: number) => b * spb
 
@@ -137,46 +169,72 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, d: Difficul
     g.globalAlpha = 1
   })
 
-  // 12 note lanes: rows top layer first (y = 2..0), columns x = 0..3
+  // 12 note lanes: rows top layer first (y = 2..0), columns x = 0..3; split lanes are tinted per version
+  if (split)
+    for (let lane = 0; lane < 12; lane++)
+      tracks.forEach((tr, k) => {
+        g.fillStyle = tr.color
+        g.globalAlpha = 0.11
+        g.fillRect(0, lanesTop + lane * laneH + k * sub, w, sub)
+        g.globalAlpha = 0.9
+        g.fillRect(0, lanesTop + lane * laneH + k * sub + 1, 3, sub - 2)
+      })
+  g.globalAlpha = 1
   for (let r = 0; r <= 12; r++) {
     g.fillStyle = grid
     g.globalAlpha = r % 4 === 0 ? 0.9 : 0.35
-    g.fillRect(0, lanesTop + r * LAYOUT.laneH, w, 1)
+    g.fillRect(0, lanesTop + r * laneH, w, 1)
   }
   g.globalAlpha = 1
   g.fillStyle = muted
-  ;['top', 'mid', 'bot'].forEach((n, i) => g.fillText(n, 2, lanesTop + i * 4 * LAYOUT.laneH + 11))
+  ;['top', 'mid', 'bot'].forEach((n, i) => g.fillText(n, 6, lanesTop + i * 4 * laneH + 11))
 
-  if (d) {
+  const size = Math.min(sub - 3, Math.max(6, spb * pxPerSec * 0.35))
+  tracks.forEach(({ d, color, unmatched }, k) => {
     for (const wl of d.walls) {
       const ts = beatToSec(wl.b), te = beatToSec(wl.b + wl.d)
       if (te < t0 || ts > t1) continue
       g.fillStyle = wl.y >= 2 ? 'rgba(255,176,32,.32)' : 'rgba(255,31,75,.28)' // crouch walls amber
       for (let x = wl.x; x < wl.x + wl.w; x++)
         for (let y = Math.max(0, wl.y); y < Math.min(3, wl.y + wl.h); y++)
-          g.fillRect(X(ts), lanesTop + ((2 - y) * 4 + x) * LAYOUT.laneH + 1, (te - ts) * pxPerSec, LAYOUT.laneH - 1)
+          g.fillRect(X(ts), laneY(x, y, k) - sub / 2 + 1, (te - ts) * pxPerSec, sub - 1)
     }
-    const size = Math.min(LAYOUT.laneH - 3, Math.max(6, spb * pxPerSec * 0.35))
-    if (ghost)
-      for (const n of ghost.notes) {
-        const t = beatToSec(n.b)
-        if (t < t0 - 1 || t > t1 + 1) continue
-        drawGhost(g, X(t), lanesTop + ((2 - n.y) * 4 + n.x) * LAYOUT.laneH + LAYOUT.laneH / 2, size, n.c)
-      }
     for (const n of d.notes) {
       const t = beatToSec(n.b)
       if (t < t0 - 1 || t > t1 + 1) continue
-      drawNote(g, X(t), lanesTop + ((2 - n.y) * 4 + n.x) * LAYOUT.laneH + LAYOUT.laneH / 2, size, n.c, n.d)
+      const cy = laneY(n.x, n.y, k)
+      if (unmatched?.has(n.b)) drawRing(g, X(t), cy, size, color)
+      drawNote(g, X(t), cy, size, n.c, n.d)
     }
     g.fillStyle = muted
     for (const b of d.bombs) {
       const t = beatToSec(b.b)
       if (t < t0 || t > t1) continue
       g.beginPath()
-      g.arc(X(t), lanesTop + ((2 - b.y) * 4 + b.x) * LAYOUT.laneH + LAYOUT.laneH / 2, size / 2.5, 0, 7)
+      g.arc(X(t), laneY(b.x, b.y, k), size / 2.5, 0, 7)
       g.fill()
     }
-    for (const i of d.report.issues) {
+  })
+
+  // difference strip: notes only in A (upper half) / only in B (lower half)
+  if (split) {
+    g.fillStyle = muted
+    g.fillText('only', 6, diffTop + 12)
+    tracks.forEach(({ unmatched, color }, k) => {
+      if (!unmatched) return
+      g.fillStyle = color
+      const y = diffTop + 2 + k * (LAYOUT.diffH - 4) / 2
+      for (const b of unmatched) {
+        const t = beatToSec(b)
+        if (t < t0 || t > t1) continue
+        g.fillRect(X(t) - 1.5, y, 3, (LAYOUT.diffH - 4) / 2 - 1)
+      }
+    })
+  }
+
+  // flow issues of the first track
+  if (tracks[0])
+    for (const i of tracks[0].d.report.issues) {
       const t = beatToSec(i.b)
       if (t < t0 || t > t1) continue
       g.fillStyle = ISSUE_COLOR[i.kind] ?? muted
@@ -187,7 +245,6 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, d: Difficul
       g.lineTo(x + 4, lanesBottom + 12)
       g.fill()
     }
-  }
 
   g.fillStyle = accent
   g.fillRect(X(now), 0, 2, h)

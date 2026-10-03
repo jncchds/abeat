@@ -16,6 +16,7 @@ RUN npx tsc -b && npx vite build --outDir ./dist --emptyOutDir
 # ── .NET server ──
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
+COPY VERSION ./
 COPY src/Abeat.Core/Abeat.Core.csproj src/Abeat.Core/
 COPY src/Abeat.Web/Abeat.Web.csproj src/Abeat.Web/
 RUN dotnet restore src/Abeat.Web/Abeat.Web.csproj
