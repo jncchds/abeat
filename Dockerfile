@@ -33,6 +33,7 @@ ENV UV_PYTHON_INSTALL_DIR=/opt/python \
     UV_LINK_MODE=copy \
     UV_NO_CACHE=1 \
     TORCH_HOME=/opt/abeat/torch \
+    HF_HOME=/opt/abeat/hf \
     NUMBA_CACHE_DIR=/tmp/numba
 
 WORKDIR /opt/abeat/analysis
@@ -45,7 +46,7 @@ RUN if [ "$ML" = "1" ]; then uv sync --frozen --extra ml; else uv sync --frozen;
       .venv/bin/python -c "from beat_this.inference import Audio2Beats; Audio2Beats(checkpoint_path='final0', device='cpu', dbn=False)" \
       && .venv/bin/python -c "from demucs.pretrained import get_model; get_model('htdemucs')"; \
     fi \
- && mkdir -p /data /opt/abeat/torch && chown -R app:app /data /opt/abeat/torch
+ && mkdir -p /data /opt/abeat/torch /opt/abeat/hf && chown -R app:app /data /opt/abeat/torch /opt/abeat/hf
 
 COPY --from=build /app /opt/abeat/app
 COPY --from=ui-build /ui/dist /opt/abeat/app/wwwroot

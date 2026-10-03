@@ -486,3 +486,11 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 .report-grid-title { grid-column: 1 / -1; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 0.4rem; }
 .compare-line { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px dashed var(--border); font-size: 0.72rem; color: var(--text-muted); }
 .compare-line b { color: var(--accent); }
+
+/* debug panel (Ctrl+Shift+D) */
+.debug-card { border-style: dashed; border-color: var(--warning); }
+.debug-card h3 { color: var(--warning); }
+.debug-card h3 .muted { font-weight: 400; text-transform: none; letter-spacing: 0; margin-left: 0.4rem; }
+.debug-row { display: flex; flex-wrap: wrap; gap: 0.5rem; align-items: center; }
+.stem-chip { display: inline-flex; gap: 2px; }
+.stem-chip button { padding: 0.4rem 0.6rem; }

@@ -15,3 +15,5 @@
 - Vocals first: Demucs stems on by default, vocals weighted highest, layers compared by rank, strongest layer leads each slot.
 - fetch-maps: max 2 maps per mapper, rating + recently curated.
 - Optional HTTPS listener with a self-signed LAN certificate (ABEAT_HTTPS_PORT).
+- Hidden debug panel (Ctrl+Shift+D or ?debug=1): download or play separated stems, download analysis.json; stems are kept as FLAC.
+- Demucs loads its model offline when cached (no Hugging Face Hub warning or network call per analysis).

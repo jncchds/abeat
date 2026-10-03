@@ -4,11 +4,13 @@ import {
   audioUrl, coverUrl, deleteSong, errorText, generate, getAnalysis, getConfig, getDefaults, getMap, getReference, getSettings, getSong, reanalyze, zipUrl,
   type Analysis, type GeneratorSettings, type MapData, type Reference, type SongMeta,
 } from '../api'
+import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
 import ReportCards from '../components/ReportCards'
 import SettingsPanel from '../components/SettingsPanel'
 import Timeline from '../components/Timeline'
 import ToggleField from '../components/ToggleField'
+import { useDebug } from '../hooks/useDebug'
 import { useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR } from '../utils/draw'
 import { diffLabel, fmtTime } from '../utils/format'
@@ -30,6 +32,9 @@ export default function SongPage() {
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
   const [reference, setReference] = useState<{ id: string; ref: Reference } | null>(null)
   const [view, setView] = useState<'abeat' | 'human' | 'overlay'>('overlay')
+  const debug = useDebug()
+  // debug: play a single stem in the player instead of the mix (same timing as song.egg)
+  const [stemSrc, setStemSrc] = useState<{ id: string; url: string } | null>(null)
 
   const status = songs.find(s => s.id === id)?.status ?? meta?.status
   const ready = status === 'Ready'
@@ -177,7 +182,8 @@ export default function SongPage() {
 
       {ready && analysis && map && settings && (
         <>
-          <audio ref={setAudio} src={audioUrl(id)} preload="auto" />
+          <audio ref={setAudio} src={stemSrc?.id === id ? stemSrc.url : audioUrl(id)} preload="auto" />
+          {debug && <DebugPanel id={id} onPreview={url => setStemSrc(url ? { id, url } : null)} />}
           <Player audio={audio} bpm={analysis.tempo.bpm} follow={follow} setFollow={setFollow}>
             {ref && (
               <div className="view-switch" title="Overlay: ABeat notes filled, human notes as outlines">

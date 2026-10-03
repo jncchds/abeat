@@ -130,6 +130,31 @@ public static class MapEndpoints
             return Results.File(Path.Combine(a.Directory, a.Cover), "image/jpeg");
         });
 
+        // debug: separated stems kept by the worker, and the raw analysis
+        api.MapGet("/songs/{id}/stems", (string id, SongStore store) =>
+        {
+            var dir = Path.Combine(store.WorkDir(id), "stems");
+            return Directory.Exists(dir)
+                ? Results.Ok(Directory.EnumerateFiles(dir).Select(f => new { name = Path.GetFileNameWithoutExtension(f), file = Path.GetFileName(f), bytes = new FileInfo(f).Length }).OrderBy(x => x.name))
+                : Results.Ok(Array.Empty<object>());
+        });
+
+        api.MapGet("/songs/{id}/stems/{file}", (string id, string file, SongStore store) =>
+        {
+            if (file != Path.GetFileName(file)) return Results.BadRequest();
+            var path = Path.Combine(store.WorkDir(id), "stems", file);
+            if (!File.Exists(path) || store.Get(id) is not { } m) return Results.NotFound();
+            string name = $"{(string.IsNullOrWhiteSpace(m.Artist) ? "" : m.Artist + " - ")}{m.Title} [{Path.GetFileNameWithoutExtension(file)}]{Path.GetExtension(file)}";
+            foreach (char c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
+            return Results.File(path, "audio/flac", name, enableRangeProcessing: true);
+        });
+
+        api.MapGet("/songs/{id}/analysis.json", (string id, SongStore store) =>
+        {
+            var path = Path.Combine(store.WorkDir(id), "analysis.json");
+            return File.Exists(path) ? Results.File(path, "application/json", $"{id}-analysis.json") : Results.NotFound();
+        });
+
         api.MapGet("/songs/{id}/settings", (string id, SongStore store) =>
             store.Get(id) is null ? Results.NotFound() : Results.Ok(store.Settings(id)));
 

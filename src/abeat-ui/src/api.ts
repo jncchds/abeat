@@ -121,6 +121,9 @@ export const getMap = (id: string) => http.get<MapData>(`/songs/${id}/map`)
 export const getSettings = (id: string) => http.get<GeneratorSettings>(`/songs/${id}/settings`)
 export const generate = (id: string, s: GeneratorSettings) => http.post<MapData>(`/songs/${id}/generate`, s)
 export const getReference = (id: string) => http.get<Reference>(`/songs/${id}/reference`)
+export interface StemFile { name: string; file: string; bytes: number }
+export const getStems = (id: string) => http.get<StemFile[]>(`/songs/${id}/stems`)
+export const stemUrl = (id: string, file: string) => `/api/songs/${id}/stems/${encodeURIComponent(file)}`
 export const reanalyze = (id: string, o: AnalysisOptions) => http.post<SongMeta>(`/songs/${id}/reanalyze`, o)
 
 export function uploadSong(file: File, beats: string, stems: boolean) {

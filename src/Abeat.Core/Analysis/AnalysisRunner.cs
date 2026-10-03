@@ -38,7 +38,8 @@ public sealed class AnalysisRunner
     {
         string input = IsUrl(audioPath) ? audioPath : Path.GetFullPath(audioPath);
         var args = new List<string> { "analyze", input, "-o", Path.GetFullPath(workDir), "--beats", options.BeatBackend };
-        if (options.Stems) args.AddRange(["--stems", "demucs"]);
+        // keep the separated stems (FLAC in work/stems) for debugging and listening
+        if (options.Stems) args.AddRange(["--stems", "demucs", "--keep-stems"]);
         if (options.BpmOverride is { } bpm) args.AddRange(["--bpm", bpm.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
         await RunWorkerAsync(args, log, ct);
         return SongAnalysis.Load(workDir);
