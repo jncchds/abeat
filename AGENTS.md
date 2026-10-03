@@ -26,6 +26,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      one onset per vowel group, shifted ~70 ms earlier (CTC peaks lag) and snapped to the nearest
      vocal attack; words are stored in `analysis.json` `lyrics` and drawn on the timeline.
      Pitch-only note segmentation was tried and timed onsets worse than flux (CREPE window blur).
+   - links are downloaded once: `work/download/fetched.json` (+ `cover.bin`) records the file and
+     metadata, so re-analysis never calls yt-dlp again (older downloads are found by video id)
    - stems kept in `work/stems` are reused by a re-analysis of the same audio (length check), so
      switching vocal methods skips Demucs
    - energy curve, novelty-based sections snapped to downbeats, clustered labels (A, B, ...)

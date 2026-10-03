@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.1.6 — 2026-10-03
+
+- Songs added by link are downloaded once: re-analysis reuses the audio, title, artist and cover in the work dir instead of calling yt-dlp again (also for songs downloaded before this change).
+
 ## v0.1.5 — 2026-10-03
 
 - Lyrics box opens from a "Lyrics" button next to Re-analyze (and when lyric syllables are picked), right under the song header; it was buried below the report cards, out of sight on phones.

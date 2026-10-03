@@ -42,8 +42,51 @@ def _js_runtime() -> list[str]:
     return []
 
 
+CACHE = "fetched.json"
+
+
+def _cached(url: str, out_dir: Path) -> Fetched | None:
+    """An earlier download of the same link in this work dir (re-analysis), without touching the network."""
+    try:
+        meta = json.loads((out_dir / CACHE).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return _legacy(url, out_dir)
+    path = out_dir / meta.get("file", "")
+    if url not in (meta.get("url"), meta.get("requested")) or not path.is_file():
+        return None
+    cover_path = out_dir / "cover.bin"
+    cover = cover_path.read_bytes() if cover_path.is_file() else None
+    return Fetched(path, meta.get("title", ""), meta.get("artist", ""), cover, meta.get("url") or url)
+
+
+_YT_ID = re.compile(r"[?&]v=([\w-]{6,})|youtu\.be/([\w-]{6,})")
+
+
+def _legacy(url: str, out_dir: Path) -> Fetched | None:
+    """Downloads made before fetched.json existed: yt-dlp named the file after the video id, and the
+    previous analysis.json next to the download folder has the title and artist."""
+    m = _YT_ID.search(url)
+    prev = out_dir.parent / "analysis.json"
+    if not m or not prev.is_file():
+        return None
+    vid = m.group(1) or m.group(2)
+    files = [f for f in out_dir.glob(f"{vid}.*") if f.suffix not in (".json", ".bin", ".part", ".ytdl")]
+    if len(files) != 1:
+        return None
+    try:
+        src = json.loads(prev.read_text(encoding="utf-8")).get("source", {})
+    except ValueError:
+        return None
+    cover = out_dir.parent / "cover.jpg"
+    return Fetched(files[0], src.get("title", ""), src.get("artist", ""), cover.read_bytes() if cover.is_file() else None,
+                   src.get("url") or url)
+
+
 def fetch(url: str, out_dir: Path, log=print) -> Fetched:
     out_dir.mkdir(parents=True, exist_ok=True)
+    if (hit := _cached(url, out_dir)) is not None:
+        log(f"using the already downloaded audio ({hit.path.name})")
+        return hit
     cmd = [sys.executable, "-m", "yt_dlp", *_js_runtime(), "-f", "bestaudio/best", "--no-playlist",
            "--no-progress", "-o", str(out_dir / "%(id)s.%(ext)s"), "--print-json", "--no-simulate", url]
     log(f"downloading {url}")
@@ -68,7 +111,12 @@ def fetch(url: str, out_dir: Path, log=print) -> Fetched:
         except Exception:
             pass
     log(f"downloaded '{artist} - {title}' ({info.get('duration', 0)}s)")
-    return Fetched(path, title, artist, cover, info.get("webpage_url") or url)
+    page = info.get("webpage_url") or url
+    if cover:
+        (out_dir / "cover.bin").write_bytes(cover)
+    (out_dir / CACHE).write_text(json.dumps({"requested": url, "url": page, "file": path.name, "title": title,
+                                             "artist": artist}), encoding="utf-8")
+    return Fetched(path, title, artist, cover, page)
 
 
 def _title_artist(info: dict) -> tuple[str, str]:
