@@ -46,6 +46,54 @@ public static class MapEndpoints
             return Results.Ok(meta);
         });
 
+        // bulk import of local analyses / human maps; only from this machine (it reads server paths)
+        api.MapPost("/admin/import", async (ImportRequest req, HttpContext ctx, SongStore store, AnalysisQueue queue) =>
+        {
+            if (ctx.Connection.RemoteIpAddress is not { } ip || !System.Net.IPAddress.IsLoopback(ip)) return Results.Forbid();
+            var meta = store.Import(req.Path);
+            if (meta.Status == SongStatus.Queued) queue.Enqueue(meta.Id);
+            else
+            {
+                var a = store.Analysis(meta.Id)!;
+                var result = await Task.Run(() => MapGenerator.Generate(a, store.Settings(meta.Id)));
+                MapPackager.Write(result.Map, a, MapDir(store, meta.Id), zip: true);
+            }
+            return Results.Ok(meta);
+        });
+
+        // the human map on ABeat's beat grid (same audio, shifted by the analysis padding) plus how the
+        // generated difficulties compare with it
+        api.MapGet("/songs/{id}/reference", (string id, SongStore store) =>
+        {
+            var a = store.Analysis(id);
+            var refDir = store.ReferenceDir(id);
+            if (a == null || !Directory.Exists(refDir)) return Results.NotFound();
+            var human = Abeat.Core.Formats.MapReader.Read(refDir);
+            var genDir = MapDir(store, id);
+            var gen = File.Exists(Path.Combine(genDir, "Info.dat")) ? Abeat.Core.Formats.MapReader.Read(genDir) : null;
+            return Results.Ok(new
+            {
+                mapper = human.LevelAuthor,
+                bpm = human.Bpm,
+                bpmChanges = human.Difficulties.Any(d => d.BpmChanges > 0),
+                difficulties = human.Difficulties.Where(d => d.Notes.Count > 0).Select(h =>
+                {
+                    var onGrid = ToAnalysisGrid(h, human.Bpm, a);
+                    var g = gen?.Difficulties.FirstOrDefault(x => x.Difficulty == h.Difficulty);
+                    var cmp = g == null ? null : MapComparer.Compare(h, human.Bpm, g, a.Tempo.Bpm, a.Audio.PadSec);
+                    return new
+                    {
+                        difficulty = DifficultyDto(a, onGrid, FlowAnalyzer.Analyze(onGrid, a.Tempo.Bpm), null),
+                        comparison = cmp == null ? null : new
+                        {
+                            f1 = cmp.F1, cmp.Precision, cmp.Recall, cmp.OffsetMs, cmp.DirectionDistance, cmp.PositionDistance,
+                            cmp.HumanDoubles, cmp.GeneratedDoubles,
+                        },
+                    };
+                }),
+            });
+        });
+
         api.MapGet("/songs/{id}", (string id, SongStore store) =>
             store.Get(id) is { } m ? Results.Ok(new { meta = m, log = store.Log(id).Snapshot() }) : Results.NotFound());
 
@@ -124,6 +172,25 @@ public static class MapEndpoints
     }
 
     public sealed record UrlRequest(string? Url, string? Beats, bool Stems);
+    public sealed record ImportRequest(string Path);
+
+    /// <summary>Re-times a human map onto the analysis grid: same audio seconds, plus the padding ABeat
+    /// added in front, expressed in ABeat's beats.</summary>
+    static DifficultyMap ToAnalysisGrid(DifficultyMap h, double humanBpm, SongAnalysis a)
+    {
+        double B(double beat) => a.SecondsToBeat(beat * 60 / humanBpm + a.Audio.PadSec);
+        double D(double dur) => dur * a.Tempo.Bpm / humanBpm;
+        return new DifficultyMap
+        {
+            Difficulty = h.Difficulty,
+            NoteJumpSpeed = h.NoteJumpSpeed,
+            NoteJumpOffset = h.NoteJumpOffset,
+            Notes = h.Notes.Select(n => n with { Beat = B(n.Beat) }).ToList(),
+            Bombs = h.Bombs.Select(n => n with { Beat = B(n.Beat) }).ToList(),
+            Obstacles = h.Obstacles.Select(o => o with { Beat = B(o.Beat), Duration = D(o.Duration) }).ToList(),
+            Lights = h.Lights.Select(l => l with { Beat = B(l.Beat) }).ToList(),
+        };
+    }
 
     static object ToDto(SongAnalysis a, GenerationResult r) => new
     {

@@ -21,6 +21,9 @@ public sealed record SongMeta
     public double? Bpm { get; set; }
     public double? DurationSec { get; set; }
     public AnalysisOptions Analysis { get; set; } = new();
+    /// <summary>A human-made map of the same song, kept for comparison (data/songs/{id}/reference).</summary>
+    public string? ReferenceMapper { get; set; }
+    public string? ReferenceUrl { get; set; }
 }
 
 /// <summary>File-based storage: data/songs/{id}/ holds source audio, meta.json, work/ (analysis) and
@@ -56,6 +59,7 @@ public sealed class SongStore
     public SongMeta? Get(string id) => metas.GetValueOrDefault(id);
     public string Dir(string id) => Path.Combine(Root, "songs", id);
     public string WorkDir(string id) => Path.Combine(Dir(id), "work");
+    public string ReferenceDir(string id) => Path.Combine(Dir(id), "reference");
     /// <summary>Uploads keep their original file name: the worker falls back to "Artist - Title" names when tags are missing.</summary>
     public string SourcePath(SongMeta m) => Path.Combine(Dir(m.Id), "source", m.FileName);
     public LogBuffer Log(string id) => logs.GetOrAdd(id, _ => new LogBuffer());
@@ -86,6 +90,71 @@ public sealed class SongStore
 
     /// <summary>What to hand to the worker: the uploaded file, or the URL to download.</summary>
     public string Input(SongMeta m) => m.SourceUrl ?? SourcePath(m);
+
+    /// <summary>Imports an existing analysis work dir and/or a human map folder (with its abeat-work
+    /// analysis, as written by `abeat compare/bench`). Without an analysis the song audio is copied
+    /// and the caller queues it.</summary>
+    public SongMeta Import(string path)
+    {
+        path = Path.GetFullPath(path);
+        bool isMap = File.Exists(Path.Combine(path, "Info.dat")) || File.Exists(Path.Combine(path, "info.dat"));
+        string? work = File.Exists(Path.Combine(path, "analysis.json")) ? path
+            : File.Exists(Path.Combine(path, "abeat-work", "analysis.json")) ? Path.Combine(path, "abeat-work") : null;
+        if (!isMap && work == null) throw new ArgumentException($"{path}: neither a map folder nor an analysis work dir");
+
+        string id = Guid.NewGuid().ToString("N")[..12];
+        var human = isMap ? Abeat.Core.Formats.MapReader.Read(path) : null;
+        string fileName = human != null ? $"{human.SongAuthor} - {human.SongName}{Path.GetExtension(human.SongFile)}" : "audio.egg";
+        foreach (char c in Path.GetInvalidFileNameChars()) fileName = fileName.Replace(c, '_');
+        var meta = new SongMeta
+        {
+            Id = id,
+            FileName = fileName,
+            Title = human?.SongName ?? Path.GetFileName(path),
+            Artist = human?.SongAuthor ?? "",
+            ReferenceMapper = human?.LevelAuthor,
+            ReferenceUrl = human != null && Path.GetFileName(path) is { Length: > 0 } key && key.All(char.IsAsciiHexDigit)
+                ? $"https://beatsaver.com/maps/{key}" : null,
+        };
+        Directory.CreateDirectory(Dir(id));
+        if (work != null)
+        {
+            CopyDir(work, WorkDir(id), f => !f.Contains($"{Path.DirectorySeparatorChar}download{Path.DirectorySeparatorChar}"));
+            var a = Analysis(id)!;
+            if (!string.IsNullOrWhiteSpace(a.Source.Title) && human == null) meta.Title = a.Source.Title;
+            if (!string.IsNullOrWhiteSpace(a.Source.Artist) && human == null) meta.Artist = a.Source.Artist;
+            meta.Bpm = a.Tempo.Bpm;
+            meta.DurationSec = a.Audio.DurationSec;
+            meta.Status = SongStatus.Ready;
+        }
+        else
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(SourcePath(meta))!);
+            File.Copy(Path.Combine(path, human!.SongFile), SourcePath(meta));
+            meta.Status = SongStatus.Queued;
+        }
+        if (human != null)
+        {
+            // only the difficulty files: the audio is already in work/ or source/
+            Directory.CreateDirectory(ReferenceDir(id));
+            foreach (var f in Directory.EnumerateFiles(path, "*.dat"))
+                File.Copy(f, Path.Combine(ReferenceDir(id), Path.GetFileName(f)));
+            SaveSettings(id, new GeneratorSettings { Difficulties = human.Difficulties.Select(d => d.Difficulty).Distinct().ToList() });
+        }
+        metas[id] = meta;
+        Save(meta);
+        return meta;
+    }
+
+    static void CopyDir(string from, string to, Func<string, bool> include)
+    {
+        foreach (var f in Directory.EnumerateFiles(from, "*", SearchOption.AllDirectories).Where(include))
+        {
+            var dst = Path.Combine(to, Path.GetRelativePath(from, f));
+            Directory.CreateDirectory(Path.GetDirectoryName(dst)!);
+            File.Copy(f, dst, overwrite: true);
+        }
+    }
 
     public void Save(SongMeta m) => File.WriteAllText(Path.Combine(Dir(m.Id), "meta.json"), JsonSerializer.Serialize(m, Json));
 

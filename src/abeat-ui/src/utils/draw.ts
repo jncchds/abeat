@@ -48,7 +48,17 @@ export function drawNote(g: CanvasRenderingContext2D, cx: number, cy: number, si
   g.fill()
 }
 
-export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, d: Difficulty | undefined, view: View, now: number) {
+/** Outline-only note, used to overlay the human reference map. */
+function drawGhost(g: CanvasRenderingContext2D, cx: number, cy: number, size: number, color: number) {
+  g.strokeStyle = color === 0 ? RED : BLUE
+  g.lineWidth = 1.5
+  const r = size / 2 + 1.5
+  g.beginPath()
+  g.roundRect(cx - r, cy - r, r * 2, r * 2, 3)
+  g.stroke()
+}
+
+export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, d: Difficulty | undefined, view: View, now: number, ghost?: Difficulty) {
   const dpr = window.devicePixelRatio || 1
   const w = canvas.clientWidth, h = canvas.clientHeight
   if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
@@ -147,6 +157,12 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, d: Difficul
           g.fillRect(X(ts), lanesTop + ((2 - y) * 4 + x) * LAYOUT.laneH + 1, (te - ts) * pxPerSec, LAYOUT.laneH - 1)
     }
     const size = Math.min(LAYOUT.laneH - 3, Math.max(6, spb * pxPerSec * 0.35))
+    if (ghost)
+      for (const n of ghost.notes) {
+        const t = beatToSec(n.b)
+        if (t < t0 - 1 || t > t1 + 1) continue
+        drawGhost(g, X(t), lanesTop + ((2 - n.y) * 4 + n.x) * LAYOUT.laneH + LAYOUT.laneH / 2, size, n.c)
+      }
     for (const n of d.notes) {
       const t = beatToSec(n.b)
       if (t < t0 - 1 || t > t1 + 1) continue

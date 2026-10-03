@@ -1,16 +1,20 @@
-import type { Difficulty } from '../api'
+import type { Comparison, Difficulty } from '../api'
 import { diffLabel } from '../utils/format'
 
 interface Props {
   difficulties: Difficulty[]
   selected?: string
   onSelect: (name: string) => void
+  /** Per difficulty: how ABeat's map compares with the human reference. */
+  comparisons?: Record<string, Comparison | null>
+  title?: string
 }
 
 /** One card per difficulty with flow score and the counts that matter for playability. */
-export default function ReportCards({ difficulties, selected, onSelect }: Props) {
+export default function ReportCards({ difficulties, selected, onSelect, comparisons, title }: Props) {
   return (
     <div className="report-grid">
+      {title && <div className="report-grid-title">{title}</div>}
       {difficulties.map(d => {
         const r = d.report
         const tone = r.flowScore > 85 ? 'var(--success)' : r.flowScore > 70 ? 'var(--warning)' : 'var(--danger)'
@@ -33,9 +37,22 @@ export default function ReportCards({ difficulties, selected, onSelect }: Props)
               <dt>bombs / dots</dt><dd>{d.bombs.length}{r.bombHits ? ` (${r.bombHits} hit)` : ''} / {dots}</dd>
               <dt>lights</dt><dd>{r.lights}</dd>
             </dl>
+            {comparisons?.[d.name] && <CompareLine c={comparisons[d.name]!} />}
           </button>
         )
       })}
+    </div>
+  )
+}
+
+function CompareLine({ c }: { c: Comparison }) {
+  return (
+    <div className="compare-line" title="ABeat vs the human map: note timing F1 at ±50 ms, median offset, direction / position distribution distance (0 = same)">
+      <span>vs human</span>
+      <b>F1 {c.f1.toFixed(2)}</b>
+      <span>{c.offsetMs.toFixed(0)} ms</span>
+      <span>dirΔ {c.directionDistance.toFixed(2)}</span>
+      <span>posΔ {c.positionDistance.toFixed(2)}</span>
     </div>
   )
 }

@@ -475,3 +475,14 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 .status-queued, .status-analyzing, .status-generating { background: rgba(255,176,32,0.12); color: var(--warning); }
 .toggle-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 0.4rem; margin-top: 0.3rem; }
 .toggle-grid .toggle-field { padding: 0.35rem 0.5rem; gap: 0.45rem; }
+
+/* human reference comparison */
+.ref-badge { margin-left: 0.6rem; font-size: 0.75rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--accent-red-faint); color: var(--accent-red); }
+.ref-badge a { color: inherit; text-decoration: underline; }
+.view-switch { display: flex; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+.view-switch button { background: transparent; color: var(--text-muted); border-radius: 0; padding: 0.3rem 0.7rem; box-shadow: none; }
+.view-switch button:hover { background: var(--accent-faint); color: var(--text); box-shadow: none; }
+.view-switch button.active { background: var(--accent); color: #fff; }
+.report-grid-title { grid-column: 1 / -1; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 0.4rem; }
+.compare-line { display: flex; flex-wrap: wrap; gap: 0.2rem 0.5rem; margin-top: 0.5rem; padding-top: 0.45rem; border-top: 1px dashed var(--border); font-size: 0.72rem; color: var(--text-muted); }
+.compare-line b { color: var(--accent); }

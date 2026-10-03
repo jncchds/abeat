@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
-  audioUrl, coverUrl, deleteSong, errorText, generate, getAnalysis, getDefaults, getMap, getSettings, getSong, reanalyze, zipUrl,
-  type Analysis, type GeneratorSettings, type MapData, type SongMeta,
+  audioUrl, coverUrl, deleteSong, errorText, generate, getAnalysis, getDefaults, getMap, getReference, getSettings, getSong, reanalyze, zipUrl,
+  type Analysis, type GeneratorSettings, type MapData, type Reference, type SongMeta,
 } from '../api'
 import FrontView from '../components/FrontView'
 import ReportCards from '../components/ReportCards'
@@ -28,6 +28,8 @@ export default function SongPage() {
   const [error, setError] = useState<string | null>(null)
   const [follow, setFollow] = useState(true)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
+  const [reference, setReference] = useState<{ id: string; ref: Reference } | null>(null)
+  const [view, setView] = useState<'abeat' | 'human' | 'overlay'>('overlay')
 
   const status = songs.find(s => s.id === id)?.status ?? meta?.status
   const ready = status === 'Ready'
@@ -58,6 +60,15 @@ export default function SongPage() {
       })
       .catch(e => setError(errorText(e)))
   }, [id, ready])
+
+  // the human reference (and its comparison) depends on the generated map, so refetch when it changes
+  const hasReference = !!meta?.referenceMapper
+  const loadedMap = loaded?.id === id ? loaded.map : null
+  useEffect(() => {
+    if (!ready || !hasReference || !loadedMap) return
+    getReference(id).then(r => setReference({ id, ref: r.data })).catch(() => {})
+  }, [id, ready, hasReference, loadedMap])
+  const ref = hasReference && reference?.id === id ? reference.ref : null
 
   const data = ready && loaded?.id === id ? loaded : null
   const analysis = data?.analysis ?? null
@@ -106,7 +117,11 @@ export default function SongPage() {
     await refresh()
   }
 
-  const current = map?.difficulties.find(d => d.name === diff)
+  const generated = map?.difficulties.find(d => d.name === diff)
+  const human = ref?.difficulties.find(d => d.difficulty.name === diff)?.difficulty
+  const current = view === 'human' && human ? human : generated
+  const ghost = view === 'overlay' ? human : undefined
+  const comparisons = ref ? Object.fromEntries(ref.difficulties.map(d => [d.difficulty.name, d.comparison])) : undefined
   const title = meta?.title || meta?.fileName || meta?.sourceUrl || '…'
 
   return (
@@ -115,7 +130,16 @@ export default function SongPage() {
         {ready ? <img className="cover" src={`${coverUrl(id)}?v=${meta?.bpm ?? ''}`} alt="" /> : <div className="cover cover-placeholder">🎵</div>}
         <div className="song-title">
           <h2>{title}</h2>
-          <div className="muted">{meta?.artist}</div>
+          <div className="muted">
+            {meta?.artist}
+            {meta?.referenceMapper && (
+              <span className="ref-badge">
+                human map by {meta.referenceUrl
+                  ? <a href={meta.referenceUrl} target="_blank" rel="noopener noreferrer">{meta.referenceMapper}</a>
+                  : meta.referenceMapper}
+              </span>
+            )}
+          </div>
           {analysis && <Facts a={analysis} />}
         </div>
         <div className="song-actions">
@@ -147,6 +171,15 @@ export default function SongPage() {
         <>
           <audio ref={setAudio} src={audioUrl(id)} preload="auto" />
           <Player audio={audio} bpm={analysis.tempo.bpm} follow={follow} setFollow={setFollow}>
+            {ref && (
+              <div className="view-switch" title="Overlay: ABeat notes filled, human notes as outlines">
+                {(['abeat', 'human', 'overlay'] as const).map(v => (
+                  <button key={v} className={view === v ? 'active' : ''} onClick={() => setView(v)}>
+                    {v === 'abeat' ? 'ABeat' : v === 'human' ? 'Human' : 'Overlay'}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="diff-tabs">
               {map.difficulties.map(d => (
                 <button key={d.name} className={d.name === diff ? 'active' : ''} onClick={() => setDiff(d.name)}>{diffLabel(d.name)}</button>
@@ -155,13 +188,18 @@ export default function SongPage() {
           </Player>
 
           <div className="views">
-            <Timeline analysis={analysis} difficulty={current} audio={audio} follow={follow} />
+            <Timeline analysis={analysis} difficulty={current} audio={audio} follow={follow} ghost={ghost} />
             <FrontView difficulty={current} bpm={analysis.tempo.bpm} audio={audio} />
           </div>
 
           <div className="bottom-grid">
             <div>
-              <ReportCards difficulties={map.difficulties} selected={diff} onSelect={setDiff} />
+              <ReportCards difficulties={map.difficulties} selected={diff} onSelect={setDiff} comparisons={comparisons}
+                title={ref ? 'ABeat' : undefined} />
+              {ref && (
+                <ReportCards difficulties={ref.difficulties.map(d => d.difficulty)} selected={diff} onSelect={setDiff}
+                  title={`Human · ${ref.mapper}${ref.bpmChanges ? ' · has BPM changes, overlay approximate' : ''}`} />
+              )}
               <div className="card issues-card">
                 <h3>Flow issues <span className="muted">{current?.report.issues.length ? `(${current.report.issues.length})` : '— none'}</span></h3>
                 <ul className="issue-list">

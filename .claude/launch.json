@@ -4,7 +4,7 @@
     {
       "name": "abeat-web",
       "runtimeExecutable": "dotnet",
-      "runtimeArgs": ["run", "--project", "src/Abeat.Web", "--no-launch-profile", "--urls", "http://localhost:5080"],
+      "runtimeArgs": ["run", "--project", "src/Abeat.Web", "--no-launch-profile", "--urls", "http://0.0.0.0:5080"],
       "env": { "ABEAT_DATA": "data" },
       "port": 5080
     }

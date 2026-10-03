@@ -56,6 +56,9 @@ human ones (`abeat check`).
   upload ends with a downloadable map.
 - API: `/api/songs` (list, upload), `/api/songs/url`, `/api/songs/{id}` (+ `/analysis`, `/audio`,
   `/cover`, `/settings`, `/map`, `/map.zip` with CORS for ArcViewer, `POST /generate`, `POST /reanalyze`).
+- Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
+  human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served by
+  `GET /api/songs/{id}/reference` re-timed onto ABeat's beat grid, with `MapComparer` results.
 - UI: React SPA with ABook's layout (collapsible sidebar, theme toggle) and a Beat Saber palette
   (blue saber = accent, red saber = secondary). Canvases redraw per animation frame from the
   `<audio>` element's current time.

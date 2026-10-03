@@ -7,15 +7,17 @@ interface Props {
   difficulty?: Difficulty
   audio: HTMLAudioElement | null
   follow: boolean
+  /** Drawn as outlines underneath (human reference in overlay mode). */
+  ghost?: Difficulty
 }
 
 /** Zoomable song timeline: sections, energy, onset layers, the 12 note lanes and flow issues.
  * Redraws itself every frame while playing; wheel zooms, drag scrolls, click seeks. */
-export default function Timeline({ analysis, difficulty, audio, follow }: Props) {
+export default function Timeline({ analysis, difficulty, audio, follow, ghost }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const view = useRef<View>({ pxPerSec: 60, start: 0 })
-  const props = useRef({ analysis, difficulty, audio, follow })
-  useLayoutEffect(() => { props.current = { analysis, difficulty, audio, follow } })
+  const props = useRef({ analysis, difficulty, audio, follow, ghost })
+  useLayoutEffect(() => { props.current = { analysis, difficulty, audio, follow, ghost } })
 
   useEffect(() => {
     view.current.start = 0
@@ -25,13 +27,13 @@ export default function Timeline({ analysis, difficulty, audio, follow }: Props)
     let raf = 0
     const frame = () => {
       const c = canvas.current
-      const { analysis: a, difficulty: d, audio: au, follow: f } = props.current
+      const { analysis: a, difficulty: d, audio: au, follow: f, ghost: gh } = props.current
       if (c && a) {
         const now = au?.currentTime ?? 0
         const width = c.clientWidth / view.current.pxPerSec
         if (f && au && !au.paused && (now > view.current.start + width * 0.85 || now < view.current.start))
           view.current.start = Math.max(0, now - width * 0.15)
-        drawTimeline(c, a, d, view.current, now)
+        drawTimeline(c, a, d, view.current, now, gh)
       }
       raf = requestAnimationFrame(frame)
     }

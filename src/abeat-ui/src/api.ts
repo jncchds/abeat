@@ -20,6 +20,8 @@ export interface SongMeta {
   bpm?: number | null
   durationSec?: number | null
   analysis: AnalysisOptions
+  referenceMapper?: string | null
+  referenceUrl?: string | null
 }
 
 export interface Onset { t: number; s: number; br: number }
@@ -70,6 +72,25 @@ export interface Difficulty {
 
 export interface MapData { difficulties: Difficulty[] }
 
+export interface Comparison {
+  f1: number
+  precision: number
+  recall: number
+  offsetMs: number
+  directionDistance: number
+  positionDistance: number
+  humanDoubles: number
+  generatedDoubles: number
+}
+
+/** A human-made map of the same song, already on ABeat's beat grid. */
+export interface Reference {
+  mapper: string
+  bpm: number
+  bpmChanges: boolean
+  difficulties: { difficulty: Difficulty; comparison: Comparison | null }[]
+}
+
 export interface GeneratorSettings {
   difficulties: string[]
   density: number
@@ -97,6 +118,7 @@ export const getAnalysis = (id: string) => http.get<Analysis>(`/songs/${id}/anal
 export const getMap = (id: string) => http.get<MapData>(`/songs/${id}/map`)
 export const getSettings = (id: string) => http.get<GeneratorSettings>(`/songs/${id}/settings`)
 export const generate = (id: string, s: GeneratorSettings) => http.post<MapData>(`/songs/${id}/generate`, s)
+export const getReference = (id: string) => http.get<Reference>(`/songs/${id}/reference`)
 export const reanalyze = (id: string, o: AnalysisOptions) => http.post<SongMeta>(`/songs/${id}/reanalyze`, o)
 
 export function uploadSong(file: File, beats: string, stems: boolean) {
