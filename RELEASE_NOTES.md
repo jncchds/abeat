@@ -8,3 +8,4 @@
 - CLI, ASP.NET Core web app and Docker image bundling the Python worker.
 - YouTube / YouTube Music links as song input (yt-dlp).
 - React + TypeScript UI aligned with ABook (sidebar, theme toggle) with a Beat Saber colour scheme.
+- BeatSaver comparison harness (`abeat fetch-maps`, `compare`, `bench`); parity model calibrated on curated maps (horizontal cuts free the wrist, sliders and dots handled).
