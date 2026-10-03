@@ -27,6 +27,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - musical: row follows brightness, accents prefer vertical swings
    - variety: stagnation, per-phrase target cells keyed by section label (`PhraseTargets`), so
      repeated sections reuse similar movement; seeded hash noise
+   - style: distribution matching against `style-prior.json` (cut directions, cells per hand, learned
+     from curated maps by `scripts/style_prior.py`); each beam path tracks running counts and pays
+     log(running share / human share), so the mix matches humans instead of collapsing to the mode
+   - parity: vertical/diagonal swings fix forehand/backhand; horizontal cuts free it; a swing within
+     60° of the previous one is a reset; travel within 0.75 cells is free
 5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+), dodge walls in note-free
    gaps (Normal+), side walls in calm sections; all rejected if any note is inside them.
 6. **Bombs** (`BombGenerator`): reset bombs where the natural reversal would cut, accent bombs on
@@ -38,7 +43,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 ## Evaluation
 
 `FlowAnalyzer` scores any map (v2/v3/v4) with the physical part of the cost model plus wall-clash
-and bomb-hit checks. Flow score = 100 * exp(-mean cost / 6). Use it to compare generated maps with
+and bomb-hit checks. Flow score = 100 * exp(-mean cost / 11), calibrated so curated human maps average ~85.
+Sliders/windows (same hand < 90 ms apart) count as one swing; dots take the direction leading into
+the next note. Use it to compare generated maps with
 human ones (`abeat check`).
 
 ## Web app

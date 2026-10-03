@@ -10,8 +10,9 @@ public static class PhraseTargets
     const int PhraseBeats = 16;
     const int StepBeats = 2;
 
-    static readonly (int x, int y)[] RightCells = [(3, 0), (2, 0), (3, 1), (3, 2), (2, 2), (2, 0), (3, 0), (1, 0)];
-    static readonly (int x, int y)[] LeftCells = [(0, 0), (1, 0), (0, 1), (0, 2), (1, 2), (1, 0), (0, 0), (2, 0)];
+    // weighted like human maps: bottom row and the outer middle cell dominate, top row is occasional
+    static readonly (int x, int y)[] RightCells = [(2, 0), (3, 1), (3, 0), (2, 0), (3, 1), (1, 0), (2, 2), (3, 2)];
+    static readonly (int x, int y)[] LeftCells = [(1, 0), (0, 1), (0, 0), (1, 0), (0, 1), (2, 0), (1, 2), (0, 2)];
 
     public static Vec2 For(Hand hand, RhythmEvent e, int seed)
     {

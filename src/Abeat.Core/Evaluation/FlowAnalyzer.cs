@@ -27,7 +27,8 @@ public sealed record FlowReport
     /// <summary>Bombs that lie in a saber's swing path.</summary>
     public int BombHits { get; init; }
     public double MeanCost { get; init; }
-    /// <summary>0..100, higher = smoother. exp(-mean physical cost / 6).</summary>
+    /// <summary>0..100, higher = smoother: 100 * exp(-mean physical cost / ScoreScale). The scale is
+    /// calibrated so curated human maps from BeatSaver average about 85 (abeat bench).</summary>
     public double FlowScore { get; init; }
     public double LeftShare { get; init; }
     public IReadOnlyList<FlowIssue> Issues { get; init; } = [];
@@ -41,6 +42,9 @@ public sealed record FlowReport
 /// so generated maps can be compared with human-made ones.</summary>
 public static class FlowAnalyzer
 {
+    /// <summary>Mean cost of curated human maps was ~1.82 with the current weights; 11 maps that to ~85.</summary>
+    public const double ScoreScale = 11;
+
     public static FlowReport Analyze(DifficultyMap map, double bpm, FlowWeights? weights = null, double minSameHandGap = 0.2)
     {
         var model = new SwingCostModel(weights ?? new FlowWeights());
@@ -148,7 +152,7 @@ public static class FlowAnalyzer
             WallClashes = wallClashes,
             BombHits = bombHits,
             MeanCost = mean,
-            FlowScore = 100 * Math.Exp(-mean / 6),
+            FlowScore = 100 * Math.Exp(-mean / ScoreScale),
             LeftShare = notes.Count > 0 ? notes.Count(n => n.Hand == Hand.Left) / (double)notes.Count : 0,
             Issues = issues,
         };

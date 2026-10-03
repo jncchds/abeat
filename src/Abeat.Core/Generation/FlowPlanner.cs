@@ -8,6 +8,8 @@ namespace Abeat.Core.Generation;
 /// than repaired afterwards.</summary>
 public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile, int beamWidth, int seed)
 {
+    readonly StylePrior? style = StylePrior.For(profile.Name);
+
     readonly record struct Cut(Hand Hand, int X, int Y, CutDirection Dir);
 
     sealed class Node
@@ -19,6 +21,9 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         public Cut? B; // second note for doubles
         public Hand LastHand;
         public CutDirection LastDirL = CutDirection.Any, LastDirR = CutDirection.Any;
+        /// <summary>Running style counts on this path: [0..8] directions, [9..20] left cells, [21..32] right cells.</summary>
+        public int[] Counts = new int[33];
+        public int NotesL, NotesR;
 
         public HandState State(Hand h) => h == Hand.Left ? Left : Right;
     }
@@ -76,6 +81,13 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                     if (d == CutDirection.Any) c += profile.DotCost;
                     if (s.Active && s.X == x && s.Y == y && d == lastDir) c += model.Weights.Repeat;
                     c += model.Stagnation(s, x, y) + model.Target(target, x, y);
+                    if (style != null)
+                    {
+                        int handNotes = hand == Hand.Left ? node.NotesL : node.NotesR;
+                        int cellBase = hand == Hand.Left ? 9 : 21;
+                        c += model.Weights.StyleCell * StylePrior.MatchCost(node.Counts[cellBase + y * 4 + x], handNotes, style.Cells[(int)hand][y * 4 + x]);
+                        c += model.Weights.StyleDirection * StylePrior.MatchCost(node.Counts[(int)d], node.NotesL + node.NotesR, style.Directions[(int)d]);
+                    }
                     c += model.Weights.Noise * Noise(eventIndex, hand, x, y, d);
                     yield return (new Cut(hand, x, y, d), c, v);
                 }
@@ -142,6 +154,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         {
             Left = parent.Left, Right = parent.Right, Cost = cost, Parent = parent, A = a, B = b,
             LastHand = a.Hand, LastDirL = parent.LastDirL, LastDirR = parent.LastDirR,
+            Counts = (int[])parent.Counts.Clone(), NotesL = parent.NotesL, NotesR = parent.NotesR,
         };
         Apply(n, a, t, sa);
         if (b is { } bb) Apply(n, bb, t, sb);
@@ -152,6 +165,9 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
 
     static void Apply(Node n, Cut c, double t, Vec2 swing)
     {
+        n.Counts[(int)c.Dir]++;
+        n.Counts[(c.Hand == Hand.Left ? 9 : 21) + c.Y * 4 + c.X]++;
+        if (c.Hand == Hand.Left) n.NotesL++; else n.NotesR++;
         var s = n.State(c.Hand).After(t, c.X, c.Y, c.Dir, swing, c.Hand);
         if (c.Hand == Hand.Left) { n.Left = s; n.LastDirL = c.Dir; }
         else { n.Right = s; n.LastDirR = c.Dir; }

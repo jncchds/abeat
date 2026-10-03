@@ -68,6 +68,22 @@ All weights are in `FlowWeights` and editable in the UI or a settings file (`abe
 **Evaluation** (`FlowAnalyzer`): the same physical cost model scores any map, including human-made
 ones (`abeat check`), so the weights can be calibrated against maps people like.
 
+## Benchmark vs human maps
+
+`abeat fetch-maps` downloads top-rated curated BeatSaver maps (no mods); `abeat bench` re-maps each
+map's own song and compares. Current results on 18 songs / 62 difficulties (2026-10-03):
+
+| | ABeat | human |
+|---|---|---|
+| BPM | exact on 17/18 (1 octave) | |
+| note timing vs human (F1 at ±50 ms) | 0.66 (Expert+ 0.71) | |
+| timing offset | 1–4 ms | |
+| notes per second | 3.2 | 3.5 |
+| flow score | 97 | 84 |
+| direction / position distribution distance | 0.17 / 0.22 | 0 |
+
+The style prior (`scripts/style_prior.py`) is learned from these maps.
+
 ## Layout
 
 | Path | What |

@@ -162,7 +162,7 @@ static int Check(Options o)
     Console.WriteLine($"{map.SongAuthor} - {map.SongName}  [{map.LevelAuthor}]  bpm {map.Bpm}");
     foreach (var d in map.Difficulties.OrderBy(d => d.Difficulty))
     {
-        var r = FlowAnalyzer.Analyze(d, map.Bpm);
+        var r = FlowAnalyzer.Analyze(d, map.Bpm, LoadSettings(o).Weights);
         Console.WriteLine($"  {r}");
         if (o.Has("verbose"))
             foreach (var i in r.Issues.Take(40))

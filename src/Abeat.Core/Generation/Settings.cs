@@ -30,11 +30,12 @@ public sealed record DifficultyProfile
 
     public static DifficultyProfile Default(DifficultyName d) => d switch
     {
-        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.1, MaxNps = 1.8, MinGapSec = 0.55, MinSameHandGapSec = 0.9, Subdivision = 1, DoubleRate = 0.02, DotCost = 0.4 },
-        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 1.8, MaxNps = 2.8, MinGapSec = 0.36, MinSameHandGapSec = 0.65, Subdivision = 2, DoubleRate = 0.04, DotCost = 0.8 },
-        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 2.7, MaxNps = 4.0, MinGapSec = 0.25, MinSameHandGapSec = 0.45, Subdivision = 2, DoubleRate = 0.07, DotCost = 1.5, BombRate = 0.04 },
-        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.8, MaxNps = 5.6, MinGapSec = 0.17, MinSameHandGapSec = 0.32, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.10, DotCost = 2.5, BombRate = 0.06 },
-        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 5.0, MaxNps = 7.5, MinGapSec = 0.12, MinSameHandGapSec = 0.24, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.12, DotCost = 3.0, BombRate = 0.08 },
+        // densities and double rates follow curated human maps (see style-prior.json); doubles count as one event
+        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.45, MinSameHandGapSec = 0.8, Subdivision = 1, DoubleRate = 0.15, DotCost = 0.5 },
+        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 2.1, MaxNps = 3.3, MinGapSec = 0.3, MinSameHandGapSec = 0.55, Subdivision = 2, DoubleRate = 0.17, DotCost = 0.8 },
+        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 2.7, MaxNps = 4.2, MinGapSec = 0.22, MinSameHandGapSec = 0.42, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
+        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.3, MaxNps = 5.4, MinGapSec = 0.16, MinSameHandGapSec = 0.3, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
+        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.2, MaxNps = 7.5, MinGapSec = 0.12, MinSameHandGapSec = 0.24, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
     };
 }
 
@@ -55,8 +56,12 @@ public sealed record FlowWeights
     public double Crossover { get; init; } = 3.0;
     /// <summary>Same hand twice in a row faster than the profile allows.</summary>
     public double TooFast { get; init; } = 25;
-    /// <summary>Horizontal cut (less natural than vertical/diagonal).</summary>
-    public double Horizontal { get; init; } = 0.4;
+    /// <summary>Horizontal cut (extra on top of the style prior).</summary>
+    public double Horizontal { get; init; } = 0;
+    /// <summary>-log likelihood of the grid cell under the human style prior.</summary>
+    public double StyleCell { get; init; } = 0.7;
+    /// <summary>-log likelihood of the cut direction under the human style prior.</summary>
+    public double StyleDirection { get; init; } = 0.6;
     /// <summary>Note row should follow brightness ("pitch") of the sound.</summary>
     public double Pitch { get; init; } = 0.5;
     /// <summary>Strong accents prefer big vertical swings.</summary>

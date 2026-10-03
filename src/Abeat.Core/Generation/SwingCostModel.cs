@@ -36,6 +36,8 @@ public sealed class SwingCostModel(FlowWeights w)
 {
     /// <summary>How far (in grid cells) a swing travels past the note centre on each side.</summary>
     public const double HalfSwing = 0.6;
+    /// <summary>Saber travel between swings that costs nothing (grid cells).</summary>
+    public const double TravelSlack = 0.75;
     /// <summary>Gap after which a hand can comfortably reset (re-wind) between swings.</summary>
     public const double ResetGapSec = 1.0;
     /// <summary>Same-hand notes closer than this are one swing (sliders / windows).</summary>
@@ -71,8 +73,10 @@ public sealed class SwingCostModel(FlowWeights w)
             double angle = v.AngleTo(-s.Swing);
             c += w.Angle * Math.Pow(angle / 45.0, 2) * speed;
 
+            // real swings overshoot the grid, so moving up to TravelSlack cells between notes is free;
+            // without the slack curated human maps scored ~20 points lower than ours on travel alone
             var entry = new Vec2(x, y) - v * HalfSwing;
-            double dist = (entry - s.Exit).Length;
+            double dist = Math.Max(0, (entry - s.Exit).Length - TravelSlack);
             c += w.Travel * dist * dist * Math.Clamp(0.35 / gap, 0.15, 3.0);
 
             if (gap < minSameHandGap) c += w.TooFast * (1 - gap / minSameHandGap) + 2;

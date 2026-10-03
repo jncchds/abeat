@@ -156,7 +156,8 @@ public static class RhythmSelector
     {
         if (events.Count < 3 || p.DoubleRate <= 0) return events;
         int want = (int)Math.Round(events.Count * p.DoubleRate);
-        double minGap = Math.Max(p.MinSameHandGapSec, 0.3);
+        // both hands hit a double, so each needs its own same-hand recovery time around it
+        double minGap = p.MinSameHandGapSec;
         var order = Enumerable.Range(0, events.Count)
             .Where(i => (i == 0 || events[i].Time - events[i - 1].Time >= minGap)
                      && (i == events.Count - 1 || events[i + 1].Time - events[i].Time >= minGap))
