@@ -44,6 +44,8 @@ export interface Analysis {
 export interface Note { b: number; x: number; y: number; c: number; d: number; a?: number }
 /** Arc from a head note to the same hand's tail note. */
 export interface Arc { b: number; x: number; y: number; c: number; tb: number; tx: number; ty: number }
+/** Chain: head note at (x, y), links along its cut up to the tail cell. */
+export interface Chain { b: number; x: number; y: number; c: number; tb: number; tx: number; ty: number; sc: number }
 export interface Bomb { b: number; x: number; y: number }
 export interface Wall { b: number; d: number; x: number; y: number; w: number; h: number }
 export interface Issue { b: number; hand: number; kind: string; cost: number }
@@ -92,6 +94,7 @@ export interface Difficulty {
   bombs: Bomb[]
   walls: Wall[]
   arcs?: Arc[]
+  chains?: Chain[]
   report: Report
 }
 
@@ -138,6 +141,7 @@ export interface GeneratorSettings {
   crouchWalls: boolean
   bombs: boolean
   arcs: boolean
+  chains: boolean
   angleOffsets: boolean
   dropPause: boolean
   [key: string]: unknown

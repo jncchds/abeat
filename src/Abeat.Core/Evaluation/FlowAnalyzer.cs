@@ -15,6 +15,7 @@ public sealed record FlowReport
     public int Bombs { get; init; }
     public int Obstacles { get; init; }
     public int Arcs { get; init; }
+    public int Chains { get; init; }
     /// <summary>Notes with a non-zero cut angle offset.</summary>
     public int AngledNotes { get; init; }
     public double DurationSec { get; init; }
@@ -45,7 +46,7 @@ public sealed record FlowReport
 
     public override string ToString() =>
         $"{Difficulty,-10} notes {Notes,5}  nps {Nps,5:0.00} (peak {PeakNps,5:0.00})  flow {FlowScore,5:0.0}  " +
-        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  clash {HandClashes,2}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  arcs {Arcs,3}  angled {AngledNotes,3}  L/R {LeftShare:P0}  " +
+        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  clash {HandClashes,2}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  arcs {Arcs,3}  chains {Chains,3}  angled {AngledNotes,3}  L/R {LeftShare:P0}  " +
         $"strain {Movement.StrainP90:0.0} (spikes {StrainSpikes})  plays like {Movement.MovementDifficulty} ({Movement.MovementRank:0.0})";
 }
 
@@ -172,6 +173,7 @@ public static class FlowAnalyzer
             Bombs = map.Bombs.Count,
             Obstacles = map.Obstacles.Count,
             Arcs = map.Arcs.Count,
+            Chains = map.Chains.Count,
             AngledNotes = notes.Count(n => n.AngleOffset != 0),
             DurationSec = duration,
             Nps = duration > 0 ? notes.Count / duration : 0,

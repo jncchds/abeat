@@ -25,6 +25,11 @@ public sealed record RhythmEvent
     /// <summary>How hard the moment hits relative to the rest of the song, 0..1 by rank of strength and
     /// energy (0.5 = median), so it drives swing size without shifting the overall cell mix.</summary>
     public double Intensity { get; init; } = 0.5;
+    /// <summary>Onsets in a fast run (a roll, flam or stutter, faster than sixteenths) right after this
+    /// event and before the next one: sound that is too quick for single notes, drawn as a chain.</summary>
+    public int BurstCount { get; init; }
+    /// <summary>Seconds from the event to the last onset of that run.</summary>
+    public double BurstSec { get; init; }
 }
 
 /// <summary>Chooses which onsets become notes: snap onsets to the beat grid, score grid slots by layer
@@ -139,9 +144,36 @@ public static class RhythmSelector
                     slope = Math.Clamp(e.Brightness - prev.Brightness, -1, 1);
                 lastByLayer[e.Layer] = e;
             }
-            result.Add(e with { Sustain = sustain, PitchSlope = slope, Intensity = intensity[i] });
+            double nextT = i + 1 < events.Count ? events[i + 1].Time : double.PositiveInfinity;
+            var (count, burst) = Burst(a, e, nextT, onsetTimes);
+            result.Add(e with { Sustain = sustain, PitchSlope = slope, Intensity = intensity[i], BurstCount = count, BurstSec = burst });
         }
         return result;
+    }
+
+    static readonly string[] BurstLayers = ["drums", "high", "full"];
+
+    /// <summary>The fast run of onsets that follows an event in its own layer or the drums: each onset
+    /// within ~a 32nd-ish spacing (under 0.85 of a sixteenth and 100 ms) of the previous, so steady
+    /// sixteenth hats never count. Stops 50 ms before the next event.</summary>
+    static (int count, double sec) Burst(SongAnalysis a, RhythmEvent e, double nextT, Dictionary<string, double[]> onsetTimes)
+    {
+        double maxStep = Math.Min(0.1, 0.85 * a.BeatToSeconds(0.25));
+        int best = 0; double bestSec = 0;
+        foreach (var layer in BurstLayers.Prepend(e.Layer).Distinct())
+        {
+            if (!onsetTimes.TryGetValue(layer, out var times)) continue;
+            int idx = Array.BinarySearch(times, e.Time + 0.025);
+            if (idx < 0) idx = ~idx;
+            double last = e.Time; int count = 0;
+            for (; idx < times.Length && times[idx] < nextT - 0.05 && times[idx] - last <= maxStep; idx++)
+            {
+                last = times[idx];
+                count++;
+            }
+            if (count > best) { best = count; bestSec = last - e.Time; }
+        }
+        return (best, bestSec);
     }
 
     /// <summary>Time until the layer's next onset, cut short where the sung word ends (lyrics) or the

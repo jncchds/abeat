@@ -121,6 +121,8 @@ public sealed record GeneratorSettings
     public bool Bombs { get; init; } = true;
     /// <summary>Arcs from held melody notes to the same hand's next note.</summary>
     public bool Arcs { get; init; } = true;
+    /// <summary>Chains on notes followed by a roll or stutter too fast for single notes (Hard and up).</summary>
+    public bool Chains { get; init; } = true;
     /// <summary>Small cut-angle offsets that lean with the melody's pitch direction (Normal and up).</summary>
     public bool AngleOffsets { get; init; } = true;
     /// <summary>A short note-free pause before each drop, with a double on the drop.</summary>

@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.1.9 — 2026-10-04
+
+- Chains: a note followed by a drum roll, flam or stutter too fast for single notes gets a chain that continues its cut (Hard and up, sparingly like human maps). Toggle in the settings; drawn on the timeline and the player view.
+
 ## v0.1.8 — 2026-10-04
 
 - Expression from the analysis: arcs over held melody notes (from stem onsets, or sung word lengths with lyrics), cut angles that lean with rising/falling melody lines, swing size that follows how hard each moment hits (new `dynamics` weight), and a short pause plus a double before each drop. Toggles in the settings; the timeline and front view draw arcs and angles.

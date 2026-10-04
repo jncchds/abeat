@@ -47,6 +47,7 @@ export default function SettingsPanel({ settings: s, defaults, layers, layerSour
           <ToggleField label="Dodge walls" checked={s.dodgeWalls} onChange={v => set({ dodgeWalls: v })} disabled={!s.walls} />
           <ToggleField label="Crouch walls" checked={s.crouchWalls} onChange={v => set({ crouchWalls: v })} disabled={!s.walls} />
           <ToggleField label="Arcs on held notes" checked={s.arcs ?? true} onChange={v => set({ arcs: v })} />
+          <ToggleField label="Chains on rolls" checked={s.chains ?? true} onChange={v => set({ chains: v })} />
           <ToggleField label="Angles follow melody" checked={s.angleOffsets ?? true} onChange={v => set({ angleOffsets: v })} />
           <ToggleField label="Pause before drops" checked={s.dropPause ?? true} onChange={v => set({ dropPause: v })} />
         </div>

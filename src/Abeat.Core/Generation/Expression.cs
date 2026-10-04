@@ -72,4 +72,57 @@ public static class Expression
     }
 
     static bool IsSideWall(Obstacle o) => o.Width == 1 && o.X is 0 or 3;
+
+    /// <summary>Chains on notes followed by a fast run in the music (a drum roll, flam or stutter, see
+    /// <see cref="RhythmEvent.BurstCount"/>): the head is the planned note and the links continue along its
+    /// cut, as human mappers use them, briefly (at most 1/4 beat) with room after. Needs a free path in the
+    /// cut direction, a same-hand gap of a beat after it, and no other object on the links' cells.</summary>
+    public static void AddChains(DifficultyMap map, IReadOnlyList<RhythmEvent> events, double bpm, DifficultyProfile p)
+    {
+        if (p.Name < DifficultyName.Hard) return;
+        double spb = 60.0 / bpm;
+        double minSpacing = p.Name >= DifficultyName.Expert ? 8 : 16; // beats between chains: an ornament, not a pattern
+        var arcEnds = map.Arcs.SelectMany(a => new[] { (Math.Round(a.Beat, 4), a.Hand), (Math.Round(a.TailBeat, 4), a.Hand) }).ToHashSet();
+        double lastChain = double.NegativeInfinity;
+        foreach (var e in events)
+        {
+            if (e.BurstCount < 2 || e.BurstSec < 0.06 || e.Intensity < 0.5 || e.Beat - lastChain < minSpacing) continue;
+            double tailBeat = e.Beat + Math.Clamp(Math.Round(e.BurstSec / spb * 16) / 16, 0.0625, 0.25);
+            var heads = map.Notes.Where(n => Math.Abs(n.Beat - e.Beat) < 1e-4 && n.Direction != CutDirection.Any).ToList();
+            var added = new List<Chain>();
+            foreach (var n in heads)
+            {
+                if (arcEnds.Contains((Math.Round(n.Beat, 4), n.Hand))) continue;
+                var next = map.Notes.FirstOrDefault(x => x.Hand == n.Hand && x.Beat > n.Beat + 1e-4);
+                if (next != null && ((next.Beat - n.Beat) < 1 - 1e-6 || (next.Beat - n.Beat) * spb < 0.45)) continue;
+                if (ChainFor(map, n, tailBeat, spb) is { } c) added.Add(c);
+            }
+            // a double gets chains on both notes or none, so the pair stays symmetric
+            if (added.Count == 0 || added.Count < heads.Count && e.IsDouble) continue;
+            map.Chains.AddRange(added);
+            lastChain = e.Beat;
+        }
+    }
+
+    /// <summary>Chain from a note along its cut: two cells when they fit, else one; null when the links
+    /// would leave the grid or share a cell with another object nearby in time.</summary>
+    static Chain? ChainFor(DifficultyMap map, ColorNote n, double tailBeat, double spb)
+    {
+        var v = Swing.Vector(n.Direction);
+        int dx = Math.Sign(Math.Round(v.X, 3)), dy = Math.Sign(Math.Round(v.Y, 3));
+        for (int len = 2; len >= 1; len--)
+        {
+            int tx = n.X + dx * len, ty = n.Y + dy * len;
+            if (tx is < 0 or > 3 || ty is < 0 or > 2) continue;
+            var cells = Enumerable.Range(1, len).Select(k => (x: n.X + dx * k, y: n.Y + dy * k)).ToList();
+            double t0 = n.Beat - 0.25, t1 = tailBeat + 0.5;
+            bool blocked = map.Notes.Any(o => o != n && o.Beat > t0 && o.Beat < t1 && cells.Contains((o.X, o.Y)))
+                || map.Bombs.Any(b => b.Beat > t0 && b.Beat < t1 && cells.Contains((b.X, b.Y)))
+                || map.Obstacles.Any(o => o.Beat < tailBeat && o.Beat + o.Duration > n.Beat
+                    && cells.Any(c => c.x >= o.X && c.x < o.X + o.Width && c.y >= o.Y && c.y < o.Y + o.Height));
+            if (blocked) continue;
+            return new Chain(n.Beat, n.X, n.Y, n.Hand, n.Direction, tailBeat, tx, ty, 3 * len + 1);
+        }
+        return null;
+    }
 }

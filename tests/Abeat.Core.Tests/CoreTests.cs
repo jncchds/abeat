@@ -56,6 +56,7 @@ public class FormatTests
             Bombs = [new(2, 1, 1)],
             Obstacles = [new(4, 2, 0, 0, 1, 5)],
             Arcs = [new(1, 0, 0, Hand.Left, CutDirection.Down, 3, 1, 0, CutDirection.Up)],
+            Chains = [new(5, 1, 2, Hand.Left, CutDirection.Down, 5.125, 1, 0, 7)],
         };
         var json = JsonNode.Parse(MapWriter.DifficultyJson(dm).ToJsonString())!.AsObject();
         var back = MapReader.ReadDifficulty(json, DifficultyName.Expert);
@@ -63,6 +64,7 @@ public class FormatTests
         Assert.Equal(dm.Bombs, back.Bombs);
         Assert.Equal(dm.Obstacles, back.Obstacles);
         Assert.Equal(dm.Arcs, back.Arcs);
+        Assert.Equal(dm.Chains, back.Chains);
     }
 
     [Fact]
@@ -396,5 +398,30 @@ public class GeneratorTests
         var on = new GeneratorSettings();
         var off = on with { Weights = on.Weights with { Dynamics = 0 } };
         Assert.True(Size(on) > Size(off), $"{Size(on)} vs {Size(off)}");
+    }
+
+    [Fact]
+    public void RollsBecomeChainsAlongTheCut()
+    {
+        var a = FakeAnalysis();
+        double spb = 60 / a.Tempo.Bpm;
+        // a 32nd-note snare roll after every other downbeat
+        for (int b = 16; b < 196; b += 8)
+            for (int k = 1; k <= 3; k++) a.Layers["high"].Add(new Onset { T = (b + k / 8.0) * spb, S = 0.6, Br = 0.8 });
+        a.Layers["high"].Sort((x, y) => x.T.CompareTo(y.T));
+        var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Expert);
+        Assert.NotEmpty(r.Map.Chains);
+        foreach (var c in r.Map.Chains)
+        {
+            Assert.Contains(r.Map.Notes, n => n.Hand == c.Hand && n.Beat == c.Beat && n.X == c.X && n.Y == c.Y && n.Direction == c.Direction);
+            var v = Swing.Vector(c.Direction);
+            Assert.True((c.TailX - c.X) * v.X + (c.TailY - c.Y) * v.Y > 0.5, "links follow the cut");
+            Assert.InRange(c.TailBeat - c.Beat, 0.0625, 0.25);
+            Assert.DoesNotContain(r.Map.Notes, n => n.Hand == c.Hand && n.Beat > c.Beat && n.Beat < c.Beat + 1 - 1e-6);
+        }
+        Assert.Equal(0, r.Report.WallClashes + r.Report.BombHits + r.Report.Resets);
+        Assert.Empty(MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Chains = false }, DifficultyName.Expert).Map.Chains);
+        // steady hats are not rolls
+        Assert.Empty(MapGenerator.GenerateDifficulty(FakeAnalysis(), new GeneratorSettings(), DifficultyName.Expert).Map.Chains);
     }
 }

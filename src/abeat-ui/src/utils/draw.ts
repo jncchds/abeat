@@ -234,6 +234,16 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
       g.stroke()
     }
     g.globalAlpha = 1
+    for (const c of d.chains ?? []) {
+      const ts = beatToSec(c.b), te = beatToSec(c.tb)
+      if (te < t0 - 1 || ts > t1 + 1) continue
+      const links = Math.max(1, c.sc - 1), y0 = laneY(c.x, c.y, k), y1 = laneY(c.tx, c.ty, k)
+      g.fillStyle = c.c === 0 ? RED : BLUE
+      for (let i = 1; i <= links; i++) {
+        const f = i / links, s = size * 0.45
+        g.fillRect(X(ts + (te - ts) * f) - s / 2, y0 + (y1 - y0) * f - s / 4, s, s / 2)
+      }
+    }
     for (const n of d.notes) {
       const t = beatToSec(n.b)
       if (t < t0 - 1 || t > t1 + 1) continue
@@ -313,6 +323,16 @@ export function drawFront(canvas: HTMLCanvasElement, d: Difficulty | undefined, 
     g.moveTo(cx(a.x), cy(a.y))
     g.quadraticCurveTo((cx(a.x) + cx(a.tx)) / 2, Math.max(cy(a.y), cy(a.ty)) + cell * 0.8, cx(a.tx), cy(a.ty))
     g.stroke()
+  }
+  for (const c of (d.chains ?? []).filter(c => c.b <= beat + ahead && c.tb >= beat - 0.15)) {
+    const links = Math.max(1, c.sc - 1)
+    g.fillStyle = c.c === 0 ? RED : BLUE
+    for (let i = 1; i <= links; i++) {
+      const f = i / links, lb = c.b + (c.tb - c.b) * f
+      g.globalAlpha = lb < beat ? 0.2 : 0.2 + 0.6 * k(lb)
+      const s = cell * (0.15 + 0.25 * k(lb))
+      g.fillRect(cx(c.x + (c.tx - c.x) * f) - s / 2, cy(c.y + (c.ty - c.y) * f) - s / 4, s, s / 2)
+    }
   }
   for (const n of d.notes.filter(n => inView(n.b)).sort((p, q) => q.b - p.b)) {
     g.globalAlpha = n.b < beat ? 0.25 : 0.25 + 0.75 * k(n.b)

@@ -49,6 +49,7 @@ public static class MapGenerator
         WallGenerator.Generate(a, dm, p, s);
         BombGenerator.Generate(dm, p, events, s, a.Tempo.Bpm);
         if (s.Arcs) Expression.AddArcs(dm, events, a.Tempo.Bpm);
+        if (s.Chains) Expression.AddChains(dm, events, a.Tempo.Bpm, p);
         if (s.Lights) LightingGenerator.Generate(a, dm, events);
         var report = FlowAnalyzer.Analyze(dm, a.Tempo.Bpm, s.Weights, p.MinSameHandGapSec);
         return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, seed));

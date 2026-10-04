@@ -264,6 +264,7 @@ public static class MapEndpoints
         jumpDistance = Math.Round(MapGenerator.JumpDistance(a.Tempo.Bpm, d.NoteJumpSpeed, d.NoteJumpOffset), 2),
         notes = d.Notes.Select(n => new { b = n.Beat, x = n.X, y = n.Y, c = (int)n.Hand, d = (int)n.Direction, a = n.AngleOffset }),
         arcs = d.Arcs.Select(x => new { b = x.Beat, x = x.X, y = x.Y, c = (int)x.Hand, tb = x.TailBeat, tx = x.TailX, ty = x.TailY }),
+        chains = d.Chains.Select(x => new { b = x.Beat, x = x.X, y = x.Y, c = (int)x.Hand, tb = x.TailBeat, tx = x.TailX, ty = x.TailY, sc = x.Segments }),
         bombs = d.Bombs.Select(n => new { b = n.Beat, x = n.X, y = n.Y }),
         walls = d.Obstacles.Select(o => new { b = o.Beat, d = o.Duration, x = o.X, y = o.Y, w = o.Width, h = o.Height }),
         events = events?.Select(e => new { b = e.Beat, s = Math.Round(e.Strength, 3), dbl = e.IsDouble, layer = e.Layer }),

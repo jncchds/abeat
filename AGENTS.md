@@ -72,14 +72,18 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      (30° for leaps on Expert+): rising leans vertical cuts "/" and lifts horizontal cut ends
      (`AngleOffsets`, Normal+); arcs (v3 sliders) from a single melody note held >= 1 beat and
      >= 45 % of the way to the same hand's next note 1-4 beats later, unless that swing is a reset or
-     a gameplay wall passes in between (`Arcs`, added after walls and bombs)
+     a gameplay wall passes in between (`Arcs`, added after walls and bombs); chains (v3 burst sliders,
+     `Chains`, Hard+) on notes followed by a fast run in their layer or the drums (`RhythmEvent.BurstCount`:
+     onsets each < min(100 ms, 0.85 sixteenth) apart, so steady sixteenth hats never count): links continue
+     the head's cut for 2 cells (1 if only that fits), last 1/16-1/4 beat, need a same-hand gap >= 1 beat
+     and free cells; at most one per 8 beats (16 on Hard), doubles get two chains or none
 5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+), dodge walls in note-free
    gaps (Normal+), side walls in calm sections; all rejected if any note is inside them.
 6. **Bombs** (`BombGenerator`): reset bombs where the natural reversal would cut, accent bombs on
    strong single-hand hits (Hard+); checked against `SaberPath` so no bomb is in a swing path.
 7. **Lights** (`LightingGenerator`): section palettes (repeated labels share colours), downbeat
    pulses, per-note laser flashes, ring spins/zooms, colour boost in the loudest sections.
-8. **Output**: Info.dat v2.1.0 + difficulty v3.3.0 (notes with angle offsets, arcs as `sliders`), `song.egg`, `cover.jpg`, zip.
+8. **Output**: Info.dat v2.1.0 + difficulty v3.3.0 (notes with angle offsets, arcs as `sliders`, chains as `burstSliders`), `song.egg`, `cover.jpg`, zip.
 
 ## Evaluation
 

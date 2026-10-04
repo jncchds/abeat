@@ -12,6 +12,11 @@ public sealed record Arc(double Beat, int X, int Y, Hand Hand, CutDirection Dire
     double TailBeat, int TailX, int TailY, CutDirection TailDirection,
     double HeadMultiplier = 1, double TailMultiplier = 1, int MidAnchor = 0);
 
+/// <summary>Chain (v3 burst slider): a head note followed by link segments the same saber cuts in one
+/// motion along the head's cut direction, ending at the tail cell. Squish scales the link spacing.</summary>
+public sealed record Chain(double Beat, int X, int Y, Hand Hand, CutDirection Direction,
+    double TailBeat, int TailX, int TailY, int Segments, double Squish = 1);
+
 public sealed record Obstacle(double Beat, double Duration, int X, int Y, int Width, int Height);
 
 /// <summary>Classic (v2-compatible) lighting event. Type: 0 back lasers, 1 ring lights, 2 left lasers,
@@ -41,6 +46,7 @@ public sealed class DifficultyMap
     public List<ColorNote> Notes { get; init; } = [];
     public List<BombNote> Bombs { get; init; } = [];
     public List<Arc> Arcs { get; init; } = [];
+    public List<Chain> Chains { get; init; } = [];
     public List<Obstacle> Obstacles { get; init; } = [];
     public List<LightEvent> Lights { get; init; } = [];
     public List<BoostEvent> Boosts { get; init; } = [];

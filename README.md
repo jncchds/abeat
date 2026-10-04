@@ -86,8 +86,9 @@ last swing direction, parity). Each candidate cut is scored for:
   choruses get recognisably similar patterns
 
 **Expression** (`Expression`): melody notes held for a beat or more get an arc to the same hand's
-next note; notes in a rising or falling melody line get a small cut-angle offset that leans with it.
-Both leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the
+next note; notes in a rising or falling melody line get a small cut-angle offset that leans with it;
+notes followed by a roll, flam or stutter too fast for single notes become chains (Hard and up).
+All of them leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the
 settings.
 
 All weights are in `FlowWeights` and editable in the UI or a settings file (`abeat settings`).
@@ -126,7 +127,7 @@ The style prior (`scripts/style_prior.py`) is learned from these maps.
 | Path | What |
 |---|---|
 | `analysis/` | Python worker (`abeat-analyze analyze|synth`), uv project |
-| `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer (notes, arcs), generator, analyzer, packager |
+| `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer (notes, arcs, chains), generator, analyzer, packager |
 | `src/Abeat.Cli` | `abeat generate|analyze|check|movement|settings|synth|fetch-maps|compare|bench` |
 | `src/Abeat.Web` | ASP.NET Core API, serves the built UI from `wwwroot/` |
 | `src/abeat-ui` | React 19 + TypeScript + Vite UI (ABook layout, Beat Saber palette) |
