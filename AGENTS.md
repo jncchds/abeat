@@ -9,16 +9,25 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 2. **Analysis** (`analysis/`, Python, run as a subprocess by `AnalysisRunner`):
    - beat tracking: beat_this (neural) or librosa; constant-BPM grid fitted over the whole song
      (mean inlier interval, outlier-robust least squares), rounded to 0.5 BPM when equivalent
-   - variable tempo (`--tempo auto|constant|variable`, `tempo.fit_tempo_map`): when the constant grid
-     misses tracked beats by > 40 ms (p98) and a tempo map more than halves that (auto), tracked beats are
-     numbered (`index_beats`: the period follows the kept beats, clipped to -20/+25 % of the song's
-     median, so stretches tracked at double tempo or on off-beats don't add beats), a piecewise-linear
-     time-vs-beat curve with a knot per bar is fitted (IRLS, mis-tracked beats fade out; second-difference
-     penalty on tempo changes against tracker jitter), and bars are merged into constant-tempo segments
-     while the curve stays within 10 ms. `tempo.changes` = [{beat, bpm}], beat 0 first; C# reads it into
-     `TempoMap`, which every beat/second conversion goes through (implicit from a plain BPM), and the
-     writer emits v3 `bpmEvents`. Drifting synth (`synth --drift 0.04`): notes within 30 ms of the true
-     grid 100 % (mean 8 ms) vs 51 % with one BPM
+   - variable tempo (`--tempo auto|constant|variable`, `tempo.fit_tempo_map`): tracked beats are numbered
+     (`index_beats`: the period follows the kept beats, clipped to -20/+25 % of the song's median, so
+     stretches tracked at double tempo or on off-beats don't add beats), a piecewise-linear time-vs-beat
+     curve with a knot per bar is fitted (IRLS, mis-tracked beats fade out; second-difference penalty on
+     tempo changes), every knot is then locked to the audio (`_lock_knots`: +-40 ms coordinate ascent on
+     the kick-weighted attack envelope at the bar's beats, small bend penalty; beat_this's 20 ms frames
+     bias per-bar tempos), and the result is the constant grid except in bars where the curve scores
+     >= 110 % of it on that envelope (`_keep_grid`, median over 3 bars): beat_this wanders 100-200 ms off
+     the beat in some steady songs, so only stretches that really leave one BPM bend the grid. Bars are
+     merged into constant-tempo segments while within 10 ms. Auto mode needs the constant grid to miss the
+     tracked beats (p98 > 40 ms) and the map's beats to collect >= 1.1x the attack energy of the grid's
+     (`on_beat_energy`; a hats-only intro tracked on off-beats no longer bends a steady song).
+     `tempo.changes` = [{beat, bpm}], beat 0 first; C# reads it into `TempoMap`, which every
+     beat/second conversion goes through (implicit from a plain BPM), and the writer emits v3
+     `bpmEvents`; the rhythm selector sizes the minimum gap per bar from the local tempo. Results:
+     drifting synth (`synth --drift 0.04`) mean 8 ms from the true grid (one BPM: 51 % of notes within
+     30 ms); Coldplay - Paradise (live band) timing F1 vs the human map 0.70 vs 0.50 with one BPM; Dara -
+     Bangaranga (slow parts speeding up): 77 % of generated notes within 30 ms of an onset vs 71 %, better
+     in every part of the song; steady bench songs keep one BPM or score the same
    - phase refinement against a kick-weighted *attack envelope* (log-energy rise on short
      centred windows) because spectral-flux envelopes lag ~50 ms
    - downbeats on the fixed grid (tracker vote or low-band strength)

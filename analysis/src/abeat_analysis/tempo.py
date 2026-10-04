@@ -217,14 +217,24 @@ def index_beats(beats: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     return beats[np.array(keep)], np.array(idx)
 
 
-def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, merge_ms: float = 10.0) -> TempoMap | None:
+def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, merge_ms: float = 10.0,
+                  audio: tuple[np.ndarray, int] | None = None, grid: Grid | None = None) -> TempoMap | None:
     """Piecewise-constant tempo for drifting (live, unquantized) recordings.
 
     Beat time as a function of beat number is fitted with a piecewise-linear curve (a knot every
     `knot_beats` beats, so one tempo per bar), robustly (iteratively reweighted, so mis-tracked beats
     don't bend it) and with a penalty on tempo changes between neighbouring bars (tracker jitter of
     ~10-20 ms would otherwise show up as tempo noise). Neighbouring bars are then merged greedily into
-    one tempo as long as no tracked beat moves by more than `merge_ms` from the fitted curve's time."""
+    one tempo as long as no tracked beat moves by more than `merge_ms` from the fitted curve's time.
+
+    With `audio` (mono, sr) every knot is then nudged (up to +-40 ms) to put the beats on the audio's
+    kick-weighted attacks (`_lock_knots`): the tracker's 20 ms frames bias per-bar tempos, and over a long
+    steady stretch after a tempo change that drifts the grid off the beat.
+
+    With `grid` (the song's constant grid) and `audio`, the result is the constant grid except where the
+    curve sits clearly better on the audio's attacks (`_keep_grid`): beat trackers wander by 100 ms and
+    more in some songs even where the tempo is steady, and only the stretches where the music really
+    leaves one BPM (a slow part speeding up, a live band drifting) should bend the grid."""
     if len(beats) < 4 * knot_beats:
         return None
     t, idx = index_beats(beats)
@@ -245,6 +255,10 @@ def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, m
         T = np.linalg.solve(A.T @ W + smooth * D.T @ D, W.T @ t)
         r = np.abs(t - A @ T)
         w = np.where(r < 0.025, 1.0, (0.025 / np.maximum(r, 1e-9)) ** 2)  # mis-tracked beats fade out
+    if audio is not None:
+        T = _lock_knots(T, knot_beats, *audio)
+        if grid is not None:
+            T = _keep_grid(T, knot_beats, grid, *audio)
 
     # merge bars into constant-tempo segments while the curve's beat times stay within merge_ms
     knot_beat = np.arange(n_knots) * knot_beats
@@ -268,6 +282,82 @@ def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, m
     tm = TempoMap(float(T[0]), changes, 0.0, 0.0)
     dev = (t - tm.time(idx))[w > 0.5]
     return TempoMap(float(T[0]), changes, float(np.sqrt(np.mean(dev ** 2)) * 1000), float(np.percentile(np.abs(dev), 98) * 1000))
+
+
+def _keep_grid(T: np.ndarray, knot_beats: int, grid: Grid, y: np.ndarray, sr: int) -> np.ndarray:
+    """The constant grid, except in bars where the fitted curve sits clearly better on the audio.
+
+    Per bar, the attack energy at the beats and off-beats of the (audio-locked) curve is compared with
+    the constant grid's beats nearest in time; bars where the curve scores >= 110 % (median filter over
+    three bars) keep the curve, all others take the grid. Knots between two grid bars sit exactly on the
+    grid, so steady stretches keep one exact tempo; the curve's knots inside its runs are kept."""
+    import scipy.ndimage
+    import scipy.signal
+
+    env, et = _beat_envelope(y, sr)
+    env = scipy.ndimage.maximum_filter1d(env, size=max(1, int(0.03 / (et[1] - et[0]))))
+    period = 60.0 / grid.bpm
+    G = grid.first_beat + np.round((T - grid.first_beat) / period) * period
+    half = np.arange(2 * knot_beats) / (2 * knot_beats)
+
+    def bar(times: np.ndarray, a: int) -> float:
+        t = times[a] + (times[a + 1] - times[a]) * half
+        return float(np.interp(t, et, env, left=0, right=0).sum())
+
+    curve_bar = np.array([bar(T, a) >= 1.1 * bar(G, a) for a in range(len(T) - 1)], float)
+    curve_bar = scipy.signal.medfilt(curve_bar, 3) > 0.5
+    use_curve = np.zeros(len(T), bool)
+    use_curve[1:-1] = curve_bar[:-1] & curve_bar[1:]  # knots inside a run of curve bars
+    return np.where(use_curve, T, G)
+
+
+def _lock_knots(T: np.ndarray, knot_beats: int, y: np.ndarray, sr: int, max_ms: float = 40.0,
+                frozen: np.ndarray | None = None) -> np.ndarray:
+    """Coordinate ascent on the knot times: each knot moves to where the beats of its two neighbouring
+    bars collect the most attack energy (envelope max within +-10 ms of each beat), with a small
+    penalty on tempo changes so silence or a free-time break doesn't make the curve wander."""
+    import scipy.ndimage
+
+    env, et = _beat_envelope(y, sr)
+    hop = et[1] - et[0]
+    env = scipy.ndimage.maximum_filter1d(env, size=max(1, int(0.02 / hop)))
+    T = T.copy()
+    T0 = T.copy()
+    frac = np.arange(knot_beats) / knot_beats
+
+    def bar_score(a: int) -> float:  # beats of the bar between knots a and a+1
+        if a < 0 or a + 1 >= len(T):
+            return 0.0
+        tb = T[a] + (T[a + 1] - T[a]) * frac
+        return float(np.interp(tb, et, env, left=0, right=0).sum())
+
+    def bend(a: int) -> float:  # tempo change around knot a, in ms of period per beat
+        if a <= 0 or a + 1 >= len(T):
+            return 0.0
+        return ((T[a + 1] - T[a]) - (T[a] - T[a - 1])) / knot_beats * 1000
+
+    for step in (0.008, 0.004, 0.002):
+        for _ in range(3):
+            moved = False
+            for a in range(len(T)):
+                if frozen is not None and frozen[a]:
+                    continue
+                lo = T[a - 1] + 0.2 if a > 0 else -np.inf
+                hi = T[a + 1] - 0.2 if a + 1 < len(T) else np.inf
+                best, best_val = T[a], None
+                for cand in T[a] + np.arange(-3, 4) * step:
+                    if not (lo < cand < hi) or abs(cand - T0[a]) > max_ms / 1000:
+                        continue
+                    old, T[a] = T[a], cand
+                    val = bar_score(a - 1) + bar_score(a) - 0.002 * sum(bend(k) ** 2 for k in (a - 1, a, a + 1))
+                    T[a] = old
+                    if best_val is None or val > best_val + 1e-9:
+                        best, best_val = cand, val
+                if best != T[a]:
+                    T[a], moved = best, True
+            if not moved:
+                break
+    return T
 
 
 def _beat_envelope(y: np.ndarray, sr: int) -> tuple[np.ndarray, np.ndarray]:

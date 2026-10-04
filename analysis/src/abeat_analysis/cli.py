@@ -219,11 +219,8 @@ def _tempo_map(args: argparse.Namespace, beats: np.ndarray, grid: "tempo.Grid", 
     the constant grid misses tracked beats by > 40 ms (p98) and the map more than halves that."""
     if args.tempo == "constant" or args.bpm or (args.tempo == "auto" and grid.stable):
         return None
-    tm = tempo.fit_tempo_map(beats)
+    tm = tempo.fit_tempo_map(beats, audio=(y, sr), grid=grid)
     if tm is None or len(tm.changes) < 2:
-        return None
-    if args.tempo == "auto" and tm.max_dev_ms > 0.5 * grid.max_dev_ms:
-        log(f"tempo drifts (p98 {grid.max_dev_ms:.0f} ms) but a tempo map fits no better (p98 {tm.max_dev_ms:.0f} ms); keeping one BPM")
         return None
     tm = tempo.refine_map_phase(y, sr, tm)
     # the tracker can stray for whole stretches (off-beats in a hats-only intro), which a tempo map would

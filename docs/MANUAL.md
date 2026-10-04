@@ -6,7 +6,7 @@ ArcViewer or install with BSManager. This manual describes everything it does an
 
 - [1. Quick start](#1-quick-start)
 - [2. Running ABeat](#2-running-abeat)
-  - [Docker](#docker) · [GPUs](#gpus) · [Folders](#folders) · [Environment variables](#environment-variables) · [Updating](#updating-and-disk-use) · [Running without Docker](#running-without-docker)
+  - [Docker](#docker) · [GPUs](#gpus) · [Environment variables](#environment-variables) · [Updating](#updating-and-disk-use) · [Running without Docker](#running-without-docker)
 - [3. The web app](#3-the-web-app)
   - [Adding songs](#adding-songs) · [The song page](#the-song-page) · [Versions and comparison](#versions-and-comparison) · [Settings panel](#settings-panel) · [Playlists](#playlists) · [Debug panel](#debug-panel)
 - [4. Analysis options](#4-analysis-options)
@@ -254,7 +254,7 @@ map), download `analysis.json`.
 | Vocal separator | **Demucs**, RoFormer | BS-RoFormer gives cleaner vocals (less bleed from leads and pads, fewer false vocal notes). Needs the `roformer` extra; slow without a GPU (minutes per minute of audio on a CPU); its 600 MB model downloads on first use |
 | Vocal onsets | **flux**, notes, lyrics | *flux*: every new sung sound. *notes*: only where a pitched voice follows (CREPE), the melody steers the row. *lyrics*: one note per syllable, from lyrics you paste (or a Whisper transcription with the `lyrics` extra), aligned to the vocals |
 | Other/bass onsets | **flux**, notes | *notes*: transcribed by basic-pitch; real pitch for rows and angles, real note lengths for arcs. Timing is about the same as flux |
-| Tempo | **auto**, constant, variable | *auto*: one BPM, unless the song drifts (live band, no click track) and a tempo map sits clearly better on the audio; then the map gets BPM changes. On a live recording this lifted timing F1 from 0.50 to 0.73 |
+| Tempo | **auto**, constant, variable | *auto*: one BPM, unless the song drifts (live band, no click track) and a tempo map sits clearly better on the audio; then the map gets BPM changes there and stays on one BPM elsewhere. On a live recording timing F1 went from 0.50 to 0.70; on a song with slow parts speeding up 77 % of notes land within 30 ms of a sound instead of 71 % |
 | BPM override | number | forces a constant BPM (CLI `--bpm`) |
 
 Re-analysis reuses the separated stems and the downloaded audio, so switching vocal or tempo methods

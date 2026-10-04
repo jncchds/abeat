@@ -61,11 +61,11 @@ public static class RhythmSelector
         if (slots.Count == 0) return [];
 
         double maxScore = slots.Values.Max(x => x.Score);
-        // the fastest tempo of a drifting song, so the gap holds everywhere
-        double secPerSlot = 60.0 / a.TempoMap.Points.Max(x => x.Bpm) / SlotsPerBeat;
-        int minGapSlots = (int)Math.Ceiling(p.MinGapSec / secPerSlot - 1e-6);
         int grid = SlotsPerBeat / p.Subdivision;
-        minGapSlots = Math.Max(minGapSlots, p.AllowTriplets ? Math.Min(grid, SlotsPerBeat / 3) : grid);
+        int minGridSlots = p.AllowTriplets ? Math.Min(grid, SlotsPerBeat / 3) : grid;
+        // the gap in slots follows the tempo where the note is (songs with tempo changes)
+        int MinGapSlots(int slot) => Math.Max(minGridSlots,
+            (int)Math.Ceiling(p.MinGapSec / (a.TempoMap.SecPerBeat((double)slot / SlotsPerBeat) / SlotsPerBeat) - 1e-6));
 
         var accepted = new SortedSet<int>();
         var drops = s.DropPause ? DropSlots(a, slots) : [];
@@ -95,7 +95,8 @@ public static class RhythmSelector
             foreach (var c in candidates)
             {
                 if (taken >= count) break;
-                if (accepted.GetViewBetween(c.Index - minGapSlots + 1, c.Index + minGapSlots - 1).Count > 0) continue;
+                int gapSlots = MinGapSlots(c.Index);
+                if (accepted.GetViewBetween(c.Index - gapSlots + 1, c.Index + gapSlots - 1).Count > 0) continue;
                 accepted.Add(c.Index);
                 taken++;
             }

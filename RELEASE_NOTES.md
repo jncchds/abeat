@@ -8,7 +8,7 @@
 - Other/bass notes from basic-pitch (option *other/bass: notes*): real pitch for rows and angles, real note lengths for arcs.
 - BS-RoFormer vocals (option *vocals: RoFormer*, extra `roformer`): cleaner vocal stem; slow without a GPU.
 - Lights and modes: optional Pyro environment with a v3 group lightshow; One Saber, 90° and 360° modes next to Standard.
-- Variable tempo only when a tempo map sits clearly better on the audio than one BPM (a hats-only intro tracked on the off-beats no longer bends a steady song); on a live recording it lifts timing F1 from 0.50 to 0.73.
+- Variable tempo follows the audio, not just the beat tracker: the map stays on one BPM and bends only where the music really changes tempo (slow parts speeding up, a drifting live band). Dara's Bangaranga: 77 % of notes within 30 ms of a sound instead of 71 %; a live recording: timing F1 0.70 instead of 0.50; steady songs keep one BPM.
 - Re-analysis no longer blocks a song: it runs in a side folder and replaces the analysis only when it succeeds, the song and all versions stay usable meanwhile, failures keep everything, and a Cancel button stops it.
 - Docker: one slim image (~420 MB instead of 3.2 GB) for CPU, NVIDIA (CUDA 13 / 12.6), AMD ROCm and Intel XPU. Python, PyTorch for the detected hardware, models and ArcViewer install on first start into bind-mounted `models/` and `runtime/` folders next to `data/`; the web UI shows the progress. The worker runs its models on the GPU when there is one.
 - Docs: a full [manual](docs/MANUAL.md). Tests split by area (C#) and a pytest suite for the worker.
