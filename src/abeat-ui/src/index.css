@@ -617,3 +617,17 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 .job-banner > span { display: flex; align-items: center; gap: 0.5rem; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .job-banner.failed { border-color: var(--danger); }
 .link-btn { background: none; border: none; padding: 0; color: var(--accent, inherit); cursor: pointer; text-decoration: underline; }
+
+/* tap-along runs */
+.tap-hint { font-size: 0.8rem; margin-bottom: 0.6rem; }
+.tap-runs { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
+.tap-run { display: flex; align-items: center; gap: 0.6rem; border: 1px solid; border-left-width: 3px; border-radius: 8px; padding: 0.35rem 0.4rem 0.35rem 0.6rem; font-size: 0.85rem; }
+.tap-rec { display: flex; gap: 0.6rem; align-items: stretch; }
+.tap-pad { flex: 1; min-height: 96px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem;
+  background: var(--bg); border: 2px solid; border-radius: 10px; font-size: 1.3rem; font-weight: 700; touch-action: manipulation; user-select: none; }
+.tap-pad span { font-size: 0.75rem; font-weight: 400; color: var(--text-muted); }
+.tap-table { margin-top: 0.7rem; border-collapse: collapse; font-size: 0.8rem; }
+.tap-table th, .tap-table td { padding: 0.15rem 0.6rem; text-align: right; white-space: nowrap; }
+.tap-table th:first-child, .tap-table td:first-child { text-align: left; padding-left: 0; }
+.tap-table thead tr:first-child th { text-align: center; }
+.tap-both td { border-top: 1px solid var(--border); }

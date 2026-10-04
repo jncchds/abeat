@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Abeat.Core.Analysis;
 using Abeat.Core.Evaluation;
 using Abeat.Core.Generation;
@@ -94,6 +95,21 @@ public static class MapEndpoints
         {
             if (store.Get(id) is null) return Results.NotFound();
             File.WriteAllText(store.LyricsPath(id), req.Text ?? "");
+            return Results.NoContent();
+        });
+
+        api.MapGet("/songs/{id}/taps", (string id, SongStore store) =>
+            store.Get(id) is null ? Results.NotFound()
+            : File.Exists(store.TapsPath(id)) ? Results.Text(File.ReadAllText(store.TapsPath(id)), "application/json")
+            : Results.Ok(new TapsRequest([])));
+
+        api.MapPut("/songs/{id}/taps", (string id, TapsRequest req, SongStore store) =>
+        {
+            if (store.Get(id) is null) return Results.NotFound();
+            var runs = (req.Runs ?? []).Take(2)
+                .Select(r => r with { Taps = (r.Taps ?? []).Where(t => double.IsFinite(t) && t >= 0).Order().ToArray() })
+                .ToArray();
+            File.WriteAllText(store.TapsPath(id), JsonSerializer.Serialize(new TapsRequest(runs), JsonSerializerOptions.Web));
             return Results.NoContent();
         });
 
@@ -224,6 +240,8 @@ public static class MapEndpoints
     static string VocalOption(string? v) => v is "notes" or "lyrics" ? v : "flux";
     public sealed record ImportRequest(string Path);
     public sealed record LyricsRequest(string? Text);
+    public sealed record TapRun(DateTime RecordedUtc, double[]? Taps);
+    public sealed record TapsRequest(TapRun[]? Runs);
 
     const string HumanId = "human";
 

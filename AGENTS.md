@@ -226,9 +226,12 @@ move, `--write-prior` rewrites the prior.
   `ABEAT_ARCVIEWER_DIR`) and served same-origin at `/arcviewer/`; `/api/config` reports `arcViewer`
   and the UI falls back to the public site without it. ArcViewer (Unity) refuses plain-http downloads
   except from localhost, so other devices open it and the zip through the https listener
-  (`ABEAT_HTTPS_PORT`, self-signed LAN certificate). Routing runs after the static files so the SPA
+  (`ABEAT_HTTPS_PORT`, self-signed LAN certificate; `/api/config` reports `ABEAT_HTTPS_PUBLIC_PORT` when the
+  container publishes it under another host port). Routing runs after the static files so the SPA
   fallback doesn't swallow `/arcviewer/`.
 - Lyrics: `GET|PUT /api/songs/{id}/lyrics` (`lyrics.txt`), passed to the worker on re-analysis.
+- Tap along: `GET|PUT /api/songs/{id}/taps` (`taps.json`: run 0 right hand, run 1 left, song.egg seconds);
+  the UI scores them in `utils/taps.ts` (per-hand median offset removed, ±70 ms matching).
 - Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
   human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served as
   version `human`.

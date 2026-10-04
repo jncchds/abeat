@@ -2,13 +2,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelJob,
   audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getSettings, getSong,
-  getVersion, getVersions, getVersionSettings, reanalyze, zipUrl,
-  type Analysis, type AnalysisOptions, type Comparison, type Difficulty, type GeneratorSettings, type SongMeta, type Version,
+  getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
+  type Analysis, type AnalysisOptions, type Comparison, type Difficulty, type GeneratorSettings, type SongMeta, type TapRun, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
 import LyricsPanel from '../components/LyricsPanel'
 import ReportCards from '../components/ReportCards'
+import TapPanel from '../components/TapPanel'
 import SettingsPanel from '../components/SettingsPanel'
 import Timeline from '../components/Timeline'
 import ToggleField from '../components/ToggleField'
@@ -21,6 +22,7 @@ import { useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
 import { diffLabel, fmtTime } from '../utils/format'
 import { tempoOf, type Tempo } from '../utils/tempo'
+import { tapRef, tapRows, type TapRef } from '../utils/taps'
 
 type Mode = 'a' | 'b' | 'both'
 
@@ -77,6 +79,8 @@ export default function SongPage() {
   const [vocalPick, setVocalPick] = useState<{ id: string; v: string } | null>(null)
   const [extrasPick, setExtrasPick] = useState<{ id: string; v: Pick<AnalysisOptions, 'tempo' | 'pitched' | 'separator'> } | null>(null)
   const [lyricsOpen, setLyricsOpen] = useState(false)
+  const [tapOpen, setTapOpen] = useState(false)
+  const [taps, setTaps] = useState<{ id: string; runs: TapRun[] }>({ id: '', runs: [] })
   const [follow, setFollow] = useState(true)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
   const debug = useDebug()
@@ -133,6 +137,15 @@ export default function SongPage() {
       .catch(e => setError(errorText(e)))
   }, [id, ready, revision])
 
+  useEffect(() => {
+    getTaps(id).then(r => setTaps({ id, runs: r.data.runs ?? [] })).catch(() => {})
+  }, [id])
+  const tapRuns = useMemo(() => (taps.id === id ? taps.runs : []), [taps, id])
+  const onTaps = (runs: TapRun[]) => {
+    setTaps({ id, runs })
+    putTaps(id, runs).catch(e => setError(errorText(e)))
+  }
+
   const data = ready && loaded?.id === id ? loaded : null
   const analysis = data?.analysis ?? null
   const settings = data?.settings ?? null
@@ -179,6 +192,15 @@ export default function SongPage() {
     if (showB && diffB) out.push({ d: diffB, color: SIDE_B, unmatched: showA && diffA ? unmatchedBeats(diffB, diffA, tol) : undefined })
     return out
   }, [analysis, diffA, diffB, showA, showB])
+  const tapRefs = useMemo<TapRef[]>(() => {
+    if (!analysis) return []
+    const tempo = tempoOf(analysis.tempo)
+    return [diffA && tapRef('A', SIDE_A, diffA, tempo), diffB && tapRef('B', SIDE_B, diffB, tempo)]
+      .filter((r): r is TapRef => !!r)
+  }, [analysis, diffA, diffB])
+  // rows are aligned to the top track's notes
+  const tapTimeline = useMemo(() => tapRows(tapRuns, (tracks[0]?.d === diffB ? tapRefs.find(r => r.name === 'B') : tapRefs[0]) ?? null),
+    [tapRuns, tapRefs, tracks, diffB])
   const sideLabel = (s: Side, k: 'A' | 'B') => `${k} · ${labels[s.v] ?? ''} · ${diffLabel(s.d)}`
   const trackLabels = [showA && diffA && sideA ? sideLabel(sideA, 'A') : null, showB && sideB ? sideLabel(sideB, 'B') : null]
     .filter((x): x is string => !!x)
@@ -365,6 +387,10 @@ export default function SongPage() {
           <audio ref={setAudio} src={stemSrc?.id === id ? stemSrc.url : audioUrl(id)} preload="auto" />
           {debug && <DebugPanel id={id} onPreview={url => setStemSrc(url ? { id, url } : null)} />}
           <Player audio={audio} tempo={tempoOf(analysis.tempo)} follow={follow} setFollow={setFollow}>
+            <button className={`btn-secondary${tapOpen ? ' active' : ''}`} onClick={() => setTapOpen(o => !o)}
+              title="Tap along with the song twice and compare your beats with the generated notes">
+              Tap beats{tapRuns.length ? ` (${tapRuns.length})` : ''}
+            </button>
             {sideB && (
               <div className="view-switch" title="Which version the timeline and player view show">
                 {(['a', 'b', 'both'] as const).map(m => (
@@ -375,6 +401,8 @@ export default function SongPage() {
               </div>
             )}
           </Player>
+
+          {tapOpen && <TapPanel audio={audio} runs={tapRuns} refs={tapRefs} onChange={onTaps} onClose={() => setTapOpen(false)} />}
 
           <div className="compare-bar">
             <SidePicker name="A" color={SIDE_A} side={sideA} versions={list} labels={labels} onChange={n => setSide('a', n)} songId={id} />
@@ -397,7 +425,7 @@ export default function SongPage() {
           </div>
 
           <div className="views">
-            <Timeline analysis={analysis} tracks={tracks} labels={trackLabels} audio={audio} follow={follow} />
+            <Timeline analysis={analysis} tracks={tracks} labels={trackLabels} audio={audio} follow={follow} taps={tapTimeline} />
             <div className="front-stack">
               {tracks.length > 1
                 ? tracks.map((t, k) => (

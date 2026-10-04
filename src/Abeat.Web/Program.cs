@@ -10,6 +10,9 @@ const long MaxUpload = 300L * 1024 * 1024;
 // ABEAT_HTTPS_PORT adds an https listener with a self-signed LAN certificate (for ArcViewer, see
 // LocalHttps); explicit listeners replace --urls, so the http port is then ABEAT_HTTP_PORT.
 int? httpsPort = int.TryParse(builder.Configuration["ABEAT_HTTPS_PORT"], out var hp) ? hp : null;
+// the port browsers reach the https listener on (a container publishes it under another number)
+int? publicHttpsPort = httpsPort is null ? null
+    : int.TryParse(builder.Configuration["ABEAT_HTTPS_PUBLIC_PORT"], out var pp) ? pp : httpsPort;
 builder.WebHost.ConfigureKestrel(k =>
 {
     k.Limits.MaxRequestBodySize = MaxUpload;
@@ -81,7 +84,7 @@ app.UseRouting();
 MapEndpoints.Map(app);
 PlaylistEndpoints.Map(app);
 app.MapGet("/healthz", () => "ok");
-app.MapGet("/api/config", (WorkerRuntime runtime) => new { httpsPort, arcViewer = ArcViewer(), runtime = runtime.Current });
+app.MapGet("/api/config", (WorkerRuntime runtime) => new { httpsPort = publicHttpsPort, arcViewer = ArcViewer(), runtime = runtime.Current });
 // client-side routes (/songs/{id}) are served by the React app
 app.MapFallbackToFile("index.html", staticFiles);
 

@@ -1,5 +1,10 @@
 # Release notes
 
+## v0.2.3 — 2026-10-04
+
+- Tap along: **Tap beats** in the player records one run per hand (right first) of you tapping any key on the notes you expect. The runs show as rows in the timeline; each hand is scored against that hand's notes of A and B (offset, F1, precision, recall), and both hands together against all notes and doubles. Saved per song in `taps.json`.
+- Docker: `ABEAT_HTTPS_PUBLIC_PORT` sets the host port of the HTTPS listener (compose publishes it), so ArcViewer and map links work when 8443 is published as another port.
+
 ## v0.2.2 — 2026-10-04
 
 - No more hands clashing: a note in the cell the other hand cut less than 0.3 s before costs the generator (the checker reports it as a clash below 0.2 s), and doubles may not start or end their swings together (e.g. L↖ next to R↗ in the middle). On 18 curated songs generated maps had 7x the human rate of these; now none, with timing, flow and strain unchanged. New `handClash` weight.

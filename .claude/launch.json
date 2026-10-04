@@ -18,6 +18,24 @@
         "ABEAT_HTTPS_PORT": "5443"
       },
       "port": 5080
+    },
+    {
+      "name": "abeat-web-alt",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": [
+        "run",
+        "--project",
+        "src/Abeat.Web",
+        "--no-launch-profile",
+        "--urls",
+        "http://0.0.0.0:5090"
+      ],
+      "env": {
+        "ABEAT_DATA": "data",
+        "ABEAT_HTTP_PORT": "5090",
+        "ABEAT_HTTPS_PORT": "5493"
+      },
+      "port": 5090
     }
   ]
 }

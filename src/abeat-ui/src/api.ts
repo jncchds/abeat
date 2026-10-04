@@ -191,6 +191,10 @@ export const getStems = (id: string) => http.get<StemFile[]>(`/songs/${id}/stems
 export const stemUrl = (id: string, file: string) => `/api/songs/${id}/stems/${encodeURIComponent(file)}`
 export const getLyrics = (id: string) => http.get<{ text: string }>(`/songs/${id}/lyrics`)
 export const putLyrics = (id: string, text: string) => http.put(`/songs/${id}/lyrics`, { text })
+/** One tap-along run: song.egg seconds of every tap. */
+export interface TapRun { recordedUtc: string; taps: number[] }
+export const getTaps = (id: string) => http.get<{ runs: TapRun[] }>(`/songs/${id}/taps`)
+export const putTaps = (id: string, runs: TapRun[]) => http.put(`/songs/${id}/taps`, { runs })
 export const reanalyze = (id: string, o: AnalysisOptions) => http.post<SongMeta>(`/songs/${id}/reanalyze`, o)
 export const cancelJob = (id: string) => http.post<SongMeta>(`/songs/${id}/cancel`)
 

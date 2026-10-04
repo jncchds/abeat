@@ -102,6 +102,8 @@ public sealed class SongStore
     /// <summary>Lyrics pasted by the user, aligned instead of a transcription when vocal onsets come from lyrics.</summary>
     public string LyricsPath(string id) => Path.Combine(Dir(id), "lyrics.txt");
     public string? LyricsFile(string id) => File.Exists(LyricsPath(id)) && new FileInfo(LyricsPath(id)).Length > 0 ? LyricsPath(id) : null;
+    /// <summary>Beats the user tapped along with the song, to compare with generated note timings.</summary>
+    public string TapsPath(string id) => Path.Combine(Dir(id), "taps.json");
     /// <summary>Uploads keep their original file name: the worker falls back to "Artist - Title" names when tags are missing.</summary>
     public string SourcePath(SongMeta m) => Path.Combine(Dir(m.Id), "source", m.FileName);
     public LogBuffer Log(string id) => logs.GetOrAdd(id, _ => new LogBuffer());

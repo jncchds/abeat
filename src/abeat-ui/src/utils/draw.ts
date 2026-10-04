@@ -26,12 +26,22 @@ export interface Track {
   unmatched?: Set<number>
 }
 
-export const LAYOUT = { layersTop: 64, layerH: 9, lyricsH: 14, laneH: 15, splitLaneH: 26, diffH: 18, issuesH: 14 }
+/** A tap-along run drawn as a row of ticks above the lanes. */
+export interface TapRow {
+  label: string
+  color: string
+  /** Seconds, already shifted by the tapper's offset. */
+  times: number[]
+  /** Indices of taps with no note of the compared map nearby (drawn tall). */
+  unmatched?: Set<number>
+}
+
+export const LAYOUT = { layersTop: 64, layerH: 9, lyricsH: 14, tapH: 13, laneH: 15, splitLaneH: 26, diffH: 18, issuesH: 14 }
 
 const laneHeight = (split: boolean) => (split ? LAYOUT.splitLaneH : LAYOUT.laneH)
 
-export function timelineHeight(layerCount: number, split = false, lyrics = false) {
-  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + (lyrics ? LAYOUT.lyricsH : 0) + 8 + 12 * laneHeight(split)
+export function timelineHeight(layerCount: number, split = false, lyrics = false, tapRows = 0) {
+  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + (lyrics ? LAYOUT.lyricsH : 0) + tapRows * LAYOUT.tapH + 8 + 12 * laneHeight(split)
     + (split ? LAYOUT.diffH : 0) + LAYOUT.issuesH + 4
 }
 
@@ -88,7 +98,7 @@ function drawRing(g: CanvasRenderingContext2D, cx: number, cy: number, size: num
   g.stroke()
 }
 
-export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Track[], view: View, now: number) {
+export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Track[], view: View, now: number, taps: TapRow[] = []) {
   const dpr = window.devicePixelRatio || 1
   const w = canvas.clientWidth, h = canvas.clientHeight
   if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
@@ -112,7 +122,8 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
   const laneH = laneHeight(split)
   const sub = laneH / Math.max(1, tracks.length)
   const lyricsTop = LAYOUT.layersTop + layers.length * LAYOUT.layerH
-  const lanesTop = lyricsTop + (a.lyrics?.words.length ? LAYOUT.lyricsH : 0) + 8
+  const tapsTop = lyricsTop + (a.lyrics?.words.length ? LAYOUT.lyricsH : 0)
+  const lanesTop = tapsTop + taps.length * LAYOUT.tapH + 8
   const diffTop = lanesTop + 12 * laneH
   const lanesBottom = diffTop + (split ? LAYOUT.diffH : 0)
   /** Centre of a grid cell's (sub-)lane for track k. */
@@ -191,6 +202,22 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
       lastEnd = x + 3 + g.measureText(wd.w).width
     }
   }
+
+  // tap-along runs: matched taps short, taps without a note tall
+  g.font = '10px Inter, system-ui, sans-serif'
+  taps.forEach((row, i) => {
+    const y = tapsTop + i * LAYOUT.tapH
+    g.fillStyle = row.color
+    g.globalAlpha = 0.08
+    g.fillRect(0, y + 1, w, LAYOUT.tapH - 2)
+    g.globalAlpha = 1
+    g.fillText(row.label, 2, y + 10)
+    row.times.forEach((t, k) => {
+      if (t < t0 || t > t1) return
+      const miss = row.unmatched?.has(k)
+      g.fillRect(Math.round(X(t)) - 1, miss ? y + 1 : y + 4, 2, miss ? LAYOUT.tapH - 2 : LAYOUT.tapH - 8)
+    })
+  })
 
   // 12 note lanes: rows top layer first (y = 2..0), columns x = 0..3; split lanes are tinted per version
   if (split)

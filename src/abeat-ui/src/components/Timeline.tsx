@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { Analysis } from '../api'
-import { drawTimeline, timelineHeight, type Track, type View } from '../utils/draw'
+import { drawTimeline, timelineHeight, type TapRow, type Track, type View } from '../utils/draw'
 
 interface Props {
   analysis: Analysis
@@ -10,15 +10,17 @@ interface Props {
   labels?: string[]
   audio: HTMLAudioElement | null
   follow: boolean
+  /** Tap-along runs shown above the lanes. */
+  taps?: TapRow[]
 }
 
 /** Zoomable song timeline: sections, energy, onset layers, the 12 note lanes and flow issues.
  * Redraws itself every frame while playing; wheel zooms, drag scrolls, click seeks. */
-export default function Timeline({ analysis, tracks, labels, audio, follow }: Props) {
+export default function Timeline({ analysis, tracks, labels, audio, follow, taps = [] }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const view = useRef<View>({ pxPerSec: 60, start: 0 })
-  const props = useRef({ analysis, tracks, audio, follow })
-  useLayoutEffect(() => { props.current = { analysis, tracks, audio, follow } })
+  const props = useRef({ analysis, tracks, audio, follow, taps })
+  useLayoutEffect(() => { props.current = { analysis, tracks, audio, follow, taps } })
 
   useEffect(() => {
     view.current.start = 0
@@ -28,13 +30,13 @@ export default function Timeline({ analysis, tracks, labels, audio, follow }: Pr
     let raf = 0
     const frame = () => {
       const c = canvas.current
-      const { analysis: a, tracks: tr, audio: au, follow: f } = props.current
+      const { analysis: a, tracks: tr, audio: au, follow: f, taps: tp } = props.current
       if (c && a) {
         const now = au?.currentTime ?? 0
         const width = c.clientWidth / view.current.pxPerSec
         if (f && au && !au.paused && (now > view.current.start + width * 0.85 || now < view.current.start))
           view.current.start = Math.max(0, now - width * 0.15)
-        drawTimeline(c, a, tr, view.current, now)
+        drawTimeline(c, a, tr, view.current, now, tp)
       }
       raf = requestAnimationFrame(frame)
     }
@@ -119,7 +121,7 @@ export default function Timeline({ analysis, tracks, labels, audio, follow }: Pr
           ))}
         </div>
       )}
-      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length, tracks.length > 1, !!analysis.lyrics?.words.length) }} />
+      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length, tracks.length > 1, !!analysis.lyrics?.words.length, taps.length) }} />
       <div className="timeline-foot">
         <div className="hint">wheel / pinch: zoom · drag: scroll · click: seek · lanes: top row first, columns left → right</div>
         <div className="zoom-btns">

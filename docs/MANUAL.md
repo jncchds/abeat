@@ -73,7 +73,8 @@ changes the worker's dependencies builds a new environment and deletes the old o
 
 Ports: 8080 is HTTP. 8443 is HTTPS with a self-signed certificate, needed only to open ArcViewer from
 another device (phone, headset): ArcViewer refuses plain-HTTP downloads except from localhost. Accept the
-certificate once per device.
+certificate once per device. Publishing 8443 under another host port (`-p 5443:8443`)? Tell the app
+with `ABEAT_HTTPS_PUBLIC_PORT=5443`, or its ArcViewer links point at 8443.
 
 ### GPUs
 
@@ -109,6 +110,8 @@ Whisper transcription stays on the CPU (int8). `ABEAT_DEVICE=cpu` forces the CPU
 | `ABEAT_ARCVIEWER` | `1` | `0` skips downloading ArcViewer (the UI then links to the public site) |
 | `ABEAT_PREFETCH` | `1` | download the beat_this and Demucs models while installing (else on first use) |
 | `ABEAT_HTTPS_PORT` | `8443` | HTTPS listener (self-signed); unset to disable |
+| `ABEAT_HTTPS_PUBLIC_PORT` | `ABEAT_HTTPS_PORT` | port browsers reach HTTPS on, used in ArcViewer and map links; set it when the container's 8443 is published under another host port (compose publishes this port, so setting it in `.env` is enough) |
+| `ABEAT_HTTP_PUBLIC_PORT` | `8080` | compose only: host port for HTTP |
 | `ABEAT_HTTPS_HOSTS` | — | in a container: this machine's name and LAN IPs (`mypc,192.168.1.20`) for the HTTPS certificate, so phones and headsets can open ArcViewer; the certificate (`/data/https-cert.pfx`) is kept as long as it covers them |
 | `ABEAT_HTTP_PORT` | `8080` | HTTP listener when HTTPS is on |
 | `HF_TOKEN` | — | optional Hugging Face token (faster model downloads) |
@@ -220,6 +223,17 @@ direction and position distribution distances, doubles and notes per second.
 
 All versions are re-timed onto the current analysis, so they stay aligned after a re-analysis that
 changed the BPM or the padding.
+
+### Tapping along
+
+**Tap beats** (player bar) records how you hear the song, one run per hand, right hand first. Each run
+plays the song from the start, and every key press (or touch on the pad) is a note that hand would cut.
+Esc stops a run early. The timeline shows the runs as *tap R* / *tap L* rows above the lanes, with taps
+that have no note nearby drawn tall. The table scores each hand against the same hand's notes of A (and
+B): your median offset (latency, removed before matching), F1, precision (taps that have a note), recall
+(notes that have a tap) at ±70 ms, and *any* (taps that have a note of either hand). *Both* merges the two
+runs and compares them with all notes; the doubles line counts the moments both hands hit. A run stopped
+early only counts up to where it stopped. Runs are saved per song in `taps.json`.
 
 ### Settings panel
 
@@ -448,6 +462,7 @@ data/
     meta.json            title, artist, state, analysis options
     settings.json        current generator settings
     lyrics.txt           pasted lyrics
+    taps.json            tap-along runs (seconds of song.egg)
     source/              uploaded audio
     work/                analysis: analysis.json, song.egg (padded audio), cover.jpg, stems/*.flac, download/
     reference/           imported human map (difficulty files)
