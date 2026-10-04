@@ -111,6 +111,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - parity: vertical/diagonal swings fix forehand/backhand; horizontal cuts free it; a swing within
      60° of the previous one is a reset; travel within 1.25 cells is free; turns cost
      `TurnCost` (cheap up to 45°, steep beyond, as humans time them)
+   - hand clashes: a cut in the cell the other hand cut < 0.3 s before pays `HandClash` (full below
+     0.2 s; curated maps 0.6 per 1000 notes there); doubles must not swing into each other's note
+     (`DoubleClash`) nor start or end their swings within half a cell of each other (L↖ x1 + R↗ x2)
    - expression (`Expression`, after planning, never changes hands/cells/directions): single
      melody notes that continue a pitch line (two steps the same way, >= 0.06) get a 15° angle offset
      (30° for leaps on Expert+): rising leans vertical cuts "/" and lifts horizontal cut ends
@@ -166,7 +169,7 @@ driver (compose override files per vendor). The worker picks its torch device in
 ## Evaluation
 
 `FlowAnalyzer` scores any map (v2/v3/v4) with the physical part of the cost model plus wall-clash
-and bomb-hit checks. Flow score = 100 * exp(-mean cost / 7), calibrated so curated human maps average ~85.
+and bomb-hit checks; hand clashes are clashing doubles and same-cell cuts by the other hand < 0.2 s apart. Flow score = 100 * exp(-mean cost / 7), calibrated so curated human maps average ~85.
 Sliders/windows (same hand < 90 ms apart) count as one swing; dots take the direction leading into
 the next note. Use it to compare generated maps with
 human ones (`abeat check`).

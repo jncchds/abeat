@@ -35,8 +35,30 @@ public class FlowAnalyzerTests
         // L← at x1 and R← at x2 in one row: the right saber sweeps through the left note
         var r = FlowAnalyzer.Analyze(Map(new ColorNote(4, 1, 0, Hand.Left, CutDirection.Left), new ColorNote(4, 2, 0, Hand.Right, CutDirection.Left)), 120);
         Assert.Equal(1, r.HandClashes);
-        // outward horizontals are fine
-        var ok = FlowAnalyzer.Analyze(Map(new ColorNote(4, 1, 0, Hand.Left, CutDirection.Left), new ColorNote(4, 2, 0, Hand.Right, CutDirection.Right)), 120);
+        // outward horizontals are fine with room between the hands (side by side they start together)
+        var ok = FlowAnalyzer.Analyze(Map(new ColorNote(4, 0, 0, Hand.Left, CutDirection.Left), new ColorNote(4, 2, 0, Hand.Right, CutDirection.Right)), 120);
+        Assert.Equal(0, ok.HandClashes);
+    }
+
+    [Fact]
+    public void DoubleSwingsStartingTogetherClash()
+    {
+        // L↖ at x1 and R↗ at x2: both swings start in the middle
+        var r = FlowAnalyzer.Analyze(Map(new ColorNote(4, 1, 0, Hand.Left, CutDirection.UpLeft), new ColorNote(4, 2, 0, Hand.Right, CutDirection.UpRight)), 120);
+        Assert.Equal(1, r.HandClashes);
+        // the same double with a free column between the hands is fine
+        var ok = FlowAnalyzer.Analyze(Map(new ColorNote(4, 0, 0, Hand.Left, CutDirection.UpLeft), new ColorNote(4, 2, 0, Hand.Right, CutDirection.UpRight)), 120);
+        Assert.Equal(0, ok.HandClashes);
+    }
+
+    [Fact]
+    public void OtherHandInSameCellRightAfterClashes()
+    {
+        // at 120 BPM a quarter beat is 0.125 s: the right hand comes up where the left just went down
+        var r = FlowAnalyzer.Analyze(Map(new ColorNote(4, 2, 0, Hand.Left, CutDirection.Down), new ColorNote(4.25, 2, 0, Hand.Right, CutDirection.Up)), 120);
+        Assert.Equal(1, r.HandClashes);
+        // a beat later (0.5 s) there is time
+        var ok = FlowAnalyzer.Analyze(Map(new ColorNote(4, 2, 0, Hand.Left, CutDirection.Down), new ColorNote(5, 2, 0, Hand.Right, CutDirection.Up)), 120);
         Assert.Equal(0, ok.HandClashes);
     }
 

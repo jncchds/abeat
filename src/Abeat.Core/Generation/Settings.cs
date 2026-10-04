@@ -54,6 +54,8 @@ public sealed record FlowWeights
     public double VisionBlock { get; init; } = 2.0;
     /// <summary>Hand reaching into the other hand's side.</summary>
     public double Crossover { get; init; } = 3.0;
+    /// <summary>The other hand cut the same cell a moment ago (see <see cref="SwingCostModel.SameCellSec"/>).</summary>
+    public double HandClash { get; init; } = 8;
     /// <summary>Same hand twice in a row faster than the profile allows.</summary>
     public double TooFast { get; init; } = 25;
     /// <summary>Horizontal cut (extra on top of the style prior).</summary>

@@ -344,6 +344,7 @@ in the analyzer.
 | `travel` | 0.9 | saber travel between swings beyond 1.25 cells |
 | `visionBlock` | 2.0 | notes in the middle centre that hide what follows |
 | `crossover` | 3.0 | a hand reaching into the other hand's side |
+| `handClash` | 8 | the other hand cut the same cell less than 0.3 s ago (the sabers meet) |
 | `tooFast` | 25 | the same hand faster than the profile's same-hand gap |
 | `horizontal` | 0 | extra cost for horizontal cuts |
 | `styleCell`, `styleDirection` | 0.7, 0.6 | keep the mix of cells and cut directions like curated human maps |
@@ -391,7 +392,7 @@ on Expert+ for leaps) with a rising or falling melody.
 |---|---|
 | **flow score** | 0–100, 100 = perfectly smooth; curated human maps average about 85, generated ones about 93 |
 | **resets** | swings that need a re-wind (same parity twice without time); generated maps have none |
-| **vision blocks / crossovers / clashes** | hidden notes, hands crossing, doubles where one saber swings into the other's note |
+| **vision blocks / crossovers / clashes** | hidden notes, hands crossing, sabers meeting: doubles where one saber swings into the other's note or both swings start (or end) in the same spot, and one hand cutting the cell the other cut less than 0.2 s before |
 | **strain** | 90th percentile of effective swings per second per hand (turns and travel make a swing count more); *spikes* = moves above the difficulty's human ceiling |
 | **plays like** | the difficulty the hand movement corresponds to, from curated maps (1 Easy … 9 Expert+) |
 | **turn / travel** | mean turn away from a clean back-and-forth, mean saber-tip travel between swings (cells) |

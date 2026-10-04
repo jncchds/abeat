@@ -126,6 +126,7 @@ public static class FlowAnalyzer
                 }
                 if (c.VisionBlock) { vision++; issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.VisionBlock, cost)); }
                 if (c.Crossover) { cross++; issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.Crossover, cost)); }
+                if (c.HandClash) { handClashes++; issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.HandClash, cost)); }
                 if (!c.Reset && cost > 8) issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.HighCost, cost));
                 total += cost;
                 states[h] = s.After(t, n.X, n.Y, dir, SwingCostModel.EffectiveSwing(s, dir), n.Hand);
