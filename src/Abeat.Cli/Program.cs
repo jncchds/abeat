@@ -36,6 +36,10 @@ usage:
   abeat fetch-maps [--count 20] [--per-mapper 2] [-o work/beatsaver]   curated BeatSaver maps (no mods), top-rated + recent
   abeat compare <map.zip|folder> [--settings f]  re-map the map's own song and compare with the human map
   abeat bench [dir] [--settings f]             compare every map zip in dir (default work/beatsaver), write bench.csv
+  abeat movement [map | dir] [--csv f] [--write-prior f]   hand movement per difficulty: swing angle changes, saber-tip
+                                               travel and strain between consecutive swings; a dir of maps
+                                               (default work/beatsaver) also prints per-difficulty tables;
+                                               --write-prior learns the generator's movement prior from them
   abeat synth <out.wav>                        synthetic test track (128 BPM)
 """;
 
@@ -58,6 +62,7 @@ try
         "fetch-maps" => await FetchMaps(opts),
         "compare" => await CompareOne(opts),
         "bench" => await Bench(opts),
+        "movement" => Movement(opts),
         _ => Fail($"unknown command '{args[0]}'\n\n{Usage}"),
     };
 }
@@ -274,7 +279,7 @@ static async Task<int> Bench(Options o)
     if (rows.Count == 0) return 1;
 
     Console.WriteLine();
-    Console.WriteLine($"{"difficulty",-11} {"n",3} {"F1",5} {"P",5} {"R",5} {"offset",7} {"nps gen/hum",12} {"flow gen/hum",13} {"resets g/h",11} {"dirΔ",5} {"posΔ",5}");
+    Console.WriteLine($"{"difficulty",-11} {"n",3} {"F1",5} {"P",5} {"R",5} {"offset",7} {"nps gen/hum",12} {"flow gen/hum",13} {"resets g/h",11} {"dirΔ",5} {"posΔ",5} {"strain g/h",11} {"travel g/h",11} {"angle g/h",10} {"sharp g/h",10} {"above g/h",10}");
     foreach (var g in rows.GroupBy(r => r.c.Difficulty).OrderBy(g => g.Key).Append(rows.GroupBy(_ => (DifficultyName)99).First()))
     {
         var c = g.Select(r => r.c).ToList();
@@ -282,15 +287,100 @@ static async Task<int> Bench(Options o)
         Console.WriteLine($"{name,-11} {c.Count,3} {c.Average(x => x.F1),5:0.00} {c.Average(x => x.Precision),5:0.00} {c.Average(x => x.Recall),5:0.00} " +
             $"{c.Average(x => x.OffsetMs),5:0} ms {c.Average(x => x.GeneratedNps),5:0.0}/{c.Average(x => x.HumanNps),-6:0.0} " +
             $"{c.Average(x => x.GeneratedFlow),6:0.0}/{c.Average(x => x.HumanFlow),-6:0.0} {c.Average(x => x.GeneratedResets),5:0.0}/{c.Average(x => x.HumanResets),-5:0.0} " +
-            $"{c.Average(x => x.DirectionDistance),5:0.00} {c.Average(x => x.PositionDistance),5:0.00}");
+            $"{c.Average(x => x.DirectionDistance),5:0.00} {c.Average(x => x.PositionDistance),5:0.00} " +
+            $"{c.Average(x => x.GeneratedMovement.StrainP90),5:0.0}/{c.Average(x => x.HumanMovement.StrainP90),-5:0.0} " +
+            $"{c.Average(x => x.GeneratedMovement.TravelMean),5:0.00}/{c.Average(x => x.HumanMovement.TravelMean),-5:0.00} " +
+            $"{c.Average(x => x.GeneratedMovement.AngleMean),4:0}/{c.Average(x => x.HumanMovement.AngleMean),-5:0} " +
+            $"{c.Average(x => x.GeneratedMovement.SharpTurns),4:P0}/{c.Average(x => x.HumanMovement.SharpTurns),-5:P0} " +
+            $"{c.Average(x => x.GeneratedMovement.AboveLevel),4:P0}/{c.Average(x => x.HumanMovement.AboveLevel),-5:P0}");
     }
     var csv = Path.Combine(dir, "bench.csv");
     File.WriteAllLines(csv, rows.Select(r => string.Join(',', r.map, r.c.Difficulty, r.humanBpm, r.c.F1.ToString("0.000"), r.c.Precision.ToString("0.000"),
         r.c.Recall.ToString("0.000"), r.c.OffsetMs.ToString("0.0"), r.c.GeneratedNps.ToString("0.00"), r.c.HumanNps.ToString("0.00"),
         r.c.GeneratedFlow.ToString("0.0"), r.c.HumanFlow.ToString("0.0"), r.c.GeneratedResets, r.c.HumanResets,
-        r.c.DirectionDistance.ToString("0.000"), r.c.PositionDistance.ToString("0.000")))
-        .Prepend("map,difficulty,human_bpm,f1,precision,recall,offset_ms,gen_nps,human_nps,gen_flow,human_flow,gen_resets,human_resets,dir_dist,pos_dist"));
+        r.c.DirectionDistance.ToString("0.000"), r.c.PositionDistance.ToString("0.000"),
+        r.c.GeneratedMovement.StrainP90.ToString("0.00"), r.c.HumanMovement.StrainP90.ToString("0.00"),
+        r.c.GeneratedMovement.TravelMean.ToString("0.000"), r.c.HumanMovement.TravelMean.ToString("0.000"),
+        r.c.GeneratedMovement.AngleMean.ToString("0.0"), r.c.HumanMovement.AngleMean.ToString("0.0")))
+        .Prepend("map,difficulty,human_bpm,f1,precision,recall,offset_ms,gen_nps,human_nps,gen_flow,human_flow,gen_resets,human_resets,dir_dist,pos_dist,gen_strain,human_strain,gen_travel,human_travel,gen_angle,human_angle"));
     Console.WriteLine($"\nper-map rows: {Path.GetFullPath(csv)}");
+    return 0;
+}
+
+static int Movement(Options o)
+{
+    string input = o.Positional.FirstOrDefault() ?? Path.Combine("work", "beatsaver");
+    var paths = Directory.Exists(input) && !File.Exists(Path.Combine(input, "Info.dat"))
+        ? Directory.EnumerateFiles(input, "*.zip").Order().ToList()
+        : [input];
+    var all = new List<(string map, MovementReport r)>();
+    foreach (var path in paths)
+    {
+        MapSet map;
+        try { map = MapReader.Read(path); }
+        catch (Exception e) { Console.Error.WriteLine($"{path}: {e.Message}"); continue; }
+        if (map.Difficulties.Any(d => d.BpmChanges > 0)) { Console.Error.WriteLine($"{path}: skipped (BPM changes)"); continue; }
+        Console.WriteLine($"{map.SongAuthor} - {map.SongName}  [{map.LevelAuthor}]  bpm {map.Bpm}");
+        foreach (var d in map.Difficulties.Where(d => d.Notes.Count > 0).OrderBy(d => d.Difficulty))
+        {
+            var r = MovementAnalyzer.Analyze(d, map.Bpm);
+            all.Add((Path.GetFileNameWithoutExtension(path), r));
+            Console.WriteLine($"  {r}");
+        }
+    }
+    if (all.Count == 0) return 1;
+    if (o.Get("csv") is { } csv)
+    {
+        File.WriteAllLines(csv, all.SelectMany(a => a.r.Items.Select(m => string.Join(',', a.map, a.r.Difficulty, m.Hand, m.Beat.ToString("0.###"),
+            m.GapSec.ToString("0.####"), m.Angle.ToString("0.#"), m.Travel.ToString("0.###"), m.Distance.ToString("0.###"), m.From, m.To,
+            m.Strain.ToString("0.###")))).Prepend("map,difficulty,hand,beat,gap_sec,angle,travel,distance,from,to,strain"));
+        Console.WriteLine($"moves: {Path.GetFullPath(csv)}");
+    }
+    if (o.Get("write-prior") is { } prior)
+    {
+        var json = MovementPrior.Build(all.Select(a => a.r), $"{paths.Count} maps from {input}");
+        File.WriteAllText(prior, json.ToJsonString(new System.Text.Json.JsonSerializerOptions { WriteIndented = true }));
+        Console.WriteLine($"movement prior: {Path.GetFullPath(prior)}");
+    }
+    if (paths.Count < 2) return 0;
+
+    var byDiff = all.GroupBy(a => a.r.Difficulty).OrderBy(g => g.Key).ToList();
+    Console.WriteLine();
+    Console.WriteLine("per difficulty (mean over maps; strain = effective swings per second, see MovementAnalyzer.Strain)");
+    Console.WriteLine($"{"difficulty",-11} {"maps",4} {"angle",6} {"a p90",6} {"travel",7} {"t p90",6} {"speed50",8} {"speed90",8} {"strain50",9} {"strain90",9} {"strain98",9} {"sharp",6} {"above",6} {"rank",5}");
+    foreach (var g in byDiff)
+    {
+        var r = g.Select(x => x.r).ToList();
+        Console.WriteLine($"{g.Key,-11} {r.Count,4} {r.Average(x => x.AngleMean),5:0}° {r.Average(x => x.AngleP90),5:0}° {r.Average(x => x.TravelMean),7:0.00} {r.Average(x => x.TravelP90),6:0.00} " +
+            $"{r.Average(x => x.SpeedP50),8:0.00} {r.Average(x => x.SpeedP90),8:0.00} {r.Average(x => x.StrainP50),9:0.00} {r.Average(x => x.StrainP90),9:0.00} {r.Average(x => x.StrainP98),9:0.00} " +
+            $"{r.Average(x => x.SharpTurns),6:P0} {r.Average(x => x.AboveLevel),6:P0} {r.Average(x => x.MovementRank),5:0.0}");
+    }
+
+    // how often each kind of move (angle x travel) appears per difficulty, pooled over all maps
+    double[] travelEdges = [0.25, 0.75, 1.25, 1.75, 2.5, double.PositiveInfinity];
+    string[] travelNames = ["<.25", ".25-.75", ".75-1.25", "1.25-1.75", "1.75-2.5", ">2.5"];
+    int[] angles = [0, 45, 90, 135, 180];
+    Console.WriteLine();
+    Console.WriteLine("share of moves by turn angle (rows) and tip travel in cells (columns), and median gap in seconds");
+    foreach (var g in byDiff)
+    {
+        var moves = g.SelectMany(x => x.r.Items).ToList();
+        Console.WriteLine($"{g.Key} ({moves.Count} moves)");
+        Console.WriteLine($"  {"angle",5} " + string.Join(" ", travelNames.Select(n => $"{n,15}")));
+        foreach (int a in angles)
+        {
+            var row = moves.Where(m => Math.Abs(m.Angle - a) < 22.5).ToList();
+            Console.Write($"  {a,4}° ");
+            double lo = 0;
+            foreach (double hi in travelEdges)
+            {
+                var cell = row.Where(m => m.Travel >= lo && m.Travel < hi).Select(m => m.GapSec).Order().ToArray();
+                Console.Write(cell.Length == 0 ? $"{"",15} " : $"{100.0 * cell.Length / moves.Count,6:0.0}% {MovementAnalyzer.Percentile(cell, 0.5),5:0.00}s ");
+                lo = hi;
+            }
+            Console.WriteLine();
+        }
+    }
     return 0;
 }
 

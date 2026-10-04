@@ -63,7 +63,24 @@ export interface Report {
   flowScore: number
   leftShare: number
   lights: number
+  /** Saber movement between swings (MovementAnalyzer). */
+  movement: Movement
   issues: Issue[]
+}
+
+export interface Movement {
+  /** 90th percentile strain: effective swings per second per hand. */
+  strain: number
+  /** Difficulty the movement corresponds to on the 1/3/5/7/9 (Easy..Expert+) scale. */
+  rank: number
+  playsLike: string
+  /** Moves above the difficulty's human strain ceiling. */
+  spikes: number
+  /** Mean turn away from a clean back-and-forth, degrees. */
+  angle: number
+  /** Mean saber-tip travel between swings, grid cells. */
+  travel: number
+  sharpTurns: number
 }
 
 export interface Difficulty {

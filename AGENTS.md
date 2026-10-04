@@ -59,8 +59,14 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - hand roles (`FlowWeights.HandRole`): melody-led notes (vocals, other) prefer one hand and
      rhythm-led notes (drums, bass) the other; the roles swap at section changes. Soft, so flow
      wins where the layers don't alternate; the CLI reports the share of notes that kept their role
+   - movement (`movement-prior.json`, learned by `abeat movement --write-prior`): each move from a
+     hand's last swing (gap <= 1.5 s) falls into a turn-angle x tip-travel bucket and a strain bucket;
+     both are distribution-matched like the style prior (`MovementStyle`, `Effort`), and moves above
+     the difficulty's human strain p98 pay `Strain`. Effort matching is what makes one saber take
+     quick runs instead of strict hand alternation (the alternation bonus is only 0.75)
    - parity: vertical/diagonal swings fix forehand/backhand; horizontal cuts free it; a swing within
-     60° of the previous one is a reset; travel within 0.75 cells is free
+     60° of the previous one is a reset; travel within 1.25 cells is free; turns cost
+     `TurnCost` (cheap up to 45°, steep beyond, as humans time them)
    - expression (`Expression`, after planning, never changes hands/cells/directions): single
      melody notes that continue a pitch line (two steps the same way, >= 0.06) get a 15° angle offset
      (30° for leaps on Expert+): rising leans vertical cuts "/" and lifts horizontal cut ends
@@ -78,10 +84,27 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 ## Evaluation
 
 `FlowAnalyzer` scores any map (v2/v3/v4) with the physical part of the cost model plus wall-clash
-and bomb-hit checks. Flow score = 100 * exp(-mean cost / 11), calibrated so curated human maps average ~85.
+and bomb-hit checks. Flow score = 100 * exp(-mean cost / 7), calibrated so curated human maps average ~85.
 Sliders/windows (same hand < 90 ms apart) count as one swing; dots take the direction leading into
 the next note. Use it to compare generated maps with
 human ones (`abeat check`).
+
+`MovementAnalyzer` (part of every `FlowReport`) measures each pair of consecutive swings of one hand
+(same swing model: 0.6-cell overshoot, stacks/sliders = one swing, dots resolved, angle offsets
+applied; gaps > 1.5 s are rests and skipped):
+- turn: angle between the new swing and a clean reversal of the last (0 = down→up, 90 = down→left)
+- travel: saber-tip distance from the last swing's exit to the new swing's entry, grid cells
+- strain = (1 + 0.7 per 45° of turn beyond 45° + 0.5 per cell of travel beyond 1) / gap: effective
+  swings per second. Shape fitted on curated maps: humans give 0° and 45° moves the same minimum gap
+  and any travel up to ~2.5 cells, but 90° turns ~1.7x the time
+- the map's strain p90 maps to a continuous difficulty rank (1 Easy ... 9 Expert+) by interpolating
+  the human medians per difficulty (`movement-prior.json`): orders 98.9 % of within-song difficulty
+  pairs correctly (78 % for swing rate alone), and lands within one level for 95 % of difficulties
+- moves above the difficulty's human p98 are `Strain` issues (shown on the timeline)
+
+`abeat movement [dir]` prints per-map reports and, for a folder of maps, per-difficulty tables (mean
+over maps, and the share of moves per turn x travel cell with their median gap); `--csv` dumps every
+move, `--write-prior` rewrites the prior.
 
 ## Web app
 

@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <EmbeddedResource Include="Generation/style-prior.json" LogicalName="Abeat.Core.style-prior.json" />
+    <EmbeddedResource Include="Generation/movement-prior.json" LogicalName="Abeat.Core.movement-prior.json" Condition="Exists('Generation/movement-prior.json')" />
   </ItemGroup>
 
 </Project>

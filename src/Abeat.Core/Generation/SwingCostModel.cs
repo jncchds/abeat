@@ -37,7 +37,7 @@ public sealed class SwingCostModel(FlowWeights w)
     /// <summary>How far (in grid cells) a swing travels past the note centre on each side.</summary>
     public const double HalfSwing = 0.6;
     /// <summary>Saber travel between swings that costs nothing (grid cells).</summary>
-    public const double TravelSlack = 0.75;
+    public const double TravelSlack = 1.25;
     /// <summary>Gap after which a hand can comfortably reset (re-wind) between swings.</summary>
     public const double ResetGapSec = 1.0;
     /// <summary>Same-hand notes closer than this are one swing (sliders / windows).</summary>
@@ -70,8 +70,7 @@ public sealed class SwingCostModel(FlowWeights w)
             }
             // speed factor: the less time, the more a deviation hurts
             double speed = Math.Clamp(0.45 / gap, 0.3, 3.0);
-            double angle = v.AngleTo(-s.Swing);
-            c += w.Angle * Math.Pow(angle / 45.0, 2) * speed;
+            c += w.Angle * TurnCost(v.AngleTo(-s.Swing)) * speed;
 
             // real swings overshoot the grid, so moving up to TravelSlack cells between notes is free;
             // without the slack curated human maps scored ~20 points lower than ours on travel alone
@@ -112,6 +111,15 @@ public sealed class SwingCostModel(FlowWeights w)
         if (y == 0 && v.Y < -0.5 && x is 1 or 2) c += 0.2;
 
         return new CostBreakdown(c, 0, reset, vision, cross);
+    }
+
+    /// <summary>Turn away from a clean reversal, in units of the old (angle/45)² cost at 45°. Humans give
+    /// 45° turns the same time as straight reversals but 90° turns ~1.7x the time (abeat movement), so
+    /// turns up to 45° are cheap and the cost grows steeply beyond.</summary>
+    public static double TurnCost(double angle)
+    {
+        double small = Math.Min(angle, 45) / 45, big = Math.Max(0, angle - 45) / 45;
+        return 0.35 * small * small + 2.0 * big * big;
     }
 
     /// <summary>Two simultaneous cuts (a double) where one saber swings towards the other hand's note

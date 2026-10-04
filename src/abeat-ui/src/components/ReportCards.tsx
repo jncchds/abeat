@@ -34,6 +34,16 @@ export default function ReportCards({ difficulties, selected, onSelect, vsHuman,
               <dt>resets</dt><dd>{r.resets}{r.bombResets ? ` (+${r.bombResets} bomb)` : ''}</dd>
               <dt>vision blocks</dt><dd>{r.visionBlocks}</dd>
               <dt>crossovers / clashes</dt><dd>{r.crossovers} / {r.handClashes}</dd>
+              {r.movement && (
+                <>
+                  <dt title="Difficulty the hand movement corresponds to: turn angles and saber travel against the time between swings, calibrated on curated human maps">movement</dt>
+                  <dd>plays like {diffLabel(r.movement.playsLike)} ({r.movement.rank.toFixed(1)})</dd>
+                  <dt title="Mean turn away from a clean back-and-forth / mean saber-tip travel between swings (grid cells)">turn / travel</dt>
+                  <dd>{Math.round(r.movement.angle)}° / {r.movement.travel.toFixed(2)}</dd>
+                  <dt title="90th percentile effective swings per second per hand; spikes = moves above the difficulty's human ceiling">strain</dt>
+                  <dd>{r.movement.strain.toFixed(1)}{r.movement.spikes ? ` (${r.movement.spikes} spikes)` : ''}</dd>
+                </>
+              )}
               <dt>left / right</dt><dd>{Math.round(r.leftShare * 100)} / {Math.round((1 - r.leftShare) * 100)}</dd>
               <dt>NJS / JD</dt><dd>{d.njs} / {d.jumpDistance.toFixed(1)}</dd>
               <dt>walls</dt><dd>{d.walls.length}{r.wallClashes ? ` (${r.wallClashes} clash)` : ''}</dd>

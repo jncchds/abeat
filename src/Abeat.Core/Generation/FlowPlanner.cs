@@ -9,6 +9,12 @@ namespace Abeat.Core.Generation;
 public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile, int beamWidth, int seed)
 {
     readonly StylePrior? style = StylePrior.For(profile.Name);
+    readonly MovementPrior? movement = MovementPrior.For(profile.Name);
+
+    /// <summary>Offset of the movement buckets in <see cref="Node.Counts"/>.</summary>
+    const int MoveBase = 33;
+    /// <summary>Offset of the strain buckets in <see cref="Node.Counts"/>.</summary>
+    static readonly int StrainBase = MoveBase + MovementPrior.Buckets;
 
     readonly record struct Cut(Hand Hand, int X, int Y, CutDirection Dir);
 
@@ -21,9 +27,10 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         public Cut? B; // second note for doubles
         public Hand LastHand;
         public CutDirection LastDirL = CutDirection.Any, LastDirR = CutDirection.Any;
-        /// <summary>Running style counts on this path: [0..8] directions, [9..20] left cells, [21..32] right cells.</summary>
-        public int[] Counts = new int[33];
-        public int NotesL, NotesR;
+        /// <summary>Running style counts on this path: [0..8] directions, [9..20] left cells, [21..32] right cells,
+        /// then the <see cref="MovementPrior"/> move and strain buckets.</summary>
+        public int[] Counts = new int[StrainBase + MovementPrior.StrainBuckets];
+        public int NotesL, NotesR, Moves;
 
         public HandState State(Hand h) => h == Hand.Left ? Left : Right;
     }
@@ -93,11 +100,29 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                         c += model.Weights.StyleCell * StylePrior.MatchCost(node.Counts[cellBase + y * 4 + x], handNotes, style.Cells[(int)hand][y * 4 + x]);
                         c += model.Weights.StyleDirection * StylePrior.MatchCost(node.Counts[(int)d], node.NotesL + node.NotesR, style.Directions[(int)d]);
                     }
+                    if (movement != null && Move(s, e.Time, x, y, v) is var (bucket, strain))
+                    {
+                        c += model.Weights.MovementStyle * StylePrior.MatchCost(node.Counts[MoveBase + bucket], node.Moves, movement.Moves[bucket]);
+                        int sb = MovementPrior.StrainBucket(strain);
+                        c += model.Weights.Effort * StylePrior.MatchCost(node.Counts[StrainBase + sb], node.Moves, movement.Strain[sb]);
+                        if (strain > movement.StrainP98) c += model.Weights.Strain * 4 * (strain / movement.StrainP98 - 1);
+                    }
                     c += model.Weights.Noise * Noise(eventIndex, hand, x, y, d);
                     yield return (new Cut(hand, x, y, d), c, v);
                 }
             }
         }
+    }
+
+    /// <summary>Movement bucket and strain of the move from the hand's last swing to this cut, or null when
+    /// the hand is idle or resting (see <see cref="Evaluation.MovementAnalyzer"/>).</summary>
+    static (int bucket, double strain)? Move(HandState s, double t, int x, int y, Vec2 v)
+    {
+        double gap = t - s.Time;
+        if (!s.Active || gap > Evaluation.MovementAnalyzer.MaxGapSec) return null;
+        double angle = v.AngleTo(-s.Swing);
+        double travel = (new Vec2(x, y) - v * SwingCostModel.HalfSwing - s.Exit).Length;
+        return (MovementPrior.Bucket(angle, travel), Evaluation.MovementAnalyzer.Strain(angle, travel, gap));
     }
 
     static readonly HashSet<string> MelodyLayers = RhythmSelector.MelodyLayers;
@@ -135,7 +160,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                 if (hand == node.LastHand && node.Parent != null)
                 {
                     double gap = e.Time - node.State(hand).Time;
-                    if (gap < 0.5) total += 1.5 * (0.5 - gap) / 0.5;
+                    if (gap < 0.5) total += 0.75 * (0.5 - gap) / 0.5;
                 }
                 if (roles[i] is { } role && role != hand) total += model.Weights.HandRole;
                 Add(next, node, total, cut, null, e.Time, swing, default);
@@ -183,7 +208,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         {
             Left = parent.Left, Right = parent.Right, Cost = cost, Parent = parent, A = a, B = b,
             LastHand = a.Hand, LastDirL = parent.LastDirL, LastDirR = parent.LastDirR,
-            Counts = (int[])parent.Counts.Clone(), NotesL = parent.NotesL, NotesR = parent.NotesR,
+            Counts = (int[])parent.Counts.Clone(), NotesL = parent.NotesL, NotesR = parent.NotesR, Moves = parent.Moves,
         };
         Apply(n, a, t, sa);
         if (b is { } bb) Apply(n, bb, t, sb);
@@ -194,6 +219,12 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
 
     static void Apply(Node n, Cut c, double t, Vec2 swing)
     {
+        if (Move(n.State(c.Hand), t, c.X, c.Y, swing) is var (bucket, strain))
+        {
+            n.Counts[MoveBase + bucket]++;
+            n.Counts[StrainBase + MovementPrior.StrainBucket(strain)]++;
+            n.Moves++;
+        }
         n.Counts[(int)c.Dir]++;
         n.Counts[(c.Hand == Hand.Left ? 9 : 21) + c.Y * 4 + c.X]++;
         if (c.Hand == Hand.Left) n.NotesL++; else n.NotesR++;

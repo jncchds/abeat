@@ -24,11 +24,15 @@ public sealed record Comparison
     public double PositionDistance { get; init; }
     public double HumanDoubles { get; init; }
     public double GeneratedDoubles { get; init; }
+    public MovementReport HumanMovement { get; init; } = new();
+    public MovementReport GeneratedMovement { get; init; } = new();
 
     public override string ToString() =>
         $"{Difficulty,-10} F1 {F1,4:0.00} (P {Precision:0.00} R {Recall:0.00}, offset {OffsetMs,4:0} ms)  " +
         $"nps {GeneratedNps,4:0.0}/{HumanNps,4:0.0}  flow {GeneratedFlow,4:0}/{HumanFlow,4:0}  resets {GeneratedResets}/{HumanResets}  " +
-        $"dbl {GeneratedDoubles:P0}/{HumanDoubles:P0}  dirΔ {DirectionDistance:0.00}  posΔ {PositionDistance:0.00}";
+        $"dbl {GeneratedDoubles:P0}/{HumanDoubles:P0}  dirΔ {DirectionDistance:0.00}  posΔ {PositionDistance:0.00}  " +
+        $"strain {GeneratedMovement.StrainP90:0.0}/{HumanMovement.StrainP90:0.0}  travel {GeneratedMovement.TravelMean:0.00}/{HumanMovement.TravelMean:0.00}  " +
+        $"angle {GeneratedMovement.AngleMean:0}/{HumanMovement.AngleMean:0}°";
 }
 
 public static class MapComparer
@@ -59,6 +63,8 @@ public static class MapComparer
             PositionDistance = Tv(Hist(human.Notes, n => n.Y * 4 + n.X, 12), Hist(generated.Notes, n => n.Y * 4 + n.X, 12)),
             HumanDoubles = DoubleShare(human),
             GeneratedDoubles = DoubleShare(generated),
+            HumanMovement = MovementAnalyzer.Analyze(human, humanBpm),
+            GeneratedMovement = MovementAnalyzer.Analyze(generated, generatedBpm),
         };
     }
 

@@ -40,6 +40,7 @@ dotnet run --project src/Abeat.Web             # web UI on http://localhost:5080
 dotnet run --project src/Abeat.Cli -- generate "Artist - Song.mp3" -d all
 dotnet run --project src/Abeat.Cli -- generate "https://music.youtube.com/watch?v=..." -d all
 dotnet run --project src/Abeat.Cli -- check path/to/any/map.zip    # flow report for any map
+dotnet run --project src/Abeat.Cli -- movement work/beatsaver      # hand movement per difficulty
 ```
 
 Web data defaults to `~/.local/share/abeat` (set `ABEAT_DATA` to change).
@@ -94,10 +95,18 @@ All weights are in `FlowWeights` and editable in the UI or a settings file (`abe
 **Evaluation** (`FlowAnalyzer`): the same physical cost model scores any map, including human-made
 ones (`abeat check`), so the weights can be calibrated against maps people like.
 
+**Hand movement** (`MovementAnalyzer`, `abeat movement`): for every pair of consecutive swings of one
+saber it measures how far the swing turns away from a clean back-and-forth and how far the saber tip
+travels between them, and turns that into *strain*, the effective swings per second the move asks for
+(turns past 45° and travel past one cell count extra). A map's 90th-percentile strain tells which
+difficulty its movement plays like, calibrated on curated maps; the report cards show it as
+"plays like …" next to the flow score. The generator matches the human mix of turns, travel and strain
+for each difficulty, so Expert+ maps no longer move like a human Hard.
+
 ## Benchmark vs human maps
 
 `abeat fetch-maps` downloads top-rated curated BeatSaver maps (no mods); `abeat bench` re-maps each
-map's own song and compares. Current results on 18 songs / 62 difficulties with Demucs stems (2026-10-03):
+map's own song and compares. Current results on 18 songs / 62 difficulties with Demucs stems (2026-10-04):
 
 | | ABeat | human |
 |---|---|---|
@@ -105,8 +114,10 @@ map's own song and compares. Current results on 18 songs / 62 difficulties with 
 | note timing vs human (F1 at ±50 ms) | 0.69 (Expert 0.71, Expert+ 0.76) | |
 | timing offset | 1–4 ms | |
 | notes per second | 3.1 | 3.5 |
-| flow score | 97 | 84 |
+| flow score | 94 | 85 |
 | direction / position distribution distance | 0.18 / 0.22 | 0 |
+| hand strain p90 (swings/s per hand; Easy … Expert+) | 2.7 · 3.1 · 3.5 · 4.0 · 5.8 | 2.8 · 3.2 · 3.9 · 5.1 · 6.5 |
+| mean turn / tip travel between swings | 17° / 1.44 cells | 21° / 1.55 cells |
 
 The style prior (`scripts/style_prior.py`) is learned from these maps.
 
@@ -116,7 +127,7 @@ The style prior (`scripts/style_prior.py`) is learned from these maps.
 |---|---|
 | `analysis/` | Python worker (`abeat-analyze analyze|synth`), uv project |
 | `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer (notes, arcs), generator, analyzer, packager |
-| `src/Abeat.Cli` | `abeat generate|analyze|check|settings|synth` |
+| `src/Abeat.Cli` | `abeat generate|analyze|check|movement|settings|synth|fetch-maps|compare|bench` |
 | `src/Abeat.Web` | ASP.NET Core API, serves the built UI from `wwwroot/` |
 | `src/abeat-ui` | React 19 + TypeScript + Vite UI (ABook layout, Beat Saber palette) |
 | `tests/` | xUnit tests for the core |

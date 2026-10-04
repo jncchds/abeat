@@ -31,11 +31,11 @@ public sealed record DifficultyProfile
     public static DifficultyProfile Default(DifficultyName d) => d switch
     {
         // densities and double rates follow curated human maps (see style-prior.json); doubles count as one event
-        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.45, MinSameHandGapSec = 0.8, Subdivision = 1, DoubleRate = 0.15, DotCost = 0.5 },
-        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 2.1, MaxNps = 3.3, MinGapSec = 0.3, MinSameHandGapSec = 0.55, Subdivision = 2, DoubleRate = 0.17, DotCost = 0.8 },
-        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 2.7, MaxNps = 4.2, MinGapSec = 0.22, MinSameHandGapSec = 0.42, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
-        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.3, MaxNps = 5.4, MinGapSec = 0.16, MinSameHandGapSec = 0.3, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
-        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.2, MaxNps = 7.5, MinGapSec = 0.12, MinSameHandGapSec = 0.24, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
+        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.45, MinSameHandGapSec = 0.45, Subdivision = 1, DoubleRate = 0.15, DotCost = 0.5 },
+        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 2.1, MaxNps = 3.3, MinGapSec = 0.3, MinSameHandGapSec = 0.36, Subdivision = 2, DoubleRate = 0.17, DotCost = 0.8 },
+        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 2.7, MaxNps = 4.2, MinGapSec = 0.22, MinSameHandGapSec = 0.36, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
+        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.3, MaxNps = 5.4, MinGapSec = 0.16, MinSameHandGapSec = 0.25, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
+        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.2, MaxNps = 7.5, MinGapSec = 0.12, MinSameHandGapSec = 0.21, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
     };
 }
 
@@ -81,6 +81,15 @@ public sealed record FlowWeights
     /// <summary>Swing size follows intensity: loud hits pull to the outer cells and big moves, soft
     /// ones stay near the centre with small moves.</summary>
     public double Dynamics { get; init; } = 1.0;
+    /// <summary>Match the human distribution of moves between consecutive swings of a hand (turn angle x
+    /// saber-tip travel, see movement-prior.json); without it maps turn and travel far less than human ones.</summary>
+    public double MovementStyle { get; init; } = 1.0;
+    /// <summary>Match the human distribution of move strain (effective swings per second per hand) for the
+    /// difficulty, mostly by choosing which hand takes a note: human maps give one saber quick runs far
+    /// more often than strict hand alternation does.</summary>
+    public double Effort { get; init; } = 2.0;
+    /// <summary>Moves more strenuous (turn + travel per second) than the difficulty's human ceiling.</summary>
+    public double Strain { get; init; } = 3.0;
 }
 
 public sealed record GeneratorSettings

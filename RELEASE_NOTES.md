@@ -3,6 +3,9 @@
 ## v0.1.8 — 2026-10-04
 
 - Expression from the analysis: arcs over held melody notes (from stem onsets, or sung word lengths with lyrics), cut angles that lean with rising/falling melody lines, swing size that follows how hard each moment hits (new `dynamics` weight), and a short pause plus a double before each drop. Toggles in the settings; the timeline and front view draw arcs and angles.
+- Hand movement analysis: `abeat movement` measures, for each pair of consecutive swings of one saber, the turn away from a clean back-and-forth and the saber-tip travel, and rates them as strain (effective swings per second). A map's strain p90 tells which difficulty its movement plays like (calibrated on curated maps; orders 99 % of a song's difficulties correctly). Shown in `abeat check`, the generation log and the report cards ("plays like …", strain spikes on the timeline).
+- The generator matches the human mix of turns, travel and strain per difficulty (new `movementStyle`, `effort`, `strain` weights): 45° turns are nearly free and 90° turns costly as in human timing, travel within 1.25 cells is free, one saber may take quick runs (same-hand gaps lowered to human values, softer alternation). Generated Expert movement now rates 5.0 on the 1–9 difficulty scale instead of 1.3 (strain p90 4.0 vs 2.7 before; human 5.1), Expert+ 7.8 instead of 4.8; flow score rescaled so curated maps stay ~85.
+- Flow check: a dot followed by another dot just reverses the swing (only a dot right before a directional note leads into it), so back-and-forth dot chains no longer count as resets.
 
 ## v0.1.7 — 2026-10-03
 

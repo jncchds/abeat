@@ -3,7 +3,8 @@ using Abeat.Core.Model;
 
 namespace Abeat.Core.Evaluation;
 
-public enum IssueKind { Reset, VisionBlock, Crossover, HighCost, WallClash, BombHit, HandClash }
+/// <summary>Strain: a move more strenuous than the difficulty's human ceiling (see <see cref="MovementAnalyzer"/>).</summary>
+public enum IssueKind { Reset, VisionBlock, Crossover, HighCost, WallClash, BombHit, HandClash, Strain }
 
 public sealed record FlowIssue(double Beat, Hand Hand, IssueKind Kind, double Cost);
 
@@ -36,19 +37,24 @@ public sealed record FlowReport
     /// calibrated so curated human maps from BeatSaver average about 85 (abeat bench).</summary>
     public double FlowScore { get; init; }
     public double LeftShare { get; init; }
+    /// <summary>How the sabers move between swings and which difficulty that movement corresponds to.</summary>
+    public MovementReport Movement { get; init; } = new();
+    /// <summary>Moves above the difficulty's strain ceiling (human 98th percentile).</summary>
+    public int StrainSpikes { get; init; }
     public IReadOnlyList<FlowIssue> Issues { get; init; } = [];
 
     public override string ToString() =>
         $"{Difficulty,-10} notes {Notes,5}  nps {Nps,5:0.00} (peak {PeakNps,5:0.00})  flow {FlowScore,5:0.0}  " +
-        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  clash {HandClashes,2}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  arcs {Arcs,3}  angled {AngledNotes,3}  L/R {LeftShare:P0}";
+        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  clash {HandClashes,2}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  arcs {Arcs,3}  angled {AngledNotes,3}  L/R {LeftShare:P0}  " +
+        $"strain {Movement.StrainP90:0.0} (spikes {StrainSpikes})  plays like {Movement.MovementDifficulty} ({Movement.MovementRank:0.0})";
 }
 
 /// <summary>Scores a difficulty with the physical part of the swing cost model. Works on any map,
 /// so generated maps can be compared with human-made ones.</summary>
 public static class FlowAnalyzer
 {
-    /// <summary>Mean cost of curated human maps was ~1.82 with the current weights; 11 maps that to ~85.</summary>
-    public const double ScoreScale = 11;
+    /// <summary>Mean cost of curated human maps is ~1.13 with the current weights; 7 maps that to ~85.</summary>
+    public const double ScoreScale = 7;
 
     public static FlowReport Analyze(DifficultyMap map, double bpm, FlowWeights? weights = null, double minSameHandGap = 0.2)
     {
@@ -61,15 +67,16 @@ public static class FlowAnalyzer
         double total = 0;
         int resets = 0, bombResets = 0, vision = 0, cross = 0, handClashes = 0;
 
-        // next directional note per hand, so dots can take the direction that leads into it
+        // next note per hand, so a dot right before a directional note can take the direction that
+        // leads into it; dots followed by more dots just reverse (players swing dot chains back and forth)
         var nextDir = new Dictionary<ColorNote, ColorNote?>(ReferenceEqualityComparer.Instance);
         foreach (var hand in new[] { Hand.Left, Hand.Right })
         {
-            ColorNote? next = null;
-            foreach (var n in notes.Where(n => n.Hand == hand).Reverse())
+            var handNotes = notes.Where(n => n.Hand == hand).ToList();
+            for (int k = 0; k < handNotes.Count; k++)
             {
-                nextDir[n] = next;
-                if (n.Direction != CutDirection.Any) next = n;
+                var next = handNotes.Skip(k + 1).FirstOrDefault(n => n.Beat - handNotes[k].Beat > 1e-3);
+                nextDir[handNotes[k]] = next is { Direction: not CutDirection.Any } ? next : null;
             }
         }
 
@@ -146,6 +153,14 @@ public static class FlowAnalyzer
                         break;
                     }
         }
+        var movement = MovementAnalyzer.Analyze(map, bpm);
+        double ceiling = MovementAnalyzer.Ceiling(map.Difficulty);
+        int spikes = 0;
+        foreach (var m in movement.Items.Where(m => m.Strain > ceiling))
+        {
+            spikes++;
+            issues.Add(new FlowIssue(m.Beat, m.Hand, IssueKind.Strain, m.Strain));
+        }
         issues.Sort((x, y) => x.Beat.CompareTo(y.Beat));
 
         double duration = notes.Count > 1 ? (notes[^1].Beat - notes[0].Beat) * spb : 0;
@@ -171,6 +186,8 @@ public static class FlowAnalyzer
             MeanCost = mean,
             FlowScore = 100 * Math.Exp(-mean / ScoreScale),
             LeftShare = notes.Count > 0 ? notes.Count(n => n.Hand == Hand.Left) / (double)notes.Count : 0,
+            Movement = movement,
+            StrainSpikes = spikes,
             Issues = issues,
         };
     }

@@ -271,6 +271,13 @@ public static class MapEndpoints
         {
             report.Notes, report.Nps, report.PeakNps, report.Resets, report.BombResets, report.VisionBlocks,
             report.Crossovers, report.HandClashes, report.WallClashes, report.BombHits, report.MeanCost, report.FlowScore, report.LeftShare, lights = d.Lights.Count,
+            movement = new
+            {
+                strain = Math.Round(report.Movement.StrainP90, 2), rank = Math.Round(report.Movement.MovementRank, 1),
+                playsLike = report.Movement.MovementDifficulty.ToString(), spikes = report.StrainSpikes,
+                angle = Math.Round(report.Movement.AngleMean, 1), travel = Math.Round(report.Movement.TravelMean, 2),
+                sharpTurns = Math.Round(report.Movement.SharpTurns, 3),
+            },
             issues = report.Issues.Select(i => new { b = i.Beat, hand = (int)i.Hand, kind = i.Kind.ToString(), cost = Math.Round(i.Cost, 2) }),
         },
     };
