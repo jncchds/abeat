@@ -15,8 +15,15 @@ public static class LocalHttps
     public static X509Certificate2 LoadOrCreate(string dataDir)
     {
         string path = Path.Combine(dataDir, "https-cert.pfx");
-        var names = HostNames();
-        var ips = LocalAddresses();
+        // in a container the machine's own names and LAN addresses aren't visible: ABEAT_HTTPS_HOSTS lists them
+        var configured = (Environment.GetEnvironmentVariable("ABEAT_HTTPS_HOSTS") ?? "")
+            .Split([',', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var names = configured.Length > 0
+            ? [.. configured.Where(h => !IPAddress.TryParse(h, out _)).Prepend("localhost").Distinct(StringComparer.OrdinalIgnoreCase)]
+            : HostNames();
+        var ips = configured.Length > 0
+            ? [.. configured.Select(h => IPAddress.TryParse(h, out var ip) ? ip : null).OfType<IPAddress>().Append(IPAddress.Loopback).Distinct()]
+            : LocalAddresses();
         if (File.Exists(path))
         {
             try
@@ -28,7 +35,7 @@ public static class LocalHttps
         }
 
         using var rsa = RSA.Create(2048);
-        var req = new CertificateRequest($"CN=ABeat ({Environment.MachineName})", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        var req = new CertificateRequest($"CN=ABeat ({names.FirstOrDefault(n => n != "localhost") ?? Environment.MachineName})", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
         var san = new SubjectAlternativeNameBuilder();
         foreach (var n in names) san.AddDnsName(n);
         foreach (var ip in ips) san.AddIpAddress(ip);

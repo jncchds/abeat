@@ -16,6 +16,7 @@ services:
       ABEAT_EXTRAS: ${ABEAT_EXTRAS:-}       # optional worker extras: lyrics (Whisper), roformer (BS-RoFormer)
       ABEAT_UID: ${ABEAT_UID:-1000}         # owner of the files in the folders below (your user: `id -u`)
       ABEAT_GID: ${ABEAT_GID:-1000}
+      ABEAT_HTTPS_HOSTS: ${ABEAT_HTTPS_HOSTS:-}   # this machine's name and LAN IP for the https certificate, e.g. mypc,192.168.1.20
     volumes:
       - ${ABEAT_HOME:-./docker-data}/data:/data         # songs, maps, playlists (back this up)
       - ${ABEAT_HOME:-./docker-data}/models:/models     # downloaded ML models (re-downloadable)

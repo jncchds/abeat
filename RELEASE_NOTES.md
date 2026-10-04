@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.1 — 2026-10-04
+
+- Docker: `ABEAT_HTTPS_HOSTS` names this machine and its LAN addresses for the HTTPS certificate (the container can't see them), so an existing certificate keeps being used and devices that trusted it don't get a new warning.
+
 ## v0.2.0 — 2026-10-04
 
 - Drum parts: hits on the drum stem are labelled kick, snare or hat; hats count less when choosing notes (as in human maps), and the drummer plays the lights (kicks on the back lasers, snares on the centre, hats on the rings).

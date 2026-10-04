@@ -19,3 +19,4 @@ node_modules/
 src/Abeat.Web/arcviewer/
 
 docker-data/
+docker-compose.override.yml

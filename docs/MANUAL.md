@@ -109,6 +109,7 @@ Whisper transcription stays on the CPU (int8). `ABEAT_DEVICE=cpu` forces the CPU
 | `ABEAT_ARCVIEWER` | `1` | `0` skips downloading ArcViewer (the UI then links to the public site) |
 | `ABEAT_PREFETCH` | `1` | download the beat_this and Demucs models while installing (else on first use) |
 | `ABEAT_HTTPS_PORT` | `8443` | HTTPS listener (self-signed); unset to disable |
+| `ABEAT_HTTPS_HOSTS` | — | in a container: this machine's name and LAN IPs (`mypc,192.168.1.20`) for the HTTPS certificate, so phones and headsets can open ArcViewer; the certificate (`/data/https-cert.pfx`) is kept as long as it covers them |
 | `ABEAT_HTTP_PORT` | `8080` | HTTP listener when HTTPS is on |
 | `HF_TOKEN` | — | optional Hugging Face token (faster model downloads) |
 
