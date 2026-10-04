@@ -78,6 +78,9 @@ public sealed record FlowWeights
     /// <summary>Hand roles: one saber follows the melody (vocals, other), the other the rhythm (drums,
     /// bass); the roles swap at section changes. Cost of a single note on the "wrong" hand.</summary>
     public double HandRole { get; init; } = 0.8;
+    /// <summary>Swing size follows intensity: loud hits pull to the outer cells and big moves, soft
+    /// ones stay near the centre with small moves.</summary>
+    public double Dynamics { get; init; } = 1.0;
 }
 
 public sealed record GeneratorSettings
@@ -107,6 +110,12 @@ public sealed record GeneratorSettings
     public bool CrouchWalls { get; init; } = true;
     /// <summary>Reset-signalling bombs (Normal and up) and accent bombs (Hard and up).</summary>
     public bool Bombs { get; init; } = true;
+    /// <summary>Arcs from held melody notes to the same hand's next note.</summary>
+    public bool Arcs { get; init; } = true;
+    /// <summary>Small cut-angle offsets that lean with the melody's pitch direction (Normal and up).</summary>
+    public bool AngleOffsets { get; init; } = true;
+    /// <summary>A short note-free pause before each drop, with a double on the drop.</summary>
+    public bool DropPause { get; init; } = true;
     public string LevelAuthor { get; init; } = "ABeat by CHDS";
 
     public DifficultyProfile Profile(DifficultyName d) =>

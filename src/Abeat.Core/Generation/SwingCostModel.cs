@@ -131,6 +131,17 @@ public sealed class SwingCostModel(FlowWeights w)
         return c;
     }
 
+    /// <summary>Swing size against intensity (see <see cref="RhythmEvent.Intensity"/>): size is how far the
+    /// note sits from the grid centre and how far the hand moves from its last note, both 0..1. Loud
+    /// moments pay for small swings and soft ones for big swings; the median costs nothing.</summary>
+    public double Dynamics(HandState s, double intensity, int x, int y)
+    {
+        double spread = 0.5 * Math.Abs(x - 1.5) / 1.5 + 0.5 * Math.Abs(y - 1);
+        double move = s.Active ? Math.Min(1, new Vec2(x - s.X, y - s.Y).Length / 2) : 0.5;
+        double size = 0.5 * spread + 0.5 * move;
+        return w.Dynamics * (2 * intensity - 1) * (0.5 - size) * 2;
+    }
+
     /// <summary>Hands that stay in one cell feel monotonous even when the flow is perfect.</summary>
     public double Stagnation(HandState s, int x, int y)
     {

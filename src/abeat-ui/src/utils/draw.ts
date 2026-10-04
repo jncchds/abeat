@@ -46,8 +46,8 @@ export function unmatchedBeats(a: Difficulty, b: Difficulty, tolBeats: number): 
   return out
 }
 
-/** Saber-coloured note with a cut arrow (white) or dot. */
-export function drawNote(g: CanvasRenderingContext2D, cx: number, cy: number, size: number, color: number, dir: number) {
+/** Saber-coloured note with a cut arrow (white) or dot; `angle` rotates the arrow counter-clockwise (degrees). */
+export function drawNote(g: CanvasRenderingContext2D, cx: number, cy: number, size: number, color: number, dir: number, angle = 0) {
   g.fillStyle = color === 0 ? RED : BLUE
   const r = size / 2
   g.beginPath()
@@ -61,7 +61,9 @@ export function drawNote(g: CanvasRenderingContext2D, cx: number, cy: number, si
     g.fill()
     return
   }
-  const [vx, vy] = DIR_VEC[dir]
+  const [dx, dy] = DIR_VEC[dir]
+  const rad = (angle * Math.PI) / 180
+  const vx = dx * Math.cos(rad) - dy * Math.sin(rad), vy = dx * Math.sin(rad) + dy * Math.cos(rad)
   g.lineWidth = Math.max(1.2, size / 7)
   g.beginPath()
   g.moveTo(cx - vx * r * 0.7, cy + vy * r * 0.7)
@@ -219,12 +221,25 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
         for (let y = Math.max(0, wl.y); y < Math.min(3, wl.y + wl.h); y++)
           g.fillRect(X(ts), laneY(x, y, k) - sub / 2 + 1, (te - ts) * pxPerSec, sub - 1)
     }
+    g.lineWidth = Math.max(1.5, size / 5)
+    g.globalAlpha = 0.45
+    for (const a of d.arcs ?? []) {
+      const ts = beatToSec(a.b), te = beatToSec(a.tb)
+      if (te < t0 - 1 || ts > t1 + 1) continue
+      const y0 = laneY(a.x, a.y, k), y1 = laneY(a.tx, a.ty, k)
+      g.strokeStyle = a.c === 0 ? RED : BLUE
+      g.beginPath()
+      g.moveTo(X(ts), y0)
+      g.bezierCurveTo(X(ts) + (X(te) - X(ts)) / 3, y0 + sub, X(te) - (X(te) - X(ts)) / 3, y1 + sub, X(te), y1)
+      g.stroke()
+    }
+    g.globalAlpha = 1
     for (const n of d.notes) {
       const t = beatToSec(n.b)
       if (t < t0 - 1 || t > t1 + 1) continue
       const cy = laneY(n.x, n.y, k)
       if (unmatched?.has(n.b)) drawRing(g, X(t), cy, size, color)
-      drawNote(g, X(t), cy, size, n.c, n.d)
+      drawNote(g, X(t), cy, size, n.c, n.d, n.a)
     }
     g.fillStyle = muted
     for (const b of d.bombs) {
@@ -289,9 +304,19 @@ export function drawFront(canvas: HTMLCanvasElement, d: Difficulty | undefined, 
     g.arc(ox + b.x * cell + cell / 2, oy + (2 - b.y) * cell + cell / 2, cell * (0.12 + 0.2 * k(b.b)), 0, 7)
     g.fill()
   }
+  const cx = (x: number) => ox + x * cell + cell / 2, cy = (y: number) => oy + (2 - y) * cell + cell / 2
+  g.lineWidth = 4
+  for (const a of (d.arcs ?? []).filter(a => a.b <= beat + ahead && a.tb >= beat - 0.15)) {
+    g.globalAlpha = 0.2 + 0.4 * k(a.b)
+    g.strokeStyle = a.c === 0 ? RED : BLUE
+    g.beginPath()
+    g.moveTo(cx(a.x), cy(a.y))
+    g.quadraticCurveTo((cx(a.x) + cx(a.tx)) / 2, Math.max(cy(a.y), cy(a.ty)) + cell * 0.8, cx(a.tx), cy(a.ty))
+    g.stroke()
+  }
   for (const n of d.notes.filter(n => inView(n.b)).sort((p, q) => q.b - p.b)) {
     g.globalAlpha = n.b < beat ? 0.25 : 0.25 + 0.75 * k(n.b)
-    drawNote(g, ox + n.x * cell + cell / 2, oy + (2 - n.y) * cell + cell / 2, cell * (0.35 + 0.5 * k(n.b)), n.c, n.d)
+    drawNote(g, cx(n.x), cy(n.y), cell * (0.35 + 0.5 * k(n.b)), n.c, n.d, n.a)
   }
   g.globalAlpha = 1
   g.fillStyle = cssVar('--text-muted', '#94a3b8')

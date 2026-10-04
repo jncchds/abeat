@@ -17,6 +17,14 @@ public sealed record RhythmEvent
     public string Section { get; init; } = "A";
     /// <summary>Beats since the start of the section (snapped to the section's first downbeat).</summary>
     public double BeatInSection { get; init; }
+    /// <summary>Seconds the melody note keeps sounding after the onset (0 for percussive layers):
+    /// until the layer's next onset, the end of the sung word, or the energy falling away.</summary>
+    public double Sustain { get; init; }
+    /// <summary>Brightness (pitch) change from the previous note of the same melody layer, -1..1.</summary>
+    public double PitchSlope { get; init; }
+    /// <summary>How hard the moment hits relative to the rest of the song, 0..1 by rank of strength and
+    /// energy (0.5 = median), so it drives swing size without shifting the overall cell mix.</summary>
+    public double Intensity { get; init; } = 0.5;
 }
 
 /// <summary>Chooses which onsets become notes: snap onsets to the beat grid, score grid slots by layer
@@ -46,6 +54,7 @@ public static class RhythmSelector
         minGapSlots = Math.Max(minGapSlots, p.AllowTriplets ? Math.Min(grid, SlotsPerBeat / 3) : grid);
 
         var accepted = new SortedSet<int>();
+        var drops = s.DropPause ? DropSlots(a, slots) : [];
         double carry = 0;
         int barSlots = 4 * SlotsPerBeat;
         int phase = a.DownbeatPhase * SlotsPerBeat;
@@ -78,6 +87,7 @@ public static class RhythmSelector
             }
             if (taken < count) carry += Math.Min(count - taken, 2); // let a sparse bar donate a little to the next
         }
+        ClearBeforeDrops(a, p, accepted, drops);
 
         var events = accepted.Select(i =>
         {
@@ -99,7 +109,101 @@ public static class RhythmSelector
             };
         }).ToList();
 
-        return MarkDoubles(events, p);
+        events = AddExpression(a, events);
+        var forced = drops.Select(d => events.FindIndex(e => Math.Abs(e.Beat - (double)d / SlotsPerBeat) < 1e-6)).Where(i => i >= 0).ToHashSet();
+        return MarkDoubles(events, p, forced);
+    }
+
+    public static readonly HashSet<string> MelodyLayers = ["vocals", "other", "mid"];
+
+    /// <summary>Sustain, pitch slope and intensity per event (see <see cref="RhythmEvent"/>).</summary>
+    static List<RhythmEvent> AddExpression(SongAnalysis a, List<RhythmEvent> events)
+    {
+        var onsetTimes = a.Layers.ToDictionary(kv => kv.Key, kv => kv.Value.Select(o => o.T).Order().ToArray());
+        var words = a.VocalSource == "lyrics" ? a.Lyrics?.Words ?? [] : [];
+        var lastByLayer = new Dictionary<string, RhythmEvent>();
+        var raw = events.Select(e => 0.6 * e.Strength + 0.4 * e.Energy).ToList();
+        var order = Enumerable.Range(0, events.Count).OrderBy(i => raw[i]).ToList();
+        var intensity = new double[events.Count];
+        for (int r = 0; r < order.Count; r++) intensity[order[r]] = order.Count > 1 ? (double)r / (order.Count - 1) : 0.5;
+
+        var result = new List<RhythmEvent>(events.Count);
+        for (int i = 0; i < events.Count; i++)
+        {
+            var e = events[i];
+            double sustain = 0, slope = 0;
+            if (MelodyLayers.Contains(e.Layer) && onsetTimes.TryGetValue(e.Layer, out var times))
+            {
+                sustain = Sustain(a, e.Time, times, words);
+                if (lastByLayer.TryGetValue(e.Layer, out var prev) && e.Time - prev.Time < 1.5)
+                    slope = Math.Clamp(e.Brightness - prev.Brightness, -1, 1);
+                lastByLayer[e.Layer] = e;
+            }
+            result.Add(e with { Sustain = sustain, PitchSlope = slope, Intensity = intensity[i] });
+        }
+        return result;
+    }
+
+    /// <summary>Time until the layer's next onset, cut short where the sung word ends (lyrics) or the
+    /// energy drops below 60 % of its level just after the onset.</summary>
+    static double Sustain(SongAnalysis a, double t, double[] times, List<LyricWord> words)
+    {
+        const double maxSec = 4;
+        int idx = Array.BinarySearch(times, t + 0.12); // past the onset this event was snapped from
+        if (idx < 0) idx = ~idx;
+        double end = Math.Min(t + maxSec, idx < times.Length ? times[idx] : a.Audio.DurationSec);
+        if (words.Count > 0)
+        {
+            var w = words.FirstOrDefault(w => t >= w.T - 0.15 && t < w.E);
+            if (w == null) return 0;
+            if (words.FirstOrDefault(x => x.T > w.T) is not { } next || next.T > w.E + 0.05) end = Math.Min(end, w.E);
+        }
+        double level = a.EnergyAt(t + 0.1);
+        for (double x = t + 0.2; x < end; x += a.Energy.HopSec)
+            if (a.EnergyAt(x) < 0.6 * level) return x - t;
+        return end - t;
+    }
+
+    /// <summary>Downbeats where the energy jumps into a loud part (a drop), one per 16 beats at most,
+    /// as slot indices. A slot is created when no onset landed on the downbeat.</summary>
+    static List<int> DropSlots(SongAnalysis a, Dictionary<int, Slot> slots)
+    {
+        double Mean(double t0, double t1)
+        {
+            double sum = 0; int n = 0;
+            for (double x = Math.Max(0, t0); x <= t1; x += a.Energy.HopSec) { sum += a.EnergyAt(x); n++; }
+            return n > 0 ? sum / n : 0;
+        }
+        var found = new List<(int slot, double jump)>();
+        foreach (var d in a.Tempo.Downbeats)
+        {
+            if (d < 4) continue;
+            double after = Mean(d + 0.05, d + 2), jump = after - Mean(d - 2, d - 0.15);
+            if (jump >= 0.3 && after >= 0.6) found.Add(((int)Math.Round(a.SecondsToBeat(d)) * SlotsPerBeat, jump));
+        }
+        var picked = new List<int>();
+        foreach (var (slot, _) in found.OrderByDescending(f => f.jump))
+            if (picked.All(x => Math.Abs(x - slot) >= 16 * SlotsPerBeat)) picked.Add(slot);
+        double maxScore = slots.Count > 0 ? slots.Values.Max(x => x.Score) : 1;
+        string layer = new[] { "drums", "low", "full", "mix" }.FirstOrDefault(a.Layers.ContainsKey) ?? a.Layers.Keys.FirstOrDefault() ?? "full";
+        foreach (int d in picked)
+            if (!slots.ContainsKey(d)) slots[d] = new Slot { Index = d, Score = maxScore, ByLayer = { [layer] = maxScore } };
+        picked.Sort();
+        return picked;
+    }
+
+    /// <summary>A breath before each drop: no notes for about 0.9 s (1-2 beats) before it, a note on the
+    /// drop itself (made a double later) and room for both hands to recover after it.</summary>
+    static void ClearBeforeDrops(SongAnalysis a, DifficultyProfile p, SortedSet<int> accepted, List<int> drops)
+    {
+        int pause = Math.Clamp((int)Math.Round(a.SecondsToBeat(0.9)), 1, 2) * SlotsPerBeat;
+        int after = (int)Math.Ceiling(a.SecondsToBeat(p.MinSameHandGapSec) * SlotsPerBeat - 1e-6);
+        pause = Math.Max(pause, after); // both hands play the drop double, so both need their recovery time
+        foreach (int d in drops)
+        {
+            accepted.RemoveWhere(i => i >= d - pause && i < d + after && i != d);
+            accepted.Add(d);
+        }
     }
 
     static Dictionary<int, Slot> BuildSlots(SongAnalysis a, DifficultyProfile p, GeneratorSettings s)
@@ -202,9 +306,9 @@ public static class RhythmSelector
         return rank;
     }
 
-    static List<RhythmEvent> MarkDoubles(List<RhythmEvent> events, DifficultyProfile p)
+    static List<RhythmEvent> MarkDoubles(List<RhythmEvent> events, DifficultyProfile p, HashSet<int> forced)
     {
-        if (events.Count < 3 || p.DoubleRate <= 0) return events;
+        if (events.Count < 3 || p.DoubleRate <= 0) return events.Select((e, i) => forced.Contains(i) ? e with { IsDouble = true } : e).ToList();
         int want = (int)Math.Round(events.Count * p.DoubleRate);
         // both hands hit a double, so each needs its own same-hand recovery time around it
         double minGap = p.MinSameHandGapSec;
@@ -214,6 +318,7 @@ public static class RhythmSelector
             .OrderByDescending(i => events[i].Strength * (0.5 + events[i].Energy))
             .Take(want)
             .ToHashSet();
+        order.UnionWith(forced);
         return events.Select((e, i) => order.Contains(i) ? e with { IsDouble = true } : e).ToList();
     }
 }

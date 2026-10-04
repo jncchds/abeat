@@ -40,7 +40,10 @@ export interface Analysis {
   lyrics?: { source: string; language?: string | null; words: { w: string; t: number; e: number }[] } | null
 }
 
-export interface Note { b: number; x: number; y: number; c: number; d: number }
+/** `a`: counter-clockwise cut angle offset in degrees. */
+export interface Note { b: number; x: number; y: number; c: number; d: number; a?: number }
+/** Arc from a head note to the same hand's tail note. */
+export interface Arc { b: number; x: number; y: number; c: number; tb: number; tx: number; ty: number }
 export interface Bomb { b: number; x: number; y: number }
 export interface Wall { b: number; d: number; x: number; y: number; w: number; h: number }
 export interface Issue { b: number; hand: number; kind: string; cost: number }
@@ -71,6 +74,7 @@ export interface Difficulty {
   notes: Note[]
   bombs: Bomb[]
   walls: Wall[]
+  arcs?: Arc[]
   report: Report
 }
 
@@ -116,6 +120,9 @@ export interface GeneratorSettings {
   dodgeWalls: boolean
   crouchWalls: boolean
   bombs: boolean
+  arcs: boolean
+  angleOffsets: boolean
+  dropPause: boolean
   [key: string]: unknown
 }
 

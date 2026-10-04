@@ -85,7 +85,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                     double c = phys.Total + model.Musical(e.Brightness, e.Strength, y, d);
                     if (d == CutDirection.Any) c += profile.DotCost;
                     if (s.Active && s.X == x && s.Y == y && d == lastDir) c += model.Weights.Repeat;
-                    c += model.Stagnation(s, x, y) + model.Target(target, x, y);
+                    c += model.Stagnation(s, x, y) + model.Target(target, x, y) + model.Dynamics(s, e.Intensity, x, y);
                     if (style != null)
                     {
                         int handNotes = hand == Hand.Left ? node.NotesL : node.NotesR;
@@ -100,7 +100,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         }
     }
 
-    static readonly HashSet<string> MelodyLayers = ["vocals", "other", "mid"];
+    static readonly HashSet<string> MelodyLayers = RhythmSelector.MelodyLayers;
     static readonly HashSet<string> RhythmLayers = ["drums", "bass", "low"];
 
     /// <summary>Melody layers go to one hand and rhythm layers to the other; the roles swap at every

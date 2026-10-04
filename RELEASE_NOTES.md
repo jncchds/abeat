@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.1.8 — 2026-10-04
+
+- Expression from the analysis: arcs over held melody notes (from stem onsets, or sung word lengths with lyrics), cut angles that lean with rising/falling melody lines, swing size that follows how hard each moment hits (new `dynamics` weight), and a short pause plus a double before each drop. Toggles in the settings; the timeline and front view draw arcs and angles.
+
 ## v0.1.7 — 2026-10-03
 
 - ArcViewer bundled: `scripts/fetch-arcviewer.sh` fetches its web build (pinned v0.8.1, GPL-3.0, credited in the sidebar) and the server serves it at /arcviewer/, and from other devices it opens over the https listener (ArcViewer refuses plain-http downloads except from localhost; accept the self-signed certificate once); Docker images include it.

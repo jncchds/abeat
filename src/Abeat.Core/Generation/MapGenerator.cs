@@ -45,8 +45,10 @@ public static class MapGenerator
             NoteJumpOffset = JumpOffsetFor(a.Tempo.Bpm, p.NoteJumpSpeed, p.JumpDistance),
             Notes = notes,
         };
+        if (s.AngleOffsets) Expression.ApplyAngleOffsets(dm, events, p);
         WallGenerator.Generate(a, dm, p, s);
         BombGenerator.Generate(dm, p, events, s, a.Tempo.Bpm);
+        if (s.Arcs) Expression.AddArcs(dm, events, a.Tempo.Bpm);
         if (s.Lights) LightingGenerator.Generate(a, dm, events);
         var report = FlowAnalyzer.Analyze(dm, a.Tempo.Bpm, s.Weights, p.MinSameHandGapSec);
         return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, seed));

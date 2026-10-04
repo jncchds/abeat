@@ -38,11 +38,19 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    weight x strength x metric position x energy, with the "e" sixteenth (x0.6), "a" (x0.8) and
    triplets (x0.85) discounted as human maps rarely use them; bars filled to a
    notes-per-second target that follows section and local energy; strong isolated hits become doubles.
+   Each event also carries expression data: `Sustain` (melody layers only: time to the layer's next
+   onset, cut at the end of a sung word with lyrics or where energy falls below 60 %), `PitchSlope`
+   (brightness change from the previous note of the same melody layer) and `Intensity` (rank of
+   0.6 strength + 0.4 energy, so 0.5 is the median). Drops (downbeats where mean energy over 2 s jumps
+   >= 0.3 into >= 0.6, one per 16 beats) get a note-free pause of ~0.9 s (1-2 beats, at least the
+   same-hand gap) and a forced double on the drop (`DropPause`).
 4. **Flow planning** (`FlowPlanner`): beam search over both hands' states (position, swing vector,
    parity, previous cell). Costs from `SwingCostModel`:
    - physical: resets (same parity within 1 s), angle vs clean reversal, saber travel, too-fast
      same-hand hits, crossovers, vision blocks, over-extension
-   - musical: row follows brightness, accents prefer vertical swings
+   - musical: row follows brightness, accents prefer vertical swings; dynamics (`FlowWeights.Dynamics`): swing size
+     (distance from the grid centre + move from the hand's last cell) follows `Intensity`, zero-mean
+     so the cell mix still matches the style prior
    - variety: stagnation, per-phrase target cells keyed by section label (`PhraseTargets`), so
      repeated sections reuse similar movement; seeded hash noise
    - style: distribution matching against `style-prior.json` (cut directions, cells per hand, learned
@@ -53,13 +61,19 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      wins where the layers don't alternate; the CLI reports the share of notes that kept their role
    - parity: vertical/diagonal swings fix forehand/backhand; horizontal cuts free it; a swing within
      60° of the previous one is a reset; travel within 0.75 cells is free
+   - expression (`Expression`, after planning, never changes hands/cells/directions): single
+     melody notes that continue a pitch line (two steps the same way, >= 0.06) get a 15° angle offset
+     (30° for leaps on Expert+): rising leans vertical cuts "/" and lifts horizontal cut ends
+     (`AngleOffsets`, Normal+); arcs (v3 sliders) from a single melody note held >= 1 beat and
+     >= 45 % of the way to the same hand's next note 1-4 beats later, unless that swing is a reset or
+     a gameplay wall passes in between (`Arcs`, added after walls and bombs)
 5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+), dodge walls in note-free
    gaps (Normal+), side walls in calm sections; all rejected if any note is inside them.
 6. **Bombs** (`BombGenerator`): reset bombs where the natural reversal would cut, accent bombs on
    strong single-hand hits (Hard+); checked against `SaberPath` so no bomb is in a swing path.
 7. **Lights** (`LightingGenerator`): section palettes (repeated labels share colours), downbeat
    pulses, per-note laser flashes, ring spins/zooms, colour boost in the loudest sections.
-8. **Output**: Info.dat v2.1.0 + difficulty v3.3.0, `song.egg`, `cover.jpg`, zip.
+8. **Output**: Info.dat v2.1.0 + difficulty v3.3.0 (notes with angle offsets, arcs as `sliders`), `song.egg`, `cover.jpg`, zip.
 
 ## Evaluation
 

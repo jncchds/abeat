@@ -122,6 +122,7 @@ public static class Generations
             NoteJumpOffset = m.NoteJumpOffset,
             Notes = [.. m.Notes.Select(n => n with { Beat = B(n.Beat) })],
             Bombs = [.. m.Bombs.Select(n => n with { Beat = B(n.Beat) })],
+            Arcs = [.. m.Arcs.Select(x => x with { Beat = B(x.Beat), TailBeat = B(x.TailBeat) })],
             Obstacles = [.. m.Obstacles.Select(o => o with { Beat = B(o.Beat), Duration = D(o.Duration) })],
             Lights = [.. m.Lights.Select(l => l with { Beat = B(l.Beat) })],
         };

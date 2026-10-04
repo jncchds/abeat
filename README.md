@@ -70,7 +70,7 @@ lyrics box to correct it.
 **Rhythm selection** (`RhythmSelector`): onsets are snapped to a 1/12-beat grid (sixteenths, and
 triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×
 energy, and picked bar by bar to hit a notes-per-second target that follows section energy. Strong,
-isolated hits become doubles. Vocal, bass and other stems use spectral-flux onsets (one per sung
+isolated hits become doubles. Before a drop the map pauses for a beat or two and lands on a double. Vocal, bass and other stems use spectral-flux onsets (one per sung
 syllable or note) rather than energy rises, which fired on consonants and breaths.
 
 **Flow planning** (`FlowPlanner` + `SwingCostModel`): beam search over both sabers' states (position,
@@ -80,8 +80,14 @@ last swing direction, parity). Each candidate cut is scored for:
   crossovers, vision blocks, over-extension
 - *musical fit*: row follows brightness, accents prefer big vertical swings; one saber follows the
   melody (vocals) and the other the rhythm (drums, bass), swapping at section changes
+- *dynamics*: loud moments pull to the outer cells and bigger moves, soft ones stay small and central
 - *variety*: stagnation penalty and per-phrase target cells keyed by section label, so repeated
   choruses get recognisably similar patterns
+
+**Expression** (`Expression`): melody notes held for a beat or more get an arc to the same hand's
+next note; notes in a rising or falling melody line get a small cut-angle offset that leans with it.
+Both leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the
+settings.
 
 All weights are in `FlowWeights` and editable in the UI or a settings file (`abeat settings`).
 
@@ -109,7 +115,7 @@ The style prior (`scripts/style_prior.py`) is learned from these maps.
 | Path | What |
 |---|---|
 | `analysis/` | Python worker (`abeat-analyze analyze|synth`), uv project |
-| `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer, generator, analyzer, packager |
+| `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer (notes, arcs), generator, analyzer, packager |
 | `src/Abeat.Cli` | `abeat generate|analyze|check|settings|synth` |
 | `src/Abeat.Web` | ASP.NET Core API, serves the built UI from `wwwroot/` |
 | `src/abeat-ui` | React 19 + TypeScript + Vite UI (ABook layout, Beat Saber palette) |
@@ -119,7 +125,7 @@ The style prior (`scripts/style_prior.py`) is learned from these maps.
 
 - Calibrate `FlowWeights` and the flow score against curated BeatSaver maps (`abeat check`).
 - Learned rhythm selection (which onsets humans map) trained on BeatSaver maps, exported to ONNX.
-- Arcs/chains, BPM changes for live-tempo songs, smarter bomb patterns.
+- Chains on fast runs, BPM changes for live-tempo songs, smarter bomb patterns.
 - Desktop packaging (e.g. Photino window around the same web UI).
 - Optional Chroma (custom colours, gradients, lighting) and Noodle Extensions (custom note/wall paths) output, declared as map requirements/suggestions.
 

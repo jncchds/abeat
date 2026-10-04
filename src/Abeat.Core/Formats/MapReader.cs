@@ -5,7 +5,7 @@ using Abeat.Core.Model;
 namespace Abeat.Core.Formats;
 
 /// <summary>Reads existing maps (folder, zip or Info.dat path). Supports Info v2/v4 and difficulty
-/// v2/v3/v4 notes, bombs and obstacles; enough to evaluate flow of human-made maps.</summary>
+/// v2/v3/v4 notes, bombs and obstacles (and v3 arcs); enough to evaluate flow of human-made maps.</summary>
 public static class MapReader
 {
     public static MapSet Read(string path)
@@ -112,6 +112,9 @@ public static class MapReader
                 dm.Bombs.Add(new BombNote(Num(n, "b"), Int(n, "x"), Int(n, "y")));
             foreach (var o in j["obstacles"]?.AsArray() ?? [])
                 dm.Obstacles.Add(new Obstacle(Num(o, "b"), Num(o, "d"), Int(o, "x"), Int(o, "y"), Int(o, "w"), Int(o, "h")));
+            foreach (var a in j["sliders"]?.AsArray() ?? [])
+                dm.Arcs.Add(new Arc(Num(a, "b"), Int(a, "x"), Int(a, "y"), (Hand)Int(a, "c"), (CutDirection)Int(a, "d"),
+                    Num(a, "tb"), Int(a, "tx"), Int(a, "ty"), (CutDirection)Int(a, "tc"), Num(a, "mu"), Num(a, "tmu"), Int(a, "m")));
             dm.BpmChanges = j["bpmEvents"]?.AsArray().Count(e => Num(e, "b") > 0.001) ?? 0;
             foreach (var e in j["basicBeatmapEvents"]?.AsArray() ?? [])
                 dm.Lights.Add(new LightEvent(Num(e, "b"), Int(e, "et"), Int(e, "i"), e?["f"] is null ? 1 : Num(e, "f")));

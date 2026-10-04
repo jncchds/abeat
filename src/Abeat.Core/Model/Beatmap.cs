@@ -5,6 +5,13 @@ public sealed record ColorNote(double Beat, int X, int Y, Hand Hand, CutDirectio
 
 public sealed record BombNote(double Beat, int X, int Y);
 
+/// <summary>Arc (v3 slider): a curve one saber follows from a head note to a tail note, drawn while a
+/// sound is held. Directions are the cut directions at each end; multipliers scale the curve's
+/// control points (0 = straight line).</summary>
+public sealed record Arc(double Beat, int X, int Y, Hand Hand, CutDirection Direction,
+    double TailBeat, int TailX, int TailY, CutDirection TailDirection,
+    double HeadMultiplier = 1, double TailMultiplier = 1, int MidAnchor = 0);
+
 public sealed record Obstacle(double Beat, double Duration, int X, int Y, int Width, int Height);
 
 /// <summary>Classic (v2-compatible) lighting event. Type: 0 back lasers, 1 ring lights, 2 left lasers,
@@ -33,6 +40,7 @@ public sealed class DifficultyMap
     public double NoteJumpOffset { get; set; }
     public List<ColorNote> Notes { get; init; } = [];
     public List<BombNote> Bombs { get; init; } = [];
+    public List<Arc> Arcs { get; init; } = [];
     public List<Obstacle> Obstacles { get; init; } = [];
     public List<LightEvent> Lights { get; init; } = [];
     public List<BoostEvent> Boosts { get; init; } = [];

@@ -73,7 +73,11 @@ public static class MapWriter
         {
             ["b"] = B(o.Beat), ["x"] = o.X, ["y"] = o.Y, ["d"] = B(o.Duration), ["w"] = o.Width, ["h"] = o.Height,
         }).ToArray()),
-        ["sliders"] = new JsonArray(),
+        ["sliders"] = new JsonArray(d.Arcs.OrderBy(a => a.Beat).Select(a => (JsonNode)new JsonObject
+        {
+            ["b"] = B(a.Beat), ["c"] = (int)a.Hand, ["x"] = a.X, ["y"] = a.Y, ["d"] = (int)a.Direction, ["mu"] = Math.Round(a.HeadMultiplier, 3),
+            ["tb"] = B(a.TailBeat), ["tx"] = a.TailX, ["ty"] = a.TailY, ["tc"] = (int)a.TailDirection, ["tmu"] = Math.Round(a.TailMultiplier, 3), ["m"] = a.MidAnchor,
+        }).ToArray()),
         ["burstSliders"] = new JsonArray(),
         ["waypoints"] = new JsonArray(),
         ["basicBeatmapEvents"] = new JsonArray(d.Lights.OrderBy(e => e.Beat).Select(e => (JsonNode)new JsonObject

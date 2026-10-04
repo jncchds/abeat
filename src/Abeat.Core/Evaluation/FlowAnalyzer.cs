@@ -13,6 +13,9 @@ public sealed record FlowReport
     public int Notes { get; init; }
     public int Bombs { get; init; }
     public int Obstacles { get; init; }
+    public int Arcs { get; init; }
+    /// <summary>Notes with a non-zero cut angle offset.</summary>
+    public int AngledNotes { get; init; }
     public double DurationSec { get; init; }
     public double Nps { get; init; }
     /// <summary>Highest notes per second over any 4-second window.</summary>
@@ -37,7 +40,7 @@ public sealed record FlowReport
 
     public override string ToString() =>
         $"{Difficulty,-10} notes {Notes,5}  nps {Nps,5:0.00} (peak {PeakNps,5:0.00})  flow {FlowScore,5:0.0}  " +
-        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  clash {HandClashes,2}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  L/R {LeftShare:P0}";
+        $"resets {Resets,3} (+{BombResets} bomb)  vision {VisionBlocks,3}  cross {Crossovers,3}  clash {HandClashes,2}  walls {Obstacles,3} (clash {WallClashes})  bombs {Bombs,3} (hit {BombHits})  arcs {Arcs,3}  angled {AngledNotes,3}  L/R {LeftShare:P0}";
 }
 
 /// <summary>Scores a difficulty with the physical part of the swing cost model. Works on any map,
@@ -153,6 +156,8 @@ public static class FlowAnalyzer
             Notes = notes.Count,
             Bombs = map.Bombs.Count,
             Obstacles = map.Obstacles.Count,
+            Arcs = map.Arcs.Count,
+            AngledNotes = notes.Count(n => n.AngleOffset != 0),
             DurationSec = duration,
             Nps = duration > 0 ? notes.Count / duration : 0,
             PeakNps = PeakNps(notes, spb, 4.0),

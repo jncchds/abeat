@@ -52,15 +52,17 @@ public class FormatTests
         var dm = new DifficultyMap
         {
             Difficulty = DifficultyName.Expert,
-            Notes = [new(1, 0, 0, Hand.Left, CutDirection.Down), new(1.5, 3, 2, Hand.Right, CutDirection.UpRight)],
+            Notes = [new(1, 0, 0, Hand.Left, CutDirection.Down, 15), new(1.5, 3, 2, Hand.Right, CutDirection.UpRight)],
             Bombs = [new(2, 1, 1)],
             Obstacles = [new(4, 2, 0, 0, 1, 5)],
+            Arcs = [new(1, 0, 0, Hand.Left, CutDirection.Down, 3, 1, 0, CutDirection.Up)],
         };
         var json = JsonNode.Parse(MapWriter.DifficultyJson(dm).ToJsonString())!.AsObject();
         var back = MapReader.ReadDifficulty(json, DifficultyName.Expert);
         Assert.Equal(dm.Notes, back.Notes);
         Assert.Equal(dm.Bombs, back.Bombs);
         Assert.Equal(dm.Obstacles, back.Obstacles);
+        Assert.Equal(dm.Arcs, back.Arcs);
     }
 
     [Fact]
@@ -246,5 +248,86 @@ public class GeneratorTests
         int n1 = MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Density = 0.6 }, DifficultyName.Expert).Map.Notes.Count;
         int n2 = MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Density = 1.4 }, DifficultyName.Expert).Map.Notes.Count;
         Assert.True(n2 > n1 * 1.3, $"{n1} vs {n2}");
+    }
+
+    [Fact]
+    public void PauseAndDoubleOnTheDrop()
+    {
+        // FakeAnalysis jumps from 0.4 to 0.9 energy at beat 100, a downbeat
+        var a = FakeAnalysis();
+        var s = new GeneratorSettings();
+        var events = RhythmSelector.Select(a, s.Profile(DifficultyName.Expert), s);
+        var drop = Assert.Single(events, e => Math.Abs(e.Beat - 100) < 1e-6);
+        Assert.True(drop.IsDouble);
+        Assert.DoesNotContain(events, e => e.Beat >= 98 - 1e-6 && e.Beat < 100 - 1e-6);
+        var without = RhythmSelector.Select(a, s.Profile(DifficultyName.Expert), s with { DropPause = false });
+        Assert.Contains(without, e => e.Beat >= 98 - 1e-6 && e.Beat < 100 - 1e-6);
+    }
+
+    /// <summary>A sung line: one held note every two beats, rising and falling in pitch.</summary>
+    static SongAnalysis MelodyAnalysis()
+    {
+        var a = FakeAnalysis();
+        double spb = 60 / a.Tempo.Bpm;
+        var mid = Enumerable.Range(2, 98).Select(i => new Onset { T = i * 2 * spb, S = 0.8, Br = 0.2 + 0.15 * (i % 4) }).ToList();
+        return new SongAnalysis
+        {
+            Tempo = a.Tempo, Audio = a.Audio, Sections = a.Sections, Layers = new() { ["mid"] = mid },
+            Energy = new EnergyCurve { HopSec = 1, Values = [.. a.Energy.Values.Select(_ => 0.7)] },
+        };
+    }
+
+    [Fact]
+    public void HeldNotesGetArcsBetweenSameHandNotes()
+    {
+        var a = MelodyAnalysis();
+        var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Hard);
+        Assert.NotEmpty(r.Map.Arcs);
+        foreach (var arc in r.Map.Arcs)
+        {
+            Assert.Contains(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat == arc.Beat && n.X == arc.X && n.Y == arc.Y);
+            Assert.Contains(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat == arc.TailBeat && n.X == arc.TailX && n.Y == arc.TailY);
+            Assert.DoesNotContain(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat > arc.Beat && n.Beat < arc.TailBeat);
+        }
+        Assert.Equal(0, r.Report.Resets);
+        Assert.Empty(MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Arcs = false }, DifficultyName.Hard).Map.Arcs);
+        // percussive layers never hold
+        Assert.Empty(MapGenerator.GenerateDifficulty(FakeAnalysis(), new GeneratorSettings(), DifficultyName.Hard).Map.Arcs);
+    }
+
+    [Fact]
+    public void AnglesLeanWithThePitchLine()
+    {
+        var a = MelodyAnalysis();
+        var s = new GeneratorSettings();
+        var r = MapGenerator.GenerateDifficulty(a, s, DifficultyName.Expert);
+        var angled = r.Map.Notes.Where(n => n.AngleOffset != 0).ToList();
+        Assert.NotEmpty(angled);
+        Assert.All(angled, n => Assert.Contains(Math.Abs(n.AngleOffset), new[] { 15, 30 }));
+        foreach (var n in angled)
+        {
+            var e = r.Events.Single(e => e.Beat == n.Beat);
+            bool rising = e.PitchSlope > 0;
+            // rising: vertical cuts lean "/" (clockwise), right cuts lift (counter-clockwise)
+            if (n.Direction is CutDirection.Up or CutDirection.Down) Assert.Equal(rising, n.AngleOffset < 0);
+            if (n.Direction == CutDirection.Right) Assert.Equal(rising, n.AngleOffset > 0);
+        }
+        Assert.DoesNotContain(MapGenerator.GenerateDifficulty(a, s with { AngleOffsets = false }, DifficultyName.Expert).Map.Notes, n => n.AngleOffset != 0);
+    }
+
+    [Fact]
+    public void LoudMomentsSwingBigger()
+    {
+        var a = FakeAnalysis();
+        double Size(GeneratorSettings s)
+        {
+            var r = MapGenerator.GenerateDifficulty(a, s, DifficultyName.Expert);
+            var loud = r.Events.Where(e => e.Intensity > 0.7).Select(e => e.Beat).ToHashSet();
+            var notes = r.Map.Notes.Where(n => loud.Contains(n.Beat)).ToList();
+            return notes.Average(n => Math.Abs(n.X - 1.5) + Math.Abs(n.Y - 1));
+        }
+        var on = new GeneratorSettings();
+        var off = on with { Weights = on.Weights with { Dynamics = 0 } };
+        Assert.True(Size(on) > Size(off), $"{Size(on)} vs {Size(off)}");
     }
 }
