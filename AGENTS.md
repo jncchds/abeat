@@ -9,7 +9,20 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 2. **Analysis** (`analysis/`, Python, run as a subprocess by `AnalysisRunner`):
    - beat tracking: beat_this (neural) or librosa; constant-BPM grid fitted over the whole song
      (mean inlier interval, outlier-robust least squares), rounded to 0.5 BPM when equivalent
-   - variable tempo (`--tempo auto|constant|variable`, `tempo.fit_tempo_map`): tracked beats are numbered
+   - with stems, tempo comes from the drum stem (`tempo.drum_tempo`; stems are separated on the unpadded
+     audio before the tempo step, cached padded stems are trimmed by their extra leading samples):
+     the constant grid is the BPM/phase that puts the most kick-weighted attack energy on beats and
+     off-beats (`fit_drum_grid`, round BPM kept within 0.2 %); `track_bars` follows tempo changes by DP
+     over (bar boundary, bar length) scoring the drum energy at each bar's 16ths (beats 1, 8ths .5,
+     16ths .2) with a cost on bar-length *changes* (lam 100), so a sudden slow-down that ramps back up is
+     cheap while off-beat or doubled bars are not; knots merge into segments within 5 ms. Auto takes the
+     map only when it puts >= 15 % more drum energy on the beats than one BPM (steady songs <= 3 %, Dara -
+     Bangaranga 38 %, Coldplay - Paradise live 45 %), and falls back to the tracker path below when
+     drums are in < 30 % of bars. Checked against two tap-along runs per song and strong drum onsets:
+     Everlasting (steady 140, the tracker path had made 38 tempo changes) taps 43 -> 27 ms from the grid,
+     strong drum hits on a 16th slot (+-15 ms) 41 -> 100 %; Bangaranga taps 48 -> 32 ms, hits 29 -> 87 %;
+     Paradise hits 64 -> 95 % (human notes 17 -> 18 ms)
+   - variable tempo without stems (`--tempo auto|constant|variable`, `tempo.fit_tempo_map`): tracked beats are numbered
      (`index_beats`: the period follows the kept beats, clipped to -20/+25 % of the song's median, so
      stretches tracked at double tempo or on off-beats don't add beats), a piecewise-linear time-vs-beat
      curve with a knot per bar is fitted (IRLS, mis-tracked beats fade out; second-difference penalty on

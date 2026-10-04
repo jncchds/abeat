@@ -269,7 +269,7 @@ map), download `analysis.json`.
 | Vocal separator | **Demucs**, RoFormer | BS-RoFormer gives cleaner vocals (less bleed from leads and pads, fewer false vocal notes). Needs the `roformer` extra and, in practice, a GPU: a 4-core CPU needs about 35 minutes per minute of audio (Cancel stops it); its 640 MB model downloads on first use |
 | Vocal onsets | **flux**, notes, lyrics | *flux*: every new sung sound. *notes*: only where a pitched voice follows (CREPE), the melody steers the row. *lyrics*: one note per syllable, from lyrics you paste (or a Whisper transcription with the `lyrics` extra), aligned to the vocals |
 | Other/bass onsets | **flux**, notes | *notes*: transcribed by basic-pitch; real pitch for rows and angles, real note lengths for arcs. Timing is about the same as flux |
-| Tempo | **auto**, constant, variable | *auto*: one BPM, unless the song drifts (live band, no click track) and a tempo map sits clearly better on the audio; then the map gets BPM changes there and stays on one BPM elsewhere. On a live recording timing F1 went from 0.50 to 0.70; on a song with slow parts speeding up 77 % of notes land within 30 ms of a sound instead of 71 % |
+| Tempo | **auto**, constant, variable | *auto*: one BPM, unless the song really changes tempo (live band, slow parts speeding up). With stems the tempo is read from the drum stem: the BPM that puts kick and snare on the beats, and bars followed through tempo changes, used only when they sit clearly (>= 15 %) better on the drums than one BPM. Without stems the beat tracker decides, which is less precise |
 | BPM override | number | forces a constant BPM (CLI `--bpm`) |
 
 Re-analysis reuses the separated stems and the downloaded audio, so switching vocal or tempo methods

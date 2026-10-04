@@ -44,3 +44,41 @@ def test_tempo_map_of_a_steady_song_is_one_tempo():
     tm = tempo.fit_tempo_map(beats)
     assert len(tm.changes) == 1
     assert abs(tm.bpm - 120) < 0.01
+
+
+def drum_track(beats, seed=3):
+    """Kick on every beat, hat on every off-beat, at the given beat times (synth's drum sounds)."""
+    rng = np.random.default_rng(seed)
+    y = np.zeros(int((beats[-1] + 1) * synth.SR), np.float32)
+    k = synth.kick()
+    for i, b in enumerate(beats):
+        n = int(b * synth.SR)
+        y[n:n + len(k)] += k[:len(y) - n]
+        if i + 1 < len(beats):
+            h = synth.hat(rng)
+            m = int((b + beats[i + 1]) / 2 * synth.SR)
+            y[m:m + len(h)] += h[:len(y) - m]
+    return y
+
+
+def test_drum_tempo_keeps_one_bpm_for_steady_drums():
+    beats = 0.6 + np.arange(240) * 60 / 128
+    dt = tempo.drum_tempo(drum_track(beats), synth.SR, 126.5)
+    assert abs(dt.grid.bpm - 128) < 0.01
+    period = 60 / 128
+    phase = (dt.grid.first_beat - 0.6) % period
+    assert min(phase, period - phase) < 0.006
+    assert dt.gain < 1.15  # auto mode keeps one BPM
+
+
+def test_drum_tempo_follows_a_slow_down_that_speeds_back_up():
+    # 136 BPM, a sudden drop to 114 BPM that speeds back up over 32 beats, twice (as in Dara - Bangaranga)
+    bpm = np.full(300, 136.0)
+    for s in (80, 200):
+        bpm[s:s + 32] = np.linspace(114, 136, 32)
+    beats = 0.5 + np.concatenate([[0.0], np.cumsum(60 / bpm)])
+    dt = tempo.drum_tempo(drum_track(beats), synth.SR, 136)
+    assert dt.gain >= 1.15  # auto mode takes the map
+    t = tempo.map_beats(dt.tmap, beats[-1])
+    near = np.abs(beats[:, None] - t[None, :]).min(axis=1)
+    assert np.mean(near) < 0.008 and np.percentile(near, 95) < 0.02

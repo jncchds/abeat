@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.4 — 2026-10-05
+
+- Tempo from the drum stem: with stems, the beat grid is fitted to the separated drums (kick and snare) instead of the beat tracker, and tempo changes are followed bar by bar on the drums. Steady songs no longer get spurious tempo changes (Everlasting had 38; your taps now sit 27 ms from the grid instead of 43), and songs that slow down and speed back up follow it (Bangaranga: 87 % of strong drum hits on a 16th slot instead of 29 %).
+
 ## v0.2.3 — 2026-10-04
 
 - Tap along: **Tap beats** in the player records one run per hand (right first) of you tapping any key on the notes you expect. The runs show as rows in the timeline; each hand is scored against that hand's notes of A and B (offset, F1, precision, recall), and both hands together against all notes and doubles. Saved per song in `taps.json`.

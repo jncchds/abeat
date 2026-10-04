@@ -62,7 +62,36 @@ def analyze(args: argparse.Namespace) -> int:
     tracked_db = tr.downbeats if tr.backend == "beat_this" else None
     log(f"bpm={grid.bpm:.2f} first_beat={grid.first_beat:.3f}s residual={grid.residual_ms:.1f}ms "
         f"p98={grid.max_dev_ms:.0f}ms ({tr.backend})")
-    tmap = _tempo_map(args, tr.beats, grid, mono, raw.sr)
+    st = None
+    lyrics = None
+    vocal_source = None
+    pitched_source = None
+    roformer = False  # vocals from BS-RoFormer
+    if args.stems in ("demucs", "roformer"):
+        st = _cached_stems(out / "stems", len(mono), raw.sr)
+        marker = out / "stems" / "vocals.roformer"  # the cached vocals.flac came from BS-RoFormer
+        if st is not None and args.stems == "demucs" and marker.exists():
+            st = None  # Demucs vocals wanted again: separate anew
+        if st is not None:
+            log("reusing separated stems from the work dir")
+            roformer = marker.exists()
+        else:
+            try:
+                from . import stems
+
+                log("separating stems with demucs (slow on CPU)")
+                st = stems.separate(raw.stereo, raw.sr)
+            except ImportError:
+                log("demucs not installed (ML extra missing); falling back to frequency bands")
+        if st is not None and args.stems == "roformer" and not roformer:
+            try:
+                from . import stems
+
+                st["vocals"] = stems.roformer_vocals(raw.stereo, raw.sr, out, log)
+                roformer = True
+            except ImportError as e:
+                log(f"--stems roformer needs the 'roformer' extra ({e.name} missing); keeping Demucs vocals")
+    grid, tmap = _tempo_map(args, tr.beats, grid, mono, raw.sr, st["drums"] if st and "drums" in st else None)
 
     # Pad so grid beat 0 is at t=0, plus whole beats of lead-in if the music starts immediately.
     first_beat = tmap.first_beat if tmap else grid.first_beat
@@ -82,40 +111,14 @@ def analyze(args: argparse.Namespace) -> int:
     else:
         grid_db = tempo.grid_downbeats(mono, raw.sr, grid, raw.duration, tracked_db)
     padded = audio_mod.pad_start(raw, pad)
+    if st is not None:  # separated on the unpadded audio: same leading silence as song.egg
+        n_pad = len(padded.mono) - len(mono)
+        st = {k: _fit_length(np.concatenate([np.zeros(n_pad, np.float32), v.astype(np.float32)]), len(padded.mono)) for k, v in st.items()}
     y = padded.mono
     sr = padded.sr
     beats, downbeats = tr.beats + pad, grid_db + pad
 
     layer_source = "bands"
-    st = None
-    lyrics = None
-    vocal_source = None
-    pitched_source = None
-    roformer = False  # vocals from BS-RoFormer
-    if args.stems in ("demucs", "roformer"):
-        st = _cached_stems(out / "stems", len(y), sr)
-        marker = out / "stems" / "vocals.roformer"  # the cached vocals.flac came from BS-RoFormer
-        if st is not None and args.stems == "demucs" and marker.exists():
-            st = None  # Demucs vocals wanted again: separate anew
-        if st is not None:
-            log("reusing separated stems from the work dir")
-            roformer = marker.exists()
-        else:
-            try:
-                from . import stems
-
-                log("separating stems with demucs (slow on CPU)")
-                st = stems.separate(padded.stereo, sr)
-            except ImportError:
-                log("demucs not installed (ML extra missing); falling back to frequency bands")
-        if st is not None and args.stems == "roformer" and not roformer:
-            try:
-                from . import stems
-
-                st["vocals"] = stems.roformer_vocals(padded.stereo, sr, out, log)
-                roformer = True
-            except ImportError as e:
-                log(f"--stems roformer needs the 'roformer' extra ({e.name} missing); keeping Demucs vocals")
     if st is not None:
         # "mix" (not "full") so stem analyses get their own, low, weight for the whole mix
         layers = {"mix": features.detect_onsets(y, sr, 30, 11000)}
@@ -214,14 +217,39 @@ def analyze(args: argparse.Namespace) -> int:
     return 0
 
 
-def _tempo_map(args: argparse.Namespace, beats: np.ndarray, grid: "tempo.Grid", y: np.ndarray, sr: int):
-    """A variable tempo map when the song drifts: asked for (--tempo variable), or automatically when
-    the constant grid misses tracked beats by > 40 ms (p98) and the map more than halves that."""
-    if args.tempo == "constant" or args.bpm or (args.tempo == "auto" and grid.stable):
-        return None
+def _tempo_map(args: argparse.Namespace, beats: np.ndarray, grid: "tempo.Grid", y: np.ndarray, sr: int,
+               drums: np.ndarray | None = None) -> tuple["tempo.Grid", "tempo.TempoMap | None"]:
+    """The grid and, when the song drifts, a variable tempo map.
+
+    With a drum stem both come from the drums: the constant grid that puts the most drum energy on its
+    beats, and bars tracked through tempo changes; auto mode takes the tracked map only when it puts
+    >= 15 % more drum energy on the beats (steady songs gain at most ~3 % from following noise).
+    Without one: a map from the tracked beats when the constant grid misses them by > 40 ms (p98)
+    and the map sits clearly better on the mix's attacks."""
+    if args.bpm:
+        return grid, None
+    if drums is not None:
+        dt = tempo.drum_tempo(drums, sr, grid.bpm)
+        if dt is not None and dt.coverage >= 0.3:
+            g = dt.grid
+            log(f"drum stem: {g.bpm:.2f} BPM, first beat {g.first_beat:.3f}s (tracker grid {grid.bpm:.2f}); "
+                f"drums in {dt.coverage:.0%} of bars")
+            grid = tempo.Grid(g.bpm, g.first_beat, grid.residual_ms, grid.max_dev_ms, grid.stable)
+            if args.tempo == "constant" or dt.tmap is None or len(dt.tmap.changes) < 2:
+                return grid, None
+            bpms = [b for _, b in dt.tmap.changes]
+            if args.tempo == "auto" and dt.gain < 1.15:
+                log(f"tempo follows one BPM (tracked bars gain only {dt.gain - 1:+.0%} drum energy)")
+                return grid, None
+            log(f"variable tempo from the drums: {len(dt.tmap.changes)} segments, {min(bpms):.1f}-{max(bpms):.1f} BPM, "
+                f"{dt.gain - 1:+.0%} drum energy on the beats")
+            return grid, dt.tmap
+        log("drum stem too sparse for the tempo; using the beat tracker")
+    if args.tempo == "constant" or (args.tempo == "auto" and grid.stable):
+        return grid, None
     tm = tempo.fit_tempo_map(beats, audio=(y, sr), grid=grid)
     if tm is None or len(tm.changes) < 2:
-        return None
+        return grid, None
     tm = tempo.refine_map_phase(y, sr, tm)
     # the tracker can stray for whole stretches (off-beats in a hats-only intro), which a tempo map would
     # follow: in auto mode the map must also sit clearly better on the audio's attacks than one BPM
@@ -231,11 +259,11 @@ def _tempo_map(args: argparse.Namespace, beats: np.ndarray, grid: "tempo.Grid", 
     if args.tempo == "auto" and on_map < 1.1 * on_grid:
         log(f"tracked beats drift (p98 {grid.max_dev_ms:.0f} ms) but one BPM sits as well on the audio "
             f"({on_grid:.3f} vs {on_map:.3f}); keeping one BPM")
-        return None
+        return grid, None
     bpms = [b for _, b in tm.changes]
     log(f"variable tempo: {len(tm.changes)} segments, {min(bpms):.1f}-{max(bpms):.1f} BPM, "
         f"residual={tm.residual_ms:.1f}ms p98={tm.max_dev_ms:.0f}ms")
-    return tm
+    return grid, tm
 
 
 def _first_sound(y: np.ndarray, sr: int, threshold_db: float = -40) -> float:
@@ -244,8 +272,13 @@ def _first_sound(y: np.ndarray, sr: int, threshold_db: float = -40) -> float:
     return float(above[0] / sr) if len(above) else 0.0
 
 
+def _fit_length(x: np.ndarray, n: int) -> np.ndarray:
+    return x[:n] if len(x) >= n else np.pad(x, (0, n - len(x)))
+
+
 def _cached_stems(folder: Path, length: int, sr: int) -> dict[str, np.ndarray] | None:
-    """Stems kept by an earlier analysis of the same audio (same padding, so the same length)."""
+    """Stems kept by an earlier analysis of the same audio. They were written padded like that run's
+    song.egg (leading silence only), so the extra samples at the start are cut to match `length`."""
     names = ["drums", "bass", "other", "vocals"]
     if not all((folder / f"{n}.flac").exists() for n in names):
         return None
@@ -257,9 +290,10 @@ def _cached_stems(folder: Path, length: int, sr: int) -> dict[str, np.ndarray] |
             sig, file_sr = sf.read(str(folder / f"{n}.flac"), dtype="float32")
         except (RuntimeError, ValueError, OSError):  # truncated by an interrupted run: separate again
             return None
-        if file_sr != sr or abs(len(sig) - length) > sr // 100:
+        extra = len(sig) - length
+        if file_sr != sr or extra < -(sr // 100) or extra > 10 * sr:
             return None
-        out[n] = sig[:length] if len(sig) >= length else np.pad(sig, (0, length - len(sig)))
+        out[n] = sig[extra:] if extra >= 0 else np.pad(sig, (0, -extra))
     return out
 
 

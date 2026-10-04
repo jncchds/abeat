@@ -260,7 +260,15 @@ def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, m
         if grid is not None:
             T = _keep_grid(T, knot_beats, grid, *audio)
 
-    # merge bars into constant-tempo segments while the curve's beat times stay within merge_ms
+    tm = knots_to_map(T, knot_beats, merge_ms)
+    dev = (t - tm.time(idx))[w > 0.5]
+    return TempoMap(tm.first_beat, tm.changes, float(np.sqrt(np.mean(dev ** 2)) * 1000), float(np.percentile(np.abs(dev), 98) * 1000))
+
+
+def knots_to_map(T: np.ndarray, knot_beats: int = 4, merge_ms: float = 10.0) -> TempoMap:
+    """Tempo map through knot times `T` (one every `knot_beats` beats): neighbouring bars merge into one
+    tempo while the knots stay within `merge_ms` of the merged segment's straight line."""
+    n_knots = len(T)
     knot_beat = np.arange(n_knots) * knot_beats
     segs = []  # (first knot, last knot)
     a = 0
@@ -279,9 +287,7 @@ def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, m
         if changes and abs(bpm - changes[-1][1]) < 1e-3:
             continue
         changes.append((int(knot_beat[a]), bpm))
-    tm = TempoMap(float(T[0]), changes, 0.0, 0.0)
-    dev = (t - tm.time(idx))[w > 0.5]
-    return TempoMap(float(T[0]), changes, float(np.sqrt(np.mean(dev ** 2)) * 1000), float(np.percentile(np.abs(dev), 98) * 1000))
+    return TempoMap(float(T[0]), changes, 0.0, 0.0)
 
 
 def _keep_grid(T: np.ndarray, knot_beats: int, grid: Grid, y: np.ndarray, sr: int) -> np.ndarray:
@@ -407,3 +413,127 @@ def grid_beats(grid: Grid, duration: float) -> np.ndarray:
 
 def map_beats(tm: TempoMap, duration: float) -> np.ndarray:
     return _map_beats(tm, duration)
+
+
+# --- tempo from the separated drum stem -------------------------------------------------------------
+# Kick and snare on the drum stem are far more precise than a beat tracker on the full mix (taps and
+# drum hits both sat 30-40 % closer to it on the songs checked), and they show tempo changes directly.
+
+DRUM_POS = np.arange(16) / 16  # the 16ths of a 4-beat bar
+DRUM_WEIGHT = np.where(DRUM_POS * 4 % 1 == 0, 1.0, np.where(DRUM_POS * 8 % 1 == 0, 0.5, 0.2))
+
+
+def drum_envelope(drums: np.ndarray, sr: int) -> tuple[np.ndarray, np.ndarray]:
+    """Kick-weighted attack envelope of the drum stem, peaks widened to 20 ms, normalised to its 99th
+    percentile."""
+    import scipy.ndimage
+
+    env, et = _beat_envelope(drums, sr)
+    env = scipy.ndimage.maximum_filter1d(env, size=max(1, int(0.02 / (et[1] - et[0]))))
+    return env / (np.percentile(env[env > 0], 99) + 1e-9) if np.any(env > 0) else env, et
+
+
+def _grid_energy(env: np.ndarray, et: np.ndarray, beats: np.ndarray, period: float) -> float:
+    """Mean drum energy on the beats plus half of it on the off-beats."""
+    b = beats[(beats > 0) & (beats < et[-1])]
+    if len(b) == 0:
+        return 0.0
+    return float((np.interp(b, et, env).sum() + 0.5 * np.interp(b + period / 2, et, env).sum()) / len(b))
+
+
+def fit_drum_grid(env: np.ndarray, et: np.ndarray, bpm0: float, span: float = 2.0) -> tuple[float, float, float]:
+    """Constant BPM (within `span` of `bpm0`) and first beat that put the most drum energy on beats and
+    off-beats; a round BPM (whole or half) within 0.05 wins when it scores within 0.2 %.
+    Returns (bpm, first beat, energy)."""
+    duration = float(et[-1])
+
+    def best_phase(bpm: float) -> tuple[float, float]:
+        period = 60.0 / bpm
+        offs = np.arange(0, period, 0.002)
+        n = int(duration / period)
+        t = offs[:, None] + np.arange(n)[None, :] * period
+        sc = (np.interp(t, et, env).sum(axis=1) + 0.5 * np.interp(t + period / 2, et, env).sum(axis=1)) / n
+        k = int(sc.argmax())
+        return float(offs[k]), float(sc[k])
+
+    coarse = [(bpm, *best_phase(bpm)) for bpm in np.arange(bpm0 - span, bpm0 + span + 1e-9, 0.05)]
+    b0 = max(coarse, key=lambda x: x[2])[0]
+    fine = [(bpm, *best_phase(bpm)) for bpm in np.arange(b0 - 0.05, b0 + 0.05 + 1e-9, 0.005)]
+    bpm, first, score = max(fine, key=lambda x: x[2])
+    rounded = round(bpm * 2) / 2
+    if abs(rounded - bpm) <= 0.05:
+        f, sc = best_phase(rounded)
+        if sc >= 0.998 * score:
+            bpm, first, score = rounded, f, sc
+    return float(bpm), first, score
+
+
+def track_bars(env: np.ndarray, et: np.ndarray, period: float, lam: float = 100.0, mu: float = 1.0,
+               step: float = 0.008, lo: float = 0.75, hi: float = 1.3) -> np.ndarray:
+    """Bar boundaries (every 4 beats) following the drums through tempo changes.
+
+    Dynamic programming over (boundary time, length of the bar ending there), one chain over the whole
+    song: a bar scores the drum energy at its 16ths (beats 1, 8ths 0.5, 16ths 0.2), a change of bar length
+    between neighbours costs `lam` * log-ratio^2 and leaving the song's tempo `mu` * log-ratio^2. Scoring
+    whole bars (not single beats) keeps it off off-beats and doubled beats; penalising tempo changes (not
+    phase changes) lets it follow a sudden slow-down that speeds back up over many bars."""
+    bar = 4 * period
+    n = int(et[-1] / step) + 1
+    L = np.arange(int(lo * bar / step), int(hi * bar / step) + 1)
+    trans = lam * np.log(L[:, None] / L[None, :]) ** 2  # [length now, length before]
+    prior = mu * np.log(L * step / bar) ** 2
+    S = np.full((n, len(L)), -np.inf)
+    back = np.full((n, len(L)), -1, np.int32)
+    tt = np.arange(n) * step
+    for t in range(n):
+        prev = t - L
+        ok = prev >= 0
+        if not ok.any():
+            continue
+        p0 = tt[prev[ok]]
+        times = p0[:, None] + (tt[t] - p0)[:, None] * DRUM_POS[None, :]
+        e = (np.interp(times, et, env, left=0, right=0) * DRUM_WEIGHT).sum(axis=1)
+        start = np.where(p0 < hi * bar, 0.0, -np.inf)  # the first bar starts at the beginning
+        m_all = S[prev[ok]] - trans[ok]
+        a = m_all.argmax(axis=1)
+        m = m_all[np.arange(len(a)), a]
+        cont = m > start
+        S[t, ok] = np.where(cont, m, start) + e - prior[ok]
+        back[t, ok] = np.where(cont, a, -1)
+    tail = int(hi * bar / step) + 1
+    t, k = np.unravel_index(int(np.argmax(S[-tail:])), S[-tail:].shape)
+    t += n - tail
+    knots = [t * step]
+    while k >= 0:
+        pk = back[t, k]
+        t -= L[k]
+        knots.append(t * step)
+        k = pk
+    return np.array(knots[::-1])
+
+
+@dataclass
+class DrumTempo:
+    grid: Grid  # best constant grid on the drums
+    tmap: TempoMap | None  # bar-tracked map (None when the drums are too sparse to follow)
+    gain: float  # drum energy on the map's beats / on the grid's
+    coverage: float  # share of bars with drums
+
+
+def drum_tempo(drums: np.ndarray, sr: int, bpm0: float) -> DrumTempo | None:
+    """Constant grid and bar-tracked tempo map from the drum stem; None when the stem is (nearly) silent."""
+    env, et = drum_envelope(drums, sr)
+    if not np.any(env > 0):
+        return None
+    bpm, first, _ = fit_drum_grid(env, et, bpm0)
+    period = 60.0 / bpm
+    beats = first + np.arange(int((et[-1] - first) / period) + 1) * period
+    bars = beats[::4]
+    bar_e = np.array([np.interp(b + np.arange(4) * period, et, env).max() for b in bars])
+    coverage = float(np.mean(bar_e > 0.25))
+    grid = Grid(bpm, first, 0.0, 0.0, True)
+    if coverage < 0.3:
+        return DrumTempo(grid, None, 1.0, coverage)
+    tm = knots_to_map(track_bars(env, et, period), 4, 5.0)
+    gain = _grid_energy(env, et, map_beats(tm, float(et[-1])), period) / max(_grid_energy(env, et, beats, period), 1e-9)
+    return DrumTempo(grid, tm, gain, coverage)
