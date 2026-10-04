@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import {
+import { cancelJob,
   audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getSettings, getSong,
   getVersion, getVersions, getVersionSettings, reanalyze, zipUrl,
-  type Analysis, type Comparison, type Difficulty, type GeneratorSettings, type SongMeta, type Version,
+  type Analysis, type AnalysisOptions, type Comparison, type Difficulty, type GeneratorSettings, type SongMeta, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
@@ -15,6 +15,7 @@ import ToggleField from '../components/ToggleField'
 import AddToPlaylist from '../components/AddToPlaylist'
 import VersionsPanel, { type Side } from '../components/VersionsPanel'
 import VocalSelect from '../components/VocalSelect'
+import AnalysisExtras from '../components/AnalysisExtras'
 import { useDebug } from '../hooks/useDebug'
 import { useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
@@ -74,6 +75,7 @@ export default function SongPage() {
   const [error, setError] = useState<string | null>(null)
   // vocal onset method for the next re-analysis (defaults to the song's current one)
   const [vocalPick, setVocalPick] = useState<{ id: string; v: string } | null>(null)
+  const [extrasPick, setExtrasPick] = useState<{ id: string; v: Pick<AnalysisOptions, 'tempo' | 'pitched' | 'separator'> } | null>(null)
   const [lyricsOpen, setLyricsOpen] = useState(false)
   const [follow, setFollow] = useState(true)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
@@ -81,8 +83,13 @@ export default function SongPage() {
   // debug: play a single stem in the player instead of the mix (same timing as song.egg)
   const [stemSrc, setStemSrc] = useState<{ id: string; url: string } | null>(null)
 
-  const status = songs.find(s => s.id === id)?.status ?? meta?.status
-  const ready = status === 'Ready'
+  const listed = songs.find(s => s.id === id)
+  const status = listed?.status ?? meta?.status
+  const busy = status === 'Queued' || status === 'Analyzing' || status === 'Generating'
+  // usable whenever an analysis exists, also while a re-analysis runs or after one failed
+  const ready = !!(listed?.hasAnalysis ?? meta?.hasAnalysis) || status === 'Ready'
+  const revision = listed?.analysisRevision ?? meta?.analysisRevision ?? 0
+  const [dismissed, setDismissed] = useState<string | null>(null)
 
   useEffect(() => { getDefaults().then(r => setDefaults(r.data.settings)) }, [])
   const [config, setConfig] = useState<{ httpsPort: number | null; arcViewer: boolean }>({ httpsPort: null, arcViewer: false })
@@ -105,10 +112,10 @@ export default function SongPage() {
       setLog(r.data.log)
     }
     load().catch(e => setError(errorText(e)))
-    if (ready) return () => { cancelled = true }
+    if (!busy) return () => { cancelled = true }
     const t = window.setInterval(() => load().catch(() => {}), 1500)
     return () => { cancelled = true; window.clearInterval(t) }
-  }, [id, ready])
+  }, [id, ready, busy])
 
   const refreshVersions = useCallback(async () => {
     const r = await getVersions(id)
@@ -124,7 +131,7 @@ export default function SongPage() {
         setVersions({ id, list: v.data })
       })
       .catch(e => setError(errorText(e)))
-  }, [id, ready])
+  }, [id, ready, revision])
 
   const data = ready && loaded?.id === id ? loaded : null
   const analysis = data?.analysis ?? null
@@ -259,12 +266,15 @@ export default function SongPage() {
   }
 
   const vocals = vocalPick?.id === id ? vocalPick.v : meta?.analysis.vocalOnsets ?? 'flux'
+  const extras = extrasPick?.id === id ? extrasPick.v
+    : { tempo: meta?.analysis.tempo, pitched: meta?.analysis.pitched, separator: meta?.analysis.separator }
   // the lyrics box opens with the Lyrics button, and when lyric syllables are picked
   const showLyrics = ready && lyricsOpen
   const onReanalyze = async () => {
     if (!meta) return
     // sung notes and lyric syllables work on the separated vocals, so they switch stems on
-    await reanalyze(id, { ...meta.analysis, vocalOnsets: vocals, stems: meta.analysis.stems || vocals !== 'flux' })
+    const stems = meta.analysis.stems || vocals !== 'flux' || extras.pitched === 'notes' || extras.separator === 'roformer'
+    await reanalyze(id, { ...meta.analysis, ...extras, vocalOnsets: vocals, stems })
     await refresh()
   }
 
@@ -315,11 +325,14 @@ export default function SongPage() {
               </a>
             ))}
           {meta && <VocalSelect compact value={vocals} onChange={v => { setVocalPick({ id, v }); if (v === 'lyrics') setLyricsOpen(true) }} />}
+          {meta && <AnalysisExtras value={extras} onChange={v => setExtrasPick({ id, v })} />}
           {ready && (
             <button className={`btn-secondary${showLyrics ? ' active' : ''}`} onClick={() => setLyricsOpen(o => !o)}
               title="Lyrics to align for lyric-syllable vocal onsets">Lyrics</button>
           )}
-          <button className="btn-secondary" onClick={onReanalyze} disabled={!ready && status !== 'Failed'}
+          {busy && <button className="btn-secondary" onClick={() => cancelJob(id).then(refresh).catch(e => setError(errorText(e)))}
+            title="Stops the running analysis; the current analysis and versions stay">Cancel</button>}
+          <button className="btn-secondary" onClick={onReanalyze} disabled={busy}
             title="Runs the analysis again (separated stems are reused) and adds a new version">Re-analyze</button>
           <button className="delete-btn" onClick={onDelete}>Delete</button>
         </div>
@@ -328,6 +341,15 @@ export default function SongPage() {
       {error && <p className="error-text">{error}</p>}
 
       {showLyrics && analysis && <LyricsPanel id={id} analysis={analysis} usesLyrics={vocals === 'lyrics'} onClose={() => setLyricsOpen(false)} />}
+
+      {ready && (busy || (status === 'Failed' && dismissed !== `${id}:${meta?.error}`)) && (
+        <div className={`job-banner${status === 'Failed' ? ' failed' : ''}`}>
+          {status === 'Failed'
+            ? <span>Re-analysis {meta?.error === 'cancelled' ? 'cancelled' : `failed: ${meta?.error ?? ''}`} — the previous analysis and all versions are kept.</span>
+            : <span><span className="spinner" /> {status}… {log[log.length - 1]?.replace(/^\d\d:\d\d:\d\d /, '') ?? ''}</span>}
+          {status === 'Failed' && <button className="link-btn" onClick={() => setDismissed(`${id}:${meta?.error}`)}>dismiss</button>}
+        </div>
+      )}
 
       {!ready && (
         <div className="card progress-card">

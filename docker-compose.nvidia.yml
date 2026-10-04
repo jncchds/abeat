@@ -1,0 +1,13 @@
+# NVIDIA GPU: needs the driver and the NVIDIA Container Toolkit on the host. Turing (RTX 20) and newer use
+# the CUDA 13 build; older cards (GTX 10, Volta) or drivers < 580: ABEAT_ACCEL=cuda12.
+services:
+  abeat:
+    environment:
+      ABEAT_ACCEL: ${ABEAT_ACCEL:-cuda}
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

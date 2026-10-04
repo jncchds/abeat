@@ -1,16 +1,23 @@
+# ABeat web app. First start installs the analysis runtime into ./docker-data/runtime (1-5 GB download,
+# progress in the web UI and `docker compose logs`); later starts are instant.
+#   docker compose up -d                                            CPU
+#   docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d   NVIDIA (needs the NVIDIA Container Toolkit)
+#   docker compose -f docker-compose.yml -f docker-compose.rocm.yml up -d     AMD ROCm
+#   docker compose -f docker-compose.yml -f docker-compose.intel.yml up -d    Intel Arc (XPU)
 services:
   abeat:
-    build:
-      context: .
-      args:
-        ML: "1"   # 0 = librosa-only image (smaller, less accurate beat tracking)
-    image: abeat
+    build: .
+    image: abeat:latest
     ports:
       - "8080:8080"
-      - "8443:8443"   # https for ArcViewer previews (self-signed)
+      - "8443:8443"   # https for ArcViewer previews from other devices (self-signed)
+    environment:
+      ABEAT_ACCEL: ${ABEAT_ACCEL:-auto}     # auto | cpu | cuda | cuda12 (pre-Turing NVIDIA) | rocm | xpu | none
+      ABEAT_EXTRAS: ${ABEAT_EXTRAS:-}       # optional worker extras: lyrics (Whisper), roformer (BS-RoFormer)
+      ABEAT_UID: ${ABEAT_UID:-1000}         # owner of the files in the folders below (your user: `id -u`)
+      ABEAT_GID: ${ABEAT_GID:-1000}
     volumes:
-      - abeat-data:/data
+      - ${ABEAT_HOME:-./docker-data}/data:/data         # songs, maps, playlists (back this up)
+      - ${ABEAT_HOME:-./docker-data}/models:/models     # downloaded ML models (re-downloadable)
+      - ${ABEAT_HOME:-./docker-data}/runtime:/runtime   # Python environment, ArcViewer (re-creatable)
     restart: unless-stopped
-
-volumes:
-  abeat-data:

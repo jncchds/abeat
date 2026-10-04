@@ -40,7 +40,9 @@ def track_beats(y: np.ndarray, sr: int, backend: str = "auto") -> TempoResult:
 def _beat_this(y: np.ndarray, sr: int) -> TempoResult:
     from beat_this.inference import Audio2Beats  # optional dependency (extra "ml")
 
-    a2b = Audio2Beats(checkpoint_path="final0", device="cpu", dbn=False)
+    from .accel import device
+
+    a2b = Audio2Beats(checkpoint_path="final0", device=device(), dbn=False)
     beats, downbeats = a2b(y, sr)
     return TempoResult(np.asarray(beats, float), np.asarray(downbeats, float), "beat_this")
 
@@ -268,16 +270,24 @@ def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, m
     return TempoMap(float(T[0]), changes, float(np.sqrt(np.mean(dev ** 2)) * 1000), float(np.percentile(np.abs(dev), 98) * 1000))
 
 
-def refine_map_phase(y: np.ndarray, sr: int, tm: TempoMap, width: float = 0.03) -> TempoMap:
-    """Shift a tempo map by up to +-width s to put the most kick-weighted attack energy on its beats."""
+def _beat_envelope(y: np.ndarray, sr: int) -> tuple[np.ndarray, np.ndarray]:
     from .features import attack_envelope
 
     full, env_t = attack_envelope(y, sr, 30, 11000, 256)
     low, _ = attack_envelope(y, sr, None, 180, 1024)
-    env = full / (full.max() + 1e-9) + 1.5 * low / (low.max() + 1e-9)
-    duration = len(y) / sr
+    return full / (full.max() + 1e-9) + 1.5 * low / (low.max() + 1e-9), env_t
+
+
+def _map_beats(tm: TempoMap, duration: float) -> np.ndarray:
     last = int(tm.changes[-1][0] + (duration - tm.time(tm.changes[-1][0])) * tm.changes[-1][1] / 60) + 2
-    grid = tm.time(np.arange(-4, last))
+    return tm.time(np.arange(-4, last))
+
+
+def refine_map_phase(y: np.ndarray, sr: int, tm: TempoMap, width: float = 0.03) -> TempoMap:
+    """Shift a tempo map by up to +-width s to put the most kick-weighted attack energy on its beats."""
+    env, env_t = _beat_envelope(y, sr)
+    duration = len(y) / sr
+    grid = _map_beats(tm, duration)
     best, best_score = 0.0, -1.0
     for s in np.arange(-width, width, 0.002):
         g = grid + s
@@ -286,3 +296,24 @@ def refine_map_phase(y: np.ndarray, sr: int, tm: TempoMap, width: float = 0.03) 
         if score > best_score:
             best, best_score = float(s), score
     return tm.shifted(best)
+
+
+def on_beat_energy(y: np.ndarray, sr: int, beats: np.ndarray) -> float:
+    """Mean kick-weighted attack energy within 15 ms of the given beat times: how well a grid sits on
+    the music, independent of where the tracker happened to put its beats."""
+    env, env_t = _beat_envelope(y, sr)
+    beats = beats[(beats >= 0.02) & (beats < len(y) / sr - 0.02)]
+    if len(beats) == 0:
+        return 0.0
+    near = np.stack([np.interp(beats + d, env_t, env) for d in np.arange(-0.015, 0.0151, 0.003)])
+    return float(near.max(axis=0).mean())
+
+
+def grid_beats(grid: Grid, duration: float) -> np.ndarray:
+    period = 60.0 / grid.bpm
+    n0 = int(np.ceil(-grid.first_beat / period))
+    return grid.first_beat + np.arange(n0, int((duration - grid.first_beat) / period) + 1) * period
+
+
+def map_beats(tm: TempoMap, duration: float) -> np.ndarray:
+    return _map_beats(tm, duration)

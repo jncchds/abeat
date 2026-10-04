@@ -70,9 +70,13 @@ public static class MapEndpoints
             return Results.NoContent();
         });
 
+        api.MapPost("/songs/{id}/cancel", (string id, SongStore store, AnalysisQueue queue) =>
+            store.Get(id) is null ? Results.NotFound() : queue.Cancel(id) ? Results.Ok(store.Get(id)) : Results.Conflict("nothing running"));
+
         api.MapPost("/songs/{id}/reanalyze", (string id, AnalysisOptions options, SongStore store, AnalysisQueue queue) =>
         {
             if (store.Get(id) is not { } m) return Results.NotFound();
+            if (m.Status is SongStatus.Queued or SongStatus.Analyzing or SongStatus.Generating) return Results.Conflict("already queued or running");
             options = options with { VocalOnsets = VocalOption(options.VocalOnsets) };
             Generations.List(store, id); // moves a legacy map into the history while its grid still matches
             m.Analysis = options;

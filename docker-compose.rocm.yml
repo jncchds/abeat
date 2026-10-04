@@ -1,0 +1,10 @@
+# AMD GPU with ROCm: needs the amdgpu kernel driver on the host (ROCm 7.2-supported cards).
+services:
+  abeat:
+    environment:
+      ABEAT_ACCEL: ${ABEAT_ACCEL:-rocm}
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    security_opt:
+      - seccomp=unconfined

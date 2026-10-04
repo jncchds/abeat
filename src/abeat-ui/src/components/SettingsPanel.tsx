@@ -11,6 +11,8 @@ interface Props {
   onChange: (s: GeneratorSettings) => void
 }
 
+const MODES: [string, string][] = [['OneSaber', 'One Saber'], ['90Degree', '90°'], ['360Degree', '360°']]
+
 const WEIGHT_MAX: Record<string, number> = { reset: 100, slowReset: 10, tooFast: 60, crossover: 10, visionBlock: 8 }
 
 /** Generator settings; every committed change produces a new settings object for the parent. */
@@ -33,6 +35,29 @@ export default function SettingsPanel({ settings: s, defaults, layers, layerSour
             </label>
           ))}
         </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Extra modes</legend>
+        <div className="diff-checks">
+          {MODES.map(([m, label]) => (
+            <label key={m} className="inline-check" title="Written next to Standard for the same difficulties (in the zip and ArcViewer)">
+              <input
+                type="checkbox"
+                checked={(s.modes ?? []).includes(m)}
+                onChange={e => set({ modes: MODES.map(([x]) => x).filter(x => (x === m ? e.target.checked : (s.modes ?? []).includes(x))) })}
+              />
+              {label}
+            </label>
+          ))}
+        </div>
+        <label className="inline-check" title="Pyro: PyroEnvironment with a v3 group lightshow (kicks, snares, hats, melody and notes each light their own group pair)">
+          Environment
+          <select value={s.environment ?? 'Default'} onChange={e => set({ environment: e.target.value })}>
+            <option value="Default">Default (classic lights)</option>
+            <option value="Pyro">Pyro (v3 group lights)</option>
+          </select>
+        </label>
       </fieldset>
 
       <fieldset>

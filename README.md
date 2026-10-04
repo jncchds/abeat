@@ -17,23 +17,29 @@ audio ─▶ analysis worker (Python) ─▶ analysis.json + song.egg + cover.jp
               Abeat.Cli / Abeat.Web                        Info.dat (v2.1) + *.dat (v3.3) + zip
 ```
 
+**[Manual](docs/MANUAL.md)**: everything ABeat does, every setting, the CLI and the Docker setup.
+
 ## Quick start
 
 ### Docker (web UI)
 
 ```bash
-docker compose up --build        # then open http://localhost:8080
+docker compose up -d             # then open http://localhost:8080
 ```
 
-`--build-arg ML=0` builds a much smaller image without torch (librosa beat tracking only).
-Data (uploads, analyses, maps, settings) lives in the `/data` volume.
+One small image (~420 MB) for every machine. On first start it installs the analysis runtime with the
+PyTorch build for your hardware (CPU, NVIDIA CUDA, AMD ROCm or Intel XPU; detected, or `ABEAT_ACCEL`)
+into bind-mounted folders: `./docker-data/data` (songs, maps: back this up), `./docker-data/models`
+(downloaded models) and `./docker-data/runtime` (Python environment, ArcViewer). GPUs:
+`docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d` (or `.rocm.yml`, `.intel.yml`).
+Optional features: `ABEAT_EXTRAS=lyrics,roformer`. Details in the [manual](docs/MANUAL.md#2-running-abeat).
 
 ### Local
 
 Requirements: .NET 10 SDK, Node.js 20+ and [uv](https://docs.astral.sh/uv/) (it installs its own Python).
 
 ```bash
-cd analysis && uv sync --extra ml && cd ..     # drop --extra ml for the light version; add --extra lyrics for Whisper
+cd analysis && uv sync --extra ml --extra cpu && cd ..   # torch flavor: cpu, cuda, cuda12, rocm or xpu; add --extra lyrics / roformer
 (cd src/abeat-ui && npm install && npm run build)   # builds the UI into src/Abeat.Web/wwwroot
 dotnet run --project src/Abeat.Web             # web UI on http://localhost:5080
 # or the CLI:
@@ -46,7 +52,7 @@ dotnet run --project src/Abeat.Cli -- movement work/beatsaver      # hand moveme
 Web data defaults to `~/.local/share/abeat` (set `ABEAT_DATA` to change).
 
 `scripts/fetch-arcviewer.sh` downloads [ArcViewer](https://github.com/AllPoland/ArcViewer) (GPL-3.0, ~80 MB)
-so the web app can open maps in it from the same server (the Docker image includes it). Without it the
+so the web app can open maps in it from the same server (the container fetches it on first start). Without it the
 ArcViewer button uses the public site.
 
 **Playlists**: add versions from a song page ("＋ playlist"), then download the playlist zip and import
@@ -68,6 +74,14 @@ or *lyric syllables*, the lyrics forced-aligned to the vocal stem (MMS aligner) 
 syllables at their vowels. Paste the lyrics on the song page (repeats written out), or let Whisper
 transcribe them (`uv sync --extra ml --extra lyrics`); the transcription can be loaded into the
 lyrics box to correct it.
+
+**Drums, notes and stems**: drum-stem hits are labelled kick / snare / hat, so hats count less when
+choosing notes and the drummer plays the lights. `--pitched notes` transcribes the other and bass
+stems with [basic-pitch](https://github.com/spotify/basic-pitch) (pitch steers the row, note lengths
+drive arcs). `--roformer` takes the vocal stem from BS-RoFormer
+([python-audio-separator](https://github.com/nomadkaraoke/python-audio-separator), extra `roformer`):
+cleaner vocals, but slow without a GPU. With lyrics, sections whose words repeat (a returning chorus)
+share a label even when the arrangement changes.
 
 **Rhythm selection** (`RhythmSelector`): onsets are snapped to a 1/12-beat grid (sixteenths, and
 triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×
@@ -91,6 +105,14 @@ next note; notes in a rising or falling melody line get a small cut-angle offset
 notes followed by a roll, flam or stutter too fast for single notes become chains (Hard and up).
 All of them leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the
 settings.
+
+**Pattern memory**: when a part of the song comes back, the map is planned a second time with a bonus
+for playing it the way its first occurrence was played, so a returning chorus brings its patterns back
+(`repetition` weight).
+
+**Lights and modes**: classic lights (section palettes, note flashes, drum-driven lasers and rings), or
+`--environment pyro` for PyroEnvironment with a v3 group lightshow. `--modes onesaber,90,360` adds One
+Saber (planned for one saber over the whole grid) and 90°/360° (the Standard notes with lane rotations).
 
 All weights are in `FlowWeights` and editable in the UI or a settings file (`abeat settings`).
 
@@ -128,7 +150,7 @@ The style prior (`scripts/style_prior.py`) is learned from these maps.
 | Path | What |
 |---|---|
 | `analysis/` | Python worker (`abeat-analyze analyze|synth`), uv project |
-| `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer (notes, arcs, chains), generator, analyzer, packager |
+| `src/Abeat.Core` | Map model, v2/v3/v4 reader, v3 writer (notes, arcs, chains, BPM/rotation events, group lights), generator, analyzer, packager |
 | `src/Abeat.Cli` | `abeat generate|analyze|check|movement|settings|synth|fetch-maps|compare|bench` |
 | `src/Abeat.Web` | ASP.NET Core API, serves the built UI from `wwwroot/` |
 | `src/abeat-ui` | React 19 + TypeScript + Vite UI (ABook layout, Beat Saber palette) |

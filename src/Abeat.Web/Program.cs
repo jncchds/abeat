@@ -30,6 +30,7 @@ builder.Services.ConfigureHttpJsonOptions(o =>
 });
 builder.Services.AddSingleton<SongStore>();
 builder.Services.AddSingleton<PlaylistStore>();
+builder.Services.AddSingleton<WorkerRuntime>();
 builder.Services.AddSingleton<AnalysisQueue>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<AnalysisQueue>());
 
@@ -46,10 +47,13 @@ app.UseStaticFiles(staticFiles);
 
 // ArcViewer (GPL-3.0, github.com/AllPoland/ArcViewer), fetched by scripts/fetch-arcviewer.sh and served
 // from the same origin, so it can open map zips without HTTPS or CORS workarounds
+// (in the container it is fetched into /runtime/arcviewer after the server starts, so its presence is
+// checked per request)
 var arcViewerDir = builder.Configuration["ABEAT_ARCVIEWER_DIR"] ?? Path.Combine(app.Environment.ContentRootPath, "arcviewer");
-bool arcViewer = File.Exists(Path.Combine(arcViewerDir, "index.html"));
-if (arcViewer)
+bool ArcViewer() => File.Exists(Path.Combine(arcViewerDir, "index.html"));
+if (ArcViewer() || builder.Configuration["ABEAT_ARCVIEWER_DIR"] != null)
 {
+    Directory.CreateDirectory(arcViewerDir);
     var types = new FileExtensionContentTypeProvider();
     types.Mappings[".data"] = "application/octet-stream";
     var arcFiles = new PhysicalFileProvider(Path.GetFullPath(arcViewerDir));
@@ -77,7 +81,7 @@ app.UseRouting();
 MapEndpoints.Map(app);
 PlaylistEndpoints.Map(app);
 app.MapGet("/healthz", () => "ok");
-app.MapGet("/api/config", () => new { httpsPort, arcViewer });
+app.MapGet("/api/config", (WorkerRuntime runtime) => new { httpsPort, arcViewer = ArcViewer(), runtime = runtime.Current });
 // client-side routes (/songs/{id}) are served by the React app
 app.MapFallbackToFile("index.html", staticFiles);
 

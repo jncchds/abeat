@@ -26,13 +26,17 @@ public sealed record Comparison
     public double GeneratedDoubles { get; init; }
     public MovementReport HumanMovement { get; init; } = new();
     public MovementReport GeneratedMovement { get; init; } = new();
+    /// <summary>Self-repetition across repeated sections (null without an analysis).</summary>
+    public RepetitionReport? HumanRepetition { get; init; }
+    public RepetitionReport? GeneratedRepetition { get; init; }
 
     public override string ToString() =>
         $"{Difficulty,-10} F1 {F1,4:0.00} (P {Precision:0.00} R {Recall:0.00}, offset {OffsetMs,4:0} ms)  " +
         $"nps {GeneratedNps,4:0.0}/{HumanNps,4:0.0}  flow {GeneratedFlow,4:0}/{HumanFlow,4:0}  resets {GeneratedResets}/{HumanResets}  " +
         $"dbl {GeneratedDoubles:P0}/{HumanDoubles:P0}  dirΔ {DirectionDistance:0.00}  posΔ {PositionDistance:0.00}  " +
         $"strain {GeneratedMovement.StrainP90:0.0}/{HumanMovement.StrainP90:0.0}  travel {GeneratedMovement.TravelMean:0.00}/{HumanMovement.TravelMean:0.00}  " +
-        $"angle {GeneratedMovement.AngleMean:0}/{HumanMovement.AngleMean:0}°";
+        $"angle {GeneratedMovement.AngleMean:0}/{HumanMovement.AngleMean:0}°" +
+        (GeneratedRepetition is { } gr && HumanRepetition is { } hr ? $"  repeat {gr.Same:P0}/{hr.Same:P0} (aligned {gr.Aligned:P0}/{hr.Aligned:P0})" : "");
 }
 
 public static class MapComparer
@@ -40,7 +44,7 @@ public static class MapComparer
     /// <summary>Compares note timing in seconds of the *original* audio. Generated maps are shifted by
     /// the analysis padding so both refer to the same audio time.</summary>
     public static Comparison Compare(DifficultyMap human, TempoMap humanBpm, DifficultyMap generated, TempoMap generatedBpm,
-        double generatedPadSec, double toleranceSec = 0.05)
+        double generatedPadSec, double toleranceSec = 0.05, Analysis.SongAnalysis? analysis = null)
     {
         var h = OnsetTimes(human, humanBpm, 0);
         var g = OnsetTimes(generated, generatedBpm, generatedPadSec);
@@ -65,6 +69,9 @@ public static class MapComparer
             GeneratedDoubles = DoubleShare(generated),
             HumanMovement = MovementAnalyzer.Analyze(human, humanBpm),
             GeneratedMovement = MovementAnalyzer.Analyze(generated, generatedBpm),
+            HumanRepetition = analysis is null ? null
+                : RepetitionAnalyzer.Analyze(human, analysis, b => analysis.SecondsToBeat(humanBpm.BeatToSeconds(b) + generatedPadSec)),
+            GeneratedRepetition = analysis is null ? null : RepetitionAnalyzer.Analyze(generated, analysis),
         };
     }
 

@@ -23,6 +23,16 @@ public static class PhraseTargets
         return new Vec2(x, y);
     }
 
+    /// <summary>One Saber: the target wanders over both halves of the grid.</summary>
+    public static Vec2 ForOneSaber(RhythmEvent e, int seed)
+    {
+        int step = (int)Math.Floor(((e.BeatInSection % PhraseBeats) + PhraseBeats) % PhraseBeats / StepBeats);
+        ulong h = Hash((ulong)seed, StableHash(e.Section), (ulong)step, 7);
+        var cells = (h >> 8) % 2 == 0 ? RightCells : LeftCells;
+        var (x, y) = cells[(int)(h % (ulong)cells.Length)];
+        return new Vec2(x, y);
+    }
+
     // string.GetHashCode is randomized per process; maps must be reproducible for a given seed
     static ulong StableHash(string s)
     {

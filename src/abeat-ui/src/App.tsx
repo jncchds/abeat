@@ -5,6 +5,7 @@ import { PlaylistsProvider, usePlaylists } from './hooks/usePlaylists'
 import { SongsProvider, useSongs } from './hooks/useSongs'
 import HomePage from './pages/HomePage'
 import PlaylistPage from './pages/PlaylistPage'
+import RuntimeBanner from './components/RuntimeBanner'
 import SongPage from './pages/SongPage'
 
 const STATUS_DOT: Record<string, string> = {
@@ -71,6 +72,7 @@ function Layout() {
         </div>
       </Sidebar>
       <main className="app-main">
+        <RuntimeBanner />
         <Outlet />
       </main>
     </div>

@@ -28,6 +28,22 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      envelope; pitched stems use mel spectral flux (`tonal_onsets`), because energy rises in them
      fire on consonants, breaths and vibrato at grid-random times. Bass/other flux peaks are moved
      to the attack peak in the preceding 70 ms; vocals stay unrefined (soft attacks)
+   - drum hits labelled (`drum_onsets`, onset field `k`): kick "k", snare "s", hat/cymbal "h" by the
+     log-frequency centroid of the power the hit adds (40 ms after vs before; < 400 Hz kick, > 3.6 kHz
+     hat), a second letter when >= 35 % of that power lies in another range (snares are often "sh").
+     Linear power, not dB rises: a hat lifts the snare band by as many dB as a snare. Synthetic kits
+     (tests/test_features.py): every detected kick, snare and hat labelled right. Used by `DrumWeights` in rhythm
+     selection (hats count less: humans map kick and snare), `RhythmEvent.Drum` and the lights. Hats at 0.6: Normal F1 0.62 -> 0.65, the rest unchanged (0.4 no better)
+   - other/bass onsets selectable (`--pitched flux|notes`, `pitched.py`): `notes` transcribes the stems
+     with basic-pitch (its bundled ONNX model on onnxruntime; TensorFlow is overridden away in
+     pyproject because it has no Python 3.12 build), one onset per group of notes starting within 40 ms,
+     refined to the attack, pitch of the top (other) / bottom (bass) note scaled to the stem's range as
+     brightness, note end as `e` (sustain for arcs). Bench (18 curated maps): timing F1 0.68 vs 0.69 with flux,
+     position distance 0.21 vs 0.22, so flux stays the default and notes are an option
+   - vocal stem separator (`--stems demucs|roformer`): `roformer` replaces the Demucs vocals with
+     BS-RoFormer (python-audio-separator, extra `roformer`, model cached in ~/.cache/abeat/separator,
+     temp files in the work dir); `work/stems/vocals.roformer` marks cached RoFormer vocals.
+     On a 4-core CPU it needed > 10 min for a 30 s clip (machine busy): practical only with a GPU.
    - vocal onsets selectable per song (`--vocals`, `AnalysisOptions.VocalOnsets`, `vocals.py`):
      `flux` (default); `notes`: flux onsets kept only where CREPE-tiny hears a pitched voice in the
      next 80 ms (drops breaths/consonants/bleed; Cake By The Ocean: 83 % on human notes vs 72 %),
@@ -40,7 +56,10 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      metadata, so re-analysis never calls yt-dlp again (older downloads are found by video id)
    - stems kept in `work/stems` are reused by a re-analysis of the same audio (length check), so
      switching vocal methods skips Demucs
-   - energy curve, novelty-based sections snapped to downbeats, clustered labels (A, B, ...)
+   - energy curve, novelty-based sections snapped to downbeats, clustered labels (A, B, ...); with
+     lyrics, sections sharing >= 60 % of their word bigrams (>= 6 words) get one label
+     (`merge_lyric_repeats`: a chorus that returns with a different arrangement still repeats its
+     words; links only merge labels, verses with the same music and new words stay merged)
    - cover: embedded art, thumbnail, or generated from the spectrum
 3. **Rhythm selection** (`RhythmSelector`): onsets snapped to a 1/12-beat grid (sixteenths, plus
    triplets only when the song has a triplet feel: `HasTripletFeel`, >= 12 % of the percussive layer's
@@ -61,6 +80,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - musical: row follows brightness, accents prefer vertical swings; dynamics (`FlowWeights.Dynamics`): swing size
      (distance from the grid centre + move from the hand's last cell) follows `Intensity`, zero-mean
      so the cell mix still matches the style prior
+   - pattern memory (`FlowWeights.Repetition`): when a section label repeats, the song is planned a second
+     time and every event pays -Repetition for the exact cut (hand, cell, direction) the same position of
+     the label's first occurrence got in the first plan (first occurrences are pulled to their own cuts,
+     so the copy source stays put). `RepetitionAnalyzer` measures it (share of note moments in repeats
+     that match the first occurrence; `abeat bench` "repeat g/h"): weight 0.5 makes 21 % of repeated moments exact copies (human maps 10 %, no repetition pass 5 %; 1.5 gave 50 %) at no cost in flow or timing
    - variety: stagnation, per-phrase target cells keyed by section label (`PhraseTargets`), so
      repeated sections reuse similar movement; seeded hash noise
    - style: distribution matching against `style-prior.json` (cut directions, cells per hand, learned
@@ -92,8 +116,42 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 6. **Bombs** (`BombGenerator`): reset bombs where the natural reversal would cut, accent bombs on
    strong single-hand hits (Hard+); checked against `SaberPath` so no bomb is in a swing path.
 7. **Lights** (`LightingGenerator`): section palettes (repeated labels share colours), downbeat
-   pulses, per-note laser flashes, ring spins/zooms, colour boost in the loudest sections.
-8. **Output**: Info.dat v2.1.0 + difficulty v3.3.0 (`bpmEvents` for tempo changes, notes with angle offsets, arcs as `sliders`, chains as `burstSliders`), `song.egg`, `cover.jpg`, zip.
+   pulses, per-note laser flashes, ring spins/zooms, colour boost in the loudest sections. With
+   labelled drum hits the drummer plays the lights instead of the downbeat pulses: kicks (s >= 0.3)
+   pulse the back lasers, snares flash the centre, hats flicker the rings in loud sections (each
+   light at most every quarter beat). `Environment = "Pyro"` (`GroupLightshow`) switches to
+   PyroEnvironment and adds a v3 group lightshow (14 groups in left/right pairs, as a curated Pyro map
+   uses them): 0/1 ambient section colour, 2/3 downbeat chases (wave over 1 beat, direction alternating),
+   4/5 note flashes per hand, 6/7 snares (white), 8/9 kicks, 10/11 melody notes (held for the note's
+   sustain), 12/13 hats (a quarter of the lights at a time); pairs 2/3, 8/9 and 10/11 rotate to a new
+   pose at each section (wider when louder). Schema checked against that map (rotation boxes keep their
+   events under `l`); not verified in game.
+8. **Modes** (`GeneratorSettings.Modes`, written next to Standard for the same difficulties):
+   `OneSaber` is planned anew with one (right) saber covering the whole grid (no doubles, rhythm gap =
+   same-hand gap, 80 % density, no crossover/hand-role costs, cell prior = mean of both hands, phrase
+   targets from both halves); `90Degree` / `360Degree` reuse the Standard objects plus v3
+   `rotationEvents` (`RotationGenerator`): early 15° turns (30° in loud sections) on a note after >= 0.5 s
+   of rest, every 2 bars (4 on Easy/Normal) and at section changes; 90° keeps the heading within ±45°,
+   360° keeps turning and may reverse at a section. The web app shows Standard only; the other modes are
+   in the zip / ArcViewer.
+9. **Output**: Info.dat v2.1.0 (one difficulty set per mode) + difficulty v3.3.0 (`bpmEvents` for tempo changes, `rotationEvents`, group lights, notes with angle offsets, arcs as `sliders`, chains as `burstSliders`), `song.egg`, `cover.jpg`, zip.
+
+## Container
+
+One slim image (`Dockerfile`: aspnet + app + UI + worker source + uv, ~420 MB) for every accelerator;
+nothing heavy is baked in. `docker/entrypoint.sh` (root only to chown the bind mounts to
+`ABEAT_UID:ABEAT_GID`, then `setpriv` to that user, keeping the GPU device groups) starts
+`docker/provision.py` in the background and the server in the foreground. provision.py detects the
+accelerator (`ABEAT_ACCEL=auto`: NVIDIA device -> `cuda`, /dev/kfd -> `rocm`, Intel render node ->
+`xpu`, else `cpu`; `cuda12` and `none` by hand), installs uv-managed Python and
+`uv sync --frozen --extra ml --extra <accel> [--extra lyrics|roformer]` into
+`/runtime/envs/<accel>-<hash of uv.lock+accel+extras>` (uv cache in /runtime, hardlinked), prefetches the
+beat_this/Demucs models into /models, fetches ArcViewer into /runtime/arcviewer, deletes older envs and
+writes `status.json`. The torch flavors are exclusive extras in analysis/pyproject.toml (`[tool.uv]
+conflicts`) with per-extra indexes: cpu, cu130, cu126, rocm7.2, xpu (+ their triton packages); the GPU
+wheels carry their own CUDA/ROCm/oneAPI libraries, so one image serves all, the host only provides the
+driver (compose override files per vendor). The worker picks its torch device in `accel.device()`
+(`ABEAT_DEVICE` overrides). deno for yt-dlp is a wheel in the env. Volumes: /data, /models, /runtime.
 
 ## Evaluation
 
@@ -128,7 +186,12 @@ move, `--write-prior` rewrites the prior.
   on, its `settings.json`, `map/` + `map.zip`). File based; survives restarts via the Docker volume.
   A pre-history `map/` folder is moved into `generations/` on first access.
 - `AnalysisQueue`: one analysis at a time, then generation with the song's saved settings, so every
-  upload ends with a downloadable map.
+  upload ends with a downloadable map. Every analysis writes `work.next/` (seeded with the cached
+  `stems/` and `download/`) and `SongStore.CommitNextWorkDir` swaps it in only on success, so the
+  current analysis and all versions stay usable during a re-analysis and after it fails or is cancelled
+  (`POST /songs/{id}/cancel` kills the worker). `SongMeta.HasAnalysis` = usable (the UI gates on it, not
+  on `Status`, which is the job state); `AnalysisRevision` tells clients to reload. Jobs wait for
+  `WorkerRuntime` (container: /runtime/status.json written by provision.py) and run its worker.
 - API: `/api/songs` (list, upload), `/api/songs/url`, `/api/songs/{id}` (+ `/analysis`, `/audio`,
   `/cover`, `/settings`, `/map.zip[?version=]` with CORS for ArcViewer (newest generation by default),
   `POST /generate[?draft=true]`, `POST /reanalyze`).

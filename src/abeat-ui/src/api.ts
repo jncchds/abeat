@@ -7,6 +7,12 @@ export interface AnalysisOptions {
   stems: boolean
   bpmOverride?: number | null
   vocalOnsets?: string
+  /** "auto" | "constant" | "variable" */
+  tempo?: string
+  /** Other/bass onsets: "flux" | "notes" (basic-pitch). */
+  pitched?: string
+  /** "demucs" | "roformer" (BS-RoFormer vocals). */
+  separator?: string
 }
 
 export interface SongMeta {
@@ -15,6 +21,10 @@ export interface SongMeta {
   sourceUrl?: string | null
   createdUtc: string
   status: SongStatus
+  /** An analysis is in place: the song stays usable while a re-analysis runs or after it failed. */
+  hasAnalysis?: boolean
+  /** Bumped by every successful analysis. */
+  analysisRevision?: number
   error?: string | null
   title: string
   artist: string
@@ -148,6 +158,10 @@ export interface GeneratorSettings {
   chains: boolean
   angleOffsets: boolean
   dropPause: boolean
+  /** Extra game modes: OneSaber, 90Degree, 360Degree. */
+  modes?: string[]
+  /** "Default" (classic lights) or "Pyro" (v3 group lightshow). */
+  environment?: string
   [key: string]: unknown
 }
 
@@ -155,7 +169,9 @@ export interface Defaults { settings: GeneratorSettings }
 
 const http = axios.create({ baseURL: '/api' })
 
-export const getConfig = () => http.get<{ httpsPort: number | null; arcViewer: boolean }>('/config')
+/** Analysis runtime installed by the container on first start ("ready" outside Docker). */
+export interface RuntimeState { status: 'installing' | 'ready' | 'failed'; accel?: string | null; extras?: string[] | null; message?: string | null }
+export const getConfig = () => http.get<{ httpsPort: number | null; arcViewer: boolean; runtime?: RuntimeState }>('/config')
 export const getDefaults = () => http.get<Defaults>('/defaults')
 export const getSongs = () => http.get<SongMeta[]>('/songs')
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[] }>(`/songs/${id}`)
@@ -176,6 +192,7 @@ export const stemUrl = (id: string, file: string) => `/api/songs/${id}/stems/${e
 export const getLyrics = (id: string) => http.get<{ text: string }>(`/songs/${id}/lyrics`)
 export const putLyrics = (id: string, text: string) => http.put(`/songs/${id}/lyrics`, { text })
 export const reanalyze = (id: string, o: AnalysisOptions) => http.post<SongMeta>(`/songs/${id}/reanalyze`, o)
+export const cancelJob = (id: string) => http.post<SongMeta>(`/songs/${id}/cancel`)
 
 export function uploadSong(file: File, beats: string, stems: boolean, vocals: string) {
   const fd = new FormData()

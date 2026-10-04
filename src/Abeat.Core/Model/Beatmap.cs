@@ -25,6 +25,20 @@ public sealed record LightEvent(double Beat, int Type, int Value, double Brightn
 
 public sealed record BoostEvent(double Beat, bool On);
 
+/// <summary>v3 group lighting (environments with light groups, e.g. Pyro). A box selects lights of the
+/// group (filter: division into <see cref="Sections"/> parts, part <see cref="Part"/>, or all with
+/// Sections = 1) and plays its events, spread over the lights by the beat distribution (a wave of
+/// <see cref="BeatSpread"/> beats) and the brightness distribution.</summary>
+public sealed record LightBox(int Sections, int Part, bool Reverse, double BeatSpread, double BrightnessSpread, IReadOnlyList<LightColorEvent> Events);
+
+/// <summary>Colour 0 red, 1 blue, 2 white; Transition 0 instant, 1 fade from the previous event.</summary>
+public sealed record LightColorEvent(double Beat, int Color, double Brightness, int Transition = 0, int Strobe = 0);
+
+public sealed record LightGroupEvent(double Beat, int Group, IReadOnlyList<LightBox> Boxes);
+
+/// <summary>Rotation of a light group's lights about an axis (0 x, 1 y), with a per-light spread.</summary>
+public sealed record LightRotation(double Beat, int Group, int Axis, double Degrees, double Spread, double Duration);
+
 public static class LightValue
 {
     public const int Off = 0;
@@ -38,9 +52,21 @@ public static class LightValue
 
 public enum DifficultyName { Easy, Normal, Hard, Expert, ExpertPlus }
 
+/// <summary>v3 lane rotation (90/360 degree modes): from this beat the track turns by <see cref="Degrees"/>
+/// (clockwise positive); early rotations already apply to objects on the same beat.</summary>
+public sealed record RotationEvent(double Beat, double Degrees, bool Early = true);
+
+public static class Characteristic
+{
+    public const string Standard = "Standard", OneSaber = "OneSaber", Degree90 = "90Degree", Degree360 = "360Degree";
+    public static readonly string[] Extra = [OneSaber, Degree90, Degree360];
+}
+
 public sealed class DifficultyMap
 {
     public DifficultyName Difficulty { get; init; }
+    /// <summary>Game mode the difficulty belongs to (<see cref="Model.Characteristic"/>).</summary>
+    public string Characteristic { get; init; } = Model.Characteristic.Standard;
     public double NoteJumpSpeed { get; set; }
     public double NoteJumpOffset { get; set; }
     public List<ColorNote> Notes { get; init; } = [];
@@ -50,6 +76,9 @@ public sealed class DifficultyMap
     public List<Obstacle> Obstacles { get; init; } = [];
     public List<LightEvent> Lights { get; init; } = [];
     public List<BoostEvent> Boosts { get; init; } = [];
+    public List<RotationEvent> Rotations { get; init; } = [];
+    public List<LightGroupEvent> GroupLights { get; init; } = [];
+    public List<LightRotation> GroupRotations { get; init; } = [];
     /// <summary>Tempo changes in the file.</summary>
     public int BpmChanges { get; set; }
     /// <summary>Tempo changes read from the file (v3 bpmEvents, v2 type-100 events), beat 0 first; null
@@ -65,7 +94,7 @@ public sealed class DifficultyMap
         _ => 9,
     };
 
-    public string FileName => $"{Difficulty}Standard.dat";
+    public string FileName => $"{Difficulty}{Characteristic}.dat";
 }
 
 public sealed class MapSet

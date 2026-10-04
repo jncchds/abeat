@@ -17,3 +17,5 @@ data/
 src/Abeat.Web/wwwroot/
 node_modules/
 src/Abeat.Web/arcviewer/
+
+docker-data/

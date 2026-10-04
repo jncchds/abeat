@@ -14,3 +14,5 @@ tests/
 src/Abeat.Web/wwwroot/
 src/Abeat.Web/arcviewer/
 src/Abeat.Web/data/
+docker-data/
+analysis/tests/

@@ -90,11 +90,18 @@ public sealed record FlowWeights
     public double Effort { get; init; } = 2.0;
     /// <summary>Moves more strenuous (turn + travel per second) than the difficulty's human ceiling.</summary>
     public double Strain { get; init; } = 3.0;
+    /// <summary>Pattern memory: repeated sections (same label) are planned a second time with this bonus for
+    /// playing a note exactly as at the same position of the section's first occurrence, so a returning
+    /// chorus brings back its patterns. 0 = off (single pass).</summary>
+    public double Repetition { get; init; } = 0.5;
 }
 
 public sealed record GeneratorSettings
 {
     public List<DifficultyName> Difficulties { get; init; } = [DifficultyName.Expert, DifficultyName.ExpertPlus];
+    /// <summary>Extra game modes written next to Standard, for the same difficulties: "OneSaber",
+    /// "90Degree", "360Degree" (rotations on the Standard notes).</summary>
+    public List<string> Modes { get; init; } = [];
     public Dictionary<DifficultyName, DifficultyProfile> ProfileOverrides { get; init; } = [];
     /// <summary>Global note density multiplier (1 = profile default).</summary>
     public double Density { get; init; } = 1.0;
@@ -111,10 +118,12 @@ public sealed record GeneratorSettings
     };
     /// <summary>Weight of drum-stem hits by kind (kick "k", snare "s", hat/cymbal "h") on top of the
     /// drums layer weight.</summary>
-    public Dictionary<string, double> DrumWeights { get; init; } = new() { ["k"] = 1.0, ["s"] = 1.0, ["h"] = 1.0 };
+    public Dictionary<string, double> DrumWeights { get; init; } = new() { ["k"] = 1.0, ["s"] = 1.0, ["h"] = 0.6 };
     /// <summary>Seconds of the song kept free of notes at the start.</summary>
     public double LeadInSec { get; init; } = 1.5;
     public bool Lights { get; init; } = true;
+    /// <summary>"Default" (classic lighting events) or "Pyro" (PyroEnvironment with a v3 group lightshow).</summary>
+    public string Environment { get; init; } = "Default";
     public bool Walls { get; init; } = true;
     /// <summary>Single-lane centre walls in note-free gaps (Normal and up).</summary>
     public bool DodgeWalls { get; init; } = true;

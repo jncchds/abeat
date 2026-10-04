@@ -35,12 +35,13 @@ public static class MapWriter
         ["_allDirectionsEnvironmentName"] = "GlassDesertEnvironment",
         ["_songTimeOffset"] = 0,
         ["_customData"] = new JsonObject { ["_generator"] = "ABeat by CHDS" },
-        ["_difficultyBeatmapSets"] = new JsonArray
-        {
-            new JsonObject
+        ["_difficultyBeatmapSets"] = new JsonArray(map.Difficulties
+            .GroupBy(d => d.Characteristic)
+            .OrderBy(g => Array.IndexOf(CharacteristicOrder, g.Key))
+            .Select(g => (JsonNode)new JsonObject
             {
-                ["_beatmapCharacteristicName"] = "Standard",
-                ["_difficultyBeatmaps"] = new JsonArray(map.Difficulties
+                ["_beatmapCharacteristicName"] = g.Key,
+                ["_difficultyBeatmaps"] = new JsonArray(g
                     .OrderBy(d => d.Difficulty)
                     .Select(d => (JsonNode)new JsonObject
                     {
@@ -50,9 +51,10 @@ public static class MapWriter
                         ["_noteJumpMovementSpeed"] = Math.Round(d.NoteJumpSpeed, 2),
                         ["_noteJumpStartBeatOffset"] = Math.Round(d.NoteJumpOffset, 3),
                     }).ToArray()),
-            },
-        },
+            }).ToArray()),
     };
+
+    static readonly string[] CharacteristicOrder = [Characteristic.Standard, .. Characteristic.Extra];
 
     static double B(double beat) => Math.Round(beat, 5);
 
@@ -64,7 +66,10 @@ public static class MapWriter
         {
             ["b"] = B(p.Beat), ["m"] = Math.Round(p.Bpm, 4),
         }).ToArray()),
-        ["rotationEvents"] = new JsonArray(),
+        ["rotationEvents"] = new JsonArray(d.Rotations.OrderBy(r => r.Beat).Select(r => (JsonNode)new JsonObject
+        {
+            ["b"] = B(r.Beat), ["e"] = r.Early ? 0 : 1, ["r"] = Math.Round(r.Degrees, 2),
+        }).ToArray()),
         ["colorNotes"] = new JsonArray(d.Notes.OrderBy(n => n.Beat).Select(n => (JsonNode)new JsonObject
         {
             ["b"] = B(n.Beat), ["x"] = n.X, ["y"] = n.Y, ["c"] = (int)n.Hand, ["d"] = (int)n.Direction, ["a"] = n.AngleOffset,
@@ -96,8 +101,33 @@ public static class MapWriter
         {
             ["b"] = B(e.Beat), ["o"] = e.On,
         }).ToArray()),
-        ["lightColorEventBoxGroups"] = new JsonArray(),
-        ["lightRotationEventBoxGroups"] = new JsonArray(),
+        ["lightColorEventBoxGroups"] = new JsonArray(d.GroupLights.OrderBy(g => g.Beat).ThenBy(g => g.Group).Select(g => (JsonNode)new JsonObject
+        {
+            ["b"] = B(g.Beat), ["g"] = g.Group,
+            ["e"] = new JsonArray(g.Boxes.Select(x => (JsonNode)new JsonObject
+            {
+                ["f"] = new JsonObject { ["f"] = 1, ["p"] = x.Sections, ["t"] = x.Part, ["r"] = x.Reverse ? 1 : 0 },
+                ["w"] = B(x.BeatSpread), ["d"] = 1, ["r"] = Math.Round(x.BrightnessSpread, 3), ["t"] = 1, ["b"] = 0,
+                ["e"] = new JsonArray(x.Events.Select(e => (JsonNode)new JsonObject
+                {
+                    ["b"] = B(e.Beat), ["i"] = e.Transition, ["c"] = e.Color, ["s"] = Math.Round(e.Brightness, 3), ["f"] = e.Strobe,
+                }).ToArray()),
+            }).ToArray()),
+        }).ToArray()),
+        ["lightRotationEventBoxGroups"] = new JsonArray(d.GroupRotations.OrderBy(g => g.Beat).ThenBy(g => g.Group).Select(r => (JsonNode)new JsonObject
+        {
+            ["b"] = B(r.Beat), ["g"] = r.Group,
+            ["e"] = new JsonArray(new JsonObject
+            {
+                ["f"] = new JsonObject { ["f"] = 1, ["p"] = 1, ["t"] = 0, ["r"] = 0 },
+                ["w"] = 0, ["d"] = 1, ["s"] = Math.Round(r.Spread, 2), ["t"] = 1, ["b"] = 0, ["a"] = r.Axis, ["r"] = 0,
+                // rotation boxes list their events under "l" (colour boxes use "e")
+                ["l"] = new JsonArray(new JsonObject
+                {
+                    ["b"] = B(r.Duration), ["p"] = 0, ["e"] = 3, ["l"] = 0, ["r"] = Math.Round(r.Degrees, 1), ["o"] = 0,
+                }),
+            }),
+        }).ToArray()),
         ["lightTranslationEventBoxGroups"] = new JsonArray(),
         ["basicEventTypesWithKeywords"] = new JsonObject { ["d"] = new JsonArray() },
         ["useNormalEventsAsCompatibleEvents"] = true,

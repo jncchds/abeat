@@ -9,7 +9,7 @@ Design details live in `AGENTS.md` (authoritative design doc); user-facing docs 
 
 ```bash
 dotnet build Abeat.sln                         # build all projects
-dotnet test tests/Abeat.Core.Tests             # unit tests
+dotnet test tests/Abeat.Core.Tests             # unit tests (one file per area)
 dotnet run --project src/Abeat.Web             # web server on http://localhost:5080 (serves wwwroot)
 dotnet run --project src/Abeat.Cli -- generate <audio|YouTube URL|analysis dir> -d all
 dotnet run --project src/Abeat.Cli -- check <map folder|zip>
@@ -18,13 +18,14 @@ dotnet run --project src/Abeat.Cli -- check <map folder|zip>
 ### Analysis worker (Python, `analysis/`)
 
 ```bash
-uv sync --extra ml          # torch CPU + beat_this + demucs + torchcrepe; drop --extra ml for librosa only
-uv sync --extra ml --extra lyrics   # + faster-whisper for --vocals lyrics without a lyrics file
+uv sync --extra ml --extra cpu --extra lyrics --extra roformer   # the full local env (torch CPU)
+# torch flavor extras are exclusive: cpu | cuda (CUDA 13) | cuda12 | rocm | xpu; drop ml + flavor for librosa only
+.venv/bin/python -m pytest -q tests   # worker tests
 .venv/bin/abeat-analyze analyze <audio|URL> -o <work dir> [--beats auto|librosa|beat_this] [--stems demucs] [--vocals flux|notes|lyrics] [--lyrics-file f]
 .venv/bin/abeat-analyze synth samples/synth128.wav    # deterministic test track with known BPM/offset
 ```
 
-`uv add` re-syncs without extras; run `uv sync --extra ml --extra lyrics` afterwards.
+`uv add` re-syncs without extras; run the full `uv sync` line above afterwards. Never put venvs or models in /tmp (small RAM tmpfs).
 
 ### Frontend (run from `src/abeat-ui/`)
 
@@ -39,8 +40,9 @@ npx tsc --noEmit -p tsconfig.app.json   # type-check only
 ### Docker
 
 ```bash
-docker compose up --build              # http://localhost:8080, data in the abeat-data volume
-docker build -t abeat --build-arg ML=0 .   # small image without torch
+docker build -t abeat .                 # slim image (~420 MB): app + worker source, no Python/models
+docker compose up -d                    # http://localhost:8080; ./docker-data/{data,models,runtime}
+docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d   # GPU (also .rocm.yml, .intel.yml)
 ```
 
 ## Architecture
@@ -78,5 +80,7 @@ Abeat.Core: RhythmSelector → FlowPlanner (beam search, SwingCostModel) → wal
 - All analysis times are seconds in the padded `song.egg`; grid beat 0 is t = 0, so `beat = t * bpm / 60`.
 - Spectral-flux onset envelopes lag ~50 ms; use `features.attack_envelope` for anything timing-critical.
 - `string.GetHashCode` is randomized per process in .NET; use the stable hashes in `PhraseTargets`/`FlowPlanner`.
-- yt-dlp needs a JS runtime for YouTube (deno in Docker, node/bun locally).
+- yt-dlp's JS runtime for YouTube is the `deno` wheel in the worker env (the runner puts the env's bin on PATH).
+- The container installs the worker env at start (`docker/provision.py` → /runtime/status.json); the server
+  holds analyses until it is ready (`WorkerRuntime`). Re-analysis writes `work.next/`, swapped in on success.
 - Web data defaults to `~/.local/share/abeat`; a relative `ABEAT_DATA` resolves against the project directory.

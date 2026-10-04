@@ -88,7 +88,7 @@ export default function HomePage() {
           <div className="song-list">
             {songs.map(s => (
               <button key={s.id} className="card song-row" onClick={() => navigate(`/songs/${s.id}`)}>
-                {s.status === 'Ready' ? <img src={`/api/songs/${s.id}/cover`} alt="" /> : <div className="cover-placeholder">🎵</div>}
+                {s.hasAnalysis || s.status === 'Ready' ? <img src={`/api/songs/${s.id}/cover?r=${s.analysisRevision ?? 0}`} alt="" /> : <div className="cover-placeholder">🎵</div>}
                 <span className="song-row-text">
                   <span className="song-row-title">{s.title || s.fileName || s.sourceUrl}</span>
                   <span className="muted">{[s.artist, s.bpm ? `${+s.bpm.toFixed(2)} BPM` : ''].filter(Boolean).join(' · ')}</span>

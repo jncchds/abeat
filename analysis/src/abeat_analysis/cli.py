@@ -49,6 +49,12 @@ def analyze(args: argparse.Namespace) -> int:
     raw = audio_mod.load_audio(src)
     mono = raw.mono
 
+    try:
+        from .accel import device
+
+        log(f"ML device: {device()}")
+    except ImportError:
+        pass
     log(f"tracking beats (backend={args.beats})")
     tr = tempo.track_beats(mono, raw.sr, args.beats)
     grid = tempo.fit_grid(tr.beats, args.bpm)
@@ -84,10 +90,16 @@ def analyze(args: argparse.Namespace) -> int:
     st = None
     lyrics = None
     vocal_source = None
-    if args.stems == "demucs":
+    pitched_source = None
+    roformer = False  # vocals from BS-RoFormer
+    if args.stems in ("demucs", "roformer"):
         st = _cached_stems(out / "stems", len(y), sr)
+        marker = out / "stems" / "vocals.roformer"  # the cached vocals.flac came from BS-RoFormer
+        if st is not None and args.stems == "demucs" and marker.exists():
+            st = None  # Demucs vocals wanted again: separate anew
         if st is not None:
             log("reusing separated stems from the work dir")
+            roformer = marker.exists()
         else:
             try:
                 from . import stems
@@ -96,6 +108,14 @@ def analyze(args: argparse.Namespace) -> int:
                 st = stems.separate(padded.stereo, sr)
             except ImportError:
                 log("demucs not installed (ML extra missing); falling back to frequency bands")
+        if st is not None and args.stems == "roformer" and not roformer:
+            try:
+                from . import stems
+
+                st["vocals"] = stems.roformer_vocals(padded.stereo, sr, out, log)
+                roformer = True
+            except ImportError as e:
+                log(f"--stems roformer needs the 'roformer' extra ({e.name} missing); keeping Demucs vocals")
     if st is not None:
         # "mix" (not "full") so stem analyses get their own, low, weight for the whole mix
         layers = {"mix": features.detect_onsets(y, sr, 30, 11000)}
@@ -104,8 +124,20 @@ def analyze(args: argparse.Namespace) -> int:
                 layers[name] = features.drum_onsets(sig, sr)
             else:
                 layers[name] = features.tonal_onsets(sig, sr, refine=name != "vocals")
-        layer_source = "demucs"
+        layer_source = "demucs+roformer" if roformer else "demucs"
         vocal_source = "flux"
+        pitched_source = "flux"
+        if args.pitched == "notes":
+            try:
+                from . import pitched
+
+                for name in ("other", "bass"):
+                    if name in st:
+                        log(f"transcribing {name} notes (basic-pitch)")
+                        layers[name] = pitched.note_onsets(st[name], sr, log, top=name == "other", workdir=out)
+                pitched_source = "notes"
+            except ImportError as e:
+                log(f"--pitched notes needs basic-pitch ({e.name} missing; extra 'ml'); keeping spectral-flux onsets")
         if "vocals" in st and args.vocals != "flux":
             try:
                 from . import vocals
@@ -124,7 +156,15 @@ def analyze(args: argparse.Namespace) -> int:
             (out / "stems").mkdir(exist_ok=True)
             for name, sig in st.items():
                 # FLAC, not Ogg: libsndfile's Vorbis encoder segfaults on long mono stems
-                sf.write(str(out / "stems" / f"{name}.flac"), sig, sr, format="FLAC", subtype="PCM_16")
+                # write then rename, so an interrupted run never leaves a truncated stem behind
+                tmp = out / "stems" / f"{name}.tmp.flac"
+                sf.write(str(tmp), sig, sr, format="FLAC", subtype="PCM_16")
+                tmp.replace(out / "stems" / f"{name}.flac")
+            marker = out / "stems" / "vocals.roformer"
+            if roformer:
+                marker.touch()
+            elif marker.exists():
+                marker.unlink()
     else:
         log("detecting onsets per frequency band")
         layers = features.band_onsets(y, sr)
@@ -132,6 +172,11 @@ def analyze(args: argparse.Namespace) -> int:
     log("energy + sections")
     energy = features.energy_curve(y, sr)
     secs = features.sections(y, sr, beats, downbeats, energy)
+    if lyrics and lyrics.get("words"):
+        merged = features.merge_lyric_repeats(secs, lyrics["words"])
+        if len({s["label"] for s in merged}) < len({s["label"] for s in secs}):
+            log(f"lyrics repeat: labels {''.join(s['label'] for s in secs)} -> {''.join(s['label'] for s in merged)}")
+        secs = merged
 
     log("writing song.egg + cover.jpg")
     audio_mod.write_egg(padded, out / "song.egg")
@@ -158,6 +203,7 @@ def analyze(args: argparse.Namespace) -> int:
         "sections": secs,
         "layerSource": layer_source,
         "vocalSource": vocal_source,
+        "pitchedSource": pitched_source if st is not None else None,
         "layers": layers,
         "lyrics": lyrics,
         "cover": "cover.jpg",
@@ -180,6 +226,15 @@ def _tempo_map(args: argparse.Namespace, beats: np.ndarray, grid: "tempo.Grid", 
         log(f"tempo drifts (p98 {grid.max_dev_ms:.0f} ms) but a tempo map fits no better (p98 {tm.max_dev_ms:.0f} ms); keeping one BPM")
         return None
     tm = tempo.refine_map_phase(y, sr, tm)
+    # the tracker can stray for whole stretches (off-beats in a hats-only intro), which a tempo map would
+    # follow: in auto mode the map must also sit clearly better on the audio's attacks than one BPM
+    duration = len(y) / sr
+    on_map = tempo.on_beat_energy(y, sr, tempo.map_beats(tm, duration))
+    on_grid = tempo.on_beat_energy(y, sr, tempo.grid_beats(grid, duration))
+    if args.tempo == "auto" and on_map < 1.1 * on_grid:
+        log(f"tracked beats drift (p98 {grid.max_dev_ms:.0f} ms) but one BPM sits as well on the audio "
+            f"({on_grid:.3f} vs {on_map:.3f}); keeping one BPM")
+        return None
     bpms = [b for _, b in tm.changes]
     log(f"variable tempo: {len(tm.changes)} segments, {min(bpms):.1f}-{max(bpms):.1f} BPM, "
         f"residual={tm.residual_ms:.1f}ms p98={tm.max_dev_ms:.0f}ms")
@@ -201,7 +256,10 @@ def _cached_stems(folder: Path, length: int, sr: int) -> dict[str, np.ndarray] |
 
     out = {}
     for n in names:
-        sig, file_sr = sf.read(str(folder / f"{n}.flac"), dtype="float32")
+        try:
+            sig, file_sr = sf.read(str(folder / f"{n}.flac"), dtype="float32")
+        except (RuntimeError, ValueError, OSError):  # truncated by an interrupted run: separate again
+            return None
         if file_sr != sr or abs(len(sig) - length) > sr // 100:
             return None
         out[n] = sig[:length] if len(sig) >= length else np.pad(sig, (0, length - len(sig)))
@@ -228,11 +286,14 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("-o", "--out", required=True, help="output work directory")
     a.add_argument("--beats", choices=["auto", "librosa", "beat_this"], default="auto",
                    help="beat tracker; auto = beat_this if installed, else librosa")
-    a.add_argument("--stems", choices=["none", "demucs"], default="none")
+    a.add_argument("--stems", choices=["none", "demucs", "roformer"], default="none",
+                   help="demucs = htdemucs stems; roformer = htdemucs plus BS-RoFormer vocals (extra 'roformer', slow on CPU)")
     a.add_argument("--keep-stems", action="store_true")
     a.add_argument("--vocals", choices=["flux", "notes", "lyrics"], default="flux",
                    help="vocal onsets (needs --stems): spectral flux, sung notes (CREPE pitch) or "
                         "lyrics syllables (Whisper + forced alignment, extra 'lyrics')")
+    a.add_argument("--pitched", choices=["flux", "notes"], default="flux",
+                   help="other/bass onsets (needs --stems): spectral flux, or notes transcribed by basic-pitch")
     a.add_argument("--whisper-model", default="small", help="faster-whisper model for --vocals lyrics")
     a.add_argument("--lyrics-file", help="lyrics text (repeats written out) for --vocals lyrics; skips transcription")
     a.add_argument("--bpm", type=float, default=None, help="override detected BPM (implies a constant tempo)")

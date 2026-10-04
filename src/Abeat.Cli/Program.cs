@@ -24,13 +24,18 @@ usage:
       --work <dir>             analysis work dir (default: ./work/<file name>)
       --beats auto|librosa|beat_this   beat tracker (default auto)
       --no-stems               skip Demucs stem separation (faster; vocals not isolated)
+      --roformer               vocals from BS-RoFormer (cleaner, slow on CPU; worker extra "roformer")
       --vocals flux|notes|lyrics   vocal onsets: spectral flux (default), sung notes (pitch), or
                                lyric syllables (Whisper + forced alignment, worker extra "lyrics")
+      --pitched flux|notes     other/bass onsets: spectral flux (default) or notes transcribed by
+                               basic-pitch (pitch drives rows, note lengths drive arcs)
       --lyrics <file.txt>      lyrics to align for --vocals lyrics (repeats written out); skips Whisper
       --bpm <x>                override detected BPM (constant tempo)
       --tempo auto|constant|variable   tempo changes for drifting (live) songs; auto = only when one
                                BPM can't follow the song
       --reanalyze              ignore cached analysis
+      --modes <l>              extra game modes: onesaber,90,360 (same difficulties as Standard)
+      --environment default|pyro   pyro = PyroEnvironment with a v3 group lightshow
       --no-lights, --no-walls, --no-zip
   abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--vocals ..] [--bpm x] [--tempo ..]
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
@@ -123,7 +128,9 @@ static AnalysisOptions AnalysisOpts(Options o) => new(
     !o.Has("no-stems"),
     o.Get("bpm") is { } b ? double.Parse(b, CultureInfo.InvariantCulture) : null,
     o.Get("vocals") ?? "flux",
-    o.Get("tempo") ?? "auto");
+    o.Get("tempo") ?? "auto",
+    o.Get("pitched") ?? "flux",
+    o.Has("roformer") ? "roformer" : "demucs");
 
 static async Task<int> Generate(Options o)
 {
@@ -135,6 +142,8 @@ static async Task<int> Generate(Options o)
     if (o.Get("beam") is { } beam) s = s with { BeamWidth = int.Parse(beam) };
     if (o.Has("no-lights")) s = s with { Lights = false };
     if (o.Has("no-walls")) s = s with { Walls = false };
+    if (o.Get("modes") is { } modes) s = s with { Modes = ParseModes(modes) };
+    if (o.Get("environment") is { } env) s = s with { Environment = env.Equals("pyro", StringComparison.OrdinalIgnoreCase) ? "Pyro" : "Default" };
 
     PrintAnalysisSummary(a);
     var sw = Stopwatch.StartNew();
@@ -147,6 +156,13 @@ static async Task<int> Generate(Options o)
         var layers = d.Events.GroupBy(e => e.Layer).OrderByDescending(g => g.Count())
             .Select(g => $"{g.Key} {100.0 * g.Count() / d.Events.Count:0}%");
         Console.WriteLine($"             notes led by: {string.Join(", ", layers)}  (hand roles kept {d.HandRoleShare:P0})");
+    }
+    foreach (var d in result.Extra)
+    {
+        string what = d.Map.Characteristic == Characteristic.OneSaber
+            ? $"notes {d.Map.Notes.Count,5}  flow {d.Report.FlowScore,5:0.0}  resets {d.Report.Resets}  strain {d.Report.Movement.StrainP90:0.0} (plays like {d.Report.Movement.MovementDifficulty})"
+            : $"rotations {d.Map.Rotations.Count,3} ({d.Map.Rotations.Sum(r => Math.Abs(r.Degrees)):0}° turned)";
+        Console.WriteLine($"  {d.Map.Characteristic,-9} {d.Map.Difficulty,-10} {what}");
     }
 
     string outDir = o.Get("out") ?? Path.Combine("out", MapPackager.FolderName(result.Map));
@@ -250,7 +266,7 @@ static async Task<(MapSet human, List<Comparison> results)?> Compare(string inpu
     }
     var gen = MapGenerator.Generate(a, s with { Difficulties = diffs.Select(d => d.Difficulty).ToList() });
     var results = diffs.Select(h => MapComparer.Compare(h, human.Tempo,
-        gen.Map.Difficulties.First(g => g.Difficulty == h.Difficulty), a.TempoMap, a.Audio.PadSec)).ToList();
+        gen.Map.Difficulties.First(g => g.Difficulty == h.Difficulty), a.TempoMap, a.Audio.PadSec, analysis: a)).ToList();
 
     double ratio = a.Tempo.Bpm / human.Bpm;
     string bpmNote = Math.Abs(ratio - 1) < 0.005 ? "match" : Math.Abs(ratio - 2) < 0.01 || Math.Abs(ratio - 0.5) < 0.005 ? "octave" : $"x{ratio:0.###}";
@@ -284,7 +300,7 @@ static async Task<int> Bench(Options o)
     if (rows.Count == 0) return 1;
 
     Console.WriteLine();
-    Console.WriteLine($"{"difficulty",-11} {"n",3} {"F1",5} {"P",5} {"R",5} {"offset",7} {"nps gen/hum",12} {"flow gen/hum",13} {"resets g/h",11} {"dirΔ",5} {"posΔ",5} {"strain g/h",11} {"travel g/h",11} {"angle g/h",10} {"sharp g/h",10} {"above g/h",10}");
+    Console.WriteLine($"{"difficulty",-11} {"n",3} {"F1",5} {"P",5} {"R",5} {"offset",7} {"nps gen/hum",12} {"flow gen/hum",13} {"resets g/h",11} {"dirΔ",5} {"posΔ",5} {"strain g/h",11} {"travel g/h",11} {"angle g/h",10} {"sharp g/h",10} {"above g/h",10} {"repeat g/h",10}");
     foreach (var g in rows.GroupBy(r => r.c.Difficulty).OrderBy(g => g.Key).Append(rows.GroupBy(_ => (DifficultyName)99).First()))
     {
         var c = g.Select(r => r.c).ToList();
@@ -297,7 +313,8 @@ static async Task<int> Bench(Options o)
             $"{c.Average(x => x.GeneratedMovement.TravelMean),5:0.00}/{c.Average(x => x.HumanMovement.TravelMean),-5:0.00} " +
             $"{c.Average(x => x.GeneratedMovement.AngleMean),4:0}/{c.Average(x => x.HumanMovement.AngleMean),-5:0} " +
             $"{c.Average(x => x.GeneratedMovement.SharpTurns),4:P0}/{c.Average(x => x.HumanMovement.SharpTurns),-5:P0} " +
-            $"{c.Average(x => x.GeneratedMovement.AboveLevel),4:P0}/{c.Average(x => x.HumanMovement.AboveLevel),-5:P0}");
+            $"{c.Average(x => x.GeneratedMovement.AboveLevel),4:P0}/{c.Average(x => x.HumanMovement.AboveLevel),-5:P0} " +
+            $"{c.Average(x => x.GeneratedRepetition?.Same ?? 0),4:P0}/{c.Average(x => x.HumanRepetition?.Same ?? 0),-5:P0}");
     }
     var csv = Path.Combine(dir, "bench.csv");
     File.WriteAllLines(csv, rows.Select(r => string.Join(',', r.map, r.c.Difficulty, r.humanBpm, r.c.F1.ToString("0.000"), r.c.Precision.ToString("0.000"),
@@ -389,6 +406,16 @@ static int Movement(Options o)
     return 0;
 }
 
+static List<string> ParseModes(string list) => [.. list.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+    .Select(m => m.ToLowerInvariant() switch
+    {
+        "onesaber" or "one" => Characteristic.OneSaber,
+        "90" or "90degree" => Characteristic.Degree90,
+        "360" or "360degree" => Characteristic.Degree360,
+        "all" => throw new ArgumentException("use --modes onesaber,90,360"),
+        _ => throw new ArgumentException($"unknown mode '{m}' (onesaber, 90, 360)"),
+    })];
+
 static List<DifficultyName> ParseDifficulties(string list)
 {
     if (list.Equals("all", StringComparison.OrdinalIgnoreCase)) return [.. Enum.GetValues<DifficultyName>()];
@@ -405,7 +432,7 @@ static List<DifficultyName> ParseDifficulties(string list)
 
 sealed class Options
 {
-    static readonly HashSet<string> Flags = ["no-stems", "reanalyze", "no-lights", "no-walls", "no-zip", "verbose", "v"];
+    static readonly HashSet<string> Flags = ["roformer", "no-stems", "reanalyze", "no-lights", "no-walls", "no-zip", "verbose", "v"];
     static readonly Dictionary<string, string> Short = new() { ["o"] = "out", ["d"] = "difficulties", ["v"] = "verbose" };
 
     public List<string> Positional { get; } = [];

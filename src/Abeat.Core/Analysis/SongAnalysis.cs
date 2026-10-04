@@ -19,6 +19,8 @@ public sealed class SongAnalysis
     public Dictionary<string, List<Onset>> Layers { get; set; } = [];
     /// <summary>How the vocals layer was detected ("flux", "notes", "lyrics"), null without stems.</summary>
     public string? VocalSource { get; set; }
+    /// <summary>How other/bass onsets were detected ("flux", "notes" = basic-pitch), null without stems.</summary>
+    public string? PitchedSource { get; set; }
     /// <summary>Transcribed lyrics with word times (vocal onsets from lyrics only).</summary>
     public LyricsInfo? Lyrics { get; set; }
     public string Cover { get; set; } = "cover.jpg";
@@ -129,6 +131,8 @@ public sealed class Onset
     public double Br { get; set; }
     /// <summary>Drum stem only: kick "k", snare "s" or hat/cymbal "h", strongest first ("ks" = both).</summary>
     public string? K { get; set; }
+    /// <summary>Transcribed notes only: when the note ends (seconds).</summary>
+    public double? E { get; set; }
 }
 
 public sealed class LyricsInfo

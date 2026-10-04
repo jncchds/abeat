@@ -12,21 +12,40 @@ dependencies = [
     "pillow>=10.0",
     "imageio-ffmpeg>=0.5",
     "yt-dlp[default]>=2026.8.19",
+    # JS runtime yt-dlp needs for YouTube (official binary wheel; on PATH of the worker)
+    "deno>=2.4",
 ]
 
 [project.optional-dependencies]
-# Heavier ML models (CPU works, GPU is faster). Install with: uv sync --extra ml
+# Heavier ML models. Needs exactly one torch flavor next to it (CPU works, a GPU is faster):
+#   uv sync --extra ml --extra cpu        (or cuda, cuda12, rocm, xpu)
 ml = [
-    "torch>=2.3",
-    "torchaudio>=2.3",
     "beat-this",
     "demucs>=4.0.1",
     "torchcrepe>=0.0.24",
+    # note transcription for --pitched notes; runs its ONNX model on onnxruntime (TensorFlow overridden away)
+    "basic-pitch>=0.4",
+    "onnxruntime>=1.17",
+    # resampy (basic-pitch) still imports pkg_resources, removed in setuptools 81
+    "setuptools<81",
 ]
+# torch builds per accelerator (mutually exclusive, see [tool.uv] conflicts). Each wheel brings its own
+# GPU runtime libraries; the host only needs the driver.
+cpu = ["torch>=2.3", "torchaudio>=2.3", "torchvision>=0.18"]
+cuda = ["torch>=2.3", "torchaudio>=2.3", "torchvision>=0.18"]    # CUDA 13: Turing (RTX 20) and newer, driver >= 580
+cuda12 = ["torch>=2.3", "torchaudio>=2.3", "torchvision>=0.18"]  # CUDA 12.6: older GPUs (Pascal/Volta) and drivers >= 560
+rocm = ["torch>=2.3", "torchaudio>=2.3", "torchvision>=0.18", "triton-rocm; sys_platform == 'linux'"]  # AMD ROCm 7.2
+xpu = ["torch>=2.3", "torchaudio>=2.3", "torchvision>=0.18", "triton-xpu; sys_platform == 'linux'"]  # Intel Arc / Data Center GPUs
 # Whisper transcription for "lyric syllables" vocal onsets (--vocals lyrics without --lyrics-file).
 # Install with: uv sync --extra ml --extra lyrics
 lyrics = [
     "faster-whisper>=1.2.1",
+]
+# BS-RoFormer vocals for --stems roformer (python-audio-separator; model ~600 MB on first use).
+# Install with: uv sync --extra ml --extra roformer
+roformer = [
+    "audio-separator[cpu]>=0.47",
+    "audioread>=3.0",  # imported by audio-separator but not declared
 ]
 
 [project.scripts]
@@ -39,11 +58,64 @@ build-backend = "hatchling.build"
 [tool.hatch.build.targets.wheel]
 packages = ["src/abeat_analysis"]
 
+[tool.uv]
+# basic-pitch pins TensorFlow < 2.15.1, which has no Python 3.12 build; it falls back to its bundled
+# ONNX model, so TensorFlow is never installed
+override-dependencies = ["tensorflow; sys_platform == 'never'", "tensorflow-macos; sys_platform == 'never'"]
+conflicts = [[{ extra = "cpu" }, { extra = "cuda" }, { extra = "cuda12" }, { extra = "rocm" }, { extra = "xpu" }]]
+
 [tool.uv.sources]
-torch = { index = "pytorch-cpu" }
-torchaudio = { index = "pytorch-cpu" }
+torch = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu130", extra = "cuda" },
+    { index = "pytorch-cu126", extra = "cuda12" },
+    { index = "pytorch-rocm", extra = "rocm" },
+    { index = "pytorch-xpu", extra = "xpu" },
+]
+torchaudio = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu130", extra = "cuda" },
+    { index = "pytorch-cu126", extra = "cuda12" },
+    { index = "pytorch-rocm", extra = "rocm" },
+    { index = "pytorch-xpu", extra = "xpu" },
+]
+torchvision = [
+    { index = "pytorch-cpu", extra = "cpu" },
+    { index = "pytorch-cu130", extra = "cuda" },
+    { index = "pytorch-cu126", extra = "cuda12" },
+    { index = "pytorch-rocm", extra = "rocm" },
+    { index = "pytorch-xpu", extra = "xpu" },
+]
+# the GPU builds' own triton packages live on the same indexes
+triton-rocm = { index = "pytorch-rocm", extra = "rocm" }
+triton-xpu = { index = "pytorch-xpu", extra = "xpu" }
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
 explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu130"
+url = "https://download.pytorch.org/whl/cu130"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-rocm"
+url = "https://download.pytorch.org/whl/rocm7.2"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-xpu"
+url = "https://download.pytorch.org/whl/xpu"
+explicit = true
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]

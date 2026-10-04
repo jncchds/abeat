@@ -7,15 +7,21 @@ namespace Abeat.Core.Analysis;
 /// <param name="VocalOnsets">How vocal-stem onsets are found: "flux" (spectral flux), "notes" (sung notes from
 /// CREPE pitch) or "lyrics" (syllables from Whisper + forced alignment; needs the worker's "lyrics" extra).</param>
 /// <param name="Tempo">"auto" (tempo changes only for drifting songs), "constant" or "variable".</param>
-public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null, string VocalOnsets = "flux", string Tempo = "auto");
+/// <param name="Pitched">Other/bass onsets: "flux" or "notes" (basic-pitch transcription).</param>
+/// <param name="Separator">"demucs", or "roformer" (BS-RoFormer vocals on top of Demucs; worker extra "roformer").</param>
+public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null, string VocalOnsets = "flux", string Tempo = "auto", string Pitched = "flux", string Separator = "demucs");
 
 /// <summary>Runs the Python analysis worker (analysis/ uv project) as a subprocess.</summary>
 public sealed class AnalysisRunner
 {
     public string AnalysisProjectDir { get; }
+    /// <summary>abeat-analyze executable of an environment outside the project (the container's /runtime).</summary>
+    readonly string? workerExe;
 
-    public AnalysisRunner(string? analysisProjectDir = null)
+    /// <param name="workerExe">Explicit worker executable; default ABEAT_WORKER, then analysis/.venv, then `uv run`.</param>
+    public AnalysisRunner(string? analysisProjectDir = null, string? workerExe = null)
     {
+        this.workerExe = workerExe ?? Environment.GetEnvironmentVariable("ABEAT_WORKER");
         AnalysisProjectDir = analysisProjectDir ?? FindAnalysisProject()
             ?? throw new DirectoryNotFoundException(
                 "Cannot find the analysis worker (analysis/pyproject.toml). Set ABEAT_ANALYSIS_DIR.");
@@ -43,7 +49,7 @@ public sealed class AnalysisRunner
         string input = IsUrl(audioPath) ? audioPath : Path.GetFullPath(audioPath);
         var args = new List<string> { "analyze", input, "-o", Path.GetFullPath(workDir), "--beats", options.BeatBackend };
         // keep the separated stems (FLAC in work/stems) for debugging and listening
-        if (options.Stems) args.AddRange(["--stems", "demucs", "--keep-stems", "--vocals", options.VocalOnsets ?? "flux"]);
+        if (options.Stems) args.AddRange(["--stems", options.Separator is "roformer" ? "roformer" : "demucs", "--keep-stems", "--vocals", options.VocalOnsets ?? "flux", "--pitched", options.Pitched is "notes" ? "notes" : "flux"]);
         if (lyricsFile != null && File.Exists(lyricsFile)) args.AddRange(["--lyrics-file", Path.GetFullPath(lyricsFile)]);
         if (options.BpmOverride is { } bpm) args.AddRange(["--bpm", bpm.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
         if (options.Tempo is "constant" or "variable") args.AddRange(["--tempo", options.Tempo]);
@@ -97,9 +103,12 @@ public sealed class AnalysisRunner
         bool windows = OperatingSystem.IsWindows();
         var venvExe = Path.Combine(AnalysisProjectDir, ".venv", windows ? "Scripts" : "bin", windows ? "abeat-analyze.exe" : "abeat-analyze");
         ProcessStartInfo psi;
-        if (File.Exists(venvExe))
+        string? exe = workerExe is { Length: > 0 } && File.Exists(workerExe) ? workerExe : File.Exists(venvExe) ? venvExe : null;
+        if (exe != null)
         {
-            psi = new ProcessStartInfo(venvExe);
+            psi = new ProcessStartInfo(exe);
+            // the environment's own tools (deno for yt-dlp) come first on PATH
+            psi.Environment["PATH"] = Path.GetDirectoryName(exe) + Path.PathSeparator + Environment.GetEnvironmentVariable("PATH");
         }
         else
         {

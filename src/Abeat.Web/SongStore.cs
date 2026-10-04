@@ -5,6 +5,8 @@ using Abeat.Core.Generation;
 
 namespace Abeat.Web;
 
+/// <summary>State of the song's current or last job. A song with <see cref="SongMeta.HasAnalysis"/> stays
+/// usable (analysis, versions, generating) whatever its job is doing.</summary>
 public enum SongStatus { Queued, Analyzing, Generating, Ready, Failed }
 
 public sealed record SongMeta
@@ -16,6 +18,10 @@ public sealed record SongMeta
     public DateTime CreatedUtc { get; init; } = DateTime.UtcNow;
     public SongStatus Status { get; set; } = SongStatus.Queued;
     public string? Error { get; set; }
+    /// <summary>An analysis is in place (the last re-analysis may still be running or have failed).</summary>
+    public bool HasAnalysis { get; set; }
+    /// <summary>Bumped by every successful analysis, so clients know to reload it.</summary>
+    public int AnalysisRevision { get; set; }
     public string Title { get; set; } = "";
     public string Artist { get; set; } = "";
     public double? Bpm { get; set; }
@@ -49,6 +55,7 @@ public sealed class SongStore
             {
                 var m = JsonSerializer.Deserialize<SongMeta>(File.ReadAllText(f), Json)!;
                 // jobs interrupted by a restart are re-queued by the queue service
+                m.HasAnalysis = File.Exists(Path.Combine(dir, "work", "analysis.json"));
                 metas[m.Id] = m;
             }
             catch { /* skip broken entries */ }
@@ -59,6 +66,38 @@ public sealed class SongStore
     public SongMeta? Get(string id) => metas.GetValueOrDefault(id);
     public string Dir(string id) => Path.Combine(Root, "songs", id);
     public string WorkDir(string id) => Path.Combine(Dir(id), "work");
+    /// <summary>Where a re-analysis writes; swapped in for <see cref="WorkDir"/> only when it succeeds.</summary>
+    public string NextWorkDir(string id) => Path.Combine(Dir(id), "work.next");
+
+    /// <summary>Fresh <see cref="NextWorkDir"/> seeded with what the worker reuses (separated stems,
+    /// downloaded audio and cover), so a re-analysis neither separates nor downloads again.</summary>
+    public string PrepareNextWorkDir(string id)
+    {
+        var next = NextWorkDir(id);
+        if (Directory.Exists(next)) Directory.Delete(next, recursive: true);
+        Directory.CreateDirectory(next);
+        foreach (var sub in new[] { "stems", "download" })
+            if (Directory.Exists(Path.Combine(WorkDir(id), sub))) CopyDir(Path.Combine(WorkDir(id), sub), Path.Combine(next, sub), _ => true);
+        return next;
+    }
+
+    /// <summary>Makes a finished re-analysis the song's analysis.</summary>
+    public void CommitNextWorkDir(string id)
+    {
+        var work = WorkDir(id);
+        var old = Path.Combine(Dir(id), "work.old");
+        if (Directory.Exists(old)) Directory.Delete(old, recursive: true);
+        if (Directory.Exists(work)) Directory.Move(work, old);
+        Directory.Move(NextWorkDir(id), work);
+        if (Directory.Exists(old)) Directory.Delete(old, recursive: true);
+        InvalidateAnalysis(id);
+    }
+
+    public void DiscardNextWorkDir(string id)
+    {
+        try { if (Directory.Exists(NextWorkDir(id))) Directory.Delete(NextWorkDir(id), recursive: true); }
+        catch (IOException) { /* a worker may still hold a file; the next run clears it */ }
+    }
     public string ReferenceDir(string id) => Path.Combine(Dir(id), "reference");
     /// <summary>Lyrics pasted by the user, aligned instead of a transcription when vocal onsets come from lyrics.</summary>
     public string LyricsPath(string id) => Path.Combine(Dir(id), "lyrics.txt");
@@ -129,6 +168,7 @@ public sealed class SongStore
             meta.Bpm = a.Tempo.Bpm;
             meta.DurationSec = a.Audio.DurationSec;
             meta.Status = SongStatus.Ready;
+            meta.HasAnalysis = true;
         }
         else
         {

@@ -32,6 +32,8 @@ public sealed record RhythmEvent
     public double BurstSec { get; init; }
     /// <summary>Kind of the strongest drum hit on this slot (kick 'k', snare 's', hat 'h'), or '\0'.</summary>
     public char Drum { get; init; }
+    /// <summary>End (seconds) of the transcribed note of the leading layer, 0 when not transcribed.</summary>
+    public double NoteEnd { get; init; }
 }
 
 /// <summary>Chooses which onsets become notes: snap onsets to the beat grid, score grid slots by layer
@@ -49,6 +51,8 @@ public static class RhythmSelector
         public readonly Dictionary<string, double> ByLayer = [];
         public char Drum;
         public double DrumScore;
+        /// <summary>Latest end of a transcribed note contributing per layer (seconds).</summary>
+        public readonly Dictionary<string, double> EndByLayer = [];
     }
 
     public static List<RhythmEvent> Select(SongAnalysis a, DifficultyProfile p, GeneratorSettings s)
@@ -117,6 +121,7 @@ public static class RhythmSelector
                 Energy = a.EnergyAt(t),
                 Layer = sl.ByLayer.MaxBy(kv => kv.Value).Key,
                 Drum = sl.Drum,
+                NoteEnd = sl.EndByLayer.GetValueOrDefault(sl.ByLayer.MaxBy(kv => kv.Value).Key),
             };
         }).ToList();
 
@@ -145,7 +150,8 @@ public static class RhythmSelector
             double sustain = 0, slope = 0;
             if (MelodyLayers.Contains(e.Layer) && onsetTimes.TryGetValue(e.Layer, out var times))
             {
-                sustain = Sustain(a, e.Time, times, words);
+                // a transcribed note knows how long it is held; flux onsets only know the next onset
+                sustain = e.NoteEnd > e.Time ? Math.Min(e.NoteEnd - e.Time, 4) : Sustain(a, e.Time, times, words);
                 if (lastByLayer.TryGetValue(e.Layer, out var prev) && e.Time - prev.Time < 1.5)
                     slope = Math.Clamp(e.Brightness - prev.Brightness, -1, 1);
                 lastByLayer[e.Layer] = e;
@@ -280,6 +286,7 @@ public static class RhythmSelector
                 slot.BrightnessWeight += contribution;
                 slot.ByLayer[layer] = slot.ByLayer.GetValueOrDefault(layer) + contribution;
                 if (o.K is { Length: > 0 } kind && contribution > slot.DrumScore) { slot.Drum = kind[0]; slot.DrumScore = contribution; }
+                if (o.E is { } end) slot.EndByLayer[layer] = Math.Max(end, slot.EndByLayer.GetValueOrDefault(layer));
             }
         }
 

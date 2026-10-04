@@ -87,29 +87,40 @@ def detect_onsets(y: np.ndarray, sr: int, fmin: float | None = None, fmax: float
     ]
 
 
-# Drum-stem bands: kick body, snare body + crack, hats/cymbals.
-DRUM_BANDS = {"k": (30, 150, 1024), "s": (180, 4000, 512), "h": (7000, None, 128)}
+# Transient centroid limits (Hz) between kick, snare and hat/cymbal.
+KICK_MAX_HZ, HAT_MIN_HZ = 250.0, 4500.0
 
 
 def drum_onsets(y: np.ndarray, sr: int) -> list[dict]:
-    """Onsets of the drum stem, labelled kick ("k"), snare ("s") or hat/cymbal ("h") by which band's
-    attack is strongest at it, relative to that band's typical hit, strongest first; a band that rises
-    nearly as much is added ("ks" = kick and snare together). Bands of a separated drum stem are clean
-    enough for this: no bass in the kick band, no vocals in the snare band."""
+    """Onsets of the drum stem, labelled kick ("k"), snare ("s") or hat/cymbal ("h") by where the new
+    energy of the hit lies: the log-frequency centroid of the power spectrum's increase over the 40 ms
+    after the onset against the 40 ms before. Linear power, not dB rises: a quiet hat lifts the snare
+    band by as many dB as a snare does, but adds far less power there. A second letter marks a hit
+    with a strong share of energy in another range too (kick and snare together: "ks")."""
     onsets = detect_onsets(y, sr, 30, 11000, 512)
     if not onsets:
         return onsets
-    rises = {}
-    for k, (lo, hi, win) in DRUM_BANDS.items():
-        d, t = attack_envelope(y, sr, lo, hi if hi and hi < sr / 2 else None, win)
-        at = np.array([d[(t >= o["t"] - 0.015) & (t <= o["t"] + 0.025)].max(initial=0) for o in onsets])
-        rises[k] = at / (np.percentile(at[at > 0], 90) + 1e-9) if np.any(at > 0) else at
-    # a kick also rises in the snare band and a snare a little in the hat band; weigh the lower bands up
-    score = np.vstack([rises["k"] * 1.2, rises["s"] * 1.0, rises["h"] * 0.8])
-    for i, o in enumerate(onsets):
-        col = score[:, i]
-        order = np.argsort(-col)
-        o["k"] = "".join("ksh"[j] for j in order if j == order[0] or (col[j] >= 0.9 * col[order[0]] and col[j] >= 0.8))
+    n_fft = 2048
+    win = np.hanning(n_fft)
+    freqs = np.fft.rfftfreq(n_fft, 1 / sr)
+    band = np.where(freqs < KICK_MAX_HZ, 0, np.where(freqs < HAT_MIN_HZ, 1, 2))
+    logf = np.log2(np.maximum(freqs, 20))
+    lo_cut = freqs >= 25
+    pad = np.pad(y.astype(np.float64), (n_fft, n_fft))
+    for o in onsets:
+        i = int(o["t"] * sr) + n_fft
+        after = np.abs(np.fft.rfft(pad[i:i + n_fft] * win)) ** 2
+        before = np.abs(np.fft.rfft(pad[i - n_fft:i] * win)) ** 2
+        rise = np.maximum(after - before, 0) * lo_cut
+        total = rise.sum()
+        if total <= 0:
+            o["k"] = "s"
+            continue
+        centroid = 2 ** ((rise * logf).sum() / total)
+        main = 0 if centroid < KICK_MAX_HZ * 1.6 else 2 if centroid > HAT_MIN_HZ * 0.8 else 1
+        share = np.array([rise[band == b].sum() for b in range(3)]) / total
+        label = "ksh"[main] + "".join("ksh"[b] for b in np.argsort(-share) if b != main and share[b] >= 0.35)
+        o["k"] = label
     return onsets
 
 
@@ -221,6 +232,46 @@ def sections(y: np.ndarray, sr: int, beats: np.ndarray, downbeats: np.ndarray, e
         {"start": round(a, 3), "end": round(b, 3), "label": lab, "energy": round(e, 3)}
         for a, b, lab, e in zip(bounds[:-1], bounds[1:], labels, seg_energy)
     ]
+
+
+def merge_lyric_repeats(secs: list[dict], words: list[dict], threshold: float = 0.6) -> list[dict]:
+    """Give sections whose sung words repeat (a chorus coming back) the same label.
+
+    Timbre/harmony clustering misses a chorus that returns with a different arrangement (stripped down,
+    key change, extra layers); the lyrics don't change. Two sections are linked when at least
+    `threshold` of the shorter one's word bigrams occur in the other (and both have >= 6 words). Links
+    only merge labels, never split them: verses share music but not words, and stay merged."""
+    import re
+
+    def bigrams(sec: dict) -> set[tuple[str, str]]:
+        ws = [re.sub(r"[^\w']", "", w["w"].lower()) for w in words if sec["start"] <= w["t"] < sec["end"]]
+        ws = [w for w in ws if w]
+        return set(zip(ws, ws[1:])) if len(ws) >= 6 else set()
+
+    grams = [bigrams(sec) for sec in secs]
+    parent = {sec["label"]: sec["label"] for sec in secs}
+
+    def root(x: str) -> str:
+        while parent[x] != x:
+            x = parent[x]
+        return x
+
+    for i in range(len(secs)):
+        for j in range(i + 1, len(secs)):
+            a, b = grams[i], grams[j]
+            if a and b and len(a & b) >= threshold * min(len(a), len(b)):
+                ra, rb = root(secs[i]["label"]), root(secs[j]["label"])
+                if ra != rb:
+                    parent[max(ra, rb)] = min(ra, rb)
+    # relabel in order of first appearance again
+    names: dict[str, str] = {}
+    out = []
+    for sec in secs:
+        r = root(sec["label"])
+        if r not in names:
+            names[r] = chr(ord("A") + len(names))
+        out.append({**sec, "label": names[r]})
+    return out
 
 
 def _bpm(beats: np.ndarray) -> float:

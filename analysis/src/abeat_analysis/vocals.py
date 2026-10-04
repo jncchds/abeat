@@ -38,14 +38,16 @@ def _pitch(y16: np.ndarray, log: Log) -> tuple[np.ndarray, np.ndarray, np.ndarra
     import torch
     import torchcrepe
 
+    from .accel import device
+
     audio = torch.from_numpy(np.ascontiguousarray(y16)).float()[None]
     log("vocal pitch (CREPE tiny)")  # "full" is ~25x slower on CPU for little gain in onset timing
     with torch.no_grad():
         f0, per = torchcrepe.predict(audio, SR16, HOP, 50.0, 1100.0, model="tiny", decoder=torchcrepe.decode.viterbi,
-                                     return_periodicity=True, batch_size=1024, device="cpu")
+                                     return_periodicity=True, batch_size=1024, device=device())
         per = torchcrepe.filter.median(per, 3)
         loud = torchcrepe.loudness.a_weighted(audio, SR16, HOP)
-    f0, per, loud = f0[0].numpy(), per[0].numpy(), loud[0].numpy()
+    f0, per, loud = f0[0].cpu().numpy(), per[0].cpu().numpy(), loud[0].cpu().numpy()
     n = min(len(f0), len(per), len(loud))
     midi = 69 + 12 * np.log2(np.maximum(f0[:n], 1e-3) / 440.0)
     return midi, per[:n], loud[:n]

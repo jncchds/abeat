@@ -1,0 +1,7 @@
+# Intel Arc / Data Center GPU (PyTorch XPU): needs the Intel GPU driver on the host.
+services:
+  abeat:
+    environment:
+      ABEAT_ACCEL: ${ABEAT_ACCEL:-xpu}
+    devices:
+      - /dev/dri

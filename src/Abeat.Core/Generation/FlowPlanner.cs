@@ -6,7 +6,8 @@ namespace Abeat.Core.Generation;
 /// both sabers' states, minimizing <see cref="SwingCostModel"/> over the whole song. Because every
 /// candidate is scored against where each saber actually is, parity and flow are built in rather
 /// than repaired afterwards.</summary>
-public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile, int beamWidth, int seed)
+/// <param name="oneSaber">One Saber mode: every note goes to the right saber, which covers the whole grid.</param>
+public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile, int beamWidth, int seed, bool oneSaber = false)
 {
     readonly StylePrior? style = StylePrior.For(profile.Name);
     readonly MovementPrior? movement = MovementPrior.For(profile.Name);
@@ -39,10 +40,16 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     /// that belong to neither role.</summary>
     Hand?[] roles = [];
 
-    public List<ColorNote> Plan(IReadOnlyList<RhythmEvent> events)
+    /// <summary>Cuts each event should copy (pattern memory), from <see cref="RepeatReference"/>.</summary>
+    Dictionary<int, List<Cut>> reference = [];
+
+    /// <param name="previous">An earlier plan of the same events: repeated sections are pulled towards the
+    /// cuts their first occurrence got there (see <see cref="FlowWeights.Repetition"/>).</param>
+    public List<ColorNote> Plan(IReadOnlyList<RhythmEvent> events, IReadOnlyList<ColorNote>? previous = null)
     {
         var w = model.Weights;
         roles = HandRoles(events, seed);
+        reference = previous is null ? [] : RepeatReference(events, previous);
         var beam = new List<Node> { new() { Left = HandState.Initial(Hand.Left), Right = HandState.Initial(Hand.Right), LastHand = Hand.Left } };
 
         for (int i = 0; i < events.Count; i++)
@@ -76,7 +83,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         var other = node.State(hand == Hand.Left ? Hand.Right : Hand.Left);
         bool mustFlip = s.Active && e.Time - s.Time < SwingCostModel.ResetGapSec;
         var lastDir = hand == Hand.Left ? node.LastDirL : node.LastDirR;
-        var target = PhraseTargets.For(hand, e, seed);
+        var target = oneSaber ? PhraseTargets.ForOneSaber(e, seed) : PhraseTargets.For(hand, e, seed);
 
         foreach (var d in Swing.Directional.Append(CutDirection.Any))
         {
@@ -85,7 +92,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
             if (mustFlip && SwingCostModel.IsReset(hand, s, v)) continue;
             for (int x = 0; x < 4; x++)
             {
-                if (hand == Hand.Right ? x == 0 : x == 3) continue; // far-side crossovers are never worth it
+                if (!oneSaber && (hand == Hand.Right ? x == 0 : x == 3)) continue; // far-side crossovers are never worth it
                 for (int y = 0; y < 3; y++)
                 {
                     var phys = model.Physical(hand, s, other, e.Time, x, y, d, profile.MinSameHandGapSec);
@@ -97,7 +104,9 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                     {
                         int handNotes = hand == Hand.Left ? node.NotesL : node.NotesR;
                         int cellBase = hand == Hand.Left ? 9 : 21;
-                        c += model.Weights.StyleCell * StylePrior.MatchCost(node.Counts[cellBase + y * 4 + x], handNotes, style.Cells[(int)hand][y * 4 + x]);
+                        // one saber plays both sides of the grid: the two hands' cell shares, averaged
+                        double cellShare = oneSaber ? (style.Cells[0][y * 4 + x] + style.Cells[1][y * 4 + x]) / 2 : style.Cells[(int)hand][y * 4 + x];
+                        c += model.Weights.StyleCell * StylePrior.MatchCost(node.Counts[cellBase + y * 4 + x], handNotes, cellShare);
                         c += model.Weights.StyleDirection * StylePrior.MatchCost(node.Counts[(int)d], node.NotesL + node.NotesR, style.Directions[(int)d]);
                     }
                     if (movement != null && Move(s, e.Time, x, y, v) is var (bucket, strain))
@@ -108,6 +117,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                         if (strain > movement.StrainP98) c += model.Weights.Strain * 4 * (strain / movement.StrainP98 - 1);
                     }
                     c += model.Weights.Noise * Noise(eventIndex, hand, x, y, d);
+                    if (reference.TryGetValue(eventIndex, out var refCuts) && refCuts.Contains(new Cut(hand, x, y, d))) c -= model.Weights.Repetition;
                     yield return (new Cut(hand, x, y, d), c, v);
                 }
             }
@@ -123,6 +133,25 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         double angle = v.AngleTo(-s.Swing);
         double travel = (new Vec2(x, y) - v * SwingCostModel.HalfSwing - s.Exit).Length;
         return (MovementPrior.Bucket(angle, travel), Evaluation.MovementAnalyzer.Strain(angle, travel, gap));
+    }
+
+    /// <summary>For every event in a section whose label came before, the cuts at the same beat of the
+    /// label's first occurrence in <paramref name="previous"/>; events of first occurrences keep their own
+    /// cuts, so the second pass doesn't drift away from what is being copied.</summary>
+    static Dictionary<int, List<Cut>> RepeatReference(IReadOnlyList<RhythmEvent> events, IReadOnlyList<ColorNote> previous)
+    {
+        var cuts = previous.GroupBy(n => Math.Round(n.Beat * 24)).ToDictionary(g => g.Key, g => g.Select(n => new Cut(n.Hand, n.X, n.Y, n.Direction)).ToList());
+        var firstStart = new Dictionary<string, double>();
+        foreach (var e in events)
+            if (!firstStart.ContainsKey(e.Section)) firstStart[e.Section] = Math.Round(e.Beat - e.BeatInSection);
+        var result = new Dictionary<int, List<Cut>>();
+        for (int i = 0; i < events.Count; i++)
+        {
+            var e = events[i];
+            double at = firstStart[e.Section] + e.BeatInSection;
+            if (cuts.TryGetValue(Math.Round(at * 24), out var c)) result[i] = c;
+        }
+        return result;
     }
 
     static readonly HashSet<string> MelodyLayers = RhythmSelector.MelodyLayers;
@@ -151,7 +180,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
 
     void ExpandSingle(Node node, RhythmEvent e, int i, Dictionary<long, Node> next)
     {
-        foreach (var hand in new[] { Hand.Left, Hand.Right })
+        foreach (var hand in oneSaber ? [Hand.Right] : new[] { Hand.Left, Hand.Right })
         {
             foreach (var (cut, cost, swing) in Candidates(node, hand, e, i).OrderBy(c => c.cost).Take(PerNodeSingle))
             {
