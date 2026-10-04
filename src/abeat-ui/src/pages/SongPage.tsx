@@ -140,13 +140,18 @@ export default function SongPage() {
   useEffect(() => {
     getTaps(id).then(r => setTaps({ id, runs: r.data.runs ?? [] })).catch(() => {})
   }, [id])
-  const tapRuns = useMemo(() => (taps.id === id ? taps.runs : []), [taps, id])
+  const data = ready && loaded?.id === id ? loaded : null
+  const pad = data?.analysis.audio.padSec
+  // runs moved onto the current song.egg (a re-analysis can change its padding)
+  const tapRuns = useMemo(() => (taps.id === id && pad !== undefined
+    ? taps.runs.map(r => ({ ...r, taps: r.taps.map(t => t + pad - (r.padSec ?? pad)), padSec: pad }))
+    : []), [taps, id, pad])
   const onTaps = (runs: TapRun[]) => {
-    setTaps({ id, runs })
-    putTaps(id, runs).catch(e => setError(errorText(e)))
+    const stamped = runs.map(r => ({ ...r, padSec: r.padSec ?? pad }))
+    setTaps({ id, runs: stamped })
+    putTaps(id, stamped).catch(e => setError(errorText(e)))
   }
 
-  const data = ready && loaded?.id === id ? loaded : null
   const analysis = data?.analysis ?? null
   const settings = data?.settings ?? null
   const list = useMemo(() => (versions?.id === id ? versions.list : []), [versions, id])

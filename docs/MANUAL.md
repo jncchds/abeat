@@ -233,7 +233,7 @@ that have no note nearby drawn tall. The table scores each hand against the same
 B): your median offset (latency, removed before matching), F1, precision (taps that have a note), recall
 (notes that have a tap) at ±70 ms, and *any* (taps that have a note of either hand). *Both* merges the two
 runs and compares them with all notes; the doubles line counts the moments both hands hit. A run stopped
-early only counts up to where it stopped. Runs are saved per song in `taps.json`.
+early only counts up to where it stopped. Runs are saved per song in `taps.json`, with the padding of the song.egg they were recorded on, so a re-analysis doesn't shift them.
 
 ### Settings panel
 

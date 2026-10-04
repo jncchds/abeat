@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.5 — 2026-10-05
+
+- Tap runs keep the song.egg padding they were recorded on, so they stay aligned after a re-analysis moves the beat grid.
+
 ## v0.2.4 — 2026-10-05
 
 - Tempo from the drum stem: with stems, the beat grid is fitted to the separated drums (kick and snare) instead of the beat tracker, and tempo changes are followed bar by bar on the drums. Steady songs no longer get spurious tempo changes (Everlasting had 38; your taps now sit 27 ms from the grid instead of 43), and songs that slow down and speed back up follow it (Bangaranga: 87 % of strong drum hits on a 16th slot instead of 29 %).

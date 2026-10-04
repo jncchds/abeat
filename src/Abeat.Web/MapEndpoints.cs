@@ -240,7 +240,8 @@ public static class MapEndpoints
     static string VocalOption(string? v) => v is "notes" or "lyrics" ? v : "flux";
     public sealed record ImportRequest(string Path);
     public sealed record LyricsRequest(string? Text);
-    public sealed record TapRun(DateTime RecordedUtc, double[]? Taps);
+    /// <summary>PadSec: song.egg padding when recorded; a re-analysis can change it, the UI shifts the taps.</summary>
+    public sealed record TapRun(DateTime RecordedUtc, double[]? Taps, double? PadSec);
     public sealed record TapsRequest(TapRun[]? Runs);
 
     const string HumanId = "human";
