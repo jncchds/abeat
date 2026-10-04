@@ -52,7 +52,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - vocal stem separator (`--stems demucs|roformer`): `roformer` replaces the Demucs vocals with
      BS-RoFormer (python-audio-separator, extra `roformer`, model cached in ~/.cache/abeat/separator,
      temp files in the work dir); `work/stems/vocals.roformer` marks cached RoFormer vocals.
-     On a 4-core CPU it needed > 10 min for a 30 s clip (machine busy): practical only with a GPU.
+     Works end to end; on a 4-core CPU one 8 s chunk takes ~136 s at the model's overlap 4 (~70x real time),
+     so the CPU uses overlap 2 (~35x) and logs an estimate: practical only with a GPU.
    - vocal onsets selectable per song (`--vocals`, `AnalysisOptions.VocalOnsets`, `vocals.py`):
      `flux` (default); `notes`: flux onsets kept only where CREPE-tiny hears a pitched voice in the
      next 80 ms (drops breaths/consonants/bleed; Cake By The Ocean: 83 % on human notes vs 72 %),

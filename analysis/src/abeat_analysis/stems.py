@@ -52,8 +52,8 @@ ROFORMER_MODEL = "model_bs_roformer_ep_317_sdr_12.9755.ckpt"  # BS-RoFormer (vip
 
 def roformer_vocals(stereo: np.ndarray, sr: int, workdir, log) -> np.ndarray:
     """Vocal stem from BS-RoFormer via python-audio-separator (extra "roformer"). Much cleaner vocals than
-    htdemucs (less bleed from leads and pads, so fewer false vocal onsets), but slow on CPU: use a GPU or
-    expect several minutes per minute of audio. Model (~600 MB) is cached in ~/.cache/abeat/separator."""
+    htdemucs (less bleed from leads and pads, so fewer false vocal onsets), but only practical on a GPU:
+    a 4-core CPU needs ~35 min per minute of audio (overlap 2; ~70 at the model's own overlap of 4). Model (~600 MB) is cached in ~/.cache/abeat/separator."""
     import os
     import shutil
     import tempfile
@@ -72,8 +72,17 @@ def roformer_vocals(stereo: np.ndarray, sr: int, workdir, log) -> np.ndarray:
         src = work / "mix.wav"
         sf.write(str(src), stereo, sr, subtype="FLOAT")
         models = Path(os.environ.get("ABEAT_SEPARATOR_MODELS") or Path.home() / ".cache" / "abeat" / "separator")
-        sep = Separator(output_dir=str(work), model_file_dir=str(models), log_level=30, output_single_stem="Vocals")
-        log(f"separating vocals with BS-RoFormer ({ROFORMER_MODEL}; slow on CPU)")
+        from .accel import device
+
+        on_cpu = device() == "cpu"
+        # the model's own overlap (4) computes every sample four times; on a CPU (~70x real time at 4,
+        # measured on 4 cores) half of that is the only bearable setting
+        sep = Separator(output_dir=str(work), model_file_dir=str(models), log_level=30, output_single_stem="Vocals",
+                        mdxc_params={"segment_size": 256, "override_model_segment_size": False, "batch_size": None,
+                                     "overlap": 2 if on_cpu else None, "pitch_shift": 0})
+        minutes = len(stereo) / sr / 60
+        log(f"separating vocals with BS-RoFormer ({ROFORMER_MODEL})"
+            + (f"; on the CPU this takes about {minutes * 35:.0f} min, a GPU is strongly recommended" if on_cpu else ""))
         sep.load_model(ROFORMER_MODEL)
         out = [work / f for f in sep.separate(str(src))]
         vocal = next(f for f in out if "vocal" in f.name.lower())

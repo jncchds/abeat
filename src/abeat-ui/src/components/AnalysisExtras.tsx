@@ -12,7 +12,7 @@ const FIELDS: { key: keyof Extras; label: string; title: string; options: [strin
     options: [['flux', 'other/bass: flux'], ['notes', 'other/bass: notes']],
   },
   {
-    key: 'separator', label: 'separator', title: 'Vocal stem from Demucs, or from BS-RoFormer (cleaner, slow without a GPU; worker extra "roformer")',
+    key: 'separator', label: 'separator', title: 'Vocal stem from Demucs, or from BS-RoFormer (cleaner; needs a GPU in practice: ~35 min per minute of audio on a CPU; worker extra "roformer")',
     options: [['demucs', 'vocals: Demucs'], ['roformer', 'vocals: RoFormer']],
   },
 ]
