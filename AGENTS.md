@@ -9,6 +9,16 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 2. **Analysis** (`analysis/`, Python, run as a subprocess by `AnalysisRunner`):
    - beat tracking: beat_this (neural) or librosa; constant-BPM grid fitted over the whole song
      (mean inlier interval, outlier-robust least squares), rounded to 0.5 BPM when equivalent
+   - variable tempo (`--tempo auto|constant|variable`, `tempo.fit_tempo_map`): when the constant grid
+     misses tracked beats by > 40 ms (p98) and a tempo map more than halves that (auto), tracked beats are
+     numbered (`index_beats`: the period follows the kept beats, clipped to -20/+25 % of the song's
+     median, so stretches tracked at double tempo or on off-beats don't add beats), a piecewise-linear
+     time-vs-beat curve with a knot per bar is fitted (IRLS, mis-tracked beats fade out; second-difference
+     penalty on tempo changes against tracker jitter), and bars are merged into constant-tempo segments
+     while the curve stays within 10 ms. `tempo.changes` = [{beat, bpm}], beat 0 first; C# reads it into
+     `TempoMap`, which every beat/second conversion goes through (implicit from a plain BPM), and the
+     writer emits v3 `bpmEvents`. Drifting synth (`synth --drift 0.04`): notes within 30 ms of the true
+     grid 100 % (mean 8 ms) vs 51 % with one BPM
    - phase refinement against a kick-weighted *attack envelope* (log-energy rise on short
      centred windows) because spectral-flux envelopes lag ~50 ms
    - downbeats on the fixed grid (tracker vote or low-band strength)
@@ -83,7 +93,7 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    strong single-hand hits (Hard+); checked against `SaberPath` so no bomb is in a swing path.
 7. **Lights** (`LightingGenerator`): section palettes (repeated labels share colours), downbeat
    pulses, per-note laser flashes, ring spins/zooms, colour boost in the loudest sections.
-8. **Output**: Info.dat v2.1.0 + difficulty v3.3.0 (notes with angle offsets, arcs as `sliders`, chains as `burstSliders`), `song.egg`, `cover.jpg`, zip.
+8. **Output**: Info.dat v2.1.0 + difficulty v3.3.0 (`bpmEvents` for tempo changes, notes with angle offsets, arcs as `sliders`, chains as `burstSliders`), `song.egg`, `cover.jpg`, zip.
 
 ## Evaluation
 
@@ -127,7 +137,7 @@ move, `--write-prior` rewrites the prior.
   `GET /versions` lists generations (newest first, with note-timing F1 vs the human map per
   difficulty) plus `human`; `GET|DELETE /versions/{v}`, `GET /versions/{v}/settings`;
   `GET /compare?a=&ad=&b=&bd=` runs `MapComparer` on any two (version, difficulty) pairs (B = reference).
-  All versions are re-timed onto the current analysis grid (`Generations.OnGrid`), so they stay
+  All versions are re-timed onto the current analysis grid (`Generations.OnGrid`, through both tempo maps), so they stay
   aligned after a re-analysis.
 - Playlists (`PlaylistStore`, `data/playlists/{id}.json`): entries are (song, generation). `/api/playlists`
   CRUD, `POST /{id}/entries`, `GET /{id}/download.zip` (one folder per entry with Info.dat `_songSubName`

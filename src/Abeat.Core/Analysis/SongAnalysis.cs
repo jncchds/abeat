@@ -1,10 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Abeat.Core.Model;
 
 namespace Abeat.Core.Analysis;
 
 /// <summary>Mirror of analysis.json produced by the Python worker. All times are seconds in song.egg,
-/// where tempo-grid beat 0 is at t = 0 (so beat = t * bpm / 60).</summary>
+/// where tempo-grid beat 0 is at t = 0 (so beat = t * bpm / 60 for a constant tempo; drifting songs
+/// carry tempo changes, see <see cref="TempoMap"/>).</summary>
 public sealed class SongAnalysis
 {
     public int SchemaVersion { get; set; }
@@ -25,8 +27,15 @@ public sealed class SongAnalysis
     /// <summary>Directory containing analysis.json, song.egg and cover.</summary>
     [JsonIgnore] public string Directory { get; set; } = "";
 
-    public double SecondsToBeat(double t) => t * Tempo.Bpm / 60.0;
-    public double BeatToSeconds(double b) => b * 60.0 / Tempo.Bpm;
+    TempoMap? tempoMap;
+
+    /// <summary>Beat/second conversion: constant BPM, or the tempo changes of a drifting song.</summary>
+    [JsonIgnore] public TempoMap TempoMap => tempoMap ??= Tempo.Changes.Count > 1
+        ? new TempoMap(Tempo.Changes.Select(c => (c.Beat, c.Bpm)))
+        : TempoMap.Constant(Tempo.Bpm);
+
+    public double SecondsToBeat(double t) => TempoMap.SecondsToBeat(t);
+    public double BeatToSeconds(double b) => TempoMap.BeatToSeconds(b);
 
     static readonly JsonSerializerOptions Options = new(JsonSerializerDefaults.Web);
 
@@ -75,6 +84,15 @@ public sealed class TempoInfo
     public string Backend { get; set; } = "";
     public List<double> Beats { get; set; } = [];
     public List<double> Downbeats { get; set; } = [];
+    /// <summary>Tempo changes (first at beat 0) when the song drifts; empty or one entry = constant
+    /// <see cref="Bpm"/>.</summary>
+    public List<TempoChange> Changes { get; set; } = [];
+}
+
+public sealed class TempoChange
+{
+    public double Beat { get; set; }
+    public double Bpm { get; set; }
 }
 
 public sealed class EnergyCurve
@@ -109,6 +127,8 @@ public sealed class Onset
     public double S { get; set; }
     /// <summary>Brightness 0..1 (log spectral centroid), a rough stand-in for pitch height.</summary>
     public double Br { get; set; }
+    /// <summary>Drum stem only: kick "k", snare "s" or hat/cymbal "h", strongest first ("ks" = both).</summary>
+    public string? K { get; set; }
 }
 
 public sealed class LyricsInfo

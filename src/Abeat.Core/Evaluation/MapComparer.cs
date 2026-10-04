@@ -39,7 +39,7 @@ public static class MapComparer
 {
     /// <summary>Compares note timing in seconds of the *original* audio. Generated maps are shifted by
     /// the analysis padding so both refer to the same audio time.</summary>
-    public static Comparison Compare(DifficultyMap human, double humanBpm, DifficultyMap generated, double generatedBpm,
+    public static Comparison Compare(DifficultyMap human, TempoMap humanBpm, DifficultyMap generated, TempoMap generatedBpm,
         double generatedPadSec, double toleranceSec = 0.05)
     {
         var h = OnsetTimes(human, humanBpm, 0);
@@ -69,8 +69,8 @@ public static class MapComparer
     }
 
     /// <summary>Distinct note times (doubles count once), seconds in original audio.</summary>
-    static double[] OnsetTimes(DifficultyMap m, double bpm, double padSec) =>
-        m.Notes.Select(n => Math.Round(n.Beat, 3)).Distinct().Select(b => b * 60 / bpm - padSec).Order().ToArray();
+    static double[] OnsetTimes(DifficultyMap m, TempoMap tempo, double padSec) =>
+        m.Notes.Select(n => Math.Round(n.Beat, 3)).Distinct().Select(b => tempo.BeatToSeconds(b) - padSec).Order().ToArray();
 
     static (int matched, List<double> offsets) Match(double[] g, double[] h, double tol)
     {

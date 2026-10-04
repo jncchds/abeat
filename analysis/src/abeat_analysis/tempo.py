@@ -145,13 +145,144 @@ def refine_phase(y: np.ndarray, sr: int, grid: Grid, beats: np.ndarray, full_sea
 
 def grid_downbeats(y: np.ndarray, sr: int, grid: Grid, duration: float, tracked: np.ndarray | None,
                    meter: int = 4) -> np.ndarray:
-    """Downbeats on the fixed grid. Use the tracker's downbeats to vote for the bar phase if
-    available, otherwise pick the phase with the strongest low-frequency onsets."""
+    """Downbeats on the fixed grid (see `downbeats_on`)."""
     period = 60.0 / grid.bpm
     n0 = int(np.ceil(-grid.first_beat / period))
     beats = grid.first_beat + np.arange(n0, int((duration - grid.first_beat) / period) + 1) * period
+    return downbeats_on(y, sr, beats, tracked, meter)
+
+
+def downbeats_on(y: np.ndarray, sr: int, beats: np.ndarray, tracked: np.ndarray | None, meter: int = 4) -> np.ndarray:
+    """Every `meter`-th grid beat, at the bar phase the tracker's downbeats vote for if available,
+    otherwise the phase with the strongest low-frequency onsets."""
     if tracked is not None and len(tracked) >= 4 and len(tracked) < len(beats) * 0.6:
-        idx = np.round((tracked - grid.first_beat) / period).astype(int) - n0
+        idx = np.clip(np.searchsorted(beats, tracked), 1, len(beats) - 1)
+        idx = np.where(np.abs(beats[idx - 1] - tracked) < np.abs(beats[idx] - tracked), idx - 1, idx)
         phase = int(np.bincount(idx % meter, minlength=meter).argmax())
         return beats[phase::meter]
     return _estimate_downbeats(y, sr, beats, meter)
+
+
+@dataclass
+class TempoMap:
+    """Piecewise-constant tempo over integer beat indices of the tracked beats: from beat
+    `changes[k][0]` on (relative to tracked beat 0) the tempo is `changes[k][1]` BPM. `first_beat` is the
+    time of beat 0; beats before it continue the first tempo."""
+
+    first_beat: float
+    changes: list[tuple[int, float]]
+    residual_ms: float
+    max_dev_ms: float
+
+    @property
+    def bpm(self) -> float:
+        return self.changes[0][1]
+
+    def time(self, beat: np.ndarray | float) -> np.ndarray:
+        beat = np.asarray(beat, float)
+        t = np.full(beat.shape, self.first_beat)
+        starts = [b for b, _ in self.changes] + [np.inf]
+        acc = self.first_beat
+        for k, (b0, bpm) in enumerate(self.changes):
+            lo = -np.inf if k == 0 else b0
+            hi = starts[k + 1]
+            m = (beat >= lo) & (beat < hi)
+            t[m] = acc + (beat[m] - b0) * 60.0 / bpm
+            if np.isfinite(hi):
+                acc += (hi - b0) * 60.0 / bpm
+        return t
+
+    def shifted(self, s: float) -> "TempoMap":
+        return TempoMap(self.first_beat + s, self.changes, self.residual_ms, self.max_dev_ms)
+
+
+def index_beats(beats: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    """Integer beat numbers for tracked beats, counting skipped beats where an interval spans several
+    periods and dropping off-beat or doubled detections (under 0.75 of a period after the last kept beat).
+    The period follows the kept beats (median of the last 8 steps), clipped to -20/+25 % of the song's
+    median interval, so stretches tracked at double tempo (busy outros) don't redefine the beat."""
+    song = float(np.median(np.diff(beats)))
+    keep, idx, steps = [0], [0], [song]
+    for i in range(1, len(beats)):
+        local = float(np.clip(np.median(steps[-8:]), 0.8 * song, 1.25 * song))
+        ratio = (beats[i] - beats[keep[-1]]) / local
+        if ratio < 0.75:
+            continue
+        n = max(1, int(round(ratio)))
+        steps.append((beats[i] - beats[keep[-1]]) / n)
+        keep.append(i)
+        idx.append(idx[-1] + n)
+    return beats[np.array(keep)], np.array(idx)
+
+
+def fit_tempo_map(beats: np.ndarray, knot_beats: int = 4, smooth: float = 3.0, merge_ms: float = 10.0) -> TempoMap | None:
+    """Piecewise-constant tempo for drifting (live, unquantized) recordings.
+
+    Beat time as a function of beat number is fitted with a piecewise-linear curve (a knot every
+    `knot_beats` beats, so one tempo per bar), robustly (iteratively reweighted, so mis-tracked beats
+    don't bend it) and with a penalty on tempo changes between neighbouring bars (tracker jitter of
+    ~10-20 ms would otherwise show up as tempo noise). Neighbouring bars are then merged greedily into
+    one tempo as long as no tracked beat moves by more than `merge_ms` from the fitted curve's time."""
+    if len(beats) < 4 * knot_beats:
+        return None
+    t, idx = index_beats(beats)
+    n_knots = int(np.ceil(idx[-1] / knot_beats)) + 1
+    # design matrix: linear interpolation between knot times
+    pos = idx / knot_beats
+    j = np.minimum(np.floor(pos).astype(int), n_knots - 2)
+    f = pos - j
+    A = np.zeros((len(t), n_knots))
+    A[np.arange(len(t)), j] = 1 - f
+    A[np.arange(len(t)), j + 1] = f
+    D = np.zeros((n_knots - 2, n_knots))
+    for k in range(n_knots - 2):
+        D[k, k:k + 3] = [1, -2, 1]
+    w = np.ones(len(t))
+    for _ in range(8):
+        W = A * w[:, None]
+        T = np.linalg.solve(A.T @ W + smooth * D.T @ D, W.T @ t)
+        r = np.abs(t - A @ T)
+        w = np.where(r < 0.025, 1.0, (0.025 / np.maximum(r, 1e-9)) ** 2)  # mis-tracked beats fade out
+
+    # merge bars into constant-tempo segments while the curve's beat times stay within merge_ms
+    knot_beat = np.arange(n_knots) * knot_beats
+    segs = []  # (first knot, last knot)
+    a = 0
+    while a < n_knots - 1:
+        b = a + 1
+        while b < n_knots - 1:
+            ts = T[a] + (T[b + 1] - T[a]) * (np.arange(a, b + 2) - a) / (b + 1 - a)
+            if np.max(np.abs(ts - T[a:b + 2])) * 1000 > merge_ms:
+                break
+            b += 1
+        segs.append((a, b))
+        a = b
+    changes = []
+    for a, b in segs:
+        bpm = round(60.0 * (knot_beat[b] - knot_beat[a]) / (T[b] - T[a]), 3)
+        if changes and abs(bpm - changes[-1][1]) < 1e-3:
+            continue
+        changes.append((int(knot_beat[a]), bpm))
+    tm = TempoMap(float(T[0]), changes, 0.0, 0.0)
+    dev = (t - tm.time(idx))[w > 0.5]
+    return TempoMap(float(T[0]), changes, float(np.sqrt(np.mean(dev ** 2)) * 1000), float(np.percentile(np.abs(dev), 98) * 1000))
+
+
+def refine_map_phase(y: np.ndarray, sr: int, tm: TempoMap, width: float = 0.03) -> TempoMap:
+    """Shift a tempo map by up to +-width s to put the most kick-weighted attack energy on its beats."""
+    from .features import attack_envelope
+
+    full, env_t = attack_envelope(y, sr, 30, 11000, 256)
+    low, _ = attack_envelope(y, sr, None, 180, 1024)
+    env = full / (full.max() + 1e-9) + 1.5 * low / (low.max() + 1e-9)
+    duration = len(y) / sr
+    last = int(tm.changes[-1][0] + (duration - tm.time(tm.changes[-1][0])) * tm.changes[-1][1] / 60) + 2
+    grid = tm.time(np.arange(-4, last))
+    best, best_score = 0.0, -1.0
+    for s in np.arange(-width, width, 0.002):
+        g = grid + s
+        g = g[(g >= 0) & (g < duration)]
+        score = np.interp(g, env_t, env).sum()
+        if score > best_score:
+            best, best_score = float(s), score
+    return tm.shifted(best)

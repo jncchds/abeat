@@ -6,7 +6,8 @@ namespace Abeat.Core.Analysis;
 /// song-length of CPU time; the worker falls back to frequency bands when Demucs is not installed).</summary>
 /// <param name="VocalOnsets">How vocal-stem onsets are found: "flux" (spectral flux), "notes" (sung notes from
 /// CREPE pitch) or "lyrics" (syllables from Whisper + forced alignment; needs the worker's "lyrics" extra).</param>
-public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null, string VocalOnsets = "flux");
+/// <param name="Tempo">"auto" (tempo changes only for drifting songs), "constant" or "variable".</param>
+public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null, string VocalOnsets = "flux", string Tempo = "auto");
 
 /// <summary>Runs the Python analysis worker (analysis/ uv project) as a subprocess.</summary>
 public sealed class AnalysisRunner
@@ -45,6 +46,7 @@ public sealed class AnalysisRunner
         if (options.Stems) args.AddRange(["--stems", "demucs", "--keep-stems", "--vocals", options.VocalOnsets ?? "flux"]);
         if (lyricsFile != null && File.Exists(lyricsFile)) args.AddRange(["--lyrics-file", Path.GetFullPath(lyricsFile)]);
         if (options.BpmOverride is { } bpm) args.AddRange(["--bpm", bpm.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
+        if (options.Tempo is "constant" or "variable") args.AddRange(["--tempo", options.Tempo]);
         await RunWorkerAsync(args, log, ct);
         return SongAnalysis.Load(workDir);
     }

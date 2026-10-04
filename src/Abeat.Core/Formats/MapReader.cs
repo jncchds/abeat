@@ -75,6 +75,9 @@ public static class MapReader
             dm.NoteJumpOffset = ofs;
             map.Difficulties.Add(dm);
         }
+        // tempo changes are per difficulty in the files but the same in practice; use the first readable set
+        if (map.Difficulties.FirstOrDefault(d => d.TempoChanges is { Count: > 0 }) is { } withTempo)
+            map.Tempo = new TempoMap(withTempo.TempoChanges!.Prepend((0, map.Bpm)));
         return map;
     }
 
@@ -95,6 +98,8 @@ public static class MapReader
             }
             dm.BpmChanges = (j["_customData"]?["_BPMChanges"]?.AsArray().Count ?? 0)
                 + (j["_events"]?.AsArray().Count(e => Int(e, "_type") == 100) ?? 0);
+            var v2Bpm = j["_events"]?.AsArray().Where(e => Int(e, "_type") == 100).Select(e => (Num(e, "_time"), Num(e, "_floatValue"))).ToList();
+            if (v2Bpm is { Count: > 0 } && j["_customData"]?["_BPMChanges"] is null) dm.TempoChanges = v2Bpm;
             foreach (var e in j["_events"]?.AsArray() ?? [])
                 dm.Lights.Add(new LightEvent(Num(e, "_time"), Int(e, "_type"), Int(e, "_value"), e?["_floatValue"] is null ? 1 : Num(e, "_floatValue")));
             foreach (var o in j["_obstacles"]?.AsArray() ?? [])
@@ -119,6 +124,7 @@ public static class MapReader
                 dm.Chains.Add(new Chain(Num(c, "b"), Int(c, "x"), Int(c, "y"), (Hand)Int(c, "c"), (CutDirection)Int(c, "d"),
                     Num(c, "tb"), Int(c, "tx"), Int(c, "ty"), Int(c, "sc"), c?["s"] is null ? 1 : Num(c, "s")));
             dm.BpmChanges = j["bpmEvents"]?.AsArray().Count(e => Num(e, "b") > 0.001) ?? 0;
+            if (j["bpmEvents"]?.AsArray() is { Count: > 0 } be) dm.TempoChanges = [.. be.Select(e => (Num(e, "b"), Num(e, "m")))];
             foreach (var e in j["basicBeatmapEvents"]?.AsArray() ?? [])
                 dm.Lights.Add(new LightEvent(Num(e, "b"), Int(e, "et"), Int(e, "i"), e?["f"] is null ? 1 : Num(e, "f")));
         }

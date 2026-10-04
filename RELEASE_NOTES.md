@@ -2,6 +2,7 @@
 
 ## v0.1.9 — 2026-10-04
 
+- Variable tempo: songs whose tempo drifts (live recordings, unquantized bands) get a tempo map instead of one BPM, written as BPM events, so notes stay on the beat throughout (on a drifting test track 100 % of notes within 30 ms of the true grid, against 51 % with one BPM). Automatic only when one BPM can't follow the song; `--tempo constant|variable` forces it. The song page shows the BPM range; timeline, player view and version comparison follow the changes. Human maps with BPM events can now be compared too.
 - Chains: a note followed by a drum roll, flam or stutter too fast for single notes gets a chain that continues its cut (Hard and up, sparingly like human maps). Toggle in the settings; drawn on the timeline and the player view.
 
 ## v0.1.8 — 2026-10-04

@@ -127,9 +127,8 @@ public static class MovementAnalyzer
         return new Vec2(v.X * c - v.Y * s, v.X * s + v.Y * c);
     }
 
-    public static List<HandMove> Moves(DifficultyMap map, double bpm)
+    public static List<HandMove> Moves(DifficultyMap map, TempoMap tempo)
     {
-        double spb = 60.0 / bpm;
         var moves = new List<HandMove>();
         foreach (var hand in new[] { Hand.Left, Hand.Right })
         {
@@ -137,7 +136,7 @@ public static class MovementAnalyzer
             var swings = new List<ColorNote>();
             foreach (var n in map.Notes.Where(n => n.Hand == hand).OrderBy(n => n.Beat).ThenByDescending(n => n.Y))
             {
-                if (swings.Count > 0 && (n.Beat - swings[^1].Beat) * spb < SwingCostModel.SliderGapSec) continue;
+                if (swings.Count > 0 && tempo.Seconds(swings[^1].Beat, n.Beat) < SwingCostModel.SliderGapSec) continue;
                 swings.Add(n);
             }
 
@@ -145,8 +144,8 @@ public static class MovementAnalyzer
             for (int i = 0; i < swings.Count; i++)
             {
                 var n = swings[i];
-                var v = n.Direction == CutDirection.Any ? DotSwing(state, swings, i, hand, spb) : Vector(n.Direction, n.AngleOffset);
-                double t = n.Beat * spb;
+                var v = n.Direction == CutDirection.Any ? DotSwing(state, swings, i, hand, tempo) : Vector(n.Direction, n.AngleOffset);
+                double t = tempo.BeatToSeconds(n.Beat);
                 if (state.Active && t - state.Time <= MaxGapSec)
                 {
                     var p = new Vec2(n.X, n.Y);
@@ -163,11 +162,11 @@ public static class MovementAnalyzer
 
     /// <summary>Dots: reverse the last swing, unless the hand's next swing is a directional note soon
     /// after that wants a different approach and taking it does not cost a reset.</summary>
-    static Vec2 DotSwing(HandState s, List<ColorNote> swings, int i, Hand hand, double spb)
+    static Vec2 DotSwing(HandState s, List<ColorNote> swings, int i, Hand hand, TempoMap tempo)
     {
         var v = SwingCostModel.EffectiveSwing(s, CutDirection.Any);
         var next = i + 1 < swings.Count ? swings[i + 1] : null;
-        if (next != null && next.Direction != CutDirection.Any && (next.Beat - swings[i].Beat) * spb < 1.5)
+        if (next != null && next.Direction != CutDirection.Any && tempo.Seconds(swings[i].Beat, next.Beat) < 1.5)
         {
             var want = -Vector(next.Direction, next.AngleOffset);
             if (!s.Active || !SwingCostModel.IsReset(hand, s, want)) v = want;
@@ -175,9 +174,9 @@ public static class MovementAnalyzer
         return v;
     }
 
-    public static MovementReport Analyze(DifficultyMap map, double bpm)
+    public static MovementReport Analyze(DifficultyMap map, TempoMap tempo)
     {
-        var m = Moves(map, bpm);
+        var m = Moves(map, tempo);
         if (m.Count == 0) return new MovementReport { Difficulty = map.Difficulty };
         var strain = m.Select(x => x.Strain).Order().ToArray();
         double p90 = Percentile(strain, 0.9);

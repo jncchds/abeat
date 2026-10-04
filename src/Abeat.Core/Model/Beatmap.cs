@@ -50,8 +50,11 @@ public sealed class DifficultyMap
     public List<Obstacle> Obstacles { get; init; } = [];
     public List<LightEvent> Lights { get; init; } = [];
     public List<BoostEvent> Boosts { get; init; } = [];
-    /// <summary>Tempo changes in the file (read-only info; generated maps use a constant BPM).</summary>
+    /// <summary>Tempo changes in the file.</summary>
     public int BpmChanges { get; set; }
+    /// <summary>Tempo changes read from the file (v3 bpmEvents, v2 type-100 events), beat 0 first; null
+    /// when the file has none.</summary>
+    public List<(double Beat, double Bpm)>? TempoChanges { get; set; }
 
     public static int Rank(DifficultyName d) => d switch
     {
@@ -78,7 +81,15 @@ public sealed class MapSet
     public string CoverFile { get; set; } = "cover.jpg";
     public string Environment { get; set; } = "DefaultEnvironment";
     public List<DifficultyMap> Difficulties { get; init; } = [];
+    TempoMap? tempo;
+    /// <summary>Tempo with changes (written as bpmEvents into every difficulty); defaults to the constant
+    /// <see cref="Bpm"/>.</summary>
+    public TempoMap Tempo
+    {
+        get => tempo is { } t && Math.Abs(t.Bpm - Bpm) < 1e-9 ? t : TempoMap.Constant(Bpm);
+        set { tempo = value; Bpm = value.Bpm; }
+    }
 
-    public double BeatToSeconds(double beat) => beat * 60.0 / Bpm;
-    public double SecondsToBeat(double sec) => sec * Bpm / 60.0;
+    public double BeatToSeconds(double beat) => Tempo.BeatToSeconds(beat);
+    public double SecondsToBeat(double sec) => Tempo.SecondsToBeat(sec);
 }

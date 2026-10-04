@@ -109,6 +109,9 @@ public sealed record GeneratorSettings
         // demucs stems: vocals lead, drums keep the pulse, the mix only fills gaps
         ["vocals"] = 1.5, ["drums"] = 0.9, ["other"] = 0.6, ["bass"] = 0.4, ["mix"] = 0.25,
     };
+    /// <summary>Weight of drum-stem hits by kind (kick "k", snare "s", hat/cymbal "h") on top of the
+    /// drums layer weight.</summary>
+    public Dictionary<string, double> DrumWeights { get; init; } = new() { ["k"] = 1.0, ["s"] = 1.0, ["h"] = 1.0 };
     /// <summary>Seconds of the song kept free of notes at the start.</summary>
     public double LeadInSec { get; init; } = 1.5;
     public bool Lights { get; init; } = true;

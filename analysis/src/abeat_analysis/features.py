@@ -87,6 +87,32 @@ def detect_onsets(y: np.ndarray, sr: int, fmin: float | None = None, fmax: float
     ]
 
 
+# Drum-stem bands: kick body, snare body + crack, hats/cymbals.
+DRUM_BANDS = {"k": (30, 150, 1024), "s": (180, 4000, 512), "h": (7000, None, 128)}
+
+
+def drum_onsets(y: np.ndarray, sr: int) -> list[dict]:
+    """Onsets of the drum stem, labelled kick ("k"), snare ("s") or hat/cymbal ("h") by which band's
+    attack is strongest at it, relative to that band's typical hit, strongest first; a band that rises
+    nearly as much is added ("ks" = kick and snare together). Bands of a separated drum stem are clean
+    enough for this: no bass in the kick band, no vocals in the snare band."""
+    onsets = detect_onsets(y, sr, 30, 11000, 512)
+    if not onsets:
+        return onsets
+    rises = {}
+    for k, (lo, hi, win) in DRUM_BANDS.items():
+        d, t = attack_envelope(y, sr, lo, hi if hi and hi < sr / 2 else None, win)
+        at = np.array([d[(t >= o["t"] - 0.015) & (t <= o["t"] + 0.025)].max(initial=0) for o in onsets])
+        rises[k] = at / (np.percentile(at[at > 0], 90) + 1e-9) if np.any(at > 0) else at
+    # a kick also rises in the snare band and a snare a little in the hat band; weigh the lower bands up
+    score = np.vstack([rises["k"] * 1.2, rises["s"] * 1.0, rises["h"] * 0.8])
+    for i, o in enumerate(onsets):
+        col = score[:, i]
+        order = np.argsort(-col)
+        o["k"] = "".join("ksh"[j] for j in order if j == order[0] or (col[j] >= 0.9 * col[order[0]] and col[j] >= 0.8))
+    return onsets
+
+
 def tonal_onsets(y: np.ndarray, sr: int, refine: bool = True) -> list[dict]:
     """Onsets for pitched stems (vocals, bass, other) from mel spectral flux.
 

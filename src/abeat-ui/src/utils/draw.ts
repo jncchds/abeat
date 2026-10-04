@@ -1,5 +1,6 @@
 import type { Analysis, Difficulty } from '../api'
 import { cssVar } from './format'
+import { tempoOf, type Tempo } from './tempo'
 
 // default Beat Saber saber colours (left red, right blue)
 export const RED = '#ff1f4b'
@@ -116,8 +117,8 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
   const lanesBottom = diffTop + (split ? LAYOUT.diffH : 0)
   /** Centre of a grid cell's (sub-)lane for track k. */
   const laneY = (x: number, y: number, k: number) => lanesTop + ((2 - y) * 4 + x) * laneH + k * sub + sub / 2
-  const spb = 60 / a.tempo.bpm
-  const beatToSec = (b: number) => b * spb
+  const tempo = tempoOf(a.tempo)
+  const beatToSec = tempo.toSec
 
   // sections, coloured per label (repeats share a colour), opacity by energy
   const labels = [...new Set(a.sections.map(s => s.label))]
@@ -147,14 +148,14 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
   g.globalAlpha = 1
 
   // beat grid: bars strong, beats faint when zoomed in enough
-  const downs = new Set(a.tempo.downbeats.map(x => Math.round(x / spb)))
-  const showBeats = spb * pxPerSec > 8
-  for (let b = Math.floor(t0 / spb); b * spb <= t1; b++) {
+  const downs = new Set(a.tempo.downbeats.map(x => Math.round(tempo.toBeat(x))))
+  const showBeats = (60 / tempo.max) * pxPerSec > 8
+  for (let b = Math.max(0, Math.floor(tempo.toBeat(t0))); beatToSec(b) <= t1; b++) {
     const bar = downs.has(b)
     if (!bar && !showBeats) continue
     g.fillStyle = grid
     g.globalAlpha = bar ? 1 : 0.45
-    g.fillRect(Math.round(X(b * spb)), 22, 1, lanesBottom - 22 + LAYOUT.issuesH)
+    g.fillRect(Math.round(X(beatToSec(b))), 22, 1, lanesBottom - 22 + LAYOUT.issuesH)
   }
   g.globalAlpha = 1
 
@@ -211,7 +212,7 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
   g.fillStyle = muted
   ;['top', 'mid', 'bot'].forEach((n, i) => g.fillText(n, 6, lanesTop + i * 4 * laneH + 11))
 
-  const size = Math.min(sub - 3, Math.max(6, spb * pxPerSec * 0.35))
+  const size = Math.min(sub - 3, Math.max(6, (60 / tempo.max) * pxPerSec * 0.35))
   tracks.forEach(({ d, color, unmatched }, k) => {
     for (const wl of d.walls) {
       const ts = beatToSec(wl.b), te = beatToSec(wl.b + wl.d)
@@ -296,7 +297,7 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
 }
 
 /** What the player sees: the 4x3 grid with notes of the next `ahead` beats growing as they approach. */
-export function drawFront(canvas: HTMLCanvasElement, d: Difficulty | undefined, bpm: number, now: number, ahead = 2) {
+export function drawFront(canvas: HTMLCanvasElement, d: Difficulty | undefined, tempo: Tempo, now: number, ahead = 2) {
   const g = canvas.getContext('2d')!
   const W = canvas.width, H = canvas.height
   g.clearRect(0, 0, W, H)
@@ -304,7 +305,7 @@ export function drawFront(canvas: HTMLCanvasElement, d: Difficulty | undefined, 
   g.strokeStyle = cssVar('--border', '#334155')
   for (let x = 0; x < 4; x++) for (let y = 0; y < 3; y++) g.strokeRect(ox + x * cell + 0.5, oy + y * cell + 0.5, cell - 1, cell - 1)
   if (!d) return
-  const beat = (now * bpm) / 60
+  const beat = tempo.toBeat(now)
   const k = (b: number) => Math.max(0, Math.min(1, 1 - (b - beat) / ahead))
   const inView = (b: number) => b >= beat - 0.15 && b <= beat + ahead
   g.fillStyle = cssVar('--text-muted', '#94a3b8')

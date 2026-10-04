@@ -19,6 +19,7 @@ import { useDebug } from '../hooks/useDebug'
 import { useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
 import { diffLabel, fmtTime } from '../utils/format'
+import { tempoOf, type Tempo } from '../utils/tempo'
 
 type Mode = 'a' | 'b' | 'both'
 
@@ -341,7 +342,7 @@ export default function SongPage() {
         <>
           <audio ref={setAudio} src={stemSrc?.id === id ? stemSrc.url : audioUrl(id)} preload="auto" />
           {debug && <DebugPanel id={id} onPreview={url => setStemSrc(url ? { id, url } : null)} />}
-          <Player audio={audio} bpm={analysis.tempo.bpm} follow={follow} setFollow={setFollow}>
+          <Player audio={audio} tempo={tempoOf(analysis.tempo)} follow={follow} setFollow={setFollow}>
             {sideB && (
               <div className="view-switch" title="Which version the timeline and player view show">
                 {(['a', 'b', 'both'] as const).map(m => (
@@ -378,9 +379,9 @@ export default function SongPage() {
             <div className="front-stack">
               {tracks.length > 1
                 ? tracks.map((t, k) => (
-                  <FrontView key={k} difficulty={t.d} bpm={analysis.tempo.bpm} audio={audio} color={t.color} label={k === 0 ? 'A' : 'B'} />
+                  <FrontView key={k} difficulty={t.d} tempo={tempoOf(analysis.tempo)} audio={audio} color={t.color} label={k === 0 ? 'A' : 'B'} />
                 ))
-                : <FrontView difficulty={current} bpm={analysis.tempo.bpm} audio={audio} />}
+                : <FrontView difficulty={current} tempo={tempoOf(analysis.tempo)} audio={audio} />}
             </div>
           </div>
 
@@ -404,8 +405,8 @@ export default function SongPage() {
                 <ul className="issue-list">
                   {current?.report.issues.slice(0, 300).map((i, k) => (
                     <li key={k} style={{ borderLeftColor: ISSUE_COLOR[i.kind] }}
-                      onClick={() => seek(audio, (i.b * 60) / analysis.tempo.bpm - 1)}>
-                      {fmtTime((i.b * 60) / analysis.tempo.bpm)} {i.hand === 0 ? 'L' : 'R'} {i.kind}
+                      onClick={() => seek(audio, tempoOf(analysis.tempo).toSec(i.b) - 1)}>
+                      {fmtTime(tempoOf(analysis.tempo).toSec(i.b))} {i.hand === 0 ? 'L' : 'R'} {i.kind}
                     </li>
                   ))}
                 </ul>
@@ -474,29 +475,32 @@ function setRate(audio: HTMLAudioElement | null, rate: number) {
 
 function Facts({ a }: { a: Analysis }) {
   const t = a.tempo
+  const tempo = tempoOf(t)
   return (
     <div className="facts">
-      <span><b>{+t.bpm.toFixed(2)}</b> BPM</span>
+      {tempo.varies
+        ? <span title={`${(t.changes?.length ?? 1) - 1} tempo changes follow the band (live recording)`}><b>{+tempo.min.toFixed(1)}–{+tempo.max.toFixed(1)}</b> BPM (variable)</span>
+        : <span><b>{+t.bpm.toFixed(2)}</b> BPM</span>}
       <span><b>{fmtTime(a.audio.durationSec)}</b></span>
       <span>beats: <b>{t.backend}</b></span>
       <span>onsets: <b>{a.layerSource}</b></span>
       {a.vocalSource && <span>vocals: <b>{a.vocalSource}</b>{a.lyrics ? ` (${a.lyrics.words.length} words${a.lyrics.language ? `, ${a.lyrics.language}` : ''})` : ''}</span>}
       <span>{a.sections.length} sections</span>
       {a.source.url && <a href={a.source.url} target="_blank" rel="noopener noreferrer">source ↗</a>}
-      {!t.stable && <span className="warn" title="Detected beats deviate from a constant tempo; notes may drift">⚠ tempo varies ({t.maxDevMs.toFixed(0)} ms)</span>}
+      {!t.stable && !tempo.varies && <span className="warn" title="Detected beats deviate from a constant tempo; notes may drift">⚠ tempo varies ({t.maxDevMs.toFixed(0)} ms)</span>}
     </div>
   )
 }
 
 interface PlayerProps {
   audio: HTMLAudioElement | null
-  bpm: number
+  tempo: Tempo
   follow: boolean
   setFollow: (v: boolean) => void
   children: React.ReactNode
 }
 
-function Player({ audio, bpm, follow, setFollow, children }: PlayerProps) {
+function Player({ audio, tempo, follow, setFollow, children }: PlayerProps) {
   const [playing, setPlaying] = useState(false)
   const timeRef = useRef<HTMLSpanElement>(null)
 
@@ -508,7 +512,7 @@ function Player({ audio, bpm, follow, setFollow, children }: PlayerProps) {
     audio.addEventListener('pause', onPause)
     let raf = 0
     const frame = () => {
-      if (timeRef.current) timeRef.current.textContent = `${fmtTime(audio.currentTime)}  ·  beat ${((audio.currentTime * bpm) / 60).toFixed(2)}`
+      if (timeRef.current) timeRef.current.textContent = `${fmtTime(audio.currentTime)}  ·  beat ${tempo.toBeat(audio.currentTime).toFixed(2)}`
       raf = requestAnimationFrame(frame)
     }
     raf = requestAnimationFrame(frame)
@@ -527,7 +531,7 @@ function Player({ audio, bpm, follow, setFollow, children }: PlayerProps) {
       document.removeEventListener('keydown', key)
       cancelAnimationFrame(raf)
     }
-  }, [audio, bpm])
+  }, [audio, tempo])
 
   return (
     <div className="player">

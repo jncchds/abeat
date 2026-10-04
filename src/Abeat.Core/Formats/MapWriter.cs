@@ -14,7 +14,7 @@ public static class MapWriter
         Directory.CreateDirectory(folder);
         File.WriteAllText(Path.Combine(folder, "Info.dat"), InfoJson(map).ToJsonString(Indented));
         foreach (var d in map.Difficulties)
-            File.WriteAllText(Path.Combine(folder, d.FileName), DifficultyJson(d).ToJsonString());
+            File.WriteAllText(Path.Combine(folder, d.FileName), DifficultyJson(d, map.Tempo).ToJsonString());
     }
 
     public static JsonObject InfoJson(MapSet map) => new()
@@ -56,10 +56,14 @@ public static class MapWriter
 
     static double B(double beat) => Math.Round(beat, 5);
 
-    public static JsonObject DifficultyJson(DifficultyMap d) => new()
+    public static JsonObject DifficultyJson(DifficultyMap d, TempoMap? tempo = null) => new()
     {
         ["version"] = "3.3.0",
-        ["bpmEvents"] = new JsonArray(),
+        // the first tempo is Info.dat's BPM; only the changes after beat 0 are events
+        ["bpmEvents"] = new JsonArray((tempo?.Points.Skip(1) ?? []).Select(p => (JsonNode)new JsonObject
+        {
+            ["b"] = B(p.Beat), ["m"] = Math.Round(p.Bpm, 4),
+        }).ToArray()),
         ["rotationEvents"] = new JsonArray(),
         ["colorNotes"] = new JsonArray(d.Notes.OrderBy(n => n.Beat).Select(n => (JsonNode)new JsonObject
         {

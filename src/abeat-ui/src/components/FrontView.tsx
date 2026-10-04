@@ -1,27 +1,28 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { Difficulty } from '../api'
 import { drawFront } from '../utils/draw'
+import type { Tempo } from '../utils/tempo'
 
 /** Player's-eye 4x3 grid synced to the audio. */
 interface Props {
   difficulty?: Difficulty
-  bpm: number
+  tempo: Tempo
   audio: HTMLAudioElement | null
   /** Version label and colour when two versions are compared. */
   label?: string
   color?: string
 }
 
-export default function FrontView({ difficulty, bpm, audio, label, color }: Props) {
+export default function FrontView({ difficulty, tempo, audio, label, color }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
-  const props = useRef({ difficulty, bpm, audio })
-  useLayoutEffect(() => { props.current = { difficulty, bpm, audio } })
+  const props = useRef({ difficulty, tempo, audio })
+  useLayoutEffect(() => { props.current = { difficulty, tempo, audio } })
 
   useEffect(() => {
     let raf = 0
     const frame = () => {
-      const { difficulty: d, bpm: b, audio: a } = props.current
-      if (canvas.current) drawFront(canvas.current, d, b, a?.currentTime ?? 0)
+      const { difficulty: d, tempo: t, audio: a } = props.current
+      if (canvas.current) drawFront(canvas.current, d, t, a?.currentTime ?? 0)
       raf = requestAnimationFrame(frame)
     }
     raf = requestAnimationFrame(frame)

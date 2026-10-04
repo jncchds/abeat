@@ -44,9 +44,8 @@ public static class Expression
     /// hand's next note (1-4 beats later) when the sound covers a good part of that gap. Hands usually
     /// alternate, so the sound reaching the next melody note covers about half of it. Skipped when the
     /// next swing is a reset (no continuous motion to draw) or a gameplay wall passes in between.</summary>
-    public static void AddArcs(DifficultyMap map, IReadOnlyList<RhythmEvent> events, double bpm)
+    public static void AddArcs(DifficultyMap map, IReadOnlyList<RhythmEvent> events, TempoMap tempo)
     {
-        double spb = 60.0 / bpm;
         var byBeat = events.GroupBy(e => Math.Round(e.Beat, 4)).ToDictionary(g => g.Key, g => g.First());
         foreach (var hand in new[] { Hand.Left, Hand.Right })
         {
@@ -56,12 +55,12 @@ public static class Expression
             {
                 var n = notes[i];
                 var v = SwingCostModel.EffectiveSwing(state, n.Direction);
-                state = state.After(n.Beat * spb, n.X, n.Y, n.Direction, v, hand);
+                state = state.After(tempo.BeatToSeconds(n.Beat), n.X, n.Y, n.Direction, v, hand);
                 if (i + 1 >= notes.Count || !byBeat.TryGetValue(Math.Round(n.Beat, 4), out var e) || e.IsDouble) continue;
                 var tail = notes[i + 1];
-                double gapBeats = tail.Beat - n.Beat, gapSec = gapBeats * spb;
+                double gapBeats = tail.Beat - n.Beat, gapSec = tempo.Seconds(n.Beat, tail.Beat);
                 if (gapBeats < 1 - 1e-6 || gapBeats > 4 + 1e-6 || gapSec < 0.4) continue;
-                if (e.Sustain < Math.Max(spb, 0.45 * gapSec)) continue;
+                if (e.Sustain < Math.Max(tempo.SecPerBeat(n.Beat), 0.45 * gapSec)) continue;
                 var tv = SwingCostModel.EffectiveSwing(state, tail.Direction);
                 if (SwingCostModel.IsReset(hand, state, tv)) continue;
                 if (map.Obstacles.Any(o => !IsSideWall(o) && o.Beat < tail.Beat && o.Beat + o.Duration > n.Beat)) continue;
@@ -77,25 +76,24 @@ public static class Expression
     /// <see cref="RhythmEvent.BurstCount"/>): the head is the planned note and the links continue along its
     /// cut, as human mappers use them, briefly (at most 1/4 beat) with room after. Needs a free path in the
     /// cut direction, a same-hand gap of a beat after it, and no other object on the links' cells.</summary>
-    public static void AddChains(DifficultyMap map, IReadOnlyList<RhythmEvent> events, double bpm, DifficultyProfile p)
+    public static void AddChains(DifficultyMap map, IReadOnlyList<RhythmEvent> events, TempoMap tempo, DifficultyProfile p)
     {
         if (p.Name < DifficultyName.Hard) return;
-        double spb = 60.0 / bpm;
         double minSpacing = p.Name >= DifficultyName.Expert ? 8 : 16; // beats between chains: an ornament, not a pattern
         var arcEnds = map.Arcs.SelectMany(a => new[] { (Math.Round(a.Beat, 4), a.Hand), (Math.Round(a.TailBeat, 4), a.Hand) }).ToHashSet();
         double lastChain = double.NegativeInfinity;
         foreach (var e in events)
         {
             if (e.BurstCount < 2 || e.BurstSec < 0.06 || e.Intensity < 0.5 || e.Beat - lastChain < minSpacing) continue;
-            double tailBeat = e.Beat + Math.Clamp(Math.Round(e.BurstSec / spb * 16) / 16, 0.0625, 0.25);
+            double tailBeat = e.Beat + Math.Clamp(Math.Round(e.BurstSec / tempo.SecPerBeat(e.Beat) * 16) / 16, 0.0625, 0.25);
             var heads = map.Notes.Where(n => Math.Abs(n.Beat - e.Beat) < 1e-4 && n.Direction != CutDirection.Any).ToList();
             var added = new List<Chain>();
             foreach (var n in heads)
             {
                 if (arcEnds.Contains((Math.Round(n.Beat, 4), n.Hand))) continue;
                 var next = map.Notes.FirstOrDefault(x => x.Hand == n.Hand && x.Beat > n.Beat + 1e-4);
-                if (next != null && ((next.Beat - n.Beat) < 1 - 1e-6 || (next.Beat - n.Beat) * spb < 0.45)) continue;
-                if (ChainFor(map, n, tailBeat, spb) is { } c) added.Add(c);
+                if (next != null && ((next.Beat - n.Beat) < 1 - 1e-6 || tempo.Seconds(n.Beat, next.Beat) < 0.45)) continue;
+                if (ChainFor(map, n, tailBeat) is { } c) added.Add(c);
             }
             // a double gets chains on both notes or none, so the pair stays symmetric
             if (added.Count == 0 || added.Count < heads.Count && e.IsDouble) continue;
@@ -106,7 +104,7 @@ public static class Expression
 
     /// <summary>Chain from a note along its cut: two cells when they fit, else one; null when the links
     /// would leave the grid or share a cell with another object nearby in time.</summary>
-    static Chain? ChainFor(DifficultyMap map, ColorNote n, double tailBeat, double spb)
+    static Chain? ChainFor(DifficultyMap map, ColorNote n, double tailBeat)
     {
         var v = Swing.Vector(n.Direction);
         int dx = Math.Sign(Math.Round(v.X, 3)), dy = Math.Sign(Math.Round(v.Y, 3));

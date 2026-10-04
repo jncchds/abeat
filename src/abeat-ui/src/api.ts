@@ -31,7 +31,11 @@ export interface Section { start: number; end: number; label: string; energy: nu
 export interface Analysis {
   source: { path: string; url?: string | null; title: string; artist: string }
   audio: { file: string; durationSec: number; sampleRate: number; padSec: number }
-  tempo: { bpm: number; firstBeatSec: number; residualMs: number; maxDevMs: number; stable: boolean; backend: string; beats: number[]; downbeats: number[] }
+  tempo: {
+    bpm: number; firstBeatSec: number; residualMs: number; maxDevMs: number; stable: boolean; backend: string; beats: number[]; downbeats: number[]
+    /** Tempo changes of a drifting song (first at beat 0); absent or one entry = constant `bpm`. */
+    changes?: { beat: number; bpm: number }[]
+  }
   energy: { hopSec: number; values: number[] }
   sections: Section[]
   layerSource: string

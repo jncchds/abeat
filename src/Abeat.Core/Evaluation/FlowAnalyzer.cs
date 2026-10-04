@@ -57,10 +57,9 @@ public static class FlowAnalyzer
     /// <summary>Mean cost of curated human maps is ~1.13 with the current weights; 7 maps that to ~85.</summary>
     public const double ScoreScale = 7;
 
-    public static FlowReport Analyze(DifficultyMap map, double bpm, FlowWeights? weights = null, double minSameHandGap = 0.2)
+    public static FlowReport Analyze(DifficultyMap map, TempoMap tempo, FlowWeights? weights = null, double minSameHandGap = 0.2)
     {
         var model = new SwingCostModel(weights ?? new FlowWeights());
-        double spb = 60.0 / bpm;
         var notes = map.Notes.OrderBy(n => n.Beat).ToList();
         var bombBeats = map.Bombs.Select(b => b.Beat).Order().ToArray();
         var states = new[] { HandState.Initial(Hand.Left), HandState.Initial(Hand.Right) };
@@ -102,7 +101,7 @@ public static class FlowAnalyzer
             {
                 var n = group.OrderByDescending(x => x.Y).First();
                 int h = (int)n.Hand;
-                double t = n.Beat * spb;
+                double t = tempo.BeatToSeconds(n.Beat);
                 var s = before[h];
                 // sliders / windows: a note right after the previous one of this hand is the same swing
                 if (s.Active && t - s.Time < SwingCostModel.SliderGapSec) continue;
@@ -111,7 +110,7 @@ public static class FlowAnalyzer
                 {
                     // dots: the player picks the direction that leads cleanly into the next note
                     var nx = nextDir[n];
-                    if (nx != null && (nx.Beat - n.Beat) * spb < 1.5)
+                    if (nx != null && tempo.Seconds(n.Beat, nx.Beat) < 1.5)
                     {
                         var want = -Swing.Vector(nx.Direction);
                         if (!SwingCostModel.IsReset(n.Hand, s, want) || !s.Active) dir = Swing.FromVector(want);
@@ -121,7 +120,7 @@ public static class FlowAnalyzer
                 double cost = c.Physical;
                 if (c.Reset)
                 {
-                    bool bomb = s.Active && HasBombBetween(bombBeats, s.Time / spb, n.Beat);
+                    bool bomb = s.Active && HasBombBetween(bombBeats, tempo.SecondsToBeat(s.Time), n.Beat);
                     if (bomb) { bombResets++; cost -= model.Weights.Reset - model.Weights.SlowReset; }
                     else { resets++; issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.Reset, cost)); }
                 }
@@ -144,7 +143,7 @@ public static class FlowAnalyzer
         int bombHits = 0;
         if (map.Bombs.Count > 0)
         {
-            var paths = new[] { new SaberPath(notes, Hand.Left, bpm), new SaberPath(notes, Hand.Right, bpm) };
+            var paths = new[] { new SaberPath(notes, Hand.Left, tempo), new SaberPath(notes, Hand.Right, tempo) };
             foreach (var b in map.Bombs)
                 for (int h = 0; h < 2; h++)
                     if (paths[h].MinDistance(b.Beat, b.X, b.Y, 0.05) < BombGenerator.HitDistance * 0.7)
@@ -154,7 +153,7 @@ public static class FlowAnalyzer
                         break;
                     }
         }
-        var movement = MovementAnalyzer.Analyze(map, bpm);
+        var movement = MovementAnalyzer.Analyze(map, tempo);
         double ceiling = MovementAnalyzer.Ceiling(map.Difficulty);
         int spikes = 0;
         foreach (var m in movement.Items.Where(m => m.Strain > ceiling))
@@ -164,7 +163,7 @@ public static class FlowAnalyzer
         }
         issues.Sort((x, y) => x.Beat.CompareTo(y.Beat));
 
-        double duration = notes.Count > 1 ? (notes[^1].Beat - notes[0].Beat) * spb : 0;
+        double duration = notes.Count > 1 ? tempo.Seconds(notes[0].Beat, notes[^1].Beat) : 0;
         double mean = notes.Count > 0 ? total / notes.Count : 0;
         return new FlowReport
         {
@@ -177,7 +176,7 @@ public static class FlowAnalyzer
             AngledNotes = notes.Count(n => n.AngleOffset != 0),
             DurationSec = duration,
             Nps = duration > 0 ? notes.Count / duration : 0,
-            PeakNps = PeakNps(notes, spb, 4.0),
+            PeakNps = PeakNps(notes, tempo, 4.0),
             Resets = resets,
             BombResets = bombResets,
             VisionBlocks = vision,
@@ -201,13 +200,13 @@ public static class FlowAnalyzer
         return idx < bombs.Length && bombs[idx] < b1 - 1e-4;
     }
 
-    static double PeakNps(List<ColorNote> notes, double spb, double window)
+    static double PeakNps(List<ColorNote> notes, TempoMap tempo, double window)
     {
         double peak = 0;
         int a = 0;
         for (int b = 0; b < notes.Count; b++)
         {
-            while ((notes[b].Beat - notes[a].Beat) * spb > window) a++;
+            while (tempo.Seconds(notes[a].Beat, notes[b].Beat) > window) a++;
             peak = Math.Max(peak, (b - a + 1) / window);
         }
         return peak;

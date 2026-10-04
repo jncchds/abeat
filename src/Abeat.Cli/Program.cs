@@ -27,10 +27,12 @@ usage:
       --vocals flux|notes|lyrics   vocal onsets: spectral flux (default), sung notes (pitch), or
                                lyric syllables (Whisper + forced alignment, worker extra "lyrics")
       --lyrics <file.txt>      lyrics to align for --vocals lyrics (repeats written out); skips Whisper
-      --bpm <x>                override detected BPM
+      --bpm <x>                override detected BPM (constant tempo)
+      --tempo auto|constant|variable   tempo changes for drifting (live) songs; auto = only when one
+                               BPM can't follow the song
       --reanalyze              ignore cached analysis
       --no-lights, --no-walls, --no-zip
-  abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--vocals ..] [--bpm x]
+  abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--vocals ..] [--bpm x] [--tempo ..]
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
   abeat settings [file.json]                   write default generator settings to edit
   abeat fetch-maps [--count 20] [--per-mapper 2] [-o work/beatsaver]   curated BeatSaver maps (no mods), top-rated + recent
@@ -120,7 +122,8 @@ static AnalysisOptions AnalysisOpts(Options o) => new(
     o.Get("beats") ?? "auto",
     !o.Has("no-stems"),
     o.Get("bpm") is { } b ? double.Parse(b, CultureInfo.InvariantCulture) : null,
-    o.Get("vocals") ?? "flux");
+    o.Get("vocals") ?? "flux",
+    o.Get("tempo") ?? "auto");
 
 static async Task<int> Generate(Options o)
 {
@@ -163,7 +166,9 @@ static async Task<int> Analyze(Options o)
 static void PrintAnalysisSummary(SongAnalysis a)
 {
     Console.WriteLine($"{a.Source.Artist} - {a.Source.Title}");
-    Console.WriteLine($"  bpm {a.Tempo.Bpm:0.##} ({a.Tempo.Backend}, fit residual {a.Tempo.ResidualMs:0.0} ms{(a.Tempo.Stable ? "" : ", UNSTABLE TEMPO: notes may drift")})");
+    string drift = !a.TempoMap.IsConstant ? $", variable: {a.TempoMap.Points.Count - 1} tempo changes, {a.TempoMap.Points.Min(p => p.Bpm):0.#}-{a.TempoMap.Points.Max(p => p.Bpm):0.#} BPM"
+        : a.Tempo.Stable ? "" : ", UNSTABLE TEMPO: notes may drift";
+    Console.WriteLine($"  bpm {a.Tempo.Bpm:0.##} ({a.Tempo.Backend}, fit residual {a.Tempo.ResidualMs:0.0} ms{drift})");
     Console.WriteLine($"  duration {a.Audio.DurationSec:0.0}s, pad {a.Audio.PadSec:0.000}s, layers [{string.Join(", ", a.Layers.Select(kv => $"{kv.Key}:{kv.Value.Count}"))}] ({a.LayerSource})");
     Console.WriteLine($"  sections: {string.Join(" ", a.Sections.Select(s => $"{s.Label}@{s.Start:0}s/{s.Energy:0.00}"))}");
 }
@@ -175,7 +180,7 @@ static int Check(Options o)
     Console.WriteLine($"{map.SongAuthor} - {map.SongName}  [{map.LevelAuthor}]  bpm {map.Bpm}");
     foreach (var d in map.Difficulties.OrderBy(d => d.Difficulty))
     {
-        var r = FlowAnalyzer.Analyze(d, map.Bpm, LoadSettings(o).Weights);
+        var r = FlowAnalyzer.Analyze(d, map.Tempo, LoadSettings(o).Weights);
         Console.WriteLine($"  {r}");
         if (o.Has("verbose"))
             foreach (var i in r.Issues.Take(40))
@@ -232,7 +237,7 @@ static async Task<(MapSet human, List<Comparison> results)?> Compare(string inpu
     var human = MapReader.Read(dir);
     var diffs = human.Difficulties.Where(d => d.Notes.Count > 0).ToList();
     if (diffs.Count == 0) { Console.Error.WriteLine($"{input}: no Standard difficulties"); return null; }
-    if (diffs.Any(d => d.BpmChanges > 0)) { Console.Error.WriteLine($"{input}: skipped (BPM changes)"); return null; }
+    if (diffs.Any(d => d.BpmChanges > 0 && d.TempoChanges is null)) { Console.Error.WriteLine($"{input}: skipped (unsupported BPM changes)"); return null; }
 
     string song = Path.Combine(dir, human.SongFile);
     string work = Path.Combine(dir, "abeat-work");
@@ -244,8 +249,8 @@ static async Task<(MapSet human, List<Comparison> results)?> Compare(string inpu
         a = await new AnalysisRunner().AnalyzeAsync(song, work, new AnalysisOptions(), quiet ? null : line => Console.Error.WriteLine(line));
     }
     var gen = MapGenerator.Generate(a, s with { Difficulties = diffs.Select(d => d.Difficulty).ToList() });
-    var results = diffs.Select(h => MapComparer.Compare(h, human.Bpm,
-        gen.Map.Difficulties.First(g => g.Difficulty == h.Difficulty), a.Tempo.Bpm, a.Audio.PadSec)).ToList();
+    var results = diffs.Select(h => MapComparer.Compare(h, human.Tempo,
+        gen.Map.Difficulties.First(g => g.Difficulty == h.Difficulty), a.TempoMap, a.Audio.PadSec)).ToList();
 
     double ratio = a.Tempo.Bpm / human.Bpm;
     string bpmNote = Math.Abs(ratio - 1) < 0.005 ? "match" : Math.Abs(ratio - 2) < 0.01 || Math.Abs(ratio - 0.5) < 0.005 ? "octave" : $"x{ratio:0.###}";
@@ -323,7 +328,7 @@ static int Movement(Options o)
         Console.WriteLine($"{map.SongAuthor} - {map.SongName}  [{map.LevelAuthor}]  bpm {map.Bpm}");
         foreach (var d in map.Difficulties.Where(d => d.Notes.Count > 0).OrderBy(d => d.Difficulty))
         {
-            var r = MovementAnalyzer.Analyze(d, map.Bpm);
+            var r = MovementAnalyzer.Analyze(d, map.Tempo);
             all.Add((Path.GetFileNameWithoutExtension(path), r));
             Console.WriteLine($"  {r}");
         }

@@ -18,7 +18,7 @@ public static class MapGenerator
             SongName = a.Source.Title,
             SongAuthor = a.Source.Artist,
             LevelAuthor = s.LevelAuthor,
-            Bpm = a.Tempo.Bpm,
+            Tempo = a.TempoMap,
             PreviewStart = a.Preview.StartSec,
             PreviewDuration = a.Preview.DurationSec,
             SongFile = a.Audio.File,
@@ -47,11 +47,11 @@ public static class MapGenerator
         };
         if (s.AngleOffsets) Expression.ApplyAngleOffsets(dm, events, p);
         WallGenerator.Generate(a, dm, p, s);
-        BombGenerator.Generate(dm, p, events, s, a.Tempo.Bpm);
-        if (s.Arcs) Expression.AddArcs(dm, events, a.Tempo.Bpm);
-        if (s.Chains) Expression.AddChains(dm, events, a.Tempo.Bpm, p);
+        BombGenerator.Generate(dm, p, events, s, a.TempoMap);
+        if (s.Arcs) Expression.AddArcs(dm, events, a.TempoMap);
+        if (s.Chains) Expression.AddChains(dm, events, a.TempoMap, p);
         if (s.Lights) LightingGenerator.Generate(a, dm, events);
-        var report = FlowAnalyzer.Analyze(dm, a.Tempo.Bpm, s.Weights, p.MinSameHandGapSec);
+        var report = FlowAnalyzer.Analyze(dm, a.TempoMap, s.Weights, p.MinSameHandGapSec);
         return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, seed));
     }
 

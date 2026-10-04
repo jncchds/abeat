@@ -171,7 +171,7 @@ public static class MapEndpoints
         {
             var a = store.Analysis(id);
             if (a == null || ReadVersion(store, id, version, a) is not { } maps) return Results.NotFound();
-            return Results.Ok(new { difficulties = maps.Select(d => DifficultyDto(a, d, FlowAnalyzer.Analyze(d, a.Tempo.Bpm), null)) });
+            return Results.Ok(new { difficulties = maps.Select(d => DifficultyDto(a, d, FlowAnalyzer.Analyze(d, a.TempoMap), null)) });
         });
 
         api.MapDelete("/songs/{id}/versions/{version}", (string id, string version, SongStore store) =>
@@ -188,7 +188,7 @@ public static class MapEndpoints
             var ma = ReadVersion(store, id, a, an)?.FirstOrDefault(d => d.Difficulty.ToString() == ad);
             var mb = ReadVersion(store, id, b, an)?.FirstOrDefault(d => d.Difficulty.ToString() == bd);
             if (ma == null || mb == null) return Results.NotFound();
-            return Results.Ok(ComparisonDto(MapComparer.Compare(mb, an.Tempo.Bpm, ma, an.Tempo.Bpm, 0)));
+            return Results.Ok(ComparisonDto(MapComparer.Compare(mb, an.TempoMap, ma, an.TempoMap, 0)));
         });
 
         // ArcViewer (a public https page) fetches the zip directly with ?noProxy=true. Browsers send a
@@ -229,7 +229,7 @@ public static class MapEndpoints
         var dir = store.ReferenceDir(id);
         if (!Directory.Exists(dir)) return null;
         var human = Abeat.Core.Formats.MapReader.Read(dir);
-        return [.. human.Difficulties.Where(d => d.Notes.Count > 0).Select(d => Generations.OnGrid(d, human.Bpm, 0, a))];
+        return [.. human.Difficulties.Where(d => d.Notes.Count > 0).Select(d => Generations.OnGrid(d, human.Tempo, 0, a))];
     }
 
     static List<DifficultyMap>? ReadVersion(SongStore store, string id, string version, SongAnalysis a) =>
@@ -245,7 +245,7 @@ public static class MapEndpoints
             vsHuman = [];
             foreach (var d in Generations.Read(store, id, g, a))
                 if (human.FirstOrDefault(h => h.Difficulty == d.Difficulty) is { } h)
-                    vsHuman[d.Difficulty.ToString()] = Math.Round(MapComparer.Compare(h, a.Tempo.Bpm, d, a.Tempo.Bpm, 0).F1, 3);
+                    vsHuman[d.Difficulty.ToString()] = Math.Round(MapComparer.Compare(h, a.TempoMap, d, a.TempoMap, 0).F1, 3);
         }
         return new { g.Id, kind = "abeat", g.CreatedUtc, g.Draft, g.AppVersion, g.Difficulties, vsHuman };
     }

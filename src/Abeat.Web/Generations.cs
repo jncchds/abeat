@@ -105,16 +105,15 @@ public static class Generations
     public static List<DifficultyMap> Read(SongStore store, string id, GenerationMeta g, SongAnalysis a)
     {
         var set = MapReader.Read(MapDir(store, id, g.Id));
-        return [.. set.Difficulties.Where(d => d.Notes.Count > 0).Select(d => OnGrid(d, set.Bpm, g.PadSec, a))];
+        return [.. set.Difficulties.Where(d => d.Notes.Count > 0).Select(d => OnGrid(d, set.Tempo, g.PadSec, a))];
     }
 
-    /// <summary>Re-times a map written at <paramref name="bpm"/> with <paramref name="padSec"/> of padding in
-    /// front of the original audio (0 for human maps) onto the analysis grid.</summary>
-    public static DifficultyMap OnGrid(DifficultyMap m, double bpm, double padSec, SongAnalysis a)
+    /// <summary>Re-times a map written with <paramref name="tempo"/> and <paramref name="padSec"/> of padding
+    /// in front of the original audio (0 for human maps) onto the analysis grid.</summary>
+    public static DifficultyMap OnGrid(DifficultyMap m, TempoMap tempo, double padSec, SongAnalysis a)
     {
-        if (Math.Abs(bpm - a.Tempo.Bpm) < 1e-9 && Math.Abs(padSec - a.Audio.PadSec) < 1e-6) return m;
-        double B(double beat) => a.SecondsToBeat(beat * 60 / bpm - padSec + a.Audio.PadSec);
-        double D(double dur) => dur * a.Tempo.Bpm / bpm;
+        if (tempo.SameAs(a.TempoMap) && Math.Abs(padSec - a.Audio.PadSec) < 1e-6) return m;
+        double B(double beat) => a.SecondsToBeat(tempo.BeatToSeconds(beat) - padSec + a.Audio.PadSec);
         return new DifficultyMap
         {
             Difficulty = m.Difficulty,
@@ -124,7 +123,7 @@ public static class Generations
             Bombs = [.. m.Bombs.Select(n => n with { Beat = B(n.Beat) })],
             Arcs = [.. m.Arcs.Select(x => x with { Beat = B(x.Beat), TailBeat = B(x.TailBeat) })],
             Chains = [.. m.Chains.Select(x => x with { Beat = B(x.Beat), TailBeat = B(x.TailBeat) })],
-            Obstacles = [.. m.Obstacles.Select(o => o with { Beat = B(o.Beat), Duration = D(o.Duration) })],
+            Obstacles = [.. m.Obstacles.Select(o => o with { Beat = B(o.Beat), Duration = B(o.Beat + o.Duration) - B(o.Beat) })],
             Lights = [.. m.Lights.Select(l => l with { Beat = B(l.Beat) })],
         };
     }

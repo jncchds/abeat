@@ -30,6 +30,8 @@ public sealed record RhythmEvent
     public int BurstCount { get; init; }
     /// <summary>Seconds from the event to the last onset of that run.</summary>
     public double BurstSec { get; init; }
+    /// <summary>Kind of the strongest drum hit on this slot (kick 'k', snare 's', hat 'h'), or '\0'.</summary>
+    public char Drum { get; init; }
 }
 
 /// <summary>Chooses which onsets become notes: snap onsets to the beat grid, score grid slots by layer
@@ -45,6 +47,8 @@ public static class RhythmSelector
         public double Score;
         public double BrightnessSum, BrightnessWeight;
         public readonly Dictionary<string, double> ByLayer = [];
+        public char Drum;
+        public double DrumScore;
     }
 
     public static List<RhythmEvent> Select(SongAnalysis a, DifficultyProfile p, GeneratorSettings s)
@@ -53,7 +57,8 @@ public static class RhythmSelector
         if (slots.Count == 0) return [];
 
         double maxScore = slots.Values.Max(x => x.Score);
-        double secPerSlot = a.BeatToSeconds(1.0 / SlotsPerBeat);
+        // the fastest tempo of a drifting song, so the gap holds everywhere
+        double secPerSlot = 60.0 / a.TempoMap.Points.Max(x => x.Bpm) / SlotsPerBeat;
         int minGapSlots = (int)Math.Ceiling(p.MinGapSec / secPerSlot - 1e-6);
         int grid = SlotsPerBeat / p.Subdivision;
         minGapSlots = Math.Max(minGapSlots, p.AllowTriplets ? Math.Min(grid, SlotsPerBeat / 3) : grid);
@@ -111,6 +116,7 @@ public static class RhythmSelector
                 Brightness = sl.BrightnessWeight > 0 ? sl.BrightnessSum / sl.BrightnessWeight : 0.5,
                 Energy = a.EnergyAt(t),
                 Layer = sl.ByLayer.MaxBy(kv => kv.Value).Key,
+                Drum = sl.Drum,
             };
         }).ToList();
 
@@ -158,7 +164,7 @@ public static class RhythmSelector
     /// sixteenth hats never count. Stops 50 ms before the next event.</summary>
     static (int count, double sec) Burst(SongAnalysis a, RhythmEvent e, double nextT, Dictionary<string, double[]> onsetTimes)
     {
-        double maxStep = Math.Min(0.1, 0.85 * a.BeatToSeconds(0.25));
+        double maxStep = Math.Min(0.1, 0.85 * 0.25 * a.TempoMap.SecPerBeat(e.Beat));
         int best = 0; double bestSec = 0;
         foreach (var layer in BurstLayers.Prepend(e.Layer).Distinct())
         {
@@ -266,12 +272,14 @@ public static class RhythmSelector
                     double errTrip = Math.Abs(exact - trip) / 4;
                     if (errTrip < errStraight * 0.4 && errStraight > 0.25) { index = trip; err = errTrip; }
                 }
-                double contribution = w * rank[o] * (1 - Math.Min(1, err * 1.6));
+                double drumWeight = o.K is { Length: > 0 } k ? s.DrumWeights.GetValueOrDefault(k[..1], 1) : 1;
+                double contribution = w * drumWeight * rank[o] * (1 - Math.Min(1, err * 1.6));
                 if (contribution <= 0) continue;
                 if (!slots.TryGetValue(index, out var slot)) slots[index] = slot = new Slot { Index = index };
                 slot.BrightnessSum += o.Br * contribution;
                 slot.BrightnessWeight += contribution;
                 slot.ByLayer[layer] = slot.ByLayer.GetValueOrDefault(layer) + contribution;
+                if (o.K is { Length: > 0 } kind && contribution > slot.DrumScore) { slot.Drum = kind[0]; slot.DrumScore = contribution; }
             }
         }
 

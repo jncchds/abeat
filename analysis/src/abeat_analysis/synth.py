@@ -67,11 +67,25 @@ def hat(rng):
     return x * _env(n, decay=0.015) * 0.5
 
 
-def render(bpm: float = 128.0, offset: float = 0.37, seed: int = 7) -> tuple[np.ndarray, dict]:
+def beat_times(bpm: float, offset: float, n: int, drift: float = 0.0) -> np.ndarray:
+    """Times of beats 0..n. With drift the tempo wanders like a live band: +-drift (relative) over a
+    slow 96-beat sine plus a slow push (the song ends drift/2 faster)."""
+    i = np.arange(n)
+    local = bpm * (1 + drift * np.sin(2 * np.pi * i / 96) + drift * 0.5 * i / max(1, n))
+    return offset + np.concatenate([[0.0], np.cumsum(60.0 / local)])
+
+
+def render(bpm: float = 128.0, offset: float = 0.37, seed: int = 7, drift: float = 0.0) -> tuple[np.ndarray, dict]:
     rng = np.random.default_rng(seed)
-    beat = 60.0 / bpm
     total_bars = sum(b for _, b, _ in STRUCTURE)
-    total = offset + total_bars * 4 * beat + 2.0
+    beats = beat_times(bpm, offset, total_bars * 4 + 8, drift)
+
+    def at(pos: float) -> float:
+        """Time of a (fractional) beat position."""
+        i = int(np.floor(pos))
+        return float(beats[i] + (pos - i) * (beats[i + 1] - beats[i]))
+
+    total = beats[total_bars * 4] + 2.0
     out = np.zeros(int(total * SR) + SR)
 
     def add(sig, t, gain=1.0):
@@ -83,38 +97,43 @@ def render(bpm: float = 128.0, offset: float = 0.37, seed: int = 7) -> tuple[np.
     sections = []
     bar0 = 0
     for name, bars, parts in STRUCTURE:
-        start = offset + bar0 * 4 * beat
-        sections.append({"name": name, "start": start, "end": start + bars * 4 * beat})
+        if drift:
+            parts = parts | {"kick"}  # a live drummer keeps time throughout
+        start = at(bar0 * 4)
+        sections.append({"name": name, "start": start, "end": at((bar0 + bars) * 4)})
         for bar in range(bars):
-            tb = start + bar * 4 * beat
+            pb = (bar0 + bar) * 4  # beat position of the bar
+            tb = at(pb)
             for b in range(4):
-                t = tb + b * beat
+                t = at(pb + b)
+                beat = at(pb + b + 1) - t
                 if "kick" in parts:
                     add(k, t, 0.9)
                 if "snare" in parts and b in (1, 3):
                     add(s, t, 0.5)
                 if "hat" in parts:
-                    add(hat(rng), t + beat / 2, 0.35)
+                    add(hat(rng), at(pb + b + 0.5), 0.35)
                 if "bass" in parts:
                     m = BASS[bar % 4]
-                    add(_tone(_midi(m), beat * 0.9, "saw", decay=0.25), t + beat / 2, 0.25)
+                    add(_tone(_midi(m), beat * 0.9, "saw", decay=0.25), at(pb + b + 0.5), 0.25)
             if "roll" in parts:
                 div = 2 if bar < bars // 2 else 4
                 for i in range(4 * div):
-                    add(s, tb + i * beat / div, 0.25 + 0.3 * bar / bars)
+                    add(s, at(pb + i / div), 0.25 + 0.3 * bar / bars)
             if "lead" in parts:
                 for i in range(8):
                     m = LEAD[(bar * 8 + i) % len(LEAD)]
                     if (bar + i) % 5 == 4:
                         continue  # leave gaps so the rhythm is not perfectly uniform
-                    add(_tone(_midi(m), beat * 0.45, "square", decay=0.12), tb + i * beat / 2, 0.12)
+                    add(_tone(_midi(m), (at(pb + 4) - tb) / 8 * 0.9, "square", decay=0.12), at(pb + i / 2), 0.12)
             if "pad" in parts and bar % 2 == 0:
                 for m in (60, 64, 67):
-                    add(_tone(_midi(m), beat * 8, "sine", decay=2.0), tb, 0.08)
+                    add(_tone(_midi(m), at(pb + 8) - tb, "sine", decay=2.0), tb, 0.08)
         bar0 += bars
 
     out = out / np.max(np.abs(out)) * 0.9
-    truth = {"bpm": bpm, "firstBeatSec": offset, "sections": sections}
+    truth = {"bpm": bpm, "firstBeatSec": offset, "drift": drift, "sections": sections,
+             "beats": [round(float(b), 5) for b in beats[: total_bars * 4 + 1]]}
     return np.stack([out, out], axis=1).astype(np.float32), truth
 
 

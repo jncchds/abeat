@@ -10,16 +10,14 @@ public sealed class SaberPath
     /// <summary>reset = this swing re-winds from the previous one (path in between unknown).</summary>
     readonly List<(double beat, Vec2 entry, Vec2 exit, bool reset)> swings = [];
 
-    readonly double Bpm;
-
-    public SaberPath(IEnumerable<ColorNote> notes, Hand hand, double bpm = 120)
+    public SaberPath(IEnumerable<ColorNote> notes, Hand hand, TempoMap? tempo = null)
     {
-        Bpm = bpm;
+        tempo ??= TempoMap.Constant(120);
         var state = HandState.Initial(hand);
         foreach (var n in notes.Where(n => n.Hand == hand).OrderBy(n => n.Beat))
         {
             if (swings.Count > 0 && Math.Abs(swings[^1].beat - n.Beat) < 1e-3) continue; // stacks: keep first
-            if (state.Active && (n.Beat - swings[^1].beat) * 60 / Bpm < SwingCostModel.SliderGapSec) continue; // sliders
+            if (state.Active && tempo.Seconds(swings[^1].beat, n.Beat) < SwingCostModel.SliderGapSec) continue; // sliders
             var v = SwingCostModel.EffectiveSwing(state, n.Direction);
             var c = new Vec2(n.X, n.Y);
             swings.Add((n.Beat, c - v * SwingCostModel.HalfSwing, c + v * SwingCostModel.HalfSwing, SwingCostModel.IsReset(hand, state, v)));
@@ -64,12 +62,11 @@ public static class BombGenerator
     /// <summary>Saber closer than this (grid cells) to a bomb counts as a hit.</summary>
     public const double HitDistance = 0.85;
 
-    public static void Generate(DifficultyMap map, DifficultyProfile p, IReadOnlyList<RhythmEvent> events, GeneratorSettings s, double bpm)
+    public static void Generate(DifficultyMap map, DifficultyProfile p, IReadOnlyList<RhythmEvent> events, GeneratorSettings s, TempoMap tempo)
     {
         if (!s.Bombs || p.Name == DifficultyName.Easy) return;
-        var paths = new[] { new SaberPath(map.Notes, Hand.Left, bpm), new SaberPath(map.Notes, Hand.Right, bpm) };
+        var paths = new[] { new SaberPath(map.Notes, Hand.Left, tempo), new SaberPath(map.Notes, Hand.Right, tempo) };
         var bombs = new List<BombNote>();
-        double spb = 60.0 / bpm;
 
         // 1) reset bombs: same-parity swings in a row get a bomb where the natural reversal would cut
         foreach (var hand in new[] { Hand.Left, Hand.Right })
@@ -80,7 +77,7 @@ public static class BombGenerator
             {
                 var n = notes[i];
                 var v = SwingCostModel.EffectiveSwing(state, n.Direction);
-                var next = state.After(n.Beat * spb, n.X, n.Y, n.Direction, v, hand);
+                var next = state.After(tempo.BeatToSeconds(n.Beat), n.X, n.Y, n.Direction, v, hand);
                 if (i + 1 < notes.Count && notes[i + 1].Beat - n.Beat >= 1)
                 {
                     var nn = notes[i + 1];

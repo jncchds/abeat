@@ -56,7 +56,8 @@ links only work for maps published on BeatSaver.
 ## How it works
 
 **Analysis** (`analysis/`, Python): beat tracking with [beat_this](https://github.com/CPJKU/beat_this)
-(or librosa), a constant-BPM grid fit, phase refinement against a sharp attack envelope (spectral-flux
+(or librosa), a constant-BPM grid fit (or, for drifting live recordings, a tempo map written as v3
+BPM events), phase refinement against a sharp attack envelope (spectral-flux
 envelopes lag ~50 ms, which players feel), downbeats, energy curve, novelty-based sections with
 labels for repeated parts, and onsets per layer (frequency bands, or [Demucs](https://github.com/facebookresearch/demucs)
 stems with `--stems`). The audio is padded so grid beat 0 is at t = 0 and written as `song.egg`.
@@ -137,7 +138,7 @@ The style prior (`scripts/style_prior.py`) is learned from these maps.
 
 - Calibrate `FlowWeights` and the flow score against curated BeatSaver maps (`abeat check`).
 - Learned rhythm selection (which onsets humans map) trained on BeatSaver maps, exported to ONNX.
-- Chains on fast runs, BPM changes for live-tempo songs, smarter bomb patterns.
+- Smarter bomb patterns.
 - Desktop packaging (e.g. Photino window around the same web UI).
 - Optional Chroma (custom colours, gradients, lighting) and Noodle Extensions (custom note/wall paths) output, declared as map requirements/suggestions.
 
