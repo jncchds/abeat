@@ -160,6 +160,11 @@ The CLI (`dotnet run --project src/Abeat.Cli -- …`) works on its own without t
 YouTube Music; title, artist and cover are taken from the page). Links are downloaded once and kept, so
 re-analysing never downloads again.
 
+**Existing maps**: drop a Beat Saver map zip on the same box, or paste a BeatSaver link
+(`https://beatsaver.com/maps/1a2b3`), a `!bsr 1a2b3` request or the bare key. The map's song is analysed
+like an upload, and the map itself is kept as the **Human** version (mapper and BeatSaver link in the
+header), so every generation shows its timing F1 against it and it can be picked as A or B.
+
 **Analysis options** on the add form: beat tracker, **Separate stems (Demucs)** (recommended; needed
 for vocal-led maps and drum labels) and the vocal onset method (see [Analysis options](#4-analysis-options)).
 The song list shows each song's state: Queued, Analyzing, Generating, Ready or Failed. Analyses run one

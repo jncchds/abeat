@@ -260,7 +260,11 @@ move, `--write-prior` rewrites the prior.
   the UI scores them in `utils/taps.ts` (per-hand median offset removed, ±70 ms matching).
 - Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
   human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served as
-  version `human`.
+  version `human`. From the UI: `POST /api/songs` with a `.zip` and `POST /api/songs/url` with a BeatSaver
+  link / `!bsr` / bare key (`BeatSaverClient.ParseKey`, `ByKeyAsync` on `maps/id/{key}`, then the
+  version's zip) both go through `SongStore.ImportMapZip`: unzip under `data/incoming/` (<= 1 GB
+  unpacked, entries outside refused), the shortest-path `Info.dat` is the map, the song file must sit
+  inside it, then `Import` with the add form's analysis options; the song is queued for analysis.
 - Song page comparison: A (gold) and B (violet) each pick a version + difficulty; with both shown every
   timeline lane splits into an A row (top) and a B row (bottom), notes without a counterpart in the
   other version (±50 ms) are ringed in their version's colour and marked on an "only" strip, and the

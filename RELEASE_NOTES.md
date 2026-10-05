@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.8 — 2026-10-05
+
+- Add an existing map as a song: drop a Beat Saver map zip on **Add a song**, or paste a BeatSaver link, `!bsr` request or map key into the link box. The map's audio is analysed like an upload and the map is kept as the **Human** version, so generations show their timing F1 against it and it can be compared lane by lane.
+
 ## v0.2.7 — 2026-10-05
 
 - Tempo no longer bends through drum rolls and fills: where the drum stem has no clear beat (Bangaranga's intro, a fast roll, came out at 172 BPM in a 136 BPM song), the beat tracker's bars on the whole mix take over unless the bent tempo fits the drums at least twice as well as steady bars. Real slow-downs (2x-3x better on the drums) are kept. Against your tap runs, Bangaranga's first 18 s go from 0.29-0.42 to 0.49-0.58 F1 (Hard to Expert+), the 1:57-2:07 bridge from 0.22-0.45 to 0.37-0.48 (with v0.2.6's exact note times), the rest unchanged.

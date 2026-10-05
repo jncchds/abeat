@@ -1,7 +1,8 @@
 # ABeat by CHDS
 
 Automatic Beat Saber map generator: audio file in, playable map (all difficulties, walls, bombs, lights) out.
-Songs come from an uploaded file or a YouTube / YouTube Music link (only use audio you have the rights to).
+Songs come from an uploaded file or a YouTube / YouTube Music link (only use audio you have the rights to),
+or from an existing Beat Saver map (zip or BeatSaver link), which is kept as a human version to compare with.
 A web UI lets you listen, inspect and tune the generator, keeps every generation as a version and
 compares any two (or a generation against an imported human map) lane by lane; the same server runs
 locally or in Docker.

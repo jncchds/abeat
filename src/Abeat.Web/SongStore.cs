@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.IO.Compression;
 using System.Text.Json;
 using Abeat.Core.Analysis;
 using Abeat.Core.Generation;
@@ -138,7 +139,7 @@ public sealed class SongStore
     /// <summary>Imports an existing analysis work dir and/or a human map folder (with its abeat-work
     /// analysis, as written by `abeat compare/bench`). Without an analysis the song audio is copied
     /// and the caller queues it.</summary>
-    public SongMeta Import(string path)
+    public SongMeta Import(string path, AnalysisOptions? options = null)
     {
         path = Path.GetFullPath(path);
         bool isMap = File.Exists(Path.Combine(path, "Info.dat")) || File.Exists(Path.Combine(path, "info.dat"));
@@ -148,6 +149,10 @@ public sealed class SongStore
 
         string id = Guid.NewGuid().ToString("N")[..12];
         var human = isMap ? Abeat.Core.Formats.MapReader.Read(path) : null;
+        if (human != null && !Path.GetFullPath(Path.Combine(path, human.SongFile)).StartsWith(path + Path.DirectorySeparatorChar))
+            throw new InvalidDataException($"the map's song file ({human.SongFile}) is outside the map");
+        if (work == null && !File.Exists(Path.Combine(path, human!.SongFile)))
+            throw new InvalidDataException($"the map has no song file ({human.SongFile})");
         string fileName = human != null ? $"{human.SongAuthor} - {human.SongName}{Path.GetExtension(human.SongFile)}" : "audio.egg";
         foreach (char c in Path.GetInvalidFileNameChars()) fileName = fileName.Replace(c, '_');
         var meta = new SongMeta
@@ -156,7 +161,8 @@ public sealed class SongStore
             FileName = fileName,
             Title = human?.SongName ?? Path.GetFileName(path),
             Artist = human?.SongAuthor ?? "",
-            ReferenceMapper = human?.LevelAuthor,
+            Analysis = options ?? new(),
+            ReferenceMapper = human == null ? null : string.IsNullOrWhiteSpace(human.LevelAuthor) ? "unknown mapper" : human.LevelAuthor,
             ReferenceUrl = human != null && Path.GetFileName(path) is { Length: > 0 } key && key.All(char.IsAsciiHexDigit)
                 ? $"https://beatsaver.com/maps/{key}" : null,
         };
@@ -189,6 +195,52 @@ public sealed class SongStore
         metas[id] = meta;
         Save(meta);
         return meta;
+    }
+
+    const long MaxUnzipped = 1L << 30;
+
+    /// <summary>A new song from a zipped Beat Saver map (as downloaded from BeatSaver): the map's audio is
+    /// analysed like an upload and its difficulties are kept as the human version.</summary>
+    public SongMeta ImportMapZip(string zipPath, AnalysisOptions options, string? referenceUrl = null)
+    {
+        string tmp = Path.Combine(Root, "incoming", Guid.NewGuid().ToString("N"));
+        try
+        {
+            ZipArchive OpenZip()
+            {
+                try { return ZipFile.OpenRead(zipPath); }
+                catch (InvalidDataException) { throw new InvalidDataException("not a zip file"); }
+            }
+            using (var zip = OpenZip())
+            {
+                if (zip.Entries.Sum(e => e.Length) > MaxUnzipped) throw new InvalidDataException("the zip unpacks to more than 1 GB");
+                zip.ExtractToDirectory(tmp); // refuses entries that would land outside tmp
+            }
+            var info = Directory.EnumerateFiles(tmp, "*", SearchOption.AllDirectories)
+                .Where(f => Path.GetFileName(f).Equals("Info.dat", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(f => f.Length).FirstOrDefault()
+                ?? throw new InvalidDataException("no Info.dat in the zip: not a Beat Saver map");
+            var meta = Import(Path.GetDirectoryName(info)!, options);
+            meta.ReferenceUrl = referenceUrl; // not from the folder name: the temp folder is hex too
+            Save(meta);
+            return meta;
+        }
+        catch (InvalidDataException) { throw; }
+        catch (Exception e) when (e is IOException or System.Text.Json.JsonException or KeyNotFoundException or InvalidOperationException)
+        {
+            throw new InvalidDataException($"not a readable Beat Saver map: {e.Message}", e);
+        }
+        finally
+        {
+            if (Directory.Exists(tmp)) Directory.Delete(tmp, recursive: true);
+        }
+    }
+
+    public string IncomingPath(string name)
+    {
+        var dir = Path.Combine(Root, "incoming");
+        Directory.CreateDirectory(dir);
+        return Path.Combine(dir, $"{Guid.NewGuid():N}-{name}");
     }
 
     static void CopyDir(string from, string to, Func<string, bool> include)

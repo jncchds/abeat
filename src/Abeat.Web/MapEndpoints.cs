@@ -31,16 +31,40 @@ public static class MapEndpoints
                 form["beats"].FirstOrDefault() ?? "auto",
                 form["stems"].FirstOrDefault() == "true",
                 VocalOnsets: VocalOption(form["vocals"].FirstOrDefault()));
+            if (Path.GetExtension(file.FileName).Equals(".zip", StringComparison.OrdinalIgnoreCase))
+            {
+                string zip = store.IncomingPath("map.zip");
+                try
+                {
+                    await using (var f = File.Create(zip)) await file.CopyToAsync(f);
+                    return ImportMap(store, queue, zip, options, null);
+                }
+                finally { File.Delete(zip); }
+            }
             await using var s = file.OpenReadStream();
             var meta = await store.AddAsync(file.FileName, s, options);
             queue.Enqueue(meta.Id);
             return Results.Ok(meta);
         }).DisableAntiforgery();
 
-        api.MapPost("/songs/url", (UrlRequest req, SongStore store, AnalysisQueue queue) =>
+        api.MapPost("/songs/url", async (UrlRequest req, SongStore store, AnalysisQueue queue, CancellationToken ct) =>
         {
+            if (BeatSaverClient.ParseKey(req.Url ?? "") is { } key)
+            {
+                var options = new AnalysisOptions(req.Beats ?? "auto", req.Stems, VocalOnsets: VocalOption(req.Vocals));
+                using var bs = new BeatSaverClient();
+                string zip = store.IncomingPath($"{key}.zip");
+                try
+                {
+                    if (await bs.ByKeyAsync(key, ct) is not { } map) return Results.NotFound($"BeatSaver has no map {key}");
+                    await bs.DownloadAsync(map, zip, ct);
+                    return ImportMap(store, queue, zip, options, $"https://beatsaver.com/maps/{key}");
+                }
+                catch (HttpRequestException e) { return Results.Problem($"BeatSaver: {e.Message}", statusCode: 502); }
+                finally { File.Delete(zip); }
+            }
             if (!Uri.TryCreate(req.Url?.Trim(), UriKind.Absolute, out var uri) || uri.Scheme is not ("http" or "https"))
-                return Results.BadRequest("expected an http(s) link, e.g. a YouTube or YouTube Music URL");
+                return Results.BadRequest("expected an http(s) link (YouTube, YouTube Music) or a BeatSaver map link or key");
             var meta = store.AddUrl(uri.ToString(), new AnalysisOptions(req.Beats ?? "auto", req.Stems, VocalOnsets: VocalOption(req.Vocals)));
             queue.Enqueue(meta.Id);
             return Results.Ok(meta);
@@ -233,6 +257,17 @@ public static class MapEndpoints
             foreach (char c in Path.GetInvalidFileNameChars()) name = name.Replace(c, '_');
             return Results.File(zip, "application/zip", $"{name}.zip");
         });
+    }
+
+    static IResult ImportMap(SongStore store, AnalysisQueue queue, string zip, AnalysisOptions options, string? referenceUrl)
+    {
+        try
+        {
+            var meta = store.ImportMapZip(zip, options, referenceUrl);
+            queue.Enqueue(meta.Id);
+            return Results.Ok(meta);
+        }
+        catch (InvalidDataException e) { return Results.BadRequest(e.Message); }
     }
 
     public sealed record UrlRequest(string? Url, string? Beats, bool Stems, string? Vocals);

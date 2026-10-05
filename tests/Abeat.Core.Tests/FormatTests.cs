@@ -61,3 +61,21 @@ public class FormatTests
         finally { Directory.Delete(dir, true); }
     }
 }
+
+public class BeatSaverKeyTests
+{
+    [Theory]
+    [InlineData("https://beatsaver.com/maps/1a2b3", "1a2b3")]
+    [InlineData("https://beatsaver.com/maps/1A2B3/", "1a2b3")]
+    [InlineData("!bsr 25f", "25f")]
+    [InlineData("beatsaver://3c1d", "3c1d")]
+    [InlineData("  4e0a1  ", "4e0a1")]
+    public void FindsTheMapKey(string input, string key) => Assert.Equal(key, BeatSaverClient.ParseKey(input));
+
+    [Theory]
+    [InlineData("https://music.youtube.com/watch?v=b3tLOikocQQ")]
+    [InlineData("https://evil.example/maps/1a2b3")]
+    [InlineData("https://beatsaver.com/profile/123")]
+    [InlineData("not a key")]
+    public void IgnoresOtherLinks(string input) => Assert.Null(BeatSaverClient.ParseKey(input));
+}

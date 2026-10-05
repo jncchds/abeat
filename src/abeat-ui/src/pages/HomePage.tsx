@@ -5,7 +5,7 @@ import ToggleField from '../components/ToggleField'
 import VocalSelect from '../components/VocalSelect'
 import { useSongs } from '../hooks/useSongs'
 
-/** Add a song by upload or link; analysis and a first map then run automatically. */
+/** Add a song by upload or link (audio, or a Beat Saver map to compare with); analysis and a first map then run automatically. */
 export default function HomePage() {
   const navigate = useNavigate()
   const { songs, refresh } = useSongs()
@@ -47,10 +47,10 @@ export default function HomePage() {
           onDrop={e => { e.preventDefault(); setDragging(false); onFile(e.dataTransfer.files[0]) }}
         >
           <div className="drop-icon">🎵</div>
-          <p>Drop an audio file here</p>
+          <p>Drop an audio file or a Beat Saver map (.zip) here</p>
           <label className="file-btn">
             Choose file
-            <input type="file" hidden accept="audio/*,.mp3,.ogg,.flac,.wav,.m4a,.opus,.webm" disabled={busy}
+            <input type="file" hidden accept="audio/*,.mp3,.ogg,.flac,.wav,.m4a,.opus,.webm,.zip" disabled={busy}
               onChange={e => onFile(e.target.files?.[0])} />
           </label>
         </div>
@@ -58,8 +58,8 @@ export default function HomePage() {
         <form className="card" onSubmit={e => { e.preventDefault(); if (url.trim()) run(() => addSongUrl(url.trim(), beats, stems, vocals)) }}>
           <h3>From a link</h3>
           <label>
-            YouTube or YouTube Music URL
-            <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://music.youtube.com/watch?v=…" />
+            YouTube, YouTube Music or BeatSaver link (or a !bsr key)
+            <input type="text" inputMode="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://music.youtube.com/watch?v=… or https://beatsaver.com/maps/1a2b3" />
           </label>
           <button type="submit" disabled={busy || !url.trim()}>Add link</button>
         </form>
@@ -80,7 +80,7 @@ export default function HomePage() {
       </div>
 
       {error && <p className="error-text">{error}</p>}
-      <p className="hint">Only use audio you have the rights to. Analysis and a first map run automatically after adding.</p>
+      <p className="hint">Only use audio you have the rights to. Analysis and a first map run automatically after adding. An existing map (zip or BeatSaver) is kept as the Human version to compare the generated maps with.</p>
 
       {songs.length > 0 && (
         <>

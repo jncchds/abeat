@@ -1,6 +1,7 @@
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Abeat.Core.Evaluation;
 
@@ -51,6 +52,32 @@ public sealed class BeatSaverClient : IDisposable
             await Task.Delay(300, ct); // be polite to the API
         }
         return result;
+    }
+
+    /// <summary>The map key in a BeatSaver page link (beatsaver.com/maps/1a2b3), a "!bsr 1a2b3" request,
+    /// a beatsaver://1a2b3 one-click link or a bare key; null for anything else.</summary>
+    public static string? ParseKey(string input)
+    {
+        input = input.Trim();
+        if (Regex.Match(input, @"^(?:!bsr\s+|beatsaver://)?([0-9a-f]{1,8})/?$", RegexOptions.IgnoreCase) is { Success: true } m)
+            return m.Groups[1].Value.ToLowerInvariant();
+        if (Uri.TryCreate(input, UriKind.Absolute, out var u) && u.Scheme is "http" or "https"
+            && (u.Host == "beatsaver.com" || u.Host.EndsWith(".beatsaver.com"))
+            && Regex.Match(u.AbsolutePath, @"^/maps/([0-9a-f]{1,8})/?$", RegexOptions.IgnoreCase) is { Success: true } p)
+            return p.Groups[1].Value.ToLowerInvariant();
+        return null;
+    }
+
+    /// <summary>The map with this key (latest version), or null when BeatSaver has none.</summary>
+    public async Task<MapInfo?> ByKeyAsync(string key, CancellationToken ct = default)
+    {
+        using var resp = await http.GetAsync($"maps/id/{Uri.EscapeDataString(key)}", ct);
+        if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return null;
+        resp.EnsureSuccessStatusCode();
+        var d = await resp.Content.ReadFromJsonAsync<Doc>(Json, ct);
+        if (d?.Versions.FirstOrDefault() is not { } v) return null;
+        double nps = v.Diffs.Select(x => x.Nps).DefaultIfEmpty(0).Max();
+        return new MapInfo(d.Id, d.Name, d.Metadata.Bpm, d.Metadata.Duration, d.Metadata.LevelAuthorName, d.Stats.Score, v.DownloadUrl, nps);
     }
 
     public async Task DownloadAsync(MapInfo map, string path, CancellationToken ct = default)
