@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.6 — 2026-10-05
+
+- Notes land on the detected sounds instead of the beat grid: the grid still picks which hits get notes, but each note is written at the time of its strongest onset (maps now carry fractional beats). Vocal, bass and other onsets are shifted by how much later than the drums their stem reports hits (Everlasting vocals ~16 ms). Strong drum hits are now 0-5 ms from their notes instead of 3-9 ms; against your tap runs nothing changes beyond tapping jitter (~22 ms), and maps stay as playable (no clashes, bomb hits or resets).
+
 ## v0.2.5 — 2026-10-05
 
 - Tap runs keep the song.egg padding they were recorded on, so they stay aligned after a re-analysis moves the beat grid.

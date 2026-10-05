@@ -5,8 +5,11 @@ namespace Abeat.Core.Generation;
 /// <summary>A moment that gets a note (or two, for doubles).</summary>
 public sealed record RhythmEvent
 {
+    /// <summary>Beat of the detected sound (fractional, not snapped to the grid).</summary>
     public double Beat { get; init; }
     public double Time { get; init; }
+    /// <summary>Grid position the note was chosen at; phrase and section-repeat structure key off it.</summary>
+    public double GridBeat { get; init; }
     /// <summary>Combined onset score, normalized 0..1 within the song.</summary>
     public double Strength { get; init; }
     public double Brightness { get; init; }
@@ -15,7 +18,7 @@ public sealed record RhythmEvent
     public bool IsDouble { get; init; }
     /// <summary>Label of the section (A, B, ...); repeated parts share a label.</summary>
     public string Section { get; init; } = "A";
-    /// <summary>Beats since the start of the section (snapped to the section's first downbeat).</summary>
+    /// <summary>Grid beats since the start of the section (snapped to the section's first downbeat).</summary>
     public double BeatInSection { get; init; }
     /// <summary>Seconds the melody note keeps sounding after the onset (0 for percussive layers):
     /// until the layer's next onset, the end of the sung word, or the energy falling away.</summary>
@@ -36,8 +39,9 @@ public sealed record RhythmEvent
     public double NoteEnd { get; init; }
 }
 
-/// <summary>Chooses which onsets become notes: snap onsets to the beat grid, score grid slots by layer
-/// weights, metric position and energy, then pick slots bar by bar to hit a per-section density target.</summary>
+/// <summary>Chooses which onsets become notes: group onsets into beat-grid slots, score slots by layer
+/// weights, metric position and energy, then pick slots bar by bar to hit a per-section density target.
+/// The grid only decides which sounds get notes; each note is placed at the time of its strongest onset.</summary>
 public static class RhythmSelector
 {
     /// <summary>Slots are 1/12 beat, so both sixteenths (3 slots) and eighth-triplets (4 slots) are exact.</summary>
@@ -53,6 +57,9 @@ public static class RhythmSelector
         public double DrumScore;
         /// <summary>Latest end of a transcribed note contributing per layer (seconds).</summary>
         public readonly Dictionary<string, double> EndByLayer = [];
+        /// <summary>Time (seconds) of the strongest contributing onset: where the note goes.</summary>
+        public double Time;
+        public double TimeWeight;
     }
 
     public static List<RhythmEvent> Select(SongAnalysis a, DifficultyProfile p, GeneratorSettings s)
@@ -63,9 +70,14 @@ public static class RhythmSelector
         double maxScore = slots.Values.Max(x => x.Score);
         int grid = SlotsPerBeat / p.Subdivision;
         int minGridSlots = p.AllowTriplets ? Math.Min(grid, SlotsPerBeat / 3) : grid;
-        // the gap in slots follows the tempo where the note is (songs with tempo changes)
-        int MinGapSlots(int slot) => Math.Max(minGridSlots,
-            (int)Math.Ceiling(p.MinGapSec / (a.TempoMap.SecPerBeat((double)slot / SlotsPerBeat) / SlotsPerBeat) - 1e-6));
+        // notes sit at their onset times, up to half a grid step off their slot, so the min gap is
+        // checked in seconds against neighbours a few slots further out
+        bool TooClose(SortedSet<int> accepted, Slot c)
+        {
+            if (accepted.GetViewBetween(c.Index - minGridSlots + 1, c.Index + minGridSlots - 1).Count > 0) return true;
+            int reach = (int)Math.Ceiling(p.MinGapSec / (a.TempoMap.SecPerBeat((double)c.Index / SlotsPerBeat) / SlotsPerBeat)) + grid;
+            return accepted.GetViewBetween(c.Index - reach, c.Index + reach).Any(i => Math.Abs(slots[i].Time - c.Time) < p.MinGapSec - 1e-6);
+        }
 
         var accepted = new SortedSet<int>();
         var drops = s.DropPause ? DropSlots(a, slots) : [];
@@ -95,8 +107,7 @@ public static class RhythmSelector
             foreach (var c in candidates)
             {
                 if (taken >= count) break;
-                int gapSlots = MinGapSlots(c.Index);
-                if (accepted.GetViewBetween(c.Index - gapSlots + 1, c.Index + gapSlots - 1).Count > 0) continue;
+                if (TooClose(accepted, c)) continue;
                 accepted.Add(c.Index);
                 taken++;
             }
@@ -107,15 +118,16 @@ public static class RhythmSelector
         var events = accepted.Select(i =>
         {
             var sl = slots[i];
-            double beat = (double)i / SlotsPerBeat;
-            double t = a.BeatToSeconds(beat);
-            var sec = a.SectionAt(t);
+            double gridBeat = (double)i / SlotsPerBeat;
+            double t = sl.Time;
+            var sec = a.SectionAt(a.BeatToSeconds(gridBeat));
             double secBeat = Math.Round(a.SecondsToBeat(sec.Start));
             return new RhythmEvent
             {
                 Section = sec.Label,
-                BeatInSection = beat - secBeat,
-                Beat = beat,
+                BeatInSection = gridBeat - secBeat,
+                Beat = a.SecondsToBeat(t),
+                GridBeat = gridBeat,
                 Time = t,
                 Strength = sl.Score / maxScore,
                 Brightness = sl.BrightnessWeight > 0 ? sl.BrightnessSum / sl.BrightnessWeight : 0.5,
@@ -124,10 +136,10 @@ public static class RhythmSelector
                 Drum = sl.Drum,
                 NoteEnd = sl.EndByLayer.GetValueOrDefault(sl.ByLayer.MaxBy(kv => kv.Value).Key),
             };
-        }).ToList();
+        }).OrderBy(e => e.Time).ToList();
 
         events = AddExpression(a, events);
-        var forced = drops.Select(d => events.FindIndex(e => Math.Abs(e.Beat - (double)d / SlotsPerBeat) < 1e-6)).Where(i => i >= 0).ToHashSet();
+        var forced = drops.Select(d => events.FindIndex(e => Math.Abs(e.GridBeat - (double)d / SlotsPerBeat) < 1e-6)).Where(i => i >= 0).ToHashSet();
         return MarkDoubles(events, p, forced);
     }
 
@@ -232,7 +244,7 @@ public static class RhythmSelector
         double maxScore = slots.Count > 0 ? slots.Values.Max(x => x.Score) : 1;
         string layer = new[] { "drums", "low", "full", "mix" }.FirstOrDefault(a.Layers.ContainsKey) ?? a.Layers.Keys.FirstOrDefault() ?? "full";
         foreach (int d in picked)
-            if (!slots.ContainsKey(d)) slots[d] = new Slot { Index = d, Score = maxScore, ByLayer = { [layer] = maxScore } };
+            if (!slots.ContainsKey(d)) slots[d] = new Slot { Index = d, Score = maxScore, ByLayer = { [layer] = maxScore }, Time = a.BeatToSeconds((double)d / SlotsPerBeat) };
         picked.Sort();
         return picked;
     }
@@ -257,10 +269,12 @@ public static class RhythmSelector
         int grid = SlotsPerBeat / p.Subdivision; // slots per grid step
         int downPhase = a.DownbeatPhase;
         bool triplets = p.AllowTriplets && HasTripletFeel(a);
+        var lag = LayerLag(a);
 
         foreach (var (layer, onsets) in a.Layers)
         {
             if (!s.LayerWeights.TryGetValue(layer, out double w) || w <= 0) continue;
+            double layerLag = lag.GetValueOrDefault(layer);
             // compare layers by rank, not raw strength: a vocal stem has a few sharp spikes and soft
             // syllables in between, so raw strengths made every vocal onset look weak next to drums
             var rank = RankStrengths(onsets);
@@ -283,6 +297,7 @@ public static class RhythmSelector
                 double contribution = w * drumWeight * rank[o] * (1 - Math.Min(1, err * 1.6));
                 if (contribution <= 0) continue;
                 if (!slots.TryGetValue(index, out var slot)) slots[index] = slot = new Slot { Index = index };
+                if (contribution > slot.TimeWeight) { slot.Time = o.T - layerLag; slot.TimeWeight = contribution; }
                 slot.BrightnessSum += o.Br * contribution;
                 slot.BrightnessWeight += contribution;
                 slot.ByLayer[layer] = slot.ByLayer.GetValueOrDefault(layer) + contribution;
@@ -343,6 +358,32 @@ public static class RhythmSelector
             else if (Near(ph, 0.25) || Near(ph, 0.75)) six += o.S;
         }
         return total > 0 ? (trip / total, six / total) : (0, 0);
+    }
+
+    /// <summary>How much later than the drum stem each layer reports the same hits: the median offset of its
+    /// strong onsets from the nearest sixteenth, minus the drums' (the grid is fitted to the drums). Empty
+    /// without a drum layer.</summary>
+    public static Dictionary<string, double> LayerLag(SongAnalysis a)
+    {
+        double? Median(List<Onset> onsets)
+        {
+            var res = new List<double>();
+            foreach (var o in onsets)
+            {
+                if (o.S < 0.2) continue;
+                double beat = a.SecondsToBeat(o.T);
+                double d = (beat - Math.Round(beat * 4) / 4) * a.TempoMap.SecPerBeat(beat);
+                if (Math.Abs(d) < 0.045) res.Add(d);
+            }
+            if (res.Count < 20) return null;
+            res.Sort();
+            return res[res.Count / 2];
+        }
+        if (!a.Layers.TryGetValue("drums", out var drums) || Median(drums) is not { } reference) return [];
+        var lag = new Dictionary<string, double>();
+        foreach (var (layer, onsets) in a.Layers)
+            if (layer != "drums" && Median(onsets) is { } m) lag[layer] = m - reference;
+        return lag;
     }
 
     /// <summary>Strength as 0.25..1 by rank within the layer.</summary>

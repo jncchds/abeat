@@ -281,9 +281,10 @@ when the arrangement changes.
 1. **Analysis** (Python worker): beats and downbeats, a beat grid (constant, or a tempo map), audio
    padded so beat 0 is at 0 s, separated stems, onsets per stem with strength and brightness (pitch),
    drum hits labelled kick/snare/hat, energy curve, sections with labels for repeated parts, cover.
-2. **Rhythm** (`RhythmSelector`): onsets snap to a 1/12-beat grid (sixteenths; triplets only for songs
-   with a triplet feel), each slot scored by layer weight × strength × position in the bar × energy;
-   bars are filled up to a notes-per-second target that follows the energy. The strongest isolated hits
+2. **Rhythm** (`RhythmSelector`): onsets are grouped into 1/12-beat grid slots (sixteenths; triplets only
+   for songs with a triplet feel), each slot scored by layer weight × strength × position in the bar × energy;
+   bars are filled up to a notes-per-second target that follows the energy. The grid only decides which
+   sounds get notes: each note is placed at the exact time of the sound it came from. The strongest isolated hits
    become doubles; before a drop the map pauses for a beat or two and lands on a double.
 3. **Flow** (`FlowPlanner`): a beam search over both sabers places every note (hand, cell, cut
    direction) so the swings flow: parity (forehand/backhand) is respected, resets are avoided, the hands

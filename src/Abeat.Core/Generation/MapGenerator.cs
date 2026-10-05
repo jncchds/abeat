@@ -67,7 +67,7 @@ public static class MapGenerator
         var model = new SwingCostModel(s.Weights);
         int seed = s.Seed + (int)d * 7919;
         var notes = new FlowPlanner(model, p, s.BeamWidth, seed, oneSaber).Plan(events);
-        if (s.Weights.Repetition > 0 && events.Select(e => e.Section).Distinct().Count() < events.Select(e => (e.Section, Math.Round(e.Beat - e.BeatInSection))).Distinct().Count())
+        if (s.Weights.Repetition > 0 && events.Select(e => e.Section).Distinct().Count() < events.Select(e => (e.Section, Math.Round(e.GridBeat - e.BeatInSection))).Distinct().Count())
             notes = new FlowPlanner(model, p, s.BeamWidth, seed, oneSaber).Plan(events, notes);
 
         var dm = new DifficultyMap

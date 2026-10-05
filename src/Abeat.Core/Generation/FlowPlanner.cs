@@ -140,16 +140,18 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     /// cuts, so the second pass doesn't drift away from what is being copied.</summary>
     static Dictionary<int, List<Cut>> RepeatReference(IReadOnlyList<RhythmEvent> events, IReadOnlyList<ColorNote> previous)
     {
-        var cuts = previous.GroupBy(n => Math.Round(n.Beat * 24)).ToDictionary(g => g.Key, g => g.Select(n => new Cut(n.Hand, n.X, n.Y, n.Direction)).ToList());
+        var cuts = previous.GroupBy(n => Math.Round(n.Beat, 4)).ToDictionary(g => g.Key, g => g.Select(n => new Cut(n.Hand, n.X, n.Y, n.Direction)).ToList());
+        // notes sit at their onset times, so the matching event is found by grid position
+        var beatAtGrid = events.GroupBy(e => Math.Round(e.GridBeat * 24)).ToDictionary(g => g.Key, g => Math.Round(g.First().Beat, 4));
         var firstStart = new Dictionary<string, double>();
         foreach (var e in events)
-            if (!firstStart.ContainsKey(e.Section)) firstStart[e.Section] = Math.Round(e.Beat - e.BeatInSection);
+            if (!firstStart.ContainsKey(e.Section)) firstStart[e.Section] = Math.Round(e.GridBeat - e.BeatInSection);
         var result = new Dictionary<int, List<Cut>>();
         for (int i = 0; i < events.Count; i++)
         {
             var e = events[i];
             double at = firstStart[e.Section] + e.BeatInSection;
-            if (cuts.TryGetValue(Math.Round(at * 24), out var c)) result[i] = c;
+            if (beatAtGrid.TryGetValue(Math.Round(at * 24), out var beat) && cuts.TryGetValue(beat, out var c)) result[i] = c;
         }
         return result;
     }

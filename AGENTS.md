@@ -84,12 +84,18 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      (`merge_lyric_repeats`: a chorus that returns with a different arrangement still repeats its
      words; links only merge labels, verses with the same music and new words stay merged)
    - cover: embedded art, thumbnail, or generated from the spectrum
-3. **Rhythm selection** (`RhythmSelector`): onsets snapped to a 1/12-beat grid (sixteenths, plus
+3. **Rhythm selection** (`RhythmSelector`): onsets grouped into 1/12-beat grid slots (sixteenths, plus
    triplets only when the song has a triplet feel: `HasTripletFeel`, >= 12 % of the percussive layer's
    onset strength on eighth-triplets and 1.5x more than on sixteenth off-beats), scored by layer
    weight x strength x metric position x energy, with the "e" sixteenth (x0.6), "a" (x0.8) and
    triplets (x0.85) discounted as human maps rarely use them; bars filled to a
    notes-per-second target that follows section and local energy; strong isolated hits become doubles.
+   Slots only choose notes: each event's `Time`/`Beat` is the time of the slot's strongest onset (minus
+   its layer's lag behind the drum stem, `LayerLag`: median offset of strong onsets from the sixteenth
+   grid relative to the drums, e.g. flux vocals ~+16 ms), so maps carry fractional beats. `GridBeat`
+   keeps the slot position for structure (`BeatInSection`, phrase steps, section repeats, drops). The
+   min gap is checked in seconds on those times; an onset off its slot by more than ~0.3 of a grid step
+   still contributes nothing, which keeps lower difficulties to their subdivision.
    Each event also carries expression data: `Sustain` (melody layers only: time to the layer's next
    onset, cut at the end of a sung word with lyrics or where energy falls below 60 %), `PitchSlope`
    (brightness change from the previous note of the same melody layer) and `Intensity` (rank of

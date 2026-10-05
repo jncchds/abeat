@@ -83,9 +83,10 @@ drive arcs). `--roformer` takes the vocal stem from BS-RoFormer
 cleaner vocals, but slow without a GPU. With lyrics, sections whose words repeat (a returning chorus)
 share a label even when the arrangement changes.
 
-**Rhythm selection** (`RhythmSelector`): onsets are snapped to a 1/12-beat grid (sixteenths, and
+**Rhythm selection** (`RhythmSelector`): onsets are grouped into 1/12-beat grid slots (sixteenths, and
 triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×
-energy, and picked bar by bar to hit a notes-per-second target that follows section energy. Strong,
+energy, and picked bar by bar to hit a notes-per-second target that follows section energy. Notes are
+not snapped: each lands at the detected time of its sound (corrected for the stem's detection lag). Strong,
 isolated hits become doubles. Before a drop the map pauses for a beat or two and lands on a double. Vocal, bass and other stems use spectral-flux onsets (one per sung
 syllable or note) rather than energy rises, which fired on consonants and breaths.
 

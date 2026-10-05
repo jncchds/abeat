@@ -16,7 +16,7 @@ public class RhythmTests
         Assert.False(RhythmSelector.HasTripletFeel(straight));
         var expert = new GeneratorSettings();
         Assert.DoesNotContain(RhythmSelector.Select(straight, expert.Profile(DifficultyName.Expert), expert),
-            e => Math.Round(e.Beat * 12) % 4 == 0 && Math.Round(e.Beat * 12) % 3 != 0);
+            e => Math.Round(e.GridBeat * 12) % 4 == 0 && Math.Round(e.GridBeat * 12) % 3 != 0);
 
         // shuffle: hats on the third eighth-triplet instead of the off-beat
         double spb = 60 / straight.Tempo.Bpm;
@@ -27,6 +27,24 @@ public class RhythmTests
             Layers = new() { ["low"] = straight.Layers["low"], ["high"] = hats },
         };
         Assert.True(RhythmSelector.HasTripletFeel(shuffle));
+    }
+
+
+    [Fact]
+    public void NotesSitOnTheDetectedSoundsNotTheGrid()
+    {
+        // a human feel: every onset 12 ms early or late of the grid
+        var a = TestSongs.Fake();
+        int k = 0;
+        foreach (var layer in a.Layers.Values)
+            foreach (var o in layer) o.T += k++ % 2 == 0 ? 0.012 : -0.012;
+        var onsets = a.Layers.Values.SelectMany(l => l).Select(o => o.T).ToHashSet();
+        var s = new GeneratorSettings();
+        var events = RhythmSelector.Select(a, s.Profile(DifficultyName.Expert), s);
+        Assert.True(events.Count(e => onsets.Contains(e.Time)) >= 0.95 * events.Count);
+        Assert.All(events, e => Assert.Equal(a.SecondsToBeat(e.Time), e.Beat, 9));
+        Assert.Contains(events, e => Math.Abs(a.BeatToSeconds(e.GridBeat) - e.Time) > 0.01);
+        Assert.Equal(events.OrderBy(e => e.Time).Select(e => e.Time), events.Select(e => e.Time));
     }
 
 
