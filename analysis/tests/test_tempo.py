@@ -82,3 +82,19 @@ def test_drum_tempo_follows_a_slow_down_that_speeds_back_up():
     t = tempo.map_beats(dt.tmap, beats[-1])
     near = np.abs(beats[:, None] - t[None, :]).min(axis=1)
     assert np.mean(near) < 0.008 and np.percentile(near, 95) < 0.02
+
+
+def test_drum_tempo_does_not_bend_through_a_roll():
+    # 136 BPM; the first 12 s are a fast roll (a hit every 80 ms) with no beat to lock to
+    beats = 0.5 + np.arange(300) * 60 / 136
+    y = drum_track(beats[beats >= 12])
+    k = synth.kick()
+    for t in np.arange(0.5, 12, 0.08):
+        n = int(t * synth.SR)
+        y[n:n + len(k)] += 0.6 * k
+    dt = tempo.drum_tempo(y, synth.SR, 136, beats)
+    t = tempo.map_beats(dt.tmap, beats[-1])
+    intro = beats[(beats > 1) & (beats < 12)]
+    near = np.abs(intro[:, None] - t[None, :]).min(axis=1)
+    assert np.mean(near) < 0.01
+    assert all(abs(b - 136) < 2 for _, b in dt.tmap.changes)

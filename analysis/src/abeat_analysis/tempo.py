@@ -512,6 +512,73 @@ def track_bars(env: np.ndarray, et: np.ndarray, period: float, lam: float = 100.
     return np.array(knots[::-1])
 
 
+def _tracker_bars(beats: np.ndarray, start: float | None, end: float, period: float) -> list[float] | None:
+    """Every 4th tracked beat from the beat at `start` (or the song start) to the beat at `end`; None
+    when no tracked beat sits within 60 ms of either end, the beat count is not whole bars, or the
+    tracker skips or doubles a beat in between."""
+    if len(beats) == 0:
+        return None
+    jb = int(np.argmin(np.abs(beats - end)))
+    if abs(beats[jb] - end) > 0.06:
+        return None
+    if start is None:
+        idx = list(range(jb, -1, -4))[::-1]
+    else:
+        ib = int(np.argmin(np.abs(beats - start)))
+        if abs(beats[ib] - start) > 0.06 or jb <= ib or (jb - ib) % 4:
+            return None
+        idx = list(range(ib, jb + 1, 4))
+    step = np.diff(beats[idx[0]:idx[-1] + 1])
+    if len(step) and (step.min() < 0.7 * period or step.max() > 1.4 * period):
+        return None
+    return [float(beats[i]) for i in idx]
+
+
+def settle_unsupported(K: np.ndarray, env: np.ndarray, et: np.ndarray, bar: float, beats: np.ndarray,
+                       gain: float = 2.0, dev: float = 0.03) -> np.ndarray:
+    """Bar knots where every stretch that leaves the song's tempo (bars more than `dev` off `bar`) must
+    put at least `gain` times the drum energy per bar on its 16ths that steady bars would; real
+    slow-downs gain about 3x. Rolls, fills and drumless intros give the bar tracker nothing to lock to
+    (Bangaranga's intro came out at 172 BPM in a 136 BPM song), so there the beat tracker's bars (on the
+    whole mix) take over when they join up; a lead-in without them gets steady bars back from where the
+    tempo settles."""
+    def per_bar(starts: np.ndarray, lens: np.ndarray) -> float:
+        t = starts[:, None] + lens[:, None] * DRUM_POS[None, :]
+        return float((np.interp(t, et, env, left=0, right=0) * DRUM_WEIGHT).sum()) / len(starts)
+
+    L = np.diff(K)
+    off = np.abs(np.log(L / bar)) > dev
+    out = [float(K[0])]
+    i = 0
+    while i < len(L):
+        if not off[i]:
+            out.append(float(K[i + 1]))
+            i += 1
+            continue
+        j = i
+        while j < len(L) and off[j]:
+            j += 1
+        if i == 0:
+            n = max(1, int(np.ceil((K[j] - K[0]) / bar)))
+            steady = (K[j] - bar * np.arange(n, 0, -1), np.full(n, bar))
+        else:
+            n = max(1, round((K[j] - K[i]) / bar))
+            steady = (K[i] + (K[j] - K[i]) / n * np.arange(n), np.full(n, (K[j] - K[i]) / n))
+        tracked = None
+        if j < len(L) and per_bar(K[i:j], L[i:j]) < gain * per_bar(*steady):
+            tracked = _tracker_bars(beats, None if i == 0 else float(K[i]), float(K[j]), bar / 4)
+            if tracked is None and i == 0:
+                tracked = [float(K[j] - bar), float(K[j])]  # beats before the first knot continue its tempo
+        if tracked is None:
+            out.extend(float(k) for k in K[i + 1:j + 1])
+        elif i == 0:
+            out = tracked
+        else:
+            out.extend(tracked[1:])
+        i = j
+    return np.array(out)
+
+
 @dataclass
 class DrumTempo:
     grid: Grid  # best constant grid on the drums
@@ -520,8 +587,9 @@ class DrumTempo:
     coverage: float  # share of bars with drums
 
 
-def drum_tempo(drums: np.ndarray, sr: int, bpm0: float) -> DrumTempo | None:
-    """Constant grid and bar-tracked tempo map from the drum stem; None when the stem is (nearly) silent."""
+def drum_tempo(drums: np.ndarray, sr: int, bpm0: float, beats: np.ndarray | None = None) -> DrumTempo | None:
+    """Constant grid and bar-tracked tempo map from the drum stem, with the beat tracker's `beats` where
+    the drums don't support the tracked tempo; None when the stem is (nearly) silent."""
     env, et = drum_envelope(drums, sr)
     if not np.any(env > 0):
         return None
@@ -534,6 +602,7 @@ def drum_tempo(drums: np.ndarray, sr: int, bpm0: float) -> DrumTempo | None:
     grid = Grid(bpm, first, 0.0, 0.0, True)
     if coverage < 0.3:
         return DrumTempo(grid, None, 1.0, coverage)
-    tm = knots_to_map(track_bars(env, et, period), 4, 5.0)
+    knots = settle_unsupported(track_bars(env, et, period), env, et, 4 * period, np.asarray(beats if beats is not None else []))
+    tm = knots_to_map(knots, 4, 5.0)
     gain = _grid_energy(env, et, map_beats(tm, float(et[-1])), period) / max(_grid_energy(env, et, beats, period), 1e-9)
     return DrumTempo(grid, tm, gain, coverage)

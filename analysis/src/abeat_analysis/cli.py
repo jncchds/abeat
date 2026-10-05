@@ -229,7 +229,7 @@ def _tempo_map(args: argparse.Namespace, beats: np.ndarray, grid: "tempo.Grid", 
     if args.bpm:
         return grid, None
     if drums is not None:
-        dt = tempo.drum_tempo(drums, sr, grid.bpm)
+        dt = tempo.drum_tempo(drums, sr, grid.bpm, beats)
         if dt is not None and dt.coverage >= 0.3:
             g = dt.grid
             log(f"drum stem: {g.bpm:.2f} BPM, first beat {g.first_beat:.3f}s (tracker grid {grid.bpm:.2f}); "

@@ -15,7 +15,14 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      off-beats (`fit_drum_grid`, round BPM kept within 0.2 %); `track_bars` follows tempo changes by DP
      over (bar boundary, bar length) scoring the drum energy at each bar's 16ths (beats 1, 8ths .5,
      16ths .2) with a cost on bar-length *changes* (lam 100), so a sudden slow-down that ramps back up is
-     cheap while off-beat or doubled bars are not; knots merge into segments within 5 ms. Auto takes the
+     cheap while off-beat or doubled bars are not; knots merge into segments within 5 ms. Rolls, fills
+     and drumless stretches give the DP nothing to lock to, and it bent the tempo through them
+     (Bangaranga's intro at 172 BPM): `settle_unsupported` keeps a stretch of bars > 3 % off the song's
+     tempo only when it puts >= 2x the drum energy per bar on its 16ths that steady bars would (real
+     slow-downs ~3x, the intro 1.4x); otherwise every 4th beat-tracker beat (on the whole mix) replaces
+     it when those join the neighbouring knots within 60 ms in whole bars without skipped or doubled
+     beats, a lead-in without them gets steady bars back from where the tempo settles, and anything else
+     stays as tracked (a steady fill between the same knots fitted the taps worse). Auto takes the
      map only when it puts >= 15 % more drum energy on the beats than one BPM (steady songs <= 3 %, Dara -
      Bangaranga 38 %, Coldplay - Paradise live 45 %), and falls back to the tracker path below when
      drums are in < 30 % of bars. Checked against two tap-along runs per song and strong drum onsets:
