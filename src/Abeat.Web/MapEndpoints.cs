@@ -37,7 +37,9 @@ public static class MapEndpoints
                 try
                 {
                     await using (var f = File.Create(zip)) await file.CopyToAsync(f);
-                    return ImportMap(store, queue, zip, options, null);
+                    // BeatSaver names downloads "1a2b3 (Song - Mapper).zip"; fetch-maps names them "1a2b3.zip"
+                    var key = System.Text.RegularExpressions.Regex.Match(Path.GetFileNameWithoutExtension(file.FileName), @"^([0-9a-f]{1,8})(\s*\(.*\))?$", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    return ImportMap(store, queue, zip, options, key.Success ? $"https://beatsaver.com/maps/{key.Groups[1].Value.ToLowerInvariant()}" : null);
                 }
                 finally { File.Delete(zip); }
             }
