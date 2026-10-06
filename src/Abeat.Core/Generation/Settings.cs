@@ -33,9 +33,27 @@ public sealed record DifficultyProfile
         // densities and double rates follow curated human maps (see style-prior.json); doubles count as one event
         DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.45, MinSameHandGapSec = 0.45, Subdivision = 1, DoubleRate = 0.15, DotCost = 0.5 },
         DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 2.1, MaxNps = 3.3, MinGapSec = 0.3, MinSameHandGapSec = 0.36, Subdivision = 2, DoubleRate = 0.17, DotCost = 0.8 },
-        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 2.7, MaxNps = 4.2, MinGapSec = 0.22, MinSameHandGapSec = 0.36, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
-        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.3, MaxNps = 5.4, MinGapSec = 0.16, MinSameHandGapSec = 0.25, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
-        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.2, MaxNps = 7.5, MinGapSec = 0.12, MinSameHandGapSec = 0.21, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
+        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 2.7, MaxNps = 4.2, MinGapSec = 0.22, MinSameHandGapSec = 0.3, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
+        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.3, MaxNps = 5.4, MinGapSec = 0.16, MinSameHandGapSec = 0.2, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
+        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.2, MaxNps = 7.5, MinGapSec = 0.12, MinSameHandGapSec = 0.15, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
+    };
+}
+
+/// <summary>Per-difficulty speed and density limits that replace the built-in profile's; unset fields keep
+/// the default, so later changes to the defaults still reach songs that override only some limits.</summary>
+public sealed record ProfileOverride
+{
+    public double? BaseNps { get; init; }
+    public double? MaxNps { get; init; }
+    public double? MinGapSec { get; init; }
+    public double? MinSameHandGapSec { get; init; }
+
+    public DifficultyProfile ApplyTo(DifficultyProfile p) => p with
+    {
+        BaseNps = BaseNps ?? p.BaseNps,
+        MaxNps = MaxNps ?? p.MaxNps,
+        MinGapSec = MinGapSec ?? p.MinGapSec,
+        MinSameHandGapSec = MinSameHandGapSec ?? p.MinSameHandGapSec,
     };
 }
 
@@ -77,9 +95,9 @@ public sealed record FlowWeights
     /// <summary>Pull towards the per-phrase target cell; drives movement around the grid and makes
     /// repeated sections reuse similar patterns.</summary>
     public double Target { get; init; } = 0.45;
-    /// <summary>Hand roles: one saber follows the melody (vocals, other), the other the rhythm (drums,
-    /// bass); the roles swap at section changes. Cost of a single note on the "wrong" hand.</summary>
-    public double HandRole { get; init; } = 0.8;
+    /// <summary>Hand roles (<see cref="FlowPlanner.HandRoles"/>): one hand leads the drops, the other the
+    /// rest, the support hand takes bar downbeats. Cost of a single note on the "wrong" hand.</summary>
+    public double HandRole { get; init; } = 1.5;
     /// <summary>Swing size follows intensity: loud hits pull to the outer cells and big moves, soft
     /// ones stay near the centre with small moves.</summary>
     public double Dynamics { get; init; } = 1.0;
@@ -104,7 +122,7 @@ public sealed record GeneratorSettings
     /// <summary>Extra game modes written next to Standard, for the same difficulties: "OneSaber",
     /// "90Degree", "360Degree" (rotations on the Standard notes).</summary>
     public List<string> Modes { get; init; } = [];
-    public Dictionary<DifficultyName, DifficultyProfile> ProfileOverrides { get; init; } = [];
+    public Dictionary<DifficultyName, ProfileOverride> ProfileOverrides { get; init; } = [];
     /// <summary>Global note density multiplier (1 = profile default).</summary>
     public double Density { get; init; } = 1.0;
     public int Seed { get; init; } = 1;
@@ -144,7 +162,7 @@ public sealed record GeneratorSettings
     public string LevelAuthor { get; init; } = "ABeat by CHDS";
 
     public DifficultyProfile Profile(DifficultyName d) =>
-        ProfileOverrides.TryGetValue(d, out var p) ? p : DifficultyProfile.Default(d);
+        ProfileOverrides.TryGetValue(d, out var o) ? o.ApplyTo(DifficultyProfile.Default(d)) : DifficultyProfile.Default(d);
 
     public static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {

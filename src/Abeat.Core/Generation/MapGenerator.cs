@@ -4,7 +4,7 @@ using Abeat.Core.Model;
 
 namespace Abeat.Core.Generation;
 
-/// <param name="HandRoleShare">Share of melody/rhythm-led single notes played by their role's hand.</param>
+/// <param name="HandRoleShare">Share of single notes played by their role's hand (see <see cref="FlowPlanner.HandRoles"/>).</param>
 public sealed record GeneratedDifficulty(DifficultyMap Map, IReadOnlyList<RhythmEvent> Events, FlowReport Report, double HandRoleShare);
 
 /// <param name="Difficulties">Standard difficulties.</param>
@@ -66,9 +66,11 @@ public static class MapGenerator
         if (oneSaber) events = [.. events.Select(e => e with { IsDouble = false })];
         var model = new SwingCostModel(s.Weights);
         int seed = s.Seed + (int)d * 7919;
-        var notes = new FlowPlanner(model, p, s.BeamWidth, seed, oneSaber).Plan(events);
+        // one drop hand for every difficulty of the song; the default seed gives the left hand, as players tap
+        var dropHand = (s.Seed & 1) == 1 ? Hand.Left : Hand.Right;
+        var notes = new FlowPlanner(model, p, s.BeamWidth, seed, oneSaber, dropHand).Plan(events);
         if (s.Weights.Repetition > 0 && events.Select(e => e.Section).Distinct().Count() < events.Select(e => (e.Section, Math.Round(e.GridBeat - e.BeatInSection))).Distinct().Count())
-            notes = new FlowPlanner(model, p, s.BeamWidth, seed, oneSaber).Plan(events, notes);
+            notes = new FlowPlanner(model, p, s.BeamWidth, seed, oneSaber, dropHand).Plan(events, notes);
 
         var dm = new DifficultyMap
         {
@@ -86,12 +88,12 @@ public static class MapGenerator
         if (s.Lights) LightingGenerator.Generate(a, dm, events);
         if (s.Lights && s.Environment == "Pyro") GroupLightshow.Generate(a, dm, events);
         var report = FlowAnalyzer.Analyze(dm, a.TempoMap, s.Weights, p.MinSameHandGapSec);
-        return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, seed));
+        return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, dropHand));
     }
 
-    static double HandRoleShare(IReadOnlyList<RhythmEvent> events, List<ColorNote> notes, int seed)
+    static double HandRoleShare(IReadOnlyList<RhythmEvent> events, List<ColorNote> notes, Hand dropHand)
     {
-        var roles = FlowPlanner.HandRoles(events, seed);
+        var roles = FlowPlanner.HandRoles(events, dropHand);
         var hands = notes.GroupBy(n => n.Beat).ToDictionary(g => g.Key, g => g.Select(n => n.Hand).ToList());
         int total = 0, kept = 0;
         for (int i = 0; i < events.Count; i++)

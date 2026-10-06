@@ -7,7 +7,8 @@ namespace Abeat.Core.Generation;
 /// candidate is scored against where each saber actually is, parity and flow are built in rather
 /// than repaired afterwards.</summary>
 /// <param name="oneSaber">One Saber mode: every note goes to the right saber, which covers the whole grid.</param>
-public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile, int beamWidth, int seed, bool oneSaber = false)
+/// <param name="dropHand">Hand that leads the loud sections (see <see cref="HandRoles"/>).</param>
+public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile, int beamWidth, int seed, bool oneSaber = false, Hand dropHand = Hand.Left)
 {
     readonly StylePrior? style = StylePrior.For(profile.Name);
     readonly MovementPrior? movement = MovementPrior.For(profile.Name);
@@ -48,7 +49,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     public List<ColorNote> Plan(IReadOnlyList<RhythmEvent> events, IReadOnlyList<ColorNote>? previous = null)
     {
         var w = model.Weights;
-        roles = HandRoles(events, seed);
+        roles = HandRoles(events, dropHand);
         reference = previous is null ? [] : RepeatReference(events, previous);
         var beam = new List<Node> { new() { Left = HandState.Initial(Hand.Left), Right = HandState.Initial(Hand.Right), LastHand = Hand.Left } };
 
@@ -156,25 +157,34 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         return result;
     }
 
-    static readonly HashSet<string> MelodyLayers = RhythmSelector.MelodyLayers;
-    static readonly HashSet<string> RhythmLayers = ["drums", "bass", "low"];
-
-    /// <summary>Melody layers go to one hand and rhythm layers to the other; the roles swap at every
-    /// section change (the first section's melody hand depends on the seed).</summary>
-    public static Hand?[] HandRoles(IReadOnlyList<RhythmEvent> events, int seed)
+    /// <summary>Lead/support split, as players tap along: one hand leads the loud sections (drops) and the
+    /// other leads the rest, so the hands swap places where the song changes character; the support hand
+    /// takes the bar downbeats.</summary>
+    public static Hand?[] HandRoles(IReadOnlyList<RhythmEvent> events, Hand dropHand)
     {
         var roles = new Hand?[events.Count];
-        int flips = seed & 1;
-        for (int i = 0; i < events.Count; i++)
+        if (events.Count == 0) return roles;
+        var runs = new List<(int Start, int End, double Energy)>();
+        for (int i = 1, start = 0; i <= events.Count; i++)
         {
-            if (i > 0 && events[i].Section != events[i - 1].Section) flips++;
-            var melodyHand = flips % 2 == 0 ? Hand.Right : Hand.Left;
-            var rhythmHand = melodyHand == Hand.Right ? Hand.Left : Hand.Right;
-            roles[i] = MelodyLayers.Contains(events[i].Layer) ? melodyHand
-                : RhythmLayers.Contains(events[i].Layer) ? rhythmHand : null;
+            if (i < events.Count && events[i].Section == events[start].Section) continue;
+            runs.Add((start, i, events.Skip(start).Take(i - start).Average(e => e.Energy)));
+            start = i;
+        }
+        double loud = 0.8 * runs.Max(r => r.Energy);
+        foreach (var (start, end, energy) in runs)
+        {
+            var lead = energy >= loud ? dropHand : Other(dropHand);
+            for (int i = start; i < end; i++)
+            {
+                double inBar = ((events[i].BeatInSection % 4) + 4) % 4;
+                roles[i] = Math.Min(inBar, 4 - inBar) < 0.05 ? Other(lead) : lead;
+            }
         }
         return roles;
     }
+
+    static Hand Other(Hand h) => h == Hand.Left ? Hand.Right : Hand.Left;
 
     /// <summary>Only the cheapest few continuations of a node can survive the beam; scoring all but
     /// allocating nodes for just these keeps the search fast.</summary>
@@ -187,12 +197,6 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
             foreach (var (cut, cost, swing) in Candidates(node, hand, e, i).OrderBy(c => c.cost).Take(PerNodeSingle))
             {
                 double total = node.Cost + cost;
-                // alternating hands on quick consecutive notes is what players expect
-                if (hand == node.LastHand && node.Parent != null)
-                {
-                    double gap = e.Time - node.State(hand).Time;
-                    if (gap < 0.5) total += 0.75 * (0.5 - gap) / 0.5;
-                }
                 if (roles[i] is { } role && role != hand) total += model.Weights.HandRole;
                 Add(next, node, total, cut, null, e.Time, swing, default);
             }

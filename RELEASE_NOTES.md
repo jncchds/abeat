@@ -1,8 +1,12 @@
 # Release notes
 
-## v0.2.8 — 2026-10-05
+## v0.2.8 — 2026-10-06
 
 - Add an existing map as a song: drop a Beat Saver map zip on **Add a song**, or paste a BeatSaver link, `!bsr` request or map key into the link box. The map's audio is analysed like an upload and the map is kept as the **Human** version, so generations show their timing F1 against it and it can be compared lane by lane.
+- Hands split like your tap runs: one hand leads the drops and the other the rest of the song, so the hands swap places where the song changes character, and the other hand takes the bar downbeats. The same hand can now play several notes in a row (no more push towards strict alternation; hand-role weight 0.8 -> 1.5). Against your Bangaranga and Everlasting taps, the generated notes are on the same hand as your taps 53-77 % of the time instead of 40-59 %. Songs that already have saved settings keep their hand-role weight until you change it or press **Defaults**.
+- Faster same-hand notes: Hard 0.36 -> 0.3 s, Expert 0.25 -> 0.2 s (eighths at 140 BPM fit on one hand), Expert+ 0.21 -> 0.15 s.
+- **Speed and density** in the generator settings: notes per second, max notes per second, minimum gap and same-hand gap per difficulty, starting at the built-in limits, with a reset per difficulty. Human Expert+ maps can go much faster (Teuflum's Falling: one-hand sixteenths at 0.12 s, ~11 notes/s in the drops).
+- Auto generation is off by default: the **Auto** regenerate toggle starts off, and uploads are only analysed (set `ABEAT_AUTO_GENERATE=true` to also generate a map right after each analysis).
 
 ## v0.2.7 — 2026-10-05
 

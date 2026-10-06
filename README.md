@@ -50,7 +50,8 @@ dotnet run --project src/Abeat.Cli -- check path/to/any/map.zip    # flow report
 dotnet run --project src/Abeat.Cli -- movement work/beatsaver      # hand movement per difficulty
 ```
 
-Web data defaults to `~/.local/share/abeat` (set `ABEAT_DATA` to change).
+Web data defaults to `~/.local/share/abeat` (set `ABEAT_DATA` to change). Songs are only analysed on upload;
+set `ABEAT_AUTO_GENERATE=true` to also generate a map right after each analysis.
 
 `scripts/fetch-arcviewer.sh` downloads [ArcViewer](https://github.com/AllPoland/ArcViewer) (GPL-3.0, ~80 MB)
 so the web app can open maps in it from the same server (the container fetches it on first start). Without it the

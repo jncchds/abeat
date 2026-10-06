@@ -5,7 +5,7 @@ import ToggleField from '../components/ToggleField'
 import VocalSelect from '../components/VocalSelect'
 import { useSongs } from '../hooks/useSongs'
 
-/** Add a song by upload or link (audio, or a Beat Saver map to compare with); analysis and a first map then run automatically. */
+/** Add a song by upload or link (audio, or a Beat Saver map to compare with); analysis then runs automatically. */
 export default function HomePage() {
   const navigate = useNavigate()
   const { songs, refresh } = useSongs()
@@ -80,7 +80,7 @@ export default function HomePage() {
       </div>
 
       {error && <p className="error-text">{error}</p>}
-      <p className="hint">Only use audio you have the rights to. Analysis and a first map run automatically after adding. An existing map (zip or BeatSaver) is kept as the Human version to compare the generated maps with.</p>
+      <p className="hint">Only use audio you have the rights to. Analysis runs automatically after adding; generate maps from the song page. An existing map (zip or BeatSaver) is kept as the Human version to compare the generated maps with.</p>
 
       {songs.length > 0 && (
         <>

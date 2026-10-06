@@ -1,11 +1,13 @@
 import { useState } from 'react'
-import type { GeneratorSettings } from '../api'
+import type { DifficultyProfile, GeneratorSettings, ProfileOverride } from '../api'
 import { DIFFICULTIES, diffLabel, fmtNum } from '../utils/format'
 import ToggleField from './ToggleField'
 
 interface Props {
   settings: GeneratorSettings
   defaults?: GeneratorSettings
+  /** Built-in limits per difficulty, shown where the song doesn't override them. */
+  profiles?: Record<string, DifficultyProfile>
   layers: string[]
   layerSource: string
   onChange: (s: GeneratorSettings) => void
@@ -13,11 +15,24 @@ interface Props {
 
 const MODES: [string, string][] = [['OneSaber', 'One Saber'], ['90Degree', '90°'], ['360Degree', '360°']]
 
+const LIMITS: [keyof DifficultyProfile, string, string, number, number, number][] = [
+  ['baseNps', 'notes/s', 'Notes per second at mid energy (scaled by section energy)', 0.5, 12, 0.1],
+  ['maxNps', 'max notes/s', 'Cap on notes per second in the loudest parts', 1, 16, 0.1],
+  ['minGapSec', 'min gap s', 'Shortest time between two notes of any hand', 0.05, 0.6, 0.01],
+  ['minSameHandGapSec', 'hand gap s', 'Shortest time between two notes of the same hand', 0.08, 0.6, 0.01],
+]
+
 const WEIGHT_MAX: Record<string, number> = { reset: 100, slowReset: 10, tooFast: 60, crossover: 10, visionBlock: 8 }
 
 /** Generator settings; every committed change produces a new settings object for the parent. */
-export default function SettingsPanel({ settings: s, defaults, layers, layerSource, onChange }: Props) {
+export default function SettingsPanel({ settings: s, defaults, profiles, layers, layerSource, onChange }: Props) {
   const set = (patch: Partial<GeneratorSettings>) => onChange({ ...s, ...patch })
+  const setLimits = (d: string, o: ProfileOverride | undefined) => {
+    const next = { ...(s.profileOverrides ?? {}) }
+    if (o) next[d] = o
+    else delete next[d]
+    set({ profileOverrides: next })
+  }
 
   return (
     <div className="settings-form">
@@ -77,6 +92,29 @@ export default function SettingsPanel({ settings: s, defaults, layers, layerSour
           <ToggleField label="Pause before drops" checked={s.dropPause ?? true} onChange={v => set({ dropPause: v })} />
         </div>
       </fieldset>
+
+      {profiles && s.difficulties.length > 0 && (
+        <fieldset>
+          <legend>Speed and density</legend>
+          {s.difficulties.filter(d => profiles[d]).map(d => {
+            const o = s.profileOverrides?.[d] ?? {}
+            return (
+              <div key={d} className="limit-group">
+                <div className="limit-head">
+                  {diffLabel(d)}
+                  {Object.keys(o).length > 0 && <button className="link-btn" onClick={() => setLimits(d, undefined)}>reset</button>}
+                </div>
+                {LIMITS.map(([k, name, title, min, max, step]) => (
+                  <div key={k} title={title}>
+                    <Slider name={name} value={o[k] ?? profiles[d][k]} min={min} max={max} step={step}
+                      onCommit={v => setLimits(d, { ...o, [k]: v })} />
+                  </div>
+                ))}
+              </div>
+            )
+          })}
+        </fieldset>
+      )}
 
       <fieldset>
         <legend>Flow weights</legend>

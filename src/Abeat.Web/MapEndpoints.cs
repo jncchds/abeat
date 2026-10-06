@@ -76,7 +76,7 @@ public static class MapEndpoints
             if (ctx.Connection.RemoteIpAddress is not { } ip || !System.Net.IPAddress.IsLoopback(ip)) return Results.Forbid();
             var meta = store.Import(req.Path);
             if (meta.Status == SongStatus.Queued) queue.Enqueue(meta.Id);
-            else
+            else if (queue.AutoGenerate)
             {
                 var a = store.Analysis(meta.Id)!;
                 var settings = store.Settings(meta.Id);

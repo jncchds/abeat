@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { cancelJob,
   audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getSettings, getSong,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
-  type Analysis, type AnalysisOptions, type Comparison, type Difficulty, type GeneratorSettings, type SongMeta, type TapRun, type Version,
+  type Analysis, type AnalysisOptions, type Comparison, type Difficulty, type DifficultyProfile, type GeneratorSettings, type SongMeta, type TapRun, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
@@ -72,7 +72,8 @@ export default function SongPage() {
   const [mode, setMode] = useState<Mode>('both')
   const [comparison, setComparison] = useState<{ key: string; c: Comparison } | null>(null)
   const [defaults, setDefaults] = useState<GeneratorSettings>()
-  const [autoRegen, setAutoRegen] = useState(true)
+  const [profiles, setProfiles] = useState<Record<string, DifficultyProfile>>()
+  const [autoRegen, setAutoRegen] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // vocal onset method for the next re-analysis (defaults to the song's current one)
@@ -95,7 +96,7 @@ export default function SongPage() {
   const revision = listed?.analysisRevision ?? meta?.analysisRevision ?? 0
   const [dismissed, setDismissed] = useState<string | null>(null)
 
-  useEffect(() => { getDefaults().then(r => setDefaults(r.data.settings)) }, [])
+  useEffect(() => { getDefaults().then(r => { setDefaults(r.data.settings); setProfiles(r.data.profiles) }) }, [])
   const [config, setConfig] = useState<{ httpsPort: number | null; arcViewer: boolean }>({ httpsPort: null, arcViewer: false })
   useEffect(() => { getConfig().then(r => setConfig(r.data)).catch(() => {}) }, [])
   const httpsPort = config.httpsPort
@@ -477,7 +478,7 @@ export default function SongPage() {
                 </button>
                 <button className="btn-secondary" disabled={!defaults} onClick={() => defaults && onSettings(structuredClone(defaults))}>Defaults</button>
               </div>
-              <SettingsPanel settings={settings} defaults={defaults} layers={Object.keys(analysis.layers)}
+              <SettingsPanel settings={settings} defaults={defaults} profiles={profiles} layers={Object.keys(analysis.layers)}
                 layerSource={analysis.layerSource} onChange={onSettings} />
             </div>
           </div>

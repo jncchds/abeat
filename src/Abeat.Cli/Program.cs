@@ -210,7 +210,11 @@ static int WriteSettings(Options o)
     string path = o.Positional.FirstOrDefault() ?? "abeat.settings.json";
     var s = new GeneratorSettings
     {
-        ProfileOverrides = Enum.GetValues<DifficultyName>().ToDictionary(d => d, DifficultyProfile.Default),
+        ProfileOverrides = Enum.GetValues<DifficultyName>().ToDictionary(d => d, d =>
+        {
+            var p = DifficultyProfile.Default(d);
+            return new ProfileOverride { BaseNps = p.BaseNps, MaxNps = p.MaxNps, MinGapSec = p.MinGapSec, MinSameHandGapSec = p.MinSameHandGapSec };
+        }),
     };
     s.Save(path);
     Console.WriteLine($"wrote {path}");

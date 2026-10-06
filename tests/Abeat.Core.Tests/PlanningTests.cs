@@ -79,12 +79,47 @@ public class PlanningTests
         ];
         double Same(double w)
         {
-            var s = new GeneratorSettings();
+            // the fake song's even eighths (0.23 s) fit one hand at Expert's gap, which leaves the hand choice
+            // so free that the second A rarely lines up with the first; real songs echo at either gap
+            var s = new GeneratorSettings { ProfileOverrides = { [DifficultyName.Expert] = new ProfileOverride { MinSameHandGapSec = 0.25 } } };
             var r = MapGenerator.GenerateDifficulty(a, s with { Weights = s.Weights with { Repetition = w } }, DifficultyName.Expert);
             Assert.Equal(0, r.Report.Resets);
             return RepetitionAnalyzer.Analyze(r.Map, a).Same;
         }
         double off = Same(0), on = Same(0.5);
         Assert.True(on > off + 0.1, $"{on} vs {off}");
+    }
+
+    /// <summary>The loud section is led by the drop hand and the quiet one by the other; bar downbeats go to the support hand.</summary>
+    [Fact]
+    public void HandRolesSwapBetweenQuietAndLoudSections()
+    {
+        var a = TestSongs.Fake();
+        var events = RhythmSelector.Select(a, DifficultyProfile.Default(DifficultyName.Expert), new GeneratorSettings());
+        var roles = FlowPlanner.HandRoles(events, Hand.Left);
+        for (int i = 0; i < events.Count; i++)
+        {
+            var lead = events[i].Section == "B" ? Hand.Left : Hand.Right;
+            double inBar = events[i].BeatInSection % 4;
+            bool downbeat = Math.Min(inBar, 4 - inBar) < 0.05;
+            Assert.Equal(downbeat ? (lead == Hand.Left ? Hand.Right : Hand.Left) : lead, roles[i]);
+        }
+    }
+
+    /// <summary>The planner follows the roles: the drop hand plays most single notes of the loud section,
+    /// the same for every difficulty, and the default seed makes it the left hand.</summary>
+    [Fact]
+    public void DropHandLeadsTheLoudSection()
+    {
+        var a = TestSongs.Fake();
+        foreach (var d in new[] { DifficultyName.Expert, DifficultyName.ExpertPlus })
+        {
+            var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), d);
+            Assert.Equal(0, r.Report.Resets);
+            double mid = a.Audio.DurationSec / 2;
+            var singles = r.Map.Notes.GroupBy(n => n.Beat).Where(g => g.Count() == 1 && a.BeatToSeconds(g.Key) > mid).Select(g => g.First()).ToList();
+            double left = singles.Count(n => n.Hand == Hand.Left) / (double)singles.Count;
+            Assert.True(left > 0.6, $"{d}: left share {left:0.00}");
+        }
     }
 }

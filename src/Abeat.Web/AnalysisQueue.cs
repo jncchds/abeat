@@ -5,12 +5,15 @@ using Abeat.Core.Generation;
 
 namespace Abeat.Web;
 
-/// <summary>Runs analyses one at a time (they are CPU/RAM heavy), then generates a map with the
-/// song's settings so every upload ends with a downloadable map without further clicks. A re-analysis
+/// <summary>Runs analyses one at a time (they are CPU/RAM heavy). With ABEAT_AUTO_GENERATE=true it then
+/// generates a map with the song's settings, so an upload ends with a downloadable map. A re-analysis
 /// writes to a separate work dir that replaces the song's analysis only when it succeeds, so the song,
 /// its analysis and all its versions stay usable while it runs and after it fails. Jobs can be cancelled.</summary>
-public sealed class AnalysisQueue(SongStore store, WorkerRuntime runtime, ILogger<AnalysisQueue> logger) : BackgroundService
+public sealed class AnalysisQueue(SongStore store, WorkerRuntime runtime, IConfiguration config, ILogger<AnalysisQueue> logger) : BackgroundService
 {
+    /// <summary>Generate a map right after each analysis and import (off by default: maps are made from the song page).</summary>
+    public bool AutoGenerate { get; } = config["ABEAT_AUTO_GENERATE"] is { } v && (v == "1" || bool.TryParse(v, out var b) && b);
+
     readonly Channel<string> queue = Channel.CreateUnbounded<string>();
     readonly ConcurrentDictionary<string, CancellationTokenSource> running = new();
     readonly ConcurrentDictionary<string, bool> cancelled = new();
@@ -69,14 +72,17 @@ public sealed class AnalysisQueue(SongStore store, WorkerRuntime runtime, ILogge
                 meta.HasAnalysis = true;
                 meta.AnalysisRevision++;
 
-                meta.Status = SongStatus.Generating;
-                store.Save(meta);
-                log.Add("generating map");
-                var settings = store.Settings(id);
-                var result = await Task.Run(() => MapGenerator.Generate(a, settings), job.Token);
-                Generations.Save(store, id, a, settings, result, draft: false);
-                foreach (var d in result.Difficulties) log.Add(d.Report.ToString());
-                foreach (var d in result.Extra) log.Add($"{d.Map.Characteristic} {d.Map.Difficulty}: {d.Map.Notes.Count} notes, {d.Map.Rotations.Count} rotations");
+                if (AutoGenerate)
+                {
+                    meta.Status = SongStatus.Generating;
+                    store.Save(meta);
+                    log.Add("generating map");
+                    var settings = store.Settings(id);
+                    var result = await Task.Run(() => MapGenerator.Generate(a, settings), job.Token);
+                    Generations.Save(store, id, a, settings, result, draft: false);
+                    foreach (var d in result.Difficulties) log.Add(d.Report.ToString());
+                    foreach (var d in result.Extra) log.Add($"{d.Map.Characteristic} {d.Map.Difficulty}: {d.Map.Notes.Count} notes, {d.Map.Rotations.Count} rotations");
+                }
                 Finish(id, meta, null);
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)

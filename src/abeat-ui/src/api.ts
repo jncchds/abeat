@@ -162,10 +162,16 @@ export interface GeneratorSettings {
   modes?: string[]
   /** "Default" (classic lights) or "Pyro" (v3 group lightshow). */
   environment?: string
+  /** Per-difficulty speed/density limits; unset fields keep the built-in profile's value. */
+  profileOverrides?: Record<string, ProfileOverride>
   [key: string]: unknown
 }
 
-export interface Defaults { settings: GeneratorSettings }
+/** Built-in per-difficulty limits (notes per second, minimum gaps in seconds). */
+export interface DifficultyProfile { baseNps: number; maxNps: number; minGapSec: number; minSameHandGapSec: number }
+export type ProfileOverride = Partial<DifficultyProfile>
+
+export interface Defaults { settings: GeneratorSettings; profiles: Record<string, DifficultyProfile> }
 
 const http = axios.create({ baseURL: '/api' })
 

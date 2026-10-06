@@ -126,14 +126,26 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - style: distribution matching against `style-prior.json` (cut directions, cells per hand, learned
      from curated maps by `scripts/style_prior.py`); each beam path tracks running counts and pays
      log(running share / human share), so the mix matches humans instead of collapsing to the mode
-   - hand roles (`FlowWeights.HandRole`): melody-led notes (vocals, other) prefer one hand and
-     rhythm-led notes (drums, bass) the other; the roles swap at section changes. Soft, so flow
-     wins where the layers don't alternate; the CLI reports the share of notes that kept their role
+   - hand roles (`FlowWeights.HandRole`, `HandRoles`): lead/support split as players tap along. Runs of
+     one section label whose mean event energy is >= 80 % of the loudest run (the drops) are led by the
+     drop hand (odd seeds: left; one hand for all difficulties), all other runs by the other hand, so
+     the hands swap places where the song changes character; the support hand takes bar downbeats.
+     Soft (1.5 per single note on the wrong hand), so flow still wins; the CLI reports the share of
+     notes that kept their role. Tuned against tap-along runs (Bangaranga, Everlasting): per-note hand
+     agreement with the taps 40-59 % -> 53-77 %, lead-hand share per section 52-63 % -> 61-79 % (taps 65-80 %).
+     Stem-based roles (melody vs rhythm hand) did not match: taps don't split by stem
+   - same-hand speed (`DifficultyProfile.MinSameHandGapSec`, any-hand `MinGapSec`): Hard 0.3, Expert 0.2,
+     Expert+ 0.15 (any hand 0.12). Taps sit at 0.20-0.25 s per hand (eighths at 136-140 BPM). Human maps
+     go further: Teuflum's Falling (126 BPM) Expert+ has one-hand sixteenth bursts (0.119 s, direction
+     flips, runs up to 8) in 27 % of its same-hand gaps (Expert 8 %, Hard none) and ~11 notes/s in drops
+     (ours ~4.3). Per song, `GeneratorSettings.ProfileOverrides` (UI "Speed and density") replaces any of
+     BaseNps / MaxNps / MinGapSec / MinSameHandGapSec per difficulty; unset fields keep the defaults
+     (Expert+ 0.11 / 0.1 gaps generated Falling with bursts and no resets)
    - movement (`movement-prior.json`, learned by `abeat movement --write-prior`): each move from a
      hand's last swing (gap <= 1.5 s) falls into a turn-angle x tip-travel bucket and a strain bucket;
      both are distribution-matched like the style prior (`MovementStyle`, `Effort`), and moves above
      the difficulty's human strain p98 pay `Strain`. Effort matching is what makes one saber take
-     quick runs instead of strict hand alternation (the alternation bonus is only 0.75)
+     quick runs instead of strict hand alternation (there is no alternation bonus)
    - parity: vertical/diagonal swings fix forehand/backhand; horizontal cuts free it; a swing within
      60° of the previous one is a reset; travel within 1.25 cells is free; turns cost
      `TurnCost` (cheap up to 45°, steep beyond, as humans time them)
@@ -224,8 +236,8 @@ move, `--write-prior` rewrites the prior.
   (`Generations`: `generation.json` with app version, draft flag and the BPM/padding it was written
   on, its `settings.json`, `map/` + `map.zip`). File based; survives restarts via the Docker volume.
   A pre-history `map/` folder is moved into `generations/` on first access.
-- `AnalysisQueue`: one analysis at a time, then generation with the song's saved settings, so every
-  upload ends with a downloadable map. Every analysis writes `work.next/` (seeded with the cached
+- `AnalysisQueue`: one analysis at a time; with `ABEAT_AUTO_GENERATE=true` (default off) it then generates
+  with the song's saved settings (also for `/admin/import`), otherwise maps are made from the song page. Every analysis writes `work.next/` (seeded with the cached
   `stems/` and `download/`) and `SongStore.CommitNextWorkDir` swaps it in only on success, so the
   current analysis and all versions stay usable during a re-analysis and after it fails or is cancelled
   (`POST /songs/{id}/cancel` kills the worker). `SongMeta.HasAnalysis` = usable (the UI gates on it, not

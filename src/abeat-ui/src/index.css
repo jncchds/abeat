@@ -433,6 +433,10 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .slider-name { font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .slider-row input[type=range] { margin: 0; padding: 0; border: none; background: none; accent-color: var(--accent); }
 .slider-row output { font-size: 0.76rem; color: var(--text-muted); text-align: right; }
+.limit-group { display: flex; flex-direction: column; gap: 0.35rem; }
+.limit-group + .limit-group { margin-top: 0.35rem; }
+.limit-head { display: flex; gap: 0.6rem; align-items: baseline; font-size: 0.8rem; font-weight: 600; }
+.limit-head .link-btn { font-size: 0.75rem; font-weight: normal; }
 
 @media (max-width: 1100px) {
   /* minmax(0, ...) so long labels shrink instead of widening the page */
