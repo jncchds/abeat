@@ -97,6 +97,15 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    weight x strength x metric position x energy, with the "e" sixteenth (x0.6), "a" (x0.8) and
    triplets (x0.85) discounted as human maps rarely use them; bars filled to a
    notes-per-second target that follows section and local energy; strong isolated hits become doubles.
+   Pulse fill: a bar whose scored slots can't reach its target (pads, breakdowns: the lead only in the
+   weak full mix) is topped up on beats, then off-beat eighths, at the slot's onset time or the grid
+   time (layer "pulse"), unless the bar is quieter than 0.35 energy. Tap-along runs follow an eighth
+   pulse there (half-beat gaps most common, 75-100 % of taps within 40 ms of a sixteenth). Everlasting's
+   quiet sections: tap recall 29-43 % -> 57-67 %, Expert F1 0.66 -> 0.68; bench unchanged (F1 0.69).
+   Tried and dropped (no gain on taps): filling from locally clear onsets of any layer, halving steady
+   four-on-the-floor kicks, a flatter energy->density curve, basic-pitch notes for Everlasting's other
+   stem. A best-layer-per-section oracle reaches only tap F1 0.76 / 0.63 (generated 0.73 / 0.68), so
+   per-section lead-layer switching has little headroom; the rest is the tapper's choice and timing.
    Slots only choose notes: each event's `Time`/`Beat` is the time of the slot's strongest onset (minus
    its layer's lag behind the drum stem, `LayerLag`: median offset of strong onsets from the sixteenth
    grid relative to the drums, e.g. flux vocals ~+16 ms), so maps carry fractional beats. `GridBeat`

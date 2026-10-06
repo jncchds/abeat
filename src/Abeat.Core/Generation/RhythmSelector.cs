@@ -111,6 +111,19 @@ public static class RhythmSelector
                 accepted.Add(c.Index);
                 taken++;
             }
+            // too few clear sounds for the bar's density (pads, breakdowns): players keep tapping the pulse,
+            // so fill with beats and off-beat eighths, at the grid time or the weak onset already there
+            if (taken < count && a.EnergyAt((t0 + t1) / 2) >= PulseMinEnergy)
+                foreach (int i in Enumerable.Range(0, 8).OrderBy(k => k % 2).ThenBy(k => k).Select(k => barStart + k * SlotsPerBeat / 2))
+                {
+                    if (taken >= count) break;
+                    if (i < SlotsPerBeat * a.SecondsToBeat(s.LeadInSec) || i > lastSlot || accepted.Contains(i)) continue;
+                    var c = slots.GetValueOrDefault(i) ?? new Slot { Index = i, Time = a.BeatToSeconds((double)i / SlotsPerBeat), ByLayer = { ["pulse"] = 0 } };
+                    if (TooClose(accepted, c)) continue;
+                    slots[i] = c;
+                    accepted.Add(i);
+                    taken++;
+                }
             if (taken < count) carry += Math.Min(count - taken, 2); // let a sparse bar donate a little to the next
         }
         ClearBeforeDrops(a, p, accepted, drops);
@@ -142,6 +155,9 @@ public static class RhythmSelector
         var forced = drops.Select(d => events.FindIndex(e => Math.Abs(e.GridBeat - (double)d / SlotsPerBeat) < 1e-6)).Where(i => i >= 0).ToHashSet();
         return MarkDoubles(events, p, forced);
     }
+
+    /// <summary>Bars quieter than this (outros, silence) get no pulse notes.</summary>
+    const double PulseMinEnergy = 0.35;
 
     public static readonly HashSet<string> MelodyLayers = ["vocals", "other", "mid"];
 

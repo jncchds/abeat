@@ -61,7 +61,9 @@ public class TempoTests
         };
         var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Expert);
         Assert.NotEmpty(r.Map.Notes);
-        Assert.All(r.Map.Notes, n => Assert.Equal(Math.Round(n.Beat), n.Beat, 6)); // every note on a kick
+        // every note on a kick, or a pulse eighth where the kicks alone are too sparse for Expert
+        Assert.All(r.Map.Notes, n => Assert.Equal(Math.Round(n.Beat * 2) / 2, n.Beat, 6));
+        Assert.True(r.Map.Notes.Count(n => Math.Abs(n.Beat - Math.Round(n.Beat)) < 1e-6) > r.Map.Notes.Count / 2);
         Assert.Equal(0, r.Report.Resets + r.Report.WallClashes + r.Report.BombHits);
         var gen = MapGenerator.Generate(a, new GeneratorSettings { Difficulties = [DifficultyName.Expert] });
         Assert.True(gen.Map.Tempo.SameAs(tempo));
