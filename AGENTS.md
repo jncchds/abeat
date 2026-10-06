@@ -142,8 +142,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      notes that kept their role. Tuned against tap-along runs (Bangaranga, Everlasting): per-note hand
      agreement with the taps 40-59 % -> 53-77 %, lead-hand share per section 52-63 % -> 61-79 % (taps 65-80 %).
      Stem-based roles (melody vs rhythm hand) did not match: taps don't split by stem
-   - same-hand speed (`DifficultyProfile.MinSameHandGapSec`, any-hand `MinGapSec`): Hard 0.3, Expert 0.2,
-     Expert+ 0.15 (any hand 0.12). Taps sit at 0.20-0.25 s per hand (eighths at 136-140 BPM). Human maps
+   - speed defaults follow the curated playlist (median moments/s per map, 5th percentile of gaps;
+     Easy/Normal/Hard/Expert/Expert+): base density 1.5/2.4/3.1/3.7/4.5 notes/s, any-hand gap
+     0.35/0.2/0.15/0.12/0.1 s, same-hand gap 0.45/0.3/0.24/0.18/0.13 s (curated same-hand p5
+     0.47/0.33/0.23/0.21/0.18, p1 0.43/0.24/0.23/0.18/0.13). Bench (20 older maps): 3.6 vs 3.5 human
+     notes/s, F1 0.68 -> 0.69 (recall 0.67 -> 0.73), flow 91.0 -> 89.5 (human 85.1). Taps sit at 0.20-0.25 s per hand (eighths at 136-140 BPM). Human maps
      go further: Teuflum's Falling (126 BPM) Expert+ has one-hand sixteenth bursts (0.119 s, direction
      flips, runs up to 8) in 27 % of its same-hand gaps (Expert 8 %, Hard none) and ~11 notes/s in drops
      (ours ~4.3). Per song, `GeneratorSettings.ProfileOverrides` (UI "Speed and density") replaces any of

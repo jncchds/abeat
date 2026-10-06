@@ -30,12 +30,13 @@ public sealed record DifficultyProfile
 
     public static DifficultyProfile Default(DifficultyName d) => d switch
     {
-        // densities and double rates follow curated human maps (see style-prior.json); doubles count as one event
-        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.45, MinSameHandGapSec = 0.45, Subdivision = 1, DoubleRate = 0.15, DotCost = 0.5 },
-        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 2.1, MaxNps = 3.3, MinGapSec = 0.3, MinSameHandGapSec = 0.36, Subdivision = 2, DoubleRate = 0.17, DotCost = 0.8 },
-        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 2.7, MaxNps = 4.2, MinGapSec = 0.22, MinSameHandGapSec = 0.3, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
-        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.3, MaxNps = 5.4, MinGapSec = 0.16, MinSameHandGapSec = 0.2, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
-        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.2, MaxNps = 7.5, MinGapSec = 0.12, MinSameHandGapSec = 0.15, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
+        // densities, gaps and double rates follow curated human maps (playlist 1116456, see style-prior.json): base
+        // density ~curated median moments/s (doubles count as one event), gaps ~5th percentile of the curated gaps
+        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.35, MinSameHandGapSec = 0.45, Subdivision = 1, DoubleRate = 0.15, DotCost = 0.5 },
+        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 2.4, MaxNps = 3.3, MinGapSec = 0.2, MinSameHandGapSec = 0.3, Subdivision = 2, DoubleRate = 0.17, DotCost = 0.8 },
+        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 3.1, MaxNps = 4.2, MinGapSec = 0.15, MinSameHandGapSec = 0.24, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
+        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.7, MaxNps = 5.4, MinGapSec = 0.12, MinSameHandGapSec = 0.18, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
+        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.5, MaxNps = 7.5, MinGapSec = 0.1, MinSameHandGapSec = 0.13, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
     };
 }
 
