@@ -8,7 +8,7 @@ import { useSongs } from '../hooks/useSongs'
 /** Add a song by upload or link (audio, or a Beat Saver map to compare with); analysis then runs automatically. */
 export default function HomePage() {
   const navigate = useNavigate()
-  const { songs, refresh } = useSongs()
+  const { refresh } = useSongs()
   const [url, setUrl] = useState('')
   const [beats, setBeats] = useState('auto')
   const [stems, setStems] = useState(true)
@@ -82,23 +82,6 @@ export default function HomePage() {
       {error && <p className="error-text">{error}</p>}
       <p className="hint">Only use audio you have the rights to. Analysis runs automatically after adding; generate maps from the song page. An existing map (zip or BeatSaver) is kept as the Human version to compare the generated maps with.</p>
 
-      {songs.length > 0 && (
-        <>
-          <h3 className="section-title">Songs</h3>
-          <div className="song-list">
-            {songs.map(s => (
-              <button key={s.id} className="card song-row" onClick={() => navigate(`/songs/${s.id}`)}>
-                {s.hasAnalysis || s.status === 'Ready' ? <img src={`/api/songs/${s.id}/cover?r=${s.analysisRevision ?? 0}`} alt="" /> : <div className="cover-placeholder">🎵</div>}
-                <span className="song-row-text">
-                  <span className="song-row-title">{s.title || s.fileName || s.sourceUrl}</span>
-                  <span className="muted">{[s.artist, s.bpm ? `${+s.bpm.toFixed(2)} BPM` : ''].filter(Boolean).join(' · ')}</span>
-                </span>
-                <span className={`status status-${s.status.toLowerCase()}`}>{s.status}</span>
-              </button>
-            ))}
-          </div>
-        </>
-      )}
     </div>
   )
 }

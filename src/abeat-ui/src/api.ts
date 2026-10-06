@@ -33,6 +33,8 @@ export interface SongMeta {
   analysis: AnalysisOptions
   referenceMapper?: string | null
   referenceUrl?: string | null
+  /** When the newest saved version was generated (song list only). */
+  lastGeneratedUtc?: string | null
 }
 
 export interface Onset { t: number; s: number; br: number }

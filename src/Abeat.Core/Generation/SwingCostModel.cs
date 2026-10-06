@@ -164,11 +164,11 @@ public sealed class SwingCostModel(FlowWeights w)
     }
 
     /// <summary>Swing size against intensity (see <see cref="RhythmEvent.Intensity"/>): size is how far the
-    /// note sits from the grid centre and how far the hand moves from its last note, both 0..1. Loud
+    /// note sits from the centre columns and how far the hand moves from its last note, both 0..1. Loud
     /// moments pay for small swings and soft ones for big swings; the median costs nothing.</summary>
     public double Dynamics(HandState s, double intensity, int x, int y)
     {
-        double spread = 0.5 * Math.Abs(x - 1.5) / 1.5 + 0.5 * Math.Abs(y - 1);
+        double spread = Math.Abs(x - 1.5) / 1.5;
         double move = s.Active ? Math.Min(1, new Vec2(x - s.X, y - s.Y).Length / 2) : 0.5;
         double size = 0.5 * spread + 0.5 * move;
         return w.Dynamics * (2 * intensity - 1) * (0.5 - size) * 2;
@@ -191,15 +191,8 @@ public sealed class SwingCostModel(FlowWeights w)
         return w.Target * (dx * dx + dy * dy);
     }
 
-    public double Musical(double brightness, double strength, int y, CutDirection d)
-    {
-        double target = Math.Clamp(brightness, 0, 1) * 2;
-        double c = w.Pitch * Math.Pow(y - target, 2) * 0.5;
-        if (strength > 0.6)
-        {
-            var v = Swing.Vector(d);
-            c += w.Emphasis * (strength - 0.6) * 2.5 * (1 - Math.Abs(v.Y)); // accents want big vertical swings
-        }
-        return c;
-    }
+    /// <summary>Strong accents want big vertical swings. Note height deliberately does not follow the audio:
+    /// rows come from the human figure vocabulary and cell shares (<see cref="StylePrior"/>).</summary>
+    public double Musical(double strength, CutDirection d) =>
+        strength > 0.6 ? w.Emphasis * (strength - 0.6) * 2.5 * (1 - Math.Abs(Swing.Vector(d).Y)) : 0;
 }

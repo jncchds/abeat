@@ -77,7 +77,7 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - vocal onsets selectable per song (`--vocals`, `AnalysisOptions.VocalOnsets`, `vocals.py`):
      `flux` (default); `notes`: flux onsets kept only where CREPE-tiny hears a pitched voice in the
      next 80 ms (drops breaths/consonants/bleed; Cake By The Ocean: 83 % on human notes vs 72 %),
-     pitch drives brightness (row); `lyrics`: MMS forced alignment (torchaudio) of user lyrics
+     pitch drives brightness (lights, angle offsets); `lyrics`: MMS forced alignment (torchaudio) of user lyrics
      (`--lyrics-file`, song's `lyrics.txt`) or a faster-whisper transcription (extra `lyrics`),
      one onset per vowel group, shifted ~70 ms earlier (CTC peaks lag) and snapped to the nearest
      vocal attack; words are stored in `analysis.json` `lyrics` and drawn on the timeline.
@@ -113,18 +113,26 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    parity, previous cell). Costs from `SwingCostModel`:
    - physical: resets (same parity within 1 s), angle vs clean reversal, saber travel, too-fast
      same-hand hits, crossovers, vision blocks, over-extension
-   - musical: row follows brightness, accents prefer vertical swings; dynamics (`FlowWeights.Dynamics`): swing size
-     (distance from the grid centre + move from the hand's last cell) follows `Intensity`, zero-mean
-     so the cell mix still matches the style prior
+   - musical: accents prefer vertical swings; dynamics (`FlowWeights.Dynamics`): swing size
+     (distance from the centre columns + move from the hand's last cell) follows `Intensity`, zero-mean
+     so the cell mix still matches the style prior. Note height never follows the audio (brightness or
+     loudness): rows come only from the style prior, figure vocabulary, phrase targets and flow
+   - figure vocabulary (`FlowWeights.Figure`, 25): a figure (hand, cell, direction; One Saber: either
+     hand's) or double shape (left figure, right figure) outside the difficulty's vocabulary in
+     `style-prior.json` pays this, so it only appears when nothing else fits (0 % on generated maps).
+     Vocabulary = used >= 2 times by >= 10 % of the difficulty's curated maps (doubles: 5 %), hands
+     pooled with their mirror image. Curated playlist 1116456 + map 37114 (89 maps): Easy 30 figures
+     per hand (7 top-row), Normal 39 (7), Hard 48 (11), Expert 70 (20), Expert+ 96 (30), covering
+     97-99.7 % of human notes; top-row share 18 / 21 / 24 / 26 / 26 %
    - pattern memory (`FlowWeights.Repetition`): when a section label repeats, the song is planned a second
      time and every event pays -Repetition for the exact cut (hand, cell, direction) the same position of
      the label's first occurrence got in the first plan (first occurrences are pulled to their own cuts,
      so the copy source stays put). `RepetitionAnalyzer` measures it (share of note moments in repeats
      that match the first occurrence; `abeat bench` "repeat g/h"): weight 0.5 makes 21 % of repeated moments exact copies (human maps 10 %, no repetition pass 5 %; 1.5 gave 50 %) at no cost in flow or timing
-   - variety: stagnation, per-phrase target cells keyed by section label (`PhraseTargets`), so
-     repeated sections reuse similar movement; seeded hash noise
+   - variety: stagnation, per-phrase target cells keyed by section label (`PhraseTargets`, drawn with
+     the difficulty's human cell shares), so repeated sections reuse similar movement; seeded hash noise
    - style: distribution matching against `style-prior.json` (cut directions, cells per hand, learned
-     from curated maps by `scripts/style_prior.py`); each beam path tracks running counts and pays
+     from curated maps by `scripts/style_prior.py`, which reads map folders or zips); each beam path tracks running counts and pays
      log(running share / human share), so the mix matches humans instead of collapsing to the mode
    - hand roles (`FlowWeights.HandRole`, `HandRoles`): lead/support split as players tap along. Runs of
      one section label whose mean event energy is >= 80 % of the loudest run (the drops) are led by the
@@ -281,6 +289,9 @@ move, `--write-prior` rewrites the prior.
   timeline lane splits into an A row (top) and a B row (bottom), notes without a counterpart in the
   other version (±50 ms) are ringed in their version's colour and marked on an "only" strip, and the
   player view shows both grids.
-- UI: React SPA with ABook's layout (collapsible sidebar, theme toggle) and a Beat Saber palette
+- UI: React SPA with ABook's layout (collapsible sidebar, theme toggle) and a Beat Saber palette. The
+  sidebar lists the 10 songs with the most recent generated version (`lastGeneratedUtc` on `GET
+  /api/songs`, computed from the newest saved version, else the add time); the **Songs** page (`/songs`)
+  lists and filters all of them
   (blue saber = accent, red saber = secondary). Canvases redraw per animation frame from the
   `<audio>` element's current time.

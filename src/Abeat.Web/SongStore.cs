@@ -31,6 +31,8 @@ public sealed record SongMeta
     /// <summary>A human-made map of the same song, kept for comparison (data/songs/{id}/reference).</summary>
     public string? ReferenceMapper { get; set; }
     public string? ReferenceUrl { get; set; }
+    /// <summary>When the newest saved version was generated; filled in for the song list only.</summary>
+    public DateTime? LastGeneratedUtc { get; init; }
 }
 
 /// <summary>File-based storage: data/songs/{id}/ holds source audio, meta.json, work/ (analysis) and

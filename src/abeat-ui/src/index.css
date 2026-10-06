@@ -372,6 +372,8 @@ button:disabled { opacity: 0.5; cursor: not-allowed; }
 .song-row img, .song-row .cover-placeholder { width: 44px; height: 44px; border-radius: 6px; object-fit: cover; flex-shrink: 0; }
 .song-row-text { flex: 1; display: flex; flex-direction: column; overflow: hidden; font-size: 0.85rem; }
 .song-row-title { font-weight: 600; font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.song-row-when { font-size: 0.75rem; }
+.songs-filter { min-width: 0; flex: 0 1 16rem; }
 .cover-placeholder { display: flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); font-size: 1.4rem; }
 .status-ready { background: #052e16; color: #4ade80; }
 .status-failed { background: #450a0a; color: #f87171; }

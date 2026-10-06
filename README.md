@@ -71,7 +71,7 @@ labels for repeated parts, and onsets per layer (frequency bands, or [Demucs](ht
 stems with `--stems`). The audio is padded so grid beat 0 is at t = 0 and written as `song.egg`.
 
 **Vocal onsets** (per song, re-analysis reuses the stems): *spectral flux* (default); *sung notes*,
-flux onsets kept only where a pitched voice follows (CREPE), with the melody steering the note row;
+flux onsets kept only where a pitched voice follows (CREPE);
 or *lyric syllables*, the lyrics forced-aligned to the vocal stem (MMS aligner) and split into
 syllables at their vowels. Paste the lyrics on the song page (repeats written out), or let Whisper
 transcribe them (`uv sync --extra ml --extra lyrics`); the transcription can be loaded into the
@@ -79,7 +79,7 @@ lyrics box to correct it.
 
 **Drums, notes and stems**: drum-stem hits are labelled kick / snare / hat, so hats count less when
 choosing notes and the drummer plays the lights. `--pitched notes` transcribes the other and bass
-stems with [basic-pitch](https://github.com/spotify/basic-pitch) (pitch steers the row, note lengths
+stems with [basic-pitch](https://github.com/spotify/basic-pitch) (note lengths
 drive arcs). `--roformer` takes the vocal stem from BS-RoFormer
 ([python-audio-separator](https://github.com/nomadkaraoke/python-audio-separator), extra `roformer`):
 cleaner vocals, but slow without a GPU. With lyrics, sections whose words repeat (a returning chorus)
@@ -97,9 +97,12 @@ last swing direction, parity). Each candidate cut is scored for:
 
 - *physical flow*: parity resets, angle change vs. a clean reversal, saber travel, swing speed,
   crossovers, vision blocks, over-extension
-- *musical fit*: row follows brightness, accents prefer big vertical swings; one saber follows the
+- *figures*: only figures (hand + cell + cut direction) and double shapes that curated mappers commonly
+  use on that difficulty; note height never follows the audio, so easier levels keep notes lower
+  like human maps do (top row: ~18 % of notes on Easy, ~26 % on Expert+)
+- *musical fit*: accents prefer big vertical swings; one saber follows the
   melody (vocals) and the other the rhythm (drums, bass), swapping at section changes
-- *dynamics*: loud moments pull to the outer cells and bigger moves, soft ones stay small and central
+- *dynamics*: loud moments pull to the outer columns and bigger moves, soft ones stay small and central
 - *variety*: stagnation penalty and per-phrase target cells keyed by section label, so repeated
   choruses get recognisably similar patterns
 
@@ -146,7 +149,15 @@ map's own song and compares. Current results on 18 songs / 62 difficulties with 
 | hand strain p90 (swings/s per hand; Easy … Expert+) | 2.7 · 3.1 · 3.5 · 4.0 · 5.8 | 2.8 · 3.2 · 3.9 · 5.1 · 6.5 |
 | mean turn / tip travel between swings | 17° / 1.44 cells | 21° / 1.55 cells |
 
-The style prior (`scripts/style_prior.py`) is learned from these maps.
+The style prior (`scripts/style_prior.py`: cell and direction shares, figure and double-shape
+vocabularies per difficulty) is learned from the curators' playlist
+[Curators' Favorites of 2025](https://beatsaver.com/playlists/1116456) plus map 37114:
+
+```bash
+dotnet run --project src/Abeat.Cli -- fetch-maps --playlist 1116456 -o work/beatsaver-curated
+dotnet run --project src/Abeat.Cli -- fetch-maps --map 37114 -o work/beatsaver-curated
+python3 scripts/style_prior.py work/beatsaver-curated
+```
 
 ## Layout
 

@@ -82,8 +82,9 @@ public sealed record FlowWeights
     public double StyleCell { get; init; } = 0.7;
     /// <summary>-log likelihood of the cut direction under the human style prior.</summary>
     public double StyleDirection { get; init; } = 0.6;
-    /// <summary>Note row should follow brightness ("pitch") of the sound.</summary>
-    public double Pitch { get; init; } = 0.5;
+    /// <summary>A figure (hand + cell + cut direction) or double shape outside the difficulty's human
+    /// vocabulary (<see cref="StylePrior"/>). High enough that they only appear when nothing else fits.</summary>
+    public double Figure { get; init; } = 25;
     /// <summary>Strong accents prefer big vertical swings.</summary>
     public double Emphasis { get; init; } = 0.8;
     /// <summary>Random jitter for variety; also what the seed changes.</summary>
@@ -98,7 +99,7 @@ public sealed record FlowWeights
     /// <summary>Hand roles (<see cref="FlowPlanner.HandRoles"/>): one hand leads the drops, the other the
     /// rest, the support hand takes bar downbeats. Cost of a single note on the "wrong" hand.</summary>
     public double HandRole { get; init; } = 1.5;
-    /// <summary>Swing size follows intensity: loud hits pull to the outer cells and big moves, soft
+    /// <summary>Swing size follows intensity: loud hits pull to the outer columns and big moves, soft
     /// ones stay near the centre with small moves.</summary>
     public double Dynamics { get; init; } = 1.0;
     /// <summary>Match the human distribution of moves between consecutive swings of a hand (turn angle x

@@ -54,6 +54,35 @@ public sealed class BeatSaverClient : IDisposable
         return result;
     }
 
+    /// <summary>Maps of a BeatSaver playlist that need no mods (no Noodle / Mapping Extensions, no AI maps)
+    /// and have a Standard difficulty, in playlist order.</summary>
+    public async Task<List<MapInfo>> PlaylistAsync(string id, CancellationToken ct = default)
+    {
+        var result = new List<MapInfo>();
+        for (int page = 0; page < 50; page++)
+        {
+            var resp = await http.GetFromJsonAsync<PlaylistResponse>($"playlists/id/{Uri.EscapeDataString(id)}/{page}", Json, ct);
+            if (resp?.Maps is not { Count: > 0 } maps) break;
+            foreach (var d in maps.Select(m => m.Map))
+            {
+                var v = d.Versions.FirstOrDefault();
+                if (v == null || d.Automapper || d.DeclaredAi is not (null or "None")) continue;
+                var std = v.Diffs.Where(x => x.Characteristic == "Standard").ToList();
+                if (std.Count == 0 || std.Any(x => x.Ne || x.Me) || result.Any(r => r.Id == d.Id)) continue;
+                result.Add(new MapInfo(d.Id, d.Name, d.Metadata.Bpm, d.Metadata.Duration, d.Metadata.LevelAuthorName, d.Stats.Score, v.DownloadUrl, std.Max(x => x.Nps)));
+            }
+            await Task.Delay(300, ct);
+        }
+        return result;
+    }
+
+    /// <summary>The playlist id in a BeatSaver playlist link (beatsaver.com/playlists/123) or a bare id.</summary>
+    public static string? ParsePlaylistId(string input)
+    {
+        var m = Regex.Match(input.Trim(), @"^(?:https?://(?:www\.)?beatsaver\.com/playlists/)?(\d+)/?$", RegexOptions.IgnoreCase);
+        return m.Success ? m.Groups[1].Value : null;
+    }
+
     /// <summary>The map key in a BeatSaver page link (beatsaver.com/maps/1a2b3), a "!bsr 1a2b3" request,
     /// a beatsaver://1a2b3 one-click link or a bare key; null for anything else.</summary>
     public static string? ParseKey(string input)
@@ -93,6 +122,8 @@ public sealed class BeatSaverClient : IDisposable
     static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
 
     sealed record SearchResponse(List<Doc> Docs);
+    sealed record PlaylistResponse(List<PlaylistEntry> Maps);
+    sealed record PlaylistEntry(Doc Map);
     sealed record Doc(string Id, string Name, Meta Metadata, Stats Stats, List<Version> Versions, bool Automapper, string? DeclaredAi);
     sealed record Meta(double Bpm, double Duration, string LevelAuthorName);
     sealed record Stats(double Score);

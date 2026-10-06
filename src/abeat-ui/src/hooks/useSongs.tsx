@@ -37,3 +37,10 @@ export function SongsProvider({ children }: { children: React.ReactNode }) {
 
 // eslint-disable-next-line react-refresh/only-export-components
 export const useSongs = () => useContext(SongsContext)
+
+/** Songs by their latest generated version, newest first; songs never generated count from when they were added. */
+// eslint-disable-next-line react-refresh/only-export-components
+export const byActivity = (songs: SongMeta[]) => {
+  const at = (s: SongMeta) => Date.parse(s.lastGeneratedUtc ?? s.createdUtc) || 0
+  return [...songs].sort((a, b) => at(b) - at(a))
+}

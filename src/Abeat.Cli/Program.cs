@@ -41,6 +41,8 @@ usage:
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
   abeat settings [file.json]                   write default generator settings to edit
   abeat fetch-maps [--count 20] [--per-mapper 2] [-o work/beatsaver]   curated BeatSaver maps (no mods), top-rated + recent
+  abeat fetch-maps --playlist <id|url> [-o dir]                         the (mod-free) maps of a BeatSaver playlist
+  abeat fetch-maps --map <key|url> [-o dir]                             one BeatSaver map
   abeat compare <map.zip|folder> [--settings f]  re-map the map's own song and compare with the human map
   abeat bench [dir] [--settings f]             compare every map zip in dir (default work/beatsaver), write bench.csv
   abeat movement [map | dir] [--csv f] [--write-prior f]   hand movement per difficulty: swing angle changes, saber-tip
@@ -234,7 +236,18 @@ static async Task<int> FetchMaps(Options o)
     string dir = o.Get("out") ?? Path.Combine("work", "beatsaver");
     Directory.CreateDirectory(dir);
     using var bs = new BeatSaverClient();
-    var maps = await bs.CuratedAsync(count, int.Parse(o.Get("per-mapper") ?? "2"));
+    List<BeatSaverClient.MapInfo> maps;
+    if (o.Get("playlist") is { } pl)
+    {
+        if (BeatSaverClient.ParsePlaylistId(pl) is not { } id) { Console.Error.WriteLine($"not a BeatSaver playlist: {pl}"); return 1; }
+        maps = await bs.PlaylistAsync(id);
+    }
+    else if (o.Get("map") is { } link)
+    {
+        if (BeatSaverClient.ParseKey(link) is not { } key || await bs.ByKeyAsync(key) is not { } map) { Console.Error.WriteLine($"no BeatSaver map: {link}"); return 1; }
+        maps = [map];
+    }
+    else maps = await bs.CuratedAsync(count, int.Parse(o.Get("per-mapper") ?? "2"));
     foreach (var m in maps)
     {
         string path = Path.Combine(dir, $"{m.Id}.zip");

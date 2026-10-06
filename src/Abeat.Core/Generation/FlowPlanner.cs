@@ -84,7 +84,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         var other = node.State(hand == Hand.Left ? Hand.Right : Hand.Left);
         bool mustFlip = s.Active && e.Time - s.Time < SwingCostModel.ResetGapSec;
         var lastDir = hand == Hand.Left ? node.LastDirL : node.LastDirR;
-        var target = oneSaber ? PhraseTargets.ForOneSaber(e, seed) : PhraseTargets.For(hand, e, seed);
+        var target = oneSaber ? PhraseTargets.ForOneSaber(e, seed, style) : PhraseTargets.For(hand, e, seed, style);
 
         foreach (var d in Swing.Directional.Append(CutDirection.Any))
         {
@@ -97,7 +97,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                 for (int y = 0; y < 3; y++)
                 {
                     var phys = model.Physical(hand, s, other, e.Time, x, y, d, profile.MinSameHandGapSec);
-                    double c = phys.Total + model.Musical(e.Brightness, e.Strength, y, d);
+                    double c = phys.Total + model.Musical(e.Strength, d);
                     if (d == CutDirection.Any) c += profile.DotCost;
                     if (s.Active && s.X == x && s.Y == y && d == lastDir) c += model.Weights.Repeat;
                     c += model.Stagnation(s, x, y) + model.Target(target, x, y) + model.Dynamics(s, e.Intensity, x, y);
@@ -109,6 +109,8 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                         double cellShare = oneSaber ? (style.Cells[0][y * 4 + x] + style.Cells[1][y * 4 + x]) / 2 : style.Cells[(int)hand][y * 4 + x];
                         c += model.Weights.StyleCell * StylePrior.MatchCost(node.Counts[cellBase + y * 4 + x], handNotes, cellShare);
                         c += model.Weights.StyleDirection * StylePrior.MatchCost(node.Counts[(int)d], node.NotesL + node.NotesR, style.Directions[(int)d]);
+                        bool known = oneSaber ? style.HasFigure(Hand.Left, x, y, d) || style.HasFigure(Hand.Right, x, y, d) : style.HasFigure(hand, x, y, d);
+                        if (!known) c += model.Weights.Figure;
                     }
                     if (movement != null && Move(s, e.Time, x, y, v) is var (bucket, strain))
                     {
@@ -213,6 +215,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         {
             double pair = PairCost(l.cut, r.cut, l.swing, r.swing);
             if (double.IsPositiveInfinity(pair)) continue;
+            if (style != null && !style.HasDouble(l.cut.X, l.cut.Y, l.cut.Dir, r.cut.X, r.cut.Y, r.cut.Dir)) pair += model.Weights.Figure;
             Add(next, node, node.Cost + l.cost + r.cost + pair, l.cut, r.cut, e.Time, l.swing, r.swing);
         }
     }
