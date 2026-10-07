@@ -259,7 +259,10 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    ("#rrggbb") apply over the cover's colours or, with those off, over the game defaults; the UI's Detect
    copies the cover palette into the overrides. Written as an Info v2.1 `_colorSchemes` entry (plus
    `_environmentNames` [environment, GlassDesert] so 90/360 keep theirs) and SongCore `_colorLeft` ...
-   `_obstacleColor` per difficulty.
+   `_obstacleColor` per difficulty. An uploaded cover (`POST /api/songs/{id}/cover`, JPEG/PNG by magic
+   bytes, <= 10 MB) is stored as `songs/{id}/cover.jpg|png` beside `work/` so re-analysis keeps it;
+   `SongStore.Analysis` points `Cover` at it (`../cover.png`, so writers use only the file name);
+   `DELETE` restores the original.
 8. **Modes** (`GeneratorSettings.Modes`, written next to Standard for the same difficulties):
    `OneSaber` is planned anew with one (right) saber covering the whole grid (no doubles, rhythm gap =
    same-hand gap, 80 % density, no crossover/hand-role costs, cell prior = mean of both hands, phrase

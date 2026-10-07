@@ -199,7 +199,7 @@ export interface RuntimeState { status: 'installing' | 'ready' | 'failed'; accel
 export const getConfig = () => http.get<{ httpsPort: number | null; arcViewer: boolean; runtime?: RuntimeState }>('/config')
 export const getDefaults = () => http.get<Defaults>('/defaults')
 export const getSongs = () => http.get<SongMeta[]>('/songs')
-export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[] }>(`/songs/${id}`)
+export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[]; customCover?: boolean }>(`/songs/${id}`)
 export const deleteSong = (id: string) => http.delete(`/songs/${id}`)
 export const getAnalysis = (id: string) => http.get<Analysis>(`/songs/${id}/analysis`)
 /** Colour slots of the cover palette and of the game's default scheme ("#rrggbb" by slot). */
@@ -268,6 +268,14 @@ export const playlistBplistUrl = (id: string) => `/api/playlists/${id}/playlist.
 
 export const audioUrl = (id: string) => `/api/songs/${id}/audio`
 export const coverUrl = (id: string) => `/api/songs/${id}/cover`
+/** Replaces the song's cover (JPEG or PNG); new versions and the cover colours use it. */
+export const uploadCover = (id: string, file: File) => {
+  const form = new FormData()
+  form.append('file', file)
+  return http.post(`/songs/${id}/cover`, form)
+}
+/** Goes back to the downloaded / extracted cover. */
+export const resetCover = (id: string) => http.delete(`/songs/${id}/cover`)
 export const zipUrl = (id: string, version?: string) => `/api/songs/${id}/map.zip${version ? `?version=${encodeURIComponent(version)}` : ''}`
 
 export function errorText(e: unknown): string {

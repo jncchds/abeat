@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.14 — 2026-10-07
+
+- Click the cover on a song page to upload a new one (JPEG or PNG, up to 10 MB); new versions use it, the cover colours follow it, and it survives re-analysis. The small × on the cover goes back to the original.
+
 ## v0.2.13 — 2026-10-07
 
 - **Cover colours**: maps take their saber, light, boost-light and wall colours from the cover art (the cover's two strongest hues for the sabers, the warmer one on the left; a third hue for boost lights). Written for vanilla (Info colour scheme) and SongCore. Covers with almost no colour keep the game's colours.

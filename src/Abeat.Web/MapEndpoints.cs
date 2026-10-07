@@ -92,7 +92,7 @@ public static class MapEndpoints
         });
 
         api.MapGet("/songs/{id}", (string id, SongStore store) =>
-            store.Get(id) is { } m ? Results.Ok(new { meta = m, log = store.Log(id).Snapshot() }) : Results.NotFound());
+            store.Get(id) is { } m ? Results.Ok(new { meta = m, log = store.Log(id).Snapshot(), customCover = store.CustomCover(id) != null }) : Results.NotFound());
 
         api.MapDelete("/songs/{id}", (string id, SongStore store) =>
         {
@@ -152,11 +152,41 @@ public static class MapEndpoints
             return Results.File(Path.Combine(a.Directory, a.Audio.File), "audio/ogg", enableRangeProcessing: true);
         });
 
-        api.MapGet("/songs/{id}/cover", (string id, SongStore store) =>
+        api.MapGet("/songs/{id}/cover", (string id, SongStore store, HttpContext ctx) =>
         {
             var a = store.Analysis(id);
             if (a == null) return Results.NotFound();
-            return Results.File(Path.Combine(a.Directory, a.Cover), "image/jpeg");
+            var path = Path.Combine(a.Directory, a.Cover);
+            if (!File.Exists(path)) return Results.NotFound();
+            ctx.Response.Headers.CacheControl = "no-cache"; // revalidate: the cover can be replaced
+            return Results.File(path, path.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ? "image/png" : "image/jpeg",
+                lastModified: File.GetLastWriteTimeUtc(path));
+        });
+
+        // Replace the cover with an uploaded JPEG or PNG (new versions use it; colours follow it).
+        api.MapPost("/songs/{id}/cover", async (string id, HttpRequest req, SongStore store) =>
+        {
+            if (store.Get(id) == null) return Results.NotFound();
+            if (!req.HasFormContentType) return Results.BadRequest("multipart form expected");
+            var file = (await req.ReadFormAsync()).Files.FirstOrDefault();
+            if (file == null || file.Length == 0) return Results.BadRequest("no file");
+            if (file.Length > 10 << 20) return Results.BadRequest("the image is larger than 10 MB");
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            var data = ms.ToArray();
+            string? ext = data is [0x89, 0x50, 0x4E, 0x47, ..] ? ".png" : data is [0xFF, 0xD8, 0xFF, ..] ? ".jpg" : null;
+            if (ext == null) return Results.BadRequest("Beat Saber covers must be JPEG or PNG");
+            try { StbImageSharp.ImageInfo.FromStream(new MemoryStream(data)); }
+            catch (Exception) { return Results.BadRequest("the image could not be read"); }
+            store.SaveCustomCover(id, data, ext);
+            return Results.NoContent();
+        });
+
+        api.MapDelete("/songs/{id}/cover", (string id, SongStore store) =>
+        {
+            if (store.Get(id) == null) return Results.NotFound();
+            store.DeleteCustomCover(id);
+            return Results.NoContent();
         });
 
         // debug: separated stems kept by the worker, and the raw analysis

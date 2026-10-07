@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelJob,
-  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong,
+  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong, resetCover, uploadCover,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
   type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type EnvironmentEntry, type EnvironmentSuggestions, type GeneratorSettings, type SongColors, type SongMeta, type TapRun, type Version,
 } from '../api'
@@ -83,6 +83,9 @@ export default function SongPage() {
   const [environments, setEnvironments] = useState<EnvironmentEntry[]>([])
   const [envSuggestions, setEnvSuggestions] = useState<EnvironmentSuggestions>()
   const [colors, setColors] = useState<{ id: string; c: SongColors }>()
+  const [customCover, setCustomCover] = useState(false)
+  const [coverRev, setCoverRev] = useState(0)
+  const coverInput = useRef<HTMLInputElement>(null)
   const [autoRegen, setAutoRegen] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -132,6 +135,7 @@ export default function SongPage() {
       if (cancelled) return
       setMeta(r.data.meta)
       setLog(r.data.log)
+      setCustomCover(!!r.data.customCover)
     }
     load().catch(e => setError(errorText(e)))
     if (!busy) return () => { cancelled = true }
@@ -185,7 +189,17 @@ export default function SongPage() {
     let live = true
     getColors(id).then(r => { if (live) setColors({ id, c: r.data }) }).catch(() => {})
     return () => { live = false }
-  }, [id, hasAnalysis])
+  }, [id, hasAnalysis, coverRev])
+
+  const changeCover = async (action: () => Promise<unknown>, custom: boolean) => {
+    try {
+      await action()
+      setCustomCover(custom)
+      setCoverRev(r => r + 1)
+    } catch (e) {
+      setError(errorText(e))
+    }
+  }
   const list = useMemo(() => (versions?.id === id ? versions.list : []), [versions, id])
   const labels = useMemo(() => versionLabels(list), [list])
   const byVersion = useMemo(() => (maps.id === id ? maps.byVersion : {}), [maps, id])
@@ -368,7 +382,23 @@ export default function SongPage() {
   return (
     <div className="page">
       <div className="song-header">
-        {ready ? <img className="cover" src={`${coverUrl(id)}?v=${meta?.bpm ?? ''}`} alt="" /> : <div className="cover cover-placeholder">🎵</div>}
+        {ready ? (
+          <div className="cover-edit">
+            <button type="button" className="cover-button" title="Click to upload a new cover (JPEG or PNG)" onClick={() => coverInput.current?.click()}>
+              <img className="cover" src={`${coverUrl(id)}?v=${meta?.bpm ?? ''}-${coverRev}`} alt="Cover (click to replace)" />
+            </button>
+            {customCover && (
+              <button type="button" className="cover-reset" title="Back to the original cover" aria-label="Restore the original cover"
+                onClick={() => changeCover(() => resetCover(id), false)}>×</button>
+            )}
+            <input ref={coverInput} type="file" accept="image/jpeg,image/png" hidden
+              onChange={e => {
+                const f = e.target.files?.[0]
+                e.target.value = ''
+                if (f) changeCover(() => uploadCover(id, f), true)
+              }} />
+          </div>
+        ) : <div className="cover cover-placeholder">🎵</div>}
         <div className="song-title">
           <h2 onClick={onTitleTap}>{title}</h2>
           <div className="muted">

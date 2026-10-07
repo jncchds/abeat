@@ -32,7 +32,7 @@ public static class MapGenerator
             PreviewStart = a.Preview.StartSec,
             PreviewDuration = a.Preview.DurationSec,
             SongFile = a.Audio.File,
-            CoverFile = a.Cover,
+            CoverFile = Path.GetFileName(a.Cover), // an uploaded cover is referenced as ../cover.png
             Environment = env.Id,
             Colors = CoverPalette.Resolve(Path.Combine(a.Directory, a.Cover), s.CoverColors, s.ColorOverrides),
         };

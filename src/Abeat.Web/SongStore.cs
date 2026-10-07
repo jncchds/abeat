@@ -271,7 +271,29 @@ public sealed class SongStore
     {
         if (analysisCache.TryGetValue(id, out var a)) return a;
         if (!File.Exists(Path.Combine(WorkDir(id), "analysis.json"))) return null;
-        return analysisCache[id] = SongAnalysis.Load(WorkDir(id));
+        var loaded = SongAnalysis.Load(WorkDir(id));
+        // an uploaded cover lives next to work/ so a re-analysis keeps it
+        if (CustomCover(id) is { } cover) loaded.Cover = Path.GetRelativePath(loaded.Directory, cover);
+        return analysisCache[id] = loaded;
+    }
+
+    static readonly string[] CoverNames = ["cover.jpg", "cover.png"];
+
+    /// <summary>The cover uploaded for the song (replacing the downloaded / extracted one), if any.</summary>
+    public string? CustomCover(string id) =>
+        CoverNames.Select(n => Path.Combine(Dir(id), n)).FirstOrDefault(File.Exists);
+
+    public void SaveCustomCover(string id, byte[] data, string extension)
+    {
+        DeleteCustomCover(id);
+        File.WriteAllBytes(Path.Combine(Dir(id), "cover" + extension), data);
+        InvalidateAnalysis(id);
+    }
+
+    public void DeleteCustomCover(string id)
+    {
+        foreach (var n in CoverNames) File.Delete(Path.Combine(Dir(id), n));
+        InvalidateAnalysis(id);
     }
 
     public void InvalidateAnalysis(string id) => analysisCache.TryRemove(id, out _);
