@@ -17,7 +17,61 @@ public static class MapWriter
             File.WriteAllText(Path.Combine(folder, d.FileName), DifficultyJson(d, map.Tempo).ToJsonString());
     }
 
-    public static JsonObject InfoJson(MapSet map) => new()
+    static bool Rotated(string characteristic) => characteristic is Characteristic.Degree90 or Characteristic.Degree360;
+
+    static JsonObject Color(Rgb c, bool alpha = true)
+    {
+        var o = new JsonObject { ["r"] = Math.Round(c.R, 4), ["g"] = Math.Round(c.G, 4), ["b"] = Math.Round(c.B, 4) };
+        if (alpha) o["a"] = 1;
+        return o;
+    }
+
+    /// <summary>Per-difficulty custom data: SongCore's colour overrides (applied by every moddable version
+    /// when the player allows custom song colours).</summary>
+    static JsonObject? DifficultyCustomData(MapSet map) => map.Colors is not { } c ? null : new JsonObject
+    {
+        ["_colorLeft"] = Color(c.SaberLeft, false), ["_colorRight"] = Color(c.SaberRight, false),
+        ["_envColorLeft"] = Color(c.EnvLeft, false), ["_envColorRight"] = Color(c.EnvRight, false),
+        ["_envColorLeftBoost"] = Color(c.EnvLeftBoost, false), ["_envColorRightBoost"] = Color(c.EnvRightBoost, false),
+        ["_envColorWhite"] = Color(c.EnvWhite, false), ["_envColorWhiteBoost"] = Color(c.EnvWhite, false),
+        ["_obstacleColor"] = Color(c.Obstacles, false),
+    };
+
+    public static JsonObject InfoJson(MapSet map)
+    {
+        var info = InfoBase(map);
+        if (map.Colors is { } c)
+        {
+            // Info v2.1 colour scheme (vanilla), referenced by every difficulty; the environments list lets
+            // 90/360 keep GlassDesert while the scheme applies to all of them
+            info["_colorSchemes"] = new JsonArray(new JsonObject
+            {
+                ["useOverride"] = true,
+                ["colorScheme"] = new JsonObject
+                {
+                    ["colorSchemeId"] = "ABeat Cover",
+                    ["saberAColor"] = Color(c.SaberLeft), ["saberBColor"] = Color(c.SaberRight),
+                    ["environmentColor0"] = Color(c.EnvLeft), ["environmentColor1"] = Color(c.EnvRight),
+                    ["obstaclesColor"] = Color(c.Obstacles),
+                    ["environmentColor0Boost"] = Color(c.EnvLeftBoost), ["environmentColor1Boost"] = Color(c.EnvRightBoost),
+                },
+            });
+            info["_environmentNames"] = new JsonArray(map.Environment, "GlassDesertEnvironment");
+            foreach (var set in info["_difficultyBeatmapSets"]!.AsArray())
+            {
+                bool rotated = Rotated((string)set!["_beatmapCharacteristicName"]!);
+                foreach (var d in set["_difficultyBeatmaps"]!.AsArray())
+                {
+                    d!["_beatmapColorSchemeIdx"] = 0;
+                    d["_environmentNameIdx"] = rotated ? 1 : 0;
+                    d["_customData"] = DifficultyCustomData(map);
+                }
+            }
+        }
+        return info;
+    }
+
+    static JsonObject InfoBase(MapSet map) => new()
     {
         ["_version"] = "2.1.0",
         ["_songName"] = map.SongName,

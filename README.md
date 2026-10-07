@@ -136,7 +136,8 @@ environments get classic lights (section palettes, note flashes, drum-driven las
 extra lasers and moving set pieces); Weave and later get a v3 group lightshow laid out from how curated
 maps use that environment's light groups, with lights that turn and move: they drift in quiet parts,
 swing on the bars when it gets loud, fold together over a build-up and burst open in white on the drop,
-and one group follows the melody. `--modes onesaber,90,360` adds One
+and one group follows the melody. Colours come from the cover art (sabers, lights, boost lights, walls);
+**Detect** copies them into the settings, where any of them can be changed by hand. `--modes onesaber,90,360` adds One
 Saber (planned for one saber over the whole grid) and 90°/360° (the Standard notes with lane rotations).
 
 All weights are in `FlowWeights` and editable in the UI or a settings file (`abeat settings`).

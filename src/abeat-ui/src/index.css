@@ -651,3 +651,11 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 .tap-table th:first-child, .tap-table td:first-child { text-align: left; padding-left: 0; }
 .tap-table thead tr:first-child th { text-align: center; }
 .tap-both td { border-top: 1px solid var(--border); }
+
+.color-picker { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin-top: 0.5rem; }
+.color-swatches { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.color-swatches.dim { opacity: 0.55; }
+.color-swatch { position: relative; display: inline-flex; }
+.color-swatch input[type=color] { width: 2rem; height: 2rem; padding: 0; border: 1px solid var(--border); border-radius: 6px; background: none; cursor: pointer; }
+.color-reset { position: absolute; top: -0.4rem; right: -0.4rem; width: 1rem; height: 1rem; padding: 0; border-radius: 50%; font-size: 0.7rem; line-height: 1; }
+.btn-small { padding: 0.2rem 0.6rem; font-size: 0.8rem; }

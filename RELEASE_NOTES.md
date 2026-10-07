@@ -1,5 +1,10 @@
 # Release notes
 
+## v0.2.13 — 2026-10-07
+
+- **Cover colours**: maps take their saber, light, boost-light and wall colours from the cover art (the cover's two strongest hues for the sabers, the warmer one on the left; a third hue for boost lights). Written for vanilla (Info colour scheme) and SongCore. Covers with almost no colour keep the game's colours.
+- Every colour can be set by hand next to the Environment picker; **Detect** fills them all from the cover so you can tweak from there, **Clear** drops the hand-set ones.
+
 ## v0.2.12 — 2026-10-07
 
 - **Every environment**: the Environment picker lists all 46 environments of moddable Beat Saber (classic and group lights), and **Auto** (the new default) picks one that suits the song: how often a kick lands on the beat (dance floor vs. band), how dark it sounds, its intensity and tempo; the picker shows what Auto chose and the best matches for the song, and each version is labelled with its environment.

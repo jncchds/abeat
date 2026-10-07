@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { DifficultyProfile, EnvironmentEntry, EnvironmentSuggestions, GeneratorSettings, ProfileOverride } from '../api'
+import type { DifficultyProfile, EnvironmentEntry, EnvironmentSuggestions, GeneratorSettings, ProfileOverride, SongColors } from '../api'
 import { DIFFICULTIES, diffLabel, fmtNum } from '../utils/format'
 import ToggleField from './ToggleField'
 
@@ -11,6 +11,7 @@ interface Props {
   environments?: EnvironmentEntry[]
   /** What "Auto" picks for this song and the best-suited environments. */
   envSuggestions?: EnvironmentSuggestions
+  songColors?: SongColors
   layers: string[]
   layerSource: string
   onChange: (s: GeneratorSettings) => void
@@ -29,7 +30,7 @@ const LIMITS: [keyof DifficultyProfile, string, string, number, number, number][
 const WEIGHT_MAX: Record<string, number> = { reset: 100, slowReset: 10, tooFast: 60, crossover: 10, visionBlock: 8 }
 
 /** Generator settings; every committed change produces a new settings object for the parent. */
-export default function SettingsPanel({ settings: s, defaults, profiles, environments = [], envSuggestions, layers, layerSource, onChange }: Props) {
+export default function SettingsPanel({ settings: s, defaults, profiles, environments = [], envSuggestions, songColors, layers, layerSource, onChange }: Props) {
   const set = (patch: Partial<GeneratorSettings>) => onChange({ ...s, ...patch })
   const setLimits = (d: string, o: ProfileOverride | undefined) => {
     const next = { ...(s.profileOverrides ?? {}) }
@@ -71,6 +72,7 @@ export default function SettingsPanel({ settings: s, defaults, profiles, environ
           ))}
         </div>
         <EnvironmentPicker value={s.environment} environments={environments} suggestions={envSuggestions} onChange={v => set({ environment: v })} />
+        <ColorPicker settings={s} colors={songColors} onChange={set} />
       </fieldset>
 
       <fieldset>
@@ -189,5 +191,53 @@ function EnvironmentPicker({ value, environments, suggestions, onChange }: {
         {current !== 'Auto' && !byId.has(current.toLowerCase()) && <option value={current}>{current}</option>}
       </select>
     </label>
+  )
+}
+
+const COLOR_SLOTS: [string, string][] = [
+  ['saberLeft', 'Left saber'], ['saberRight', 'Right saber'], ['envLeft', 'Left lights'], ['envRight', 'Right lights'],
+  ['envLeftBoost', 'Left boost lights'], ['envRightBoost', 'Right boost lights'], ['obstacles', 'Walls'], ['envWhite', 'White lights'],
+]
+
+/** Map colours: the cover's (toggle) or the game's, with any slot set by hand; a dot marks hand-set slots,
+ * clicking it goes back to the base colour. */
+function ColorPicker({ settings: s, colors, onChange }: {
+  settings: GeneratorSettings
+  colors?: SongColors
+  onChange: (patch: Partial<GeneratorSettings>) => void
+}) {
+  const cover = s.coverColors ?? true
+  const overrides = s.colorOverrides ?? {}
+  const base = (cover ? colors?.cover : null) ?? colors?.game
+  const setSlot = (slot: string, hex: string | null) => {
+    const next = { ...overrides }
+    if (hex) next[slot] = hex
+    else delete next[slot]
+    onChange({ colorOverrides: next })
+  }
+  const custom = cover || Object.keys(overrides).length > 0
+  return (
+    <div className="color-picker">
+      <label className="inline-check" title="Saber, light and wall colours taken from the cover art (written for vanilla and SongCore)">
+        <input type="checkbox" checked={cover} onChange={e => onChange({ coverColors: e.target.checked })} />
+        Cover colours{cover && colors && !colors.cover ? ' (cover has too little colour)' : ''}
+      </label>
+      <button type="button" className="btn-secondary btn-small" disabled={!colors?.cover}
+        title={colors && !colors.cover ? 'The cover has too little colour' : 'Set every colour from the cover art (then tweak any of them)'}
+        onClick={() => colors?.cover && onChange({ colorOverrides: { ...colors.cover } })}>Detect</button>
+      <button type="button" className="btn-secondary btn-small" disabled={Object.keys(overrides).length === 0}
+        title="Drop the hand-set colours" onClick={() => onChange({ colorOverrides: {} })}>Clear</button>
+      <div className={`color-swatches${custom ? '' : ' dim'}`}>
+        {COLOR_SLOTS.map(([slot, label]) => {
+          const value = overrides[slot] ?? base?.[slot] ?? '#808080'
+          return (
+            <span key={slot} className="color-swatch" title={`${label}${overrides[slot] ? ' (set by hand)' : ''}`}>
+              <input type="color" aria-label={label} value={value} onChange={e => setSlot(slot, e.target.value)} />
+              {overrides[slot] && <button type="button" className="color-reset" aria-label={`Reset ${label}`} title="Back to the base colour" onClick={() => setSlot(slot, null)}>×</button>}
+            </span>
+          )
+        })}
+      </div>
+    </div>
   )
 }

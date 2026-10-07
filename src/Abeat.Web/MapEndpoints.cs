@@ -199,6 +199,18 @@ public static class MapEndpoints
             });
         });
 
+        // The colour scheme taken from the song's cover (null when the cover has almost no colour) and the
+        // game's default colours, the bases hand-set colours apply over.
+        api.MapGet("/songs/{id}/colors", (string id, SongStore store) =>
+        {
+            var a = store.Analysis(id);
+            if (a == null) return Results.NotFound();
+            static Dictionary<string, string> Hex(ColorScheme c) => CoverPalette.Slots.Zip(new[]
+                { c.SaberLeft, c.SaberRight, c.EnvLeft, c.EnvRight, c.EnvLeftBoost, c.EnvRightBoost, c.Obstacles, c.EnvWhite }).ToDictionary(x => x.First, x => x.Second.Hex);
+            var cover = CoverPalette.FromFile(Path.Combine(a.Directory, a.Cover));
+            return Results.Ok(new { cover = cover == null ? null : Hex(cover), game = Hex(CoverPalette.GameDefault) });
+        });
+
         api.MapGet("/songs/{id}/settings", (string id, SongStore store) =>
             store.Get(id) is null ? Results.NotFound() : Results.Ok(store.Settings(id)));
 

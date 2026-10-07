@@ -14,4 +14,8 @@
     <EmbeddedResource Include="Generation/movement-prior.json" LogicalName="Abeat.Core.movement-prior.json" Condition="Exists('Generation/movement-prior.json')" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="StbImageSharp" Version="2.30.16" />
+  </ItemGroup>
+
 </Project>

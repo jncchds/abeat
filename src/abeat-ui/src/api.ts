@@ -167,6 +167,10 @@ export interface GeneratorSettings {
   modes?: string[]
   /** "Auto" (picked for the song) or an environment id such as "WeaveEnvironment". */
   environment?: string
+  /** Saber, light and wall colours from the cover art. */
+  coverColors?: boolean
+  /** Hand-set colours by slot ("#rrggbb"), over the cover's or the game's. */
+  colorOverrides?: Record<string, string>
   /** Per-difficulty speed/density limits; unset fields keep the built-in profile's value. */
   profileOverrides?: Record<string, ProfileOverride>
   [key: string]: unknown
@@ -198,6 +202,9 @@ export const getSongs = () => http.get<SongMeta[]>('/songs')
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[] }>(`/songs/${id}`)
 export const deleteSong = (id: string) => http.delete(`/songs/${id}`)
 export const getAnalysis = (id: string) => http.get<Analysis>(`/songs/${id}/analysis`)
+/** Colour slots of the cover palette and of the game's default scheme ("#rrggbb" by slot). */
+export interface SongColors { cover: Record<string, string> | null; game: Record<string, string> }
+export const getColors = (id: string) => http.get<SongColors>(`/songs/${id}/colors`)
 export const getEnvironments = (id: string, seed: number) => http.get<EnvironmentSuggestions>(`/songs/${id}/environments`, { params: { seed } })
 export const getSettings = (id: string) => http.get<GeneratorSettings>(`/songs/${id}/settings`)
 export const generate = (id: string, s: GeneratorSettings, draft: boolean) =>

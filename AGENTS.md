@@ -250,6 +250,16 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    share and drum rate) against each environment's character, tempo compared up to doubling, +0.25 for
    group environments and a small seed jitter so other seeds can land on another fitting one. Not
    verified in game.
+   **Colours** (`CoverPalette`, `CoverColors` on by default, `ColorOverrides`): the cover (decoded with
+   StbImageSharp, sampled to ~96 px) is binned into 24 hues weighted by saturation x value (pixels under
+   0.25 of either ignored; under 4 % colourful coverage keeps the game colours); the top hue and the top
+   one >= 70° away with >= 12 % of its weight (else +150°) are the sabers, the one nearer 15° (red-orange)
+   on the left; lights use the same hues (saturation >= 0.75), boost lights a third cover hue >= 40° from
+   both (else the saber hues turned by 30°), walls the top hue, white a 15 % tint of it. Hand-set slots
+   ("#rrggbb") apply over the cover's colours or, with those off, over the game defaults; the UI's Detect
+   copies the cover palette into the overrides. Written as an Info v2.1 `_colorSchemes` entry (plus
+   `_environmentNames` [environment, GlassDesert] so 90/360 keep theirs) and SongCore `_colorLeft` ...
+   `_obstacleColor` per difficulty.
 8. **Modes** (`GeneratorSettings.Modes`, written next to Standard for the same difficulties):
    `OneSaber` is planned anew with one (right) saber covering the whole grid (no doubles, rhythm gap =
    same-hand gap, 80 % density, no crossover/hand-role costs, cell prior = mean of both hands, phrase

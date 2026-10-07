@@ -58,6 +58,17 @@ public static class LightValue
     public static int Fade(bool red) => red ? RedFade : BlueFade;
 }
 
+/// <summary>Colour with components 0..1.</summary>
+public sealed record Rgb(double R, double G, double B)
+{
+    public string Hex => $"#{To255(R):x2}{To255(G):x2}{To255(B):x2}";
+    static int To255(double c) => (int)Math.Round(Math.Clamp(c, 0, 1) * 255);
+}
+
+/// <summary>Custom colours for a map: sabers / notes (left = A, right = B), environment lights with their
+/// boost variants, walls, and the white of group lights.</summary>
+public sealed record ColorScheme(Rgb SaberLeft, Rgb SaberRight, Rgb EnvLeft, Rgb EnvRight, Rgb EnvLeftBoost, Rgb EnvRightBoost, Rgb Obstacles, Rgb EnvWhite);
+
 public enum DifficultyName { Easy, Normal, Hard, Expert, ExpertPlus }
 
 /// <summary>v3 lane rotation (90/360 degree modes): from this beat the track turns by <see cref="Degrees"/>
@@ -118,6 +129,8 @@ public sealed class MapSet
     public string SongFile { get; set; } = "song.egg";
     public string CoverFile { get; set; } = "cover.jpg";
     public string Environment { get; set; } = "DefaultEnvironment";
+    /// <summary>Custom colours (from the cover art), or null for the environment's own.</summary>
+    public ColorScheme? Colors { get; set; }
     public List<DifficultyMap> Difficulties { get; init; } = [];
     TempoMap? tempo;
     /// <summary>Tempo with changes (written as bpmEvents into every difficulty); defaults to the constant

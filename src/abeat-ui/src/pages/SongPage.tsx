@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelJob,
-  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getEnvironments, getSettings, getSong,
+  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
-  type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type EnvironmentEntry, type EnvironmentSuggestions, type GeneratorSettings, type SongMeta, type TapRun, type Version,
+  type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type EnvironmentEntry, type EnvironmentSuggestions, type GeneratorSettings, type SongColors, type SongMeta, type TapRun, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
@@ -82,6 +82,7 @@ export default function SongPage() {
   const [profiles, setProfiles] = useState<Record<string, DifficultyProfile>>()
   const [environments, setEnvironments] = useState<EnvironmentEntry[]>([])
   const [envSuggestions, setEnvSuggestions] = useState<EnvironmentSuggestions>()
+  const [colors, setColors] = useState<{ id: string; c: SongColors }>()
   const [autoRegen, setAutoRegen] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -179,6 +180,12 @@ export default function SongPage() {
     getEnvironments(id, seed).then(r => { if (live) setEnvSuggestions(r.data) }).catch(() => {})
     return () => { live = false }
   }, [id, seed, hasAnalysis])
+  useEffect(() => {
+    if (!hasAnalysis) return
+    let live = true
+    getColors(id).then(r => { if (live) setColors({ id, c: r.data }) }).catch(() => {})
+    return () => { live = false }
+  }, [id, hasAnalysis])
   const list = useMemo(() => (versions?.id === id ? versions.list : []), [versions, id])
   const labels = useMemo(() => versionLabels(list), [list])
   const byVersion = useMemo(() => (maps.id === id ? maps.byVersion : {}), [maps, id])
@@ -504,6 +511,7 @@ export default function SongPage() {
                 <button className="btn-secondary" disabled={!defaults} onClick={() => defaults && onSettings(structuredClone(defaults))}>Defaults</button>
               </div>
               <SettingsPanel settings={settings} defaults={defaults} profiles={profiles} environments={environments} envSuggestions={envSuggestions}
+                songColors={colors?.id === id ? colors.c : undefined}
                 layers={Object.keys(analysis.layers)}
                 layerSource={analysis.layerSource} onChange={onSettings} />
             </div>

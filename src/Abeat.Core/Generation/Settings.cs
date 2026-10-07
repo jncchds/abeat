@@ -159,6 +159,12 @@ public sealed record GeneratorSettings
     /// <summary>"Auto" (the environment that suits the song) or an environment id / name from
     /// <see cref="EnvironmentCatalog"/> ("PyroEnvironment", "Pyro", "The First"...).</summary>
     public string Environment { get; init; } = EnvironmentCatalog.Auto;
+    /// <summary>Saber, light and wall colours taken from the cover art (<see cref="CoverPalette"/>).</summary>
+    public bool CoverColors { get; init; } = true;
+    /// <summary>Colours set by hand ("#rrggbb" by slot: saberLeft, saberRight, envLeft, envRight, envLeftBoost,
+    /// envRightBoost, obstacles, envWhite), applied over the cover colours or, with those off, over the
+    /// game's defaults.</summary>
+    public Dictionary<string, string> ColorOverrides { get; init; } = [];
     public bool Walls { get; init; } = true;
     /// <summary>Single-lane centre walls in note-free gaps (Normal and up).</summary>
     public bool DodgeWalls { get; init; } = true;

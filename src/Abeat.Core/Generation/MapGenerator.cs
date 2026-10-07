@@ -34,6 +34,7 @@ public static class MapGenerator
             SongFile = a.Audio.File,
             CoverFile = a.Cover,
             Environment = env.Id,
+            Colors = CoverPalette.Resolve(Path.Combine(a.Directory, a.Cover), s.CoverColors, s.ColorOverrides),
         };
         var results = s.Difficulties.Distinct().Order().AsParallel().AsOrdered()
             .Select(d => GenerateDifficulty(a, s, d, env: env)).ToList();
