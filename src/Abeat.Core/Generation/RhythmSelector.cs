@@ -237,26 +237,11 @@ public static class RhythmSelector
         return end - t;
     }
 
-    /// <summary>Downbeats where the energy jumps into a loud part (a drop), one per 16 beats at most,
-    /// as slot indices. A slot is created when no onset landed on the downbeat.</summary>
+    /// <summary>Drop downbeats (<see cref="SongShape.Drops"/>) as slot indices. A slot is created when no
+    /// onset landed on the downbeat.</summary>
     static List<int> DropSlots(SongAnalysis a, Dictionary<int, Slot> slots)
     {
-        double Mean(double t0, double t1)
-        {
-            double sum = 0; int n = 0;
-            for (double x = Math.Max(0, t0); x <= t1; x += a.Energy.HopSec) { sum += a.EnergyAt(x); n++; }
-            return n > 0 ? sum / n : 0;
-        }
-        var found = new List<(int slot, double jump)>();
-        foreach (var d in a.Tempo.Downbeats)
-        {
-            if (d < 4) continue;
-            double after = Mean(d + 0.05, d + 2), jump = after - Mean(d - 2, d - 0.15);
-            if (jump >= 0.3 && after >= 0.6) found.Add(((int)Math.Round(a.SecondsToBeat(d)) * SlotsPerBeat, jump));
-        }
-        var picked = new List<int>();
-        foreach (var (slot, _) in found.OrderByDescending(f => f.jump))
-            if (picked.All(x => Math.Abs(x - slot) >= 16 * SlotsPerBeat)) picked.Add(slot);
+        var picked = SongShape.Drops(a).Select(t => (int)Math.Round(a.SecondsToBeat(t)) * SlotsPerBeat).ToList();
         double maxScore = slots.Count > 0 ? slots.Values.Max(x => x.Score) : 1;
         string layer = new[] { "drums", "low", "full", "mix" }.FirstOrDefault(a.Layers.ContainsKey) ?? a.Layers.Keys.FirstOrDefault() ?? "full";
         foreach (int d in picked)

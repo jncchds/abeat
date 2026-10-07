@@ -35,7 +35,7 @@ usage:
                                BPM can't follow the song
       --reanalyze              ignore cached analysis
       --modes <l>              extra game modes: onesaber,90,360 (same difficulties as Standard)
-      --environment default|pyro   pyro = PyroEnvironment with a v3 group lightshow
+      --environment auto|<name>     auto (default) picks one that suits the song; or e.g. weave, pyro, billie
       --no-lights, --no-walls, --no-zip
   abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--vocals ..] [--bpm x] [--tempo ..]
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
@@ -146,7 +146,7 @@ static async Task<int> Generate(Options o)
     if (o.Has("no-lights")) s = s with { Lights = false };
     if (o.Has("no-walls")) s = s with { Walls = false };
     if (o.Get("modes") is { } modes) s = s with { Modes = ParseModes(modes) };
-    if (o.Get("environment") is { } env) s = s with { Environment = env.Equals("pyro", StringComparison.OrdinalIgnoreCase) ? "Pyro" : "Default" };
+    if (o.Get("environment") is { } env) s = s with { Environment = env };
 
     PrintAnalysisSummary(a);
     var sw = Stopwatch.StartNew();

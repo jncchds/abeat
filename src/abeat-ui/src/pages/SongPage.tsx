@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { cancelJob,
-  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getSettings, getSong,
+  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getEnvironments, getSettings, getSong,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
-  type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type GeneratorSettings, type SongMeta, type TapRun, type Version,
+  type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type EnvironmentEntry, type EnvironmentSuggestions, type GeneratorSettings, type SongMeta, type TapRun, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
@@ -39,7 +39,7 @@ function versionLabels(versions: Version[]): Record<string, string> {
   for (const v of versions) {
     if (v.kind === 'human') { out[v.id] = v.label; continue }
     const when = new Date(v.createdUtc).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' })
-    out[v.id] = `#${gens.indexOf(v) + 1} · ${when}${v.appVersion ? ` · ${/^\d/.test(v.appVersion) ? 'v' : ''}${v.appVersion}` : ''}`
+    out[v.id] = `#${gens.indexOf(v) + 1} · ${when}${v.appVersion ? ` · ${/^\d/.test(v.appVersion) ? 'v' : ''}${v.appVersion}` : ''}${v.environment ? ` · ${v.environment}` : ''}`
   }
   return out
 }
@@ -80,6 +80,8 @@ export default function SongPage() {
   const [comparison, setComparison] = useState<{ key: string; c: Comparison } | null>(null)
   const [defaults, setDefaults] = useState<GeneratorSettings>()
   const [profiles, setProfiles] = useState<Record<string, DifficultyProfile>>()
+  const [environments, setEnvironments] = useState<EnvironmentEntry[]>([])
+  const [envSuggestions, setEnvSuggestions] = useState<EnvironmentSuggestions>()
   const [autoRegen, setAutoRegen] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -110,7 +112,7 @@ export default function SongPage() {
   const revision = listed?.analysisRevision ?? meta?.analysisRevision ?? 0
   const [dismissed, setDismissed] = useState<string | null>(null)
 
-  useEffect(() => { getDefaults().then(r => { setDefaults(r.data.settings); setProfiles(r.data.profiles) }) }, [])
+  useEffect(() => { getDefaults().then(r => { setDefaults(r.data.settings); setProfiles(r.data.profiles); setEnvironments(r.data.environments ?? []) }) }, [])
   const [config, setConfig] = useState<{ httpsPort: number | null; arcViewer: boolean }>({ httpsPort: null, arcViewer: false })
   useEffect(() => { getConfig().then(r => setConfig(r.data)).catch(() => {}) }, [])
   const httpsPort = config.httpsPort
@@ -169,6 +171,14 @@ export default function SongPage() {
 
   const analysis = data?.analysis ?? null
   const settings = data?.settings ?? null
+  const seed = settings?.seed
+  const hasAnalysis = analysis != null
+  useEffect(() => {
+    if (!hasAnalysis || seed == null) return
+    let live = true
+    getEnvironments(id, seed).then(r => { if (live) setEnvSuggestions(r.data) }).catch(() => {})
+    return () => { live = false }
+  }, [id, seed, hasAnalysis])
   const list = useMemo(() => (versions?.id === id ? versions.list : []), [versions, id])
   const labels = useMemo(() => versionLabels(list), [list])
   const byVersion = useMemo(() => (maps.id === id ? maps.byVersion : {}), [maps, id])
@@ -493,7 +503,8 @@ export default function SongPage() {
                 </button>
                 <button className="btn-secondary" disabled={!defaults} onClick={() => defaults && onSettings(structuredClone(defaults))}>Defaults</button>
               </div>
-              <SettingsPanel settings={settings} defaults={defaults} profiles={profiles} layers={Object.keys(analysis.layers)}
+              <SettingsPanel settings={settings} defaults={defaults} profiles={profiles} environments={environments} envSuggestions={envSuggestions}
+                layers={Object.keys(analysis.layers)}
                 layerSource={analysis.layerSource} onChange={onSettings} />
             </div>
           </div>

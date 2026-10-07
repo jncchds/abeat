@@ -36,14 +36,22 @@ public sealed record LightColorEvent(double Beat, int Color, double Brightness, 
 
 public sealed record LightGroupEvent(double Beat, int Group, IReadOnlyList<LightBox> Boxes);
 
-/// <summary>Rotation of a light group's lights about an axis (0 x, 1 y), with a per-light spread.</summary>
-public sealed record LightRotation(double Beat, int Group, int Axis, double Degrees, double Spread, double Duration);
+/// <summary>Rotation of a light group's lights about an axis (0 x, 1 y, 2 z) to <see cref="Degrees"/>,
+/// eased over <see cref="Duration"/> beats from where they were, with a per-light <see cref="Spread"/>
+/// (a fan over the group). <see cref="Sections"/>/<see cref="Part"/> select lights as in <see cref="LightBox"/>.</summary>
+public sealed record LightRotation(double Beat, int Group, int Axis, double Degrees, double Spread, double Duration,
+    int Sections = 1, int Part = 0, double BeatSpread = 0);
+
+/// <summary>Movement of a light group's lights along an axis (0 x, 1 y, 2 z) to <see cref="Distance"/>
+/// (environment units), eased over <see cref="Duration"/> beats, with a per-light spread.</summary>
+public sealed record LightTranslation(double Beat, int Group, int Axis, double Distance, double Spread, double Duration, double BeatSpread = 0);
 
 public static class LightValue
 {
     public const int Off = 0;
     public const int BlueOn = 1, BlueFlash = 2, BlueFade = 3, BlueTransition = 4;
     public const int RedOn = 5, RedFlash = 6, RedFade = 7, RedTransition = 8;
+    public const int WhiteOn = 9, WhiteFlash = 10, WhiteFade = 11, WhiteTransition = 12;
 
     public static int On(bool red) => red ? RedOn : BlueOn;
     public static int Flash(bool red) => red ? RedFlash : BlueFlash;
@@ -79,6 +87,7 @@ public sealed class DifficultyMap
     public List<RotationEvent> Rotations { get; init; } = [];
     public List<LightGroupEvent> GroupLights { get; init; } = [];
     public List<LightRotation> GroupRotations { get; init; } = [];
+    public List<LightTranslation> GroupTranslations { get; init; } = [];
     /// <summary>Tempo changes in the file.</summary>
     public int BpmChanges { get; set; }
     /// <summary>Tempo changes read from the file (v3 bpmEvents, v2 type-100 events), beat 0 first; null

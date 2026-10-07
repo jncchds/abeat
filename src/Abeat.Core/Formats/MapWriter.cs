@@ -58,6 +58,19 @@ public static class MapWriter
 
     static double B(double beat) => Math.Round(beat, 5);
 
+    /// <summary>Rotation/translation box events: hold the previous value at the box's beat, then ease
+    /// (in-out quad) to the target over the duration. Value key "r" degrees or "t" distance.</summary>
+    static JsonArray Motion(double duration, double value, string key)
+    {
+        JsonObject Ev(double b, int p, int e, double v)
+        {
+            var o = new JsonObject { ["b"] = B(b), ["p"] = p, ["e"] = e, [key] = v };
+            if (key == "r") { o["l"] = 0; o["o"] = 0; } // rotation events also carry loops and direction
+            return o;
+        }
+        return duration <= 0.001 ? new JsonArray(Ev(0, 0, -1, value)) : new JsonArray(Ev(0, 1, 0, 0), Ev(duration, 0, 3, value));
+    }
+
     public static JsonObject DifficultyJson(DifficultyMap d, TempoMap? tempo = null) => new()
     {
         ["version"] = "3.3.0",
@@ -119,16 +132,23 @@ public static class MapWriter
             ["b"] = B(r.Beat), ["g"] = r.Group,
             ["e"] = new JsonArray(new JsonObject
             {
-                ["f"] = new JsonObject { ["f"] = 1, ["p"] = 1, ["t"] = 0, ["r"] = 0 },
-                ["w"] = 0, ["d"] = 1, ["s"] = Math.Round(r.Spread, 2), ["t"] = 1, ["b"] = 0, ["a"] = r.Axis, ["r"] = 0,
-                // rotation boxes list their events under "l" (colour boxes use "e")
-                ["l"] = new JsonArray(new JsonObject
-                {
-                    ["b"] = B(r.Duration), ["p"] = 0, ["e"] = 3, ["l"] = 0, ["r"] = Math.Round(r.Degrees, 1), ["o"] = 0,
-                }),
+                ["f"] = new JsonObject { ["f"] = 1, ["p"] = r.Sections, ["t"] = r.Part, ["r"] = 0 },
+                ["w"] = B(r.BeatSpread), ["d"] = 1, ["s"] = Math.Round(r.Spread, 2), ["t"] = 1, ["b"] = 1, ["a"] = r.Axis, ["r"] = 0,
+                // rotation boxes list their events under "l" (colour boxes use "e"); the first event holds
+                // the previous angle so the eased turn starts at this beat, not at the previous event
+                ["l"] = Motion(r.Duration, Math.Round(r.Degrees, 1), "r"),
             }),
         }).ToArray()),
-        ["lightTranslationEventBoxGroups"] = new JsonArray(),
+        ["lightTranslationEventBoxGroups"] = new JsonArray(d.GroupTranslations.OrderBy(g => g.Beat).ThenBy(g => g.Group).Select(t => (JsonNode)new JsonObject
+        {
+            ["b"] = B(t.Beat), ["g"] = t.Group,
+            ["e"] = new JsonArray(new JsonObject
+            {
+                ["f"] = new JsonObject { ["f"] = 1, ["p"] = 1, ["t"] = 0, ["r"] = 0 },
+                ["w"] = B(t.BeatSpread), ["d"] = 1, ["s"] = Math.Round(t.Spread, 3), ["t"] = 1, ["b"] = 1, ["a"] = t.Axis, ["r"] = 0,
+                ["l"] = Motion(t.Duration, Math.Round(t.Distance, 3), "t"),
+            }),
+        }).ToArray()),
         ["basicEventTypesWithKeywords"] = new JsonObject { ["d"] = new JsonArray() },
         ["useNormalEventsAsCompatibleEvents"] = true,
     };

@@ -129,8 +129,14 @@ ever holds a note or bomb.
 for playing it the way its first occurrence was played, so a returning chorus brings its patterns back
 (`repetition` weight).
 
-**Lights and modes**: classic lights (section palettes, note flashes, drum-driven lasers and rings), or
-`--environment pyro` for PyroEnvironment with a v3 group lightshow. `--modes onesaber,90,360` adds One
+**Environments and lights**: every environment of moddable Beat Saber, from The First to The Prodigy.
+`--environment auto` (the default) picks one that suits the song: a four-on-the-floor dance track lands
+in EDM-style stages, a band with a backbeat in the rock ones, dark songs in darker places. Classic
+environments get classic lights (section palettes, note flashes, drum-driven lasers and rings, plus their
+extra lasers and moving set pieces); Weave and later get a v3 group lightshow laid out from how curated
+maps use that environment's light groups, with lights that turn and move: they drift in quiet parts,
+swing on the bars when it gets loud, fold together over a build-up and burst open in white on the drop,
+and one group follows the melody. `--modes onesaber,90,360` adds One
 Saber (planned for one saber over the whole grid) and 90°/360° (the Standard notes with lane rotations).
 
 All weights are in `FlowWeights` and editable in the UI or a settings file (`abeat settings`).
@@ -161,6 +167,10 @@ map's own song and compares. Current results on 18 songs / 62 difficulties with 
 | direction / position distribution distance | 0.18 / 0.22 | 0 |
 | hand strain p90 (swings/s per hand; Easy … Expert+) | 2.7 · 3.1 · 3.5 · 4.0 · 5.8 | 2.8 · 3.2 · 3.9 · 5.1 · 6.5 |
 | mean turn / tip travel between swings | 17° / 1.44 cells | 21° / 1.55 cells |
+
+The environment layouts (`scripts/environment_prior.py`: which light groups, event types, axes and
+ranges curated maps use in each environment, read from BeatSaver without downloading the audio) are
+embedded as `environment-prior.json`; rerun the script when Beat Saber adds environments.
 
 The style prior (`scripts/style_prior.py`: cell and direction shares, figure and double-shape
 vocabularies per difficulty) is learned from the curators' playlist

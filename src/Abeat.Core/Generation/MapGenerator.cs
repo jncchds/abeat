@@ -13,8 +13,16 @@ public sealed record GenerationResult(MapSet Map, IReadOnlyList<GeneratedDifficu
 
 public static class MapGenerator
 {
+    /// <summary>The environment the settings ask for; "Auto" picks the one that suits the song
+    /// (<see cref="SongShape.PickEnvironment"/>), unknown names fall back to The First.</summary>
+    public static EnvironmentInfo ResolveEnvironment(SongAnalysis a, GeneratorSettings s) =>
+        string.Equals(s.Environment, EnvironmentCatalog.Auto, StringComparison.OrdinalIgnoreCase)
+            ? SongShape.PickEnvironment(a, s.Seed)
+            : EnvironmentCatalog.Find(s.Environment) ?? EnvironmentCatalog.Default;
+
     public static GenerationResult Generate(SongAnalysis a, GeneratorSettings s)
     {
+        var env = ResolveEnvironment(a, s);
         var map = new MapSet
         {
             SongName = a.Source.Title,
@@ -25,16 +33,21 @@ public static class MapGenerator
             PreviewDuration = a.Preview.DurationSec,
             SongFile = a.Audio.File,
             CoverFile = a.Cover,
-            Environment = s.Lights && s.Environment == "Pyro" ? GroupLightshow.Environment : "DefaultEnvironment",
+            Environment = env.Id,
         };
         var results = s.Difficulties.Distinct().Order().AsParallel().AsOrdered()
-            .Select(d => GenerateDifficulty(a, s, d)).ToList();
+            .Select(d => GenerateDifficulty(a, s, d, env: env)).ToList();
         map.Difficulties.AddRange(results.Select(r => r.Map));
         var extra = s.Modes.Intersect(Characteristic.Extra).OrderBy(m => Array.IndexOf(Characteristic.Extra, m))
             .SelectMany(m => results.Select(r => (m, r))).AsParallel().AsOrdered()
-            .Select(x => x.m == Characteristic.OneSaber ? GenerateDifficulty(a, s, x.r.Map.Difficulty, oneSaber: true) : Rotated(a, s, x.r, x.m))
+            .Select(x => x.m == Characteristic.OneSaber ? GenerateDifficulty(a, s, x.r.Map.Difficulty, oneSaber: true, env: env) : Rotated(a, s, x.r, x.m))
             .ToList();
         map.Difficulties.AddRange(extra.Select(r => r.Map));
+        // group environments give classic event types their own meanings; only the 90/360 copies (played
+        // in GlassDesert) keep the classic lightshow
+        if (env.System == LightingSystem.Groups)
+            foreach (var d in map.Difficulties.Where(d => d.Characteristic is not (Characteristic.Degree90 or Characteristic.Degree360)))
+                d.Lights.RemoveAll(l => l.Type < 40);
         return new GenerationResult(map, results, extra);
     }
 
@@ -46,15 +59,17 @@ public static class MapGenerator
         {
             Difficulty = m.Difficulty, Characteristic = mode, NoteJumpSpeed = m.NoteJumpSpeed, NoteJumpOffset = m.NoteJumpOffset,
             Notes = [.. m.Notes], Bombs = [.. m.Bombs], Arcs = [.. m.Arcs], Chains = [.. m.Chains], Obstacles = [.. m.Obstacles],
-            Lights = [.. m.Lights], Boosts = [.. m.Boosts], GroupLights = [.. m.GroupLights], GroupRotations = [.. m.GroupRotations],
+            Lights = [.. m.Lights], Boosts = [.. m.Boosts], GroupLights = [.. m.GroupLights], GroupRotations = [.. m.GroupRotations], GroupTranslations = [.. m.GroupTranslations],
         };
         RotationGenerator.Generate(a, dm, mode == Characteristic.Degree360, s.Seed + (int)m.Difficulty * 31);
         return standard with { Map = dm };
     }
 
     /// <param name="oneSaber">One Saber mode: a single (right) saber, no doubles, sparser rhythm.</param>
-    public static GeneratedDifficulty GenerateDifficulty(SongAnalysis a, GeneratorSettings s, DifficultyName d, bool oneSaber = false)
+    /// <param name="env">Environment the lights are made for (default: <see cref="ResolveEnvironment"/>).</param>
+    public static GeneratedDifficulty GenerateDifficulty(SongAnalysis a, GeneratorSettings s, DifficultyName d, bool oneSaber = false, EnvironmentInfo? env = null)
     {
+        env ??= ResolveEnvironment(a, s);
         var p = s.Profile(d);
         if (oneSaber)
         {
@@ -85,8 +100,9 @@ public static class MapGenerator
         BombGenerator.Generate(dm, p, events, s, a.TempoMap);
         if (s.Arcs) Expression.AddArcs(dm, events, a.TempoMap);
         if (s.Chains) Expression.AddChains(dm, events, a.TempoMap, p);
-        if (s.Lights) LightingGenerator.Generate(a, dm, events);
-        if (s.Lights && s.Environment == "Pyro") GroupLightshow.Generate(a, dm, events);
+        // classic events are written for every environment: the 90/360 versions play them in GlassDesert
+        if (s.Lights) LightingGenerator.Generate(a, dm, events, env);
+        if (s.Lights && env.System == LightingSystem.Groups) GroupLightshow.Generate(a, dm, events, env);
         var report = FlowAnalyzer.Analyze(dm, a.TempoMap, s.Weights, p.MinSameHandGapSec, p.BurstGapSec, p.BurstNotes);
         return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, dropHand));
     }

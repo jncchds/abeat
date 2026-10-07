@@ -21,6 +21,8 @@ public sealed record GenerationMeta
     public double Bpm { get; init; }
     public double PadSec { get; init; }
     public List<string> Difficulties { get; init; } = [];
+    /// <summary>Environment the map was made for (what "Auto" resolved to).</summary>
+    public string? Environment { get; init; }
 }
 
 /// <summary>Generation history of a song. The newest generation is what "the map" (download, ArcViewer)
@@ -79,6 +81,7 @@ public static class Generations
             Bpm = a.Tempo.Bpm,
             PadSec = a.Audio.PadSec,
             Difficulties = [.. r.Difficulties.Select(d => d.Map.Difficulty.ToString())],
+            Environment = r.Map.Environment,
         };
         var dir = Dir(store, id, meta.Id);
         Directory.CreateDirectory(dir);

@@ -156,8 +156,9 @@ public sealed record GeneratorSettings
     /// <summary>Seconds of the song kept free of notes at the start.</summary>
     public double LeadInSec { get; init; } = 1.5;
     public bool Lights { get; init; } = true;
-    /// <summary>"Default" (classic lighting events) or "Pyro" (PyroEnvironment with a v3 group lightshow).</summary>
-    public string Environment { get; init; } = "Default";
+    /// <summary>"Auto" (the environment that suits the song) or an environment id / name from
+    /// <see cref="EnvironmentCatalog"/> ("PyroEnvironment", "Pyro", "The First"...).</summary>
+    public string Environment { get; init; } = EnvironmentCatalog.Auto;
     public bool Walls { get; init; } = true;
     /// <summary>Single-lane centre walls in note-free gaps (Normal and up).</summary>
     public bool DodgeWalls { get; init; } = true;

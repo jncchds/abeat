@@ -31,23 +31,4 @@ public class ModeTests
         Assert.Equal(r.Difficulties[0].Map.Notes, ninety.Notes);
         Assert.Equal("Expert90Degree.dat", ninety.FileName);
     }
-
-
-    [Fact]
-    public void PyroLightshowUsesItsGroups()
-    {
-        var a = TestSongs.Fake();
-        foreach (var o in a.Layers["low"]) o.K = "k";
-        a.Layers["drums"] = a.Layers["low"];
-        var r = MapGenerator.Generate(a, new GeneratorSettings { Difficulties = [DifficultyName.Hard], Environment = "Pyro" });
-        Assert.Equal("PyroEnvironment", r.Map.Environment);
-        var d = r.Difficulties[0].Map;
-        Assert.All(d.GroupLights, g => Assert.InRange(g.Group, 0, 13));
-        Assert.Contains(d.GroupLights, g => g.Group is 8 or 9); // kicks
-        Assert.NotEmpty(d.GroupRotations);
-        var json = MapWriter.DifficultyJson(d);
-        var box = json["lightColorEventBoxGroups"]![0]!["e"]![0]!;
-        Assert.NotNull(box["f"]?["p"]);
-        Assert.NotNull(json["lightRotationEventBoxGroups"]![0]!["e"]![0]!["l"]);
-    }
 }

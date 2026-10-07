@@ -128,6 +128,8 @@ export type Version =
       difficulties: string[]
       /** Note-timing F1 against the human map per difficulty (when there is one). */
       vsHuman: Record<string, number> | null
+      /** Environment name the map was made for (older versions: null). */
+      environment?: string | null
     }
 
 /** Version A against version B (B is the reference for precision / recall). */
@@ -163,7 +165,7 @@ export interface GeneratorSettings {
   dropPause: boolean
   /** Extra game modes: OneSaber, 90Degree, 360Degree. */
   modes?: string[]
-  /** "Default" (classic lights) or "Pyro" (v3 group lightshow). */
+  /** "Auto" (picked for the song) or an environment id such as "WeaveEnvironment". */
   environment?: string
   /** Per-difficulty speed/density limits; unset fields keep the built-in profile's value. */
   profileOverrides?: Record<string, ProfileOverride>
@@ -174,7 +176,17 @@ export interface GeneratorSettings {
 export interface DifficultyProfile { baseNps: number; maxNps: number; minGapSec: number; minSameHandGapSec: number; burstGapSec: number }
 export type ProfileOverride = Partial<DifficultyProfile>
 
-export interface Defaults { settings: GeneratorSettings; profiles: Record<string, DifficultyProfile> }
+/** A Beat Saber environment: classic lighting events or v3 light groups. */
+export interface EnvironmentEntry { id: string; name: string; system: 'Classic' | 'Groups' }
+
+export interface Defaults { settings: GeneratorSettings; profiles: Record<string, DifficultyProfile>; environments: EnvironmentEntry[] }
+
+/** How the song scores on the environment axes, and the environments that suit it best. */
+export interface EnvironmentSuggestions {
+  character: { drive: number; intensity: number; darkness: number; bpm: number }
+  auto: string
+  ranked: { id: string; name: string; score: number }[]
+}
 
 const http = axios.create({ baseURL: '/api' })
 
@@ -186,6 +198,7 @@ export const getSongs = () => http.get<SongMeta[]>('/songs')
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[] }>(`/songs/${id}`)
 export const deleteSong = (id: string) => http.delete(`/songs/${id}`)
 export const getAnalysis = (id: string) => http.get<Analysis>(`/songs/${id}/analysis`)
+export const getEnvironments = (id: string, seed: number) => http.get<EnvironmentSuggestions>(`/songs/${id}/environments`, { params: { seed } })
 export const getSettings = (id: string) => http.get<GeneratorSettings>(`/songs/${id}/settings`)
 export const generate = (id: string, s: GeneratorSettings, draft: boolean) =>
   http.post<{ version: Version; difficulties: Difficulty[] }>(`/songs/${id}/generate`, s, { params: { draft } })

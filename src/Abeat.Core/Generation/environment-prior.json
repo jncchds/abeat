@@ -1,0 +1,8630 @@
+{
+ "DefaultEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 0.71,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    6,
+    0
+   ],
+   "9": [
+    0,
+    6,
+    0
+   ],
+   "12": [
+    0,
+    20,
+    1
+   ],
+   "13": [
+    0,
+    20,
+    1
+   ]
+  }
+ },
+ "OriginsEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 0.29,
+   "8": 1.0,
+   "9": 0.71,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    20,
+    3
+   ],
+   "13": [
+    0,
+    20,
+    3
+   ]
+  }
+ },
+ "TriangleEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 0.79,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    5
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    8,
+    2
+   ],
+   "13": [
+    0,
+    8,
+    2
+   ]
+  }
+ },
+ "NiceEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 0.86,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    11,
+    0
+   ],
+   "9": [
+    0,
+    11,
+    0
+   ],
+   "12": [
+    0,
+    20,
+    3
+   ],
+   "13": [
+    0,
+    20,
+    4
+   ]
+  }
+ },
+ "BigMirrorEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 0.29,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    3,
+    0
+   ],
+   "12": [
+    0,
+    25,
+    1
+   ],
+   "13": [
+    0,
+    60,
+    1
+   ]
+  }
+ },
+ "DragonsEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 0.79,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    100,
+    4
+   ],
+   "13": [
+    0,
+    100,
+    4
+   ]
+  }
+ },
+ "KDAEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 0.36,
+   "8": 0.64,
+   "9": 0.5,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    50,
+    2
+   ],
+   "13": [
+    0,
+    50,
+    2
+   ]
+  }
+ },
+ "MonstercatEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 0.93,
+   "9": 0.57,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    9,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    30,
+    0
+   ],
+   "13": [
+    0,
+    30,
+    0
+   ]
+  }
+ },
+ "CrabRaveEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 0.93,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 0.93,
+   "8": 0.93,
+   "9": 0.64,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    1,
+    0
+   ],
+   "12": [
+    0,
+    18,
+    3
+   ],
+   "13": [
+    0,
+    18,
+    3
+   ]
+  }
+ },
+ "PanicEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 0.64,
+   "8": 1.0,
+   "9": 1.0,
+   "12": 0.71,
+   "13": 0.71
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    99,
+    1
+   ],
+   "13": [
+    0,
+    99,
+    1
+   ]
+  }
+ },
+ "RocketEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 0.43,
+   "9": 0.43,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    11,
+    0
+   ],
+   "9": [
+    0,
+    11,
+    0
+   ],
+   "12": [
+    0,
+    60,
+    1
+   ],
+   "13": [
+    0,
+    60,
+    1
+   ]
+  }
+ },
+ "GreenDayEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 0.93,
+   "1": 0.93,
+   "2": 0.93,
+   "3": 0.93,
+   "4": 1.0,
+   "5": 0.21,
+   "8": 0.93,
+   "9": 0.86,
+   "12": 0.93,
+   "13": 0.93
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    100,
+    1
+   ],
+   "13": [
+    0,
+    100,
+    1
+   ]
+  }
+ },
+ "GreenDayGrenadeEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 0.93,
+   "9": 0.93,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    5,
+    0
+   ],
+   "12": [
+    0,
+    16,
+    7
+   ],
+   "13": [
+    0,
+    16,
+    7
+   ]
+  }
+ },
+ "TimbalandEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 0.93,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 1.0,
+   "12": 0.79,
+   "13": 0.79
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    5
+   ],
+   "12": [
+    -5,
+    15,
+    1
+   ],
+   "13": [
+    -5,
+    15,
+    1
+   ]
+  }
+ },
+ "FitBeatEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 0.93,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 0.29,
+   "8": 1.0,
+   "9": 0.93,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    11,
+    1
+   ],
+   "9": [
+    0,
+    11,
+    0
+   ],
+   "12": [
+    0,
+    132,
+    7
+   ],
+   "13": [
+    0,
+    132,
+    7
+   ]
+  }
+ },
+ "LinkinParkEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 0.93,
+   "8": 0.64,
+   "9": 0.5,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    32,
+    3
+   ],
+   "13": [
+    0,
+    32,
+    3
+   ]
+  }
+ },
+ "BTSEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 1.0,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    11,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    0
+   ],
+   "12": [
+    0,
+    25,
+    7
+   ],
+   "13": [
+    0,
+    25,
+    7
+   ]
+  }
+ },
+ "KaleidoscopeEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 0.5,
+   "8": 1.0,
+   "9": 0.86,
+   "12": 0.79,
+   "13": 0.79
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    0
+   ],
+   "9": [
+    0,
+    7,
+    1
+   ],
+   "12": [
+    0,
+    19,
+    3
+   ],
+   "13": [
+    0,
+    20,
+    3
+   ]
+  }
+ },
+ "InterscopeEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 0.29,
+   "6": 0.79,
+   "7": 0.79,
+   "8": 1.0,
+   "9": 0.79,
+   "12": 1.0,
+   "13": 1.0,
+   "16": 0.21,
+   "17": 0.21
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    10,
+    0
+   ],
+   "12": [
+    0,
+    69,
+    3
+   ],
+   "13": [
+    0,
+    69,
+    3
+   ],
+   "16": [
+    0,
+    3,
+    3
+   ],
+   "17": [
+    0,
+    3,
+    2
+   ]
+  }
+ },
+ "SkrillexEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "6": 0.64,
+   "7": 0.64,
+   "8": 0.93,
+   "9": 0.93,
+   "12": 0.79,
+   "13": 0.79
+  },
+  "basicValues": {
+   "8": [
+    0,
+    9,
+    0
+   ],
+   "9": [
+    0,
+    9,
+    0
+   ],
+   "12": [
+    0,
+    50,
+    7
+   ],
+   "13": [
+    0,
+    50,
+    7
+   ]
+  }
+ },
+ "BillieEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "6": 0.86,
+   "7": 0.86,
+   "8": 0.71,
+   "9": 0.64,
+   "10": 0.71,
+   "11": 0.71,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    1,
+    0
+   ],
+   "9": [
+    0,
+    5,
+    0
+   ],
+   "12": [
+    0,
+    13,
+    3
+   ],
+   "13": [
+    0,
+    13,
+    3
+   ]
+  }
+ },
+ "HalloweenEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "5": 0.29,
+   "8": 0.5,
+   "9": 0.36,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    1,
+    0
+   ],
+   "12": [
+    0,
+    20,
+    1
+   ],
+   "13": [
+    0,
+    20,
+    1
+   ]
+  }
+ },
+ "GagaEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 0.79,
+   "1": 0.79,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 0.79,
+   "6": 0.93,
+   "7": 0.93,
+   "8": 0.21,
+   "9": 0.21,
+   "10": 0.93,
+   "11": 0.93,
+   "12": 1.0,
+   "13": 1.0,
+   "16": 0.93,
+   "17": 0.93,
+   "18": 0.93,
+   "19": 0.93
+  },
+  "basicValues": {
+   "8": [
+    0,
+    11,
+    7
+   ],
+   "9": [
+    0,
+    11,
+    1
+   ],
+   "12": [
+    0,
+    10,
+    5
+   ],
+   "13": [
+    0,
+    10,
+    5
+   ],
+   "16": [
+    0,
+    10,
+    5
+   ],
+   "17": [
+    0,
+    10,
+    5
+   ],
+   "18": [
+    0,
+    10,
+    5
+   ],
+   "19": [
+    0,
+    10,
+    5
+   ]
+  }
+ },
+ "GlassDesertEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 0.93,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 0.93,
+   "9": 0.43,
+   "12": 1.0,
+   "13": 1.0,
+   "14": 0.36,
+   "15": 0.86
+  },
+  "basicValues": {
+   "8": [
+    0,
+    7,
+    0
+   ],
+   "9": [
+    0,
+    2000196863,
+    0
+   ],
+   "12": [
+    0,
+    17,
+    5
+   ],
+   "13": [
+    0,
+    17,
+    5
+   ],
+   "14": [
+    0,
+    6,
+    3
+   ],
+   "15": [
+    2,
+    5,
+    3
+   ]
+  }
+ },
+ "WeaveEnvironment": {
+  "maps": 14,
+  "basic": {
+   "4": 0.21
+  },
+  "groups": {
+   "0": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 130.0,
+    "white": 0.18
+   },
+   "1": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 115.0,
+    "white": 0.09
+   },
+   "2": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "white": 0.19
+   },
+   "3": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "white": 0.3
+   },
+   "4": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 95.0,
+    "white": 0.17
+   },
+   "5": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 95.0,
+    "white": 0.21
+   },
+   "6": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.27
+   },
+   "7": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.19
+   },
+   "8": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 145.0,
+    "white": 0.39
+   },
+   "9": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 145.0,
+    "white": 0.41
+   },
+   "10": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 145.0,
+    "white": 0.33
+   },
+   "11": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 145.0,
+    "white": 0.31
+   },
+   "12": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 135.0,
+    "white": 0.42
+   },
+   "13": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 135.0,
+    "white": 0.44
+   },
+   "14": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.3
+   },
+   "15": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.32
+   }
+  }
+ },
+ "PyroEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 0.5,
+   "1": 0.43,
+   "2": 0.79,
+   "3": 0.79,
+   "4": 1.0,
+   "6": 0.71
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "lights": 3,
+    "white": 0.33
+   },
+   "1": {
+    "color": 1.0,
+    "rotation": 0.21,
+    "lights": 3,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 0,
+    "white": 0.33
+   },
+   "2": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "white": 0.17
+   },
+   "3": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "white": 0.18
+   },
+   "4": {
+    "color": 0.79,
+    "rotation": 0.57,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "white": 0.24
+   },
+   "5": {
+    "color": 0.79,
+    "rotation": 0.21,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 160.0,
+    "white": 0.42
+   },
+   "6": {
+    "color": 1.0,
+    "lights": 48,
+    "white": 0.45
+   },
+   "7": {
+    "color": 1.0,
+    "lights": 48,
+    "white": 0.45
+   },
+   "8": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "white": 0.22
+   },
+   "9": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 85.0,
+    "white": 0.22
+   },
+   "10": {
+    "color": 0.93,
+    "rotation": 0.64,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 115,
+    "white": 0.06
+   },
+   "11": {
+    "color": 0.93,
+    "rotation": 0.64,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 115,
+    "white": 0.06
+   },
+   "12": {
+    "color": 0.93,
+    "lights": 10,
+    "white": 0.02
+   },
+   "13": {
+    "color": 0.93,
+    "lights": 10,
+    "white": 0.02
+   }
+  }
+ },
+ "EDMEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 0.64,
+   "1": 0.57,
+   "4": 0.5
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 180.0,
+    "white": 0.42
+   },
+   "1": {
+    "color": 0.86,
+    "rotation": 0.71,
+    "lights": 6,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 45.0,
+    "white": 0.24
+   },
+   "2": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "white": 0.25
+   },
+   "3": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 165.0,
+    "white": 0.28
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "white": 0.34
+   },
+   "5": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "white": 0.33
+   },
+   "6": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 10,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 125.0,
+    "white": 0.27
+   },
+   "7": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 10,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 105,
+    "white": 0.56
+   },
+   "8": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 10,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 120,
+    "white": 0.27
+   },
+   "9": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 10,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.57
+   },
+   "10": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 10,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "white": 0.18
+   },
+   "11": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 10,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "white": 0.18
+   },
+   "12": {
+    "rotation": 0.79,
+    "lights": 0,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 120.0,
+    "white": 0.0
+   },
+   "13": {
+    "rotation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 150,
+    "white": 0.0
+   },
+   "14": {
+    "rotation": 0.93,
+    "lights": 0,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 135.0,
+    "white": 0.0
+   },
+   "15": {
+    "rotation": 0.93,
+    "lights": 0,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 135.0,
+    "white": 0.0
+   },
+   "16": {
+    "rotation": 0.86,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 120
+   },
+   "17": {
+    "rotation": 0.86,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 125.0,
+    "white": 0.0
+   }
+  }
+ },
+ "TheSecondEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 0.79,
+   "1": 0.93,
+   "2": 0.36,
+   "3": 0.36,
+   "4": 0.93,
+   "9": 0.93
+  },
+  "basicValues": {
+   "9": [
+    0,
+    100,
+    9
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "lights": 15,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 180.0,
+    "white": 0.37
+   },
+   "1": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 135.0,
+    "white": 0.29
+   },
+   "2": {
+    "color": 1.0,
+    "lights": 12,
+    "white": 0.37
+   },
+   "3": {
+    "color": 1.0,
+    "lights": 12,
+    "white": 0.38
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 120.0,
+    "white": 0.3
+   },
+   "5": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 120.0,
+    "white": 0.31
+   },
+   "6": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 115.0,
+    "white": 0.44
+   },
+   "7": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 115.0,
+    "white": 0.42
+   },
+   "8": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 145.0,
+    "white": 0.17
+   },
+   "9": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.17
+   },
+   "10": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.2
+   },
+   "11": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.19
+   },
+   "12": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 110.0,
+    "white": 0.31
+   },
+   "13": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 100,
+    "white": 0.32
+   }
+  }
+ },
+ "LizzoEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "6": 0.86,
+   "7": 0.43,
+   "8": 0.43,
+   "9": 0.21,
+   "10": 0.21,
+   "11": 0.21,
+   "12": 0.21,
+   "16": 0.43,
+   "17": 0.43
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    1
+   ],
+   "9": [
+    0,
+    12,
+    5
+   ],
+   "12": [
+    0,
+    12,
+    5
+   ],
+   "16": [
+    0,
+    0,
+    0
+   ],
+   "17": [
+    0,
+    0,
+    0
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "lights": 40,
+    "white": 0.06
+   },
+   "1": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.1
+   },
+   "2": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.12
+   },
+   "3": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.11
+   },
+   "4": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.11
+   },
+   "5": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.11
+   },
+   "6": {
+    "rotation": 0.64,
+    "lights": 0,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180.0
+   },
+   "7": {
+    "rotation": 0.64,
+    "lights": 0,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180.0
+   },
+   "8": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 145.0,
+    "white": 0.09
+   },
+   "9": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 145.0,
+    "white": 0.09
+   },
+   "10": {
+    "color": 0.86,
+    "rotation": 0.64,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 80,
+    "white": 0.23
+   },
+   "11": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.09
+   },
+   "12": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.09
+   },
+   "13": {
+    "color": 1.0,
+    "lights": 7,
+    "white": 0.13
+   },
+   "14": {
+    "color": 1.0,
+    "lights": 7,
+    "white": 0.15
+   },
+   "15": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "white": 0.63
+   },
+   "16": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "white": 0.63
+   },
+   "17": {
+    "color": 0.71,
+    "rotation": 0.64,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 80,
+    "white": 0.27
+   },
+   "18": {
+    "color": 0.71,
+    "rotation": 0.64,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 80,
+    "white": 0.26
+   },
+   "19": {
+    "color": 0.93,
+    "rotation": 0.43,
+    "lights": 14,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "white": 0.06
+   }
+  }
+ },
+ "TheWeekndEnvironment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "6": 0.93
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 2.9,
+    "white": 0.28
+   },
+   "1": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 2.9,
+    "white": 0.28
+   },
+   "2": {
+    "translation": 0.93,
+    "lights": 4,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 2.05,
+    "white": 1.0
+   },
+   "3": {
+    "translation": 0.93,
+    "lights": 4,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 2.05
+   },
+   "4": {
+    "color": 0.93,
+    "translation": 0.71,
+    "lights": 8,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 5.7,
+    "white": 0.29
+   },
+   "5": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "translation": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 20,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 1.5,
+    "white": 0.23
+   },
+   "6": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "translation": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 20,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 1.5,
+    "white": 0.23
+   },
+   "7": {
+    "color": 1.0,
+    "lights": 9,
+    "white": 0.22
+   },
+   "8": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 3,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 2.55,
+    "white": 0.48
+   },
+   "9": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 90,
+    "white": 0.28
+   },
+   "10": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.31
+   },
+   "11": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.41
+   },
+   "12": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.39
+   },
+   "13": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.44
+   },
+   "14": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.34
+   },
+   "15": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.31
+   },
+   "16": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.4
+   },
+   "17": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.39
+   },
+   "18": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.44
+   },
+   "19": {
+    "color": 1.0,
+    "lights": 25,
+    "white": 0.33
+   },
+   "20": {
+    "translation": 1.0,
+    "lights": 3,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 3.15,
+    "white": 0.0
+   },
+   "21": {
+    "translation": 1.0,
+    "lights": 3,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 3.15,
+    "white": 0.0
+   },
+   "22": {
+    "color": 1.0,
+    "translation": 0.21,
+    "lights": 8,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 8,
+    "white": 0.32
+   },
+   "23": {
+    "color": 1.0,
+    "lights": 8,
+    "white": 0.34
+   },
+   "29": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.2,
+    "white": 0.29
+   },
+   "30": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.1,
+    "white": 0.28
+   },
+   "31": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.1,
+    "white": 0.29
+   },
+   "32": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 160.0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.1,
+    "white": 0.28
+   },
+   "33": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.2,
+    "white": 0.29
+   },
+   "34": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.1,
+    "white": 0.29
+   },
+   "35": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.1,
+    "white": 0.29
+   },
+   "36": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.1,
+    "white": 0.29
+   },
+   "37": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.32
+   },
+   "38": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.32
+   },
+   "40": {
+    "color": 0.29,
+    "translation": 0.36,
+    "lights": 3,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 10.95,
+    "white": 0.08
+   }
+  }
+ },
+ "RockMixtapeEnvironment": {
+  "maps": 14,
+  "basic": {
+   "3": 0.71,
+   "4": 1.0,
+   "6": 1.0
+  },
+  "groups": {
+   "0": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     0,
+     2
+    ],
+    "translationRange": 3.65,
+    "white": 0.22
+   },
+   "1": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 0.86,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     0,
+     2
+    ],
+    "translationRange": 3.7,
+    "white": 0.23
+   },
+   "2": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.17
+   },
+   "3": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.22
+   },
+   "4": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.18
+   },
+   "5": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.27
+   },
+   "6": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.29
+   },
+   "7": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.26
+   },
+   "8": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.26
+   },
+   "9": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.29
+   },
+   "10": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.27
+   },
+   "11": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.18
+   },
+   "12": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.22
+   },
+   "13": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.17
+   },
+   "14": {
+    "color": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 0.58,
+    "white": 0.23
+   },
+   "15": {
+    "color": 1.0,
+    "lights": 10,
+    "white": 0.32
+   },
+   "16": {
+    "color": 0.93,
+    "lights": 5,
+    "white": 0.13
+   },
+   "17": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 5,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 2.9,
+    "white": 0.2
+   },
+   "18": {
+    "color": 0.93,
+    "lights": 24,
+    "white": 0.22
+   },
+   "19": {
+    "color": 0.86,
+    "lights": 24,
+    "white": 0.22
+   },
+   "20": {
+    "color": 0.29,
+    "rotation": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "white": 0.01
+   },
+   "21": {
+    "rotation": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "white": 0.0
+   },
+   "22": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 20.0,
+    "translationAxes": [
+     0
+    ],
+    "translationRange": 1.6,
+    "white": 0.19
+   },
+   "23": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.86,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 20,
+    "translationAxes": [
+     0
+    ],
+    "translationRange": 1.6,
+    "white": 0.21
+   },
+   "24": {
+    "color": 1.0,
+    "lights": 36,
+    "white": 0.14
+   },
+   "25": {
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 3,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 35.0,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 0.45,
+    "white": 0.56
+   },
+   "26": {
+    "color": 1.0,
+    "lights": 36,
+    "white": 0.17
+   },
+   "27": {
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 3,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 35.0,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 0.4
+   },
+   "28": {
+    "color": 0.79,
+    "lights": 5,
+    "white": 0.16
+   },
+   "29": {
+    "translation": 0.93,
+    "lights": 2,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 0.9,
+    "white": 0.5
+   },
+   "30": {
+    "color": 0.93,
+    "lights": 2,
+    "white": 0.26
+   },
+   "31": {
+    "color": 0.79,
+    "rotation": 0.86,
+    "translation": 0.79,
+    "lights": 4,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 70,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 1.7,
+    "white": 0.33
+   },
+   "32": {
+    "color": 0.86,
+    "rotation": 0.79,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 1.7,
+    "white": 0.33
+   },
+   "33": {
+    "color": 0.79,
+    "rotation": 0.86,
+    "translation": 0.79,
+    "lights": 4,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 70,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 1.45,
+    "white": 0.34
+   },
+   "34": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 1.7,
+    "white": 0.33
+   },
+   "35": {
+    "rotation": 0.71,
+    "translation": 1.0,
+    "lights": 2,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.7
+   },
+   "36": {
+    "rotation": 0.71,
+    "translation": 1.0,
+    "lights": 2,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 90.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.8
+   },
+   "37": {
+    "translation": 0.86,
+    "lights": 2,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 1
+   }
+  }
+ },
+ "Dragons2Environment": {
+  "maps": 14,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "6": 0.86
+  },
+  "groups": {
+   "0": {
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 24,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 7
+   },
+   "1": {
+    "color": 1.0,
+    "lights": 96,
+    "white": 0.23
+   },
+   "2": {
+    "translation": 0.86,
+    "lights": 35,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.1
+   },
+   "3": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.79,
+    "lights": 15,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 8.4,
+    "white": 0.14
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "white": 0.21
+   },
+   "5": {
+    "color": 1.0,
+    "lights": 12,
+    "white": 0.36
+   },
+   "6": {
+    "color": 1.0,
+    "lights": 12,
+    "white": 0.35
+   },
+   "7": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.1
+   },
+   "8": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.1
+   },
+   "9": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "white": 0.34
+   },
+   "10": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "white": 0.28
+   },
+   "11": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "white": 0.28
+   },
+   "12": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 5,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 135.0,
+    "white": 0.34
+   }
+  }
+ },
+ "Panic2Environment": {
+  "maps": 14,
+  "basic": {
+   "3": 0.79
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 7,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 8.4,
+    "white": 0.2
+   },
+   "1": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 7,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 8.4,
+    "white": 0.22
+   },
+   "2": {
+    "rotation": 0.93,
+    "translation": 0.79,
+    "lights": 7,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 5
+   },
+   "3": {
+    "rotation": 0.93,
+    "translation": 0.79,
+    "lights": 7,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 5
+   },
+   "4": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 7.55,
+    "white": 0.17
+   },
+   "5": {
+    "rotation": 0.86,
+    "translation": 0.79,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 140.0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 6
+   },
+   "6": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "lights": 24,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 180.0,
+    "white": 0.49
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "lights": 24,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 180.0,
+    "white": 0.48
+   },
+   "8": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 140.0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 8
+   },
+   "9": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 120.0,
+    "translationAxes": [
+     0,
+     1
+    ],
+    "translationRange": 2.6,
+    "white": 0.31
+   },
+   "10": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 135.0,
+    "translationAxes": [
+     0,
+     1
+    ],
+    "translationRange": 2.8,
+    "white": 0.32
+   },
+   "11": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     0,
+     1
+    ],
+    "translationRange": 3.0,
+    "white": 0.11
+   },
+   "12": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 2.5,
+    "white": 0.1
+   },
+   "13": {
+    "color": 0.93,
+    "lights": 14,
+    "white": 0.53
+   },
+   "14": {
+    "color": 0.93,
+    "lights": 14,
+    "white": 0.56
+   },
+   "15": {
+    "color": 0.86,
+    "lights": 2,
+    "white": 0.24
+   },
+   "16": {
+    "color": 1.0,
+    "lights": 28,
+    "white": 0.28
+   },
+   "17": {
+    "color": 1.0,
+    "lights": 28,
+    "white": 0.28
+   },
+   "18": {
+    "translation": 0.57,
+    "lights": 0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 0.4
+   },
+   "19": {
+    "translation": 0.57,
+    "lights": 0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 0.4
+   },
+   "20": {
+    "color": 0.93,
+    "lights": 12,
+    "white": 0.52
+   },
+   "21": {
+    "color": 0.86,
+    "lights": 0,
+    "white": 0.52
+   },
+   "22": {
+    "color": 0.93,
+    "lights": 12,
+    "white": 0.52
+   },
+   "23": {
+    "color": 0.86,
+    "lights": 0,
+    "white": 0.52
+   }
+  }
+ },
+ "QueenEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.79,
+   "40": 0.71
+  },
+  "basicValues": {
+   "40": [
+    0,
+    4,
+    4
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1,
+     2
+    ],
+    "translationRange": 2,
+    "white": 0.32
+   },
+   "1": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "2": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "3": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "4": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "5": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1,
+     2
+    ],
+    "translationRange": 2,
+    "white": 0.32
+   },
+   "6": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "7": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "8": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "9": {
+    "rotation": 0.86,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 135.0
+   },
+   "10": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 51,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2,
+     1
+    ],
+    "translationRange": 7.3,
+    "white": 0.41
+   },
+   "11": {
+    "rotation": 0.93,
+    "translation": 0.86,
+    "lights": 1,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 7.95
+   },
+   "12": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "lights": 20,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 165.0,
+    "white": 0.32
+   },
+   "13": {
+    "rotation": 0.93,
+    "lights": 0,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180
+   },
+   "14": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 12,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 90,
+    "white": 0.26
+   },
+   "15": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 24,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 1.8,
+    "white": 0.39
+   },
+   "16": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 24,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 1.8,
+    "white": 0.39
+   },
+   "17": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 3,
+    "translationAxes": [
+     1,
+     2
+    ],
+    "translationRange": 6.95,
+    "white": 0.74
+   }
+  }
+ },
+ "LinkinPark2Environment": {
+  "maps": 14,
+  "basic": {
+   "3": 0.79,
+   "40": 0.57,
+   "41": 0.5
+  },
+  "basicValues": {
+   "40": [
+    0,
+    3,
+    2
+   ],
+   "41": [
+    2,
+    6,
+    2
+   ]
+  },
+  "groups": {
+   "0": {
+    "rotation": 0.57,
+    "translation": 0.57,
+    "lights": 0,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 5.45
+   },
+   "1": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.71,
+    "lights": 20,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 145.0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 9.85,
+    "white": 0.49
+   },
+   "2": {
+    "rotation": 0.57,
+    "translation": 0.64,
+    "lights": 0,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 5.3
+   },
+   "3": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 0.71,
+    "lights": 20,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 100.0,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 10.0,
+    "white": 0.26
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 2.6,
+    "white": 0.19
+   },
+   "5": {
+    "color": 0.93,
+    "translation": 0.93,
+    "lights": 4,
+    "translationAxes": [
+     1,
+     2
+    ],
+    "translationRange": 2.5,
+    "white": 0.13
+   },
+   "6": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.8,
+    "white": 0.22
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.8,
+    "white": 0.22
+   },
+   "8": {
+    "color": 0.93,
+    "lights": 2,
+    "white": 0.29
+   },
+   "9": {
+    "color": 0.93,
+    "lights": 2,
+    "white": 0.3
+   },
+   "10": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.33
+   },
+   "11": {
+    "color": 0.79,
+    "translation": 0.64,
+    "lights": 2,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 5,
+    "white": 0.35
+   },
+   "12": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 100
+   },
+   "13": {
+    "color": 1.0,
+    "lights": 28,
+    "white": 0.05
+   },
+   "14": {
+    "color": 1.0,
+    "lights": 28,
+    "white": 0.05
+   },
+   "15": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.19
+   },
+   "16": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.19
+   },
+   "17": {
+    "rotation": 0.36,
+    "lights": 2,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 160,
+    "white": 0.44
+   },
+   "18": {
+    "rotation": 0.36,
+    "lights": 2,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 160
+   }
+  }
+ },
+ "TheRollingStonesEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 1.0,
+   "40": 0.21
+  },
+  "basicValues": {
+   "40": [
+    0,
+    1,
+    1
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "fx": 1.0,
+    "lights": 15,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.25
+   },
+   "1": {
+    "color": 1.0,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "fx": 1.0,
+    "lights": 15,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.26
+   },
+   "2": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.9,
+    "white": 0.31
+   },
+   "3": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.4,
+    "white": 0.29
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.8,
+    "white": 0.29
+   },
+   "5": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4,
+    "white": 0.28
+   },
+   "6": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.4,
+    "white": 0.29
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.5,
+    "white": 0.29
+   },
+   "8": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4,
+    "white": 0.29
+   },
+   "9": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4,
+    "white": 0.28
+   },
+   "10": {
+    "color": 1.0,
+    "translation": 0.93,
+    "lights": 16,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 0.6,
+    "white": 0.43
+   },
+   "11": {
+    "color": 1.0,
+    "translation": 0.93,
+    "lights": 16,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 0.6,
+    "white": 0.43
+   },
+   "12": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "translation": 0.86,
+    "fx": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 30,
+    "white": 0.2
+   },
+   "13": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "translation": 0.86,
+    "fx": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 30,
+    "white": 0.2
+   },
+   "14": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 105.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 15,
+    "white": 0.12
+   },
+   "15": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.15
+   },
+   "16": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 16.4,
+    "white": 0.15
+   },
+   "17": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 15.6,
+    "white": 0.15
+   },
+   "18": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 18,
+    "white": 0.13
+   },
+   "19": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10.0,
+    "white": 0.15
+   },
+   "20": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 17.5,
+    "white": 0.15
+   },
+   "21": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 15,
+    "white": 0.16
+   },
+   "22": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.27
+   },
+   "23": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.26
+   },
+   "24": {
+    "color": 1.0,
+    "rotation": 0.71,
+    "translation": 1.0,
+    "fx": 0.5,
+    "lights": 4,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 5.93,
+    "white": 0.47
+   },
+   "25": {
+    "color": 1.0,
+    "rotation": 0.71,
+    "translation": 1.0,
+    "fx": 0.5,
+    "lights": 4,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 5.45,
+    "white": 0.46
+   },
+   "26": {
+    "rotation": 0.71,
+    "translation": 0.79,
+    "lights": 1,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 10
+   },
+   "27": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 1,
+    "rotationAxes": [
+     1,
+     2
+    ],
+    "rotationRange": 180.0,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 5.4
+   },
+   "28": {
+    "color": 0.86,
+    "rotation": 0.57,
+    "fx": 0.79,
+    "lights": 6,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 180,
+    "white": 0.52
+   },
+   "29": {
+    "rotation": 0.71,
+    "translation": 1.0,
+    "lights": 1,
+    "rotationAxes": [
+     1,
+     2
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 6.2
+   },
+   "30": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "fx": 0.5,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     2
+    ],
+    "translationRange": 1.15,
+    "white": 0.35
+   },
+   "31": {
+    "rotation": 0.93,
+    "lights": 2,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 0
+   },
+   "32": {
+    "rotation": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 0
+   },
+   "33": {
+    "rotation": 0.71,
+    "lights": 6,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 30
+   },
+   "34": {
+    "rotation": 0.71,
+    "lights": 6,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 30
+   },
+   "35": {
+    "color": 1.0,
+    "lights": 0,
+    "white": 0.49
+   },
+   "36": {
+    "color": 1.0,
+    "lights": 0,
+    "white": 0.49
+   },
+   "37": {
+    "color": 0.86,
+    "lights": 4,
+    "white": 0.33
+   },
+   "38": {
+    "translation": 0.86,
+    "lights": 6,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 2.25
+   },
+   "39": {
+    "translation": 0.64,
+    "lights": 0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 9
+   },
+   "40": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.33
+   },
+   "41": {
+    "color": 1.0,
+    "lights": 6,
+    "white": 0.33
+   },
+   "42": {
+    "fx": 0.57,
+    "lights": 0
+   },
+   "43": {
+    "fx": 0.57,
+    "lights": 0
+   },
+   "44": {
+    "color": 1.0,
+    "lights": 0,
+    "white": 0.51
+   },
+   "45": {
+    "color": 1.0,
+    "lights": 0,
+    "white": 0.51
+   }
+  }
+ },
+ "LatticeEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.57
+  },
+  "groups": {
+   "0": {
+    "translation": 1.0,
+    "lights": 8,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4.35
+   },
+   "1": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "fx": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 135,
+    "white": 0.65
+   },
+   "2": {
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 4.2
+   },
+   "3": {
+    "color": 0.93,
+    "lights": 8,
+    "white": 0.28
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 150,
+    "white": 0.24
+   },
+   "5": {
+    "color": 0.93,
+    "lights": 8,
+    "white": 0.23
+   },
+   "6": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180,
+    "white": 0.24
+   },
+   "7": {
+    "translation": 1.0,
+    "lights": 8,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 4
+   },
+   "8": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "fx": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 135,
+    "white": 0.66
+   },
+   "9": {
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3
+   },
+   "10": {
+    "color": 0.93,
+    "lights": 8,
+    "white": 0.27
+   },
+   "11": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180,
+    "white": 0.25
+   },
+   "12": {
+    "color": 0.93,
+    "lights": 8,
+    "white": 0.26
+   },
+   "13": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 165,
+    "white": 0.27
+   },
+   "14": {
+    "translation": 1.0,
+    "lights": 8,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 6.5
+   },
+   "15": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "fx": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 180,
+    "white": 0.45
+   },
+   "16": {
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 2.5
+   },
+   "17": {
+    "color": 0.93,
+    "lights": 8,
+    "white": 0.28
+   },
+   "18": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180,
+    "white": 0.27
+   },
+   "19": {
+    "color": 1.0,
+    "lights": 8,
+    "white": 0.29
+   },
+   "20": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180,
+    "white": 0.21
+   },
+   "21": {
+    "translation": 1.0,
+    "lights": 8,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 7
+   },
+   "22": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "fx": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 135,
+    "white": 0.49
+   },
+   "23": {
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3
+   },
+   "24": {
+    "color": 0.86,
+    "lights": 8,
+    "white": 0.27
+   },
+   "25": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180,
+    "white": 0.27
+   },
+   "26": {
+    "color": 1.0,
+    "lights": 8,
+    "white": 0.22
+   },
+   "27": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 180,
+    "white": 0.16
+   },
+   "28": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     0,
+     2
+    ],
+    "translationRange": 4,
+    "white": 0.44
+   },
+   "29": {
+    "color": 1.0,
+    "lights": 3,
+    "white": 0.39
+   },
+   "30": {
+    "color": 0.93,
+    "translation": 0.86,
+    "lights": 1,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.5,
+    "white": 0.57
+   }
+  }
+ },
+ "DaftPunkEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.71,
+   "40": 0.21,
+   "41": 0.21
+  },
+  "basicValues": {
+   "40": [
+    0,
+    1,
+    0
+   ],
+   "41": [
+    0,
+    1,
+    0
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 75,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.22
+   },
+   "1": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 75,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.22
+   },
+   "2": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 90,
+    "white": 0.52
+   },
+   "3": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 90.0,
+    "white": 0.15
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 90,
+    "white": 0.52
+   },
+   "5": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 90.0,
+    "white": 0.19
+   },
+   "6": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 105,
+    "white": 0.54
+   },
+   "7": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 90.0,
+    "white": 0.14
+   },
+   "8": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 12,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 100.0,
+    "white": 0.54
+   },
+   "9": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 90.0,
+    "white": 0.17
+   },
+   "10": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.22
+   },
+   "11": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.21
+   },
+   "12": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.22
+   },
+   "13": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.22
+   },
+   "14": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 1,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 150.0,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 10,
+    "white": 0.29
+   },
+   "15": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 1,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 8.62,
+    "white": 0.28
+   },
+   "16": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 1,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 10,
+    "white": 0.29
+   },
+   "17": {
+    "color": 0.79,
+    "rotation": 0.86,
+    "translation": 0.86,
+    "lights": 1,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 10,
+    "white": 0.22
+   },
+   "18": {
+    "color": 0.93,
+    "translation": 0.86,
+    "lights": 32,
+    "translationAxes": [
+     0,
+     1
+    ],
+    "translationRange": 2.4,
+    "white": 0.34
+   },
+   "19": {
+    "color": 0.64,
+    "lights": 17,
+    "white": 0.24
+   },
+   "20": {
+    "color": 0.64,
+    "lights": 17,
+    "white": 0.34
+   },
+   "23": {
+    "color": 0.64,
+    "rotation": 0.64,
+    "translation": 0.93,
+    "fx": 0.79,
+    "lights": 2,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 165.0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 43.25,
+    "white": 0.24
+   },
+   "24": {
+    "color": 0.64,
+    "rotation": 0.64,
+    "translation": 0.93,
+    "fx": 0.79,
+    "lights": 2,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 150.0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 30,
+    "white": 0.34
+   },
+   "25": {
+    "color": 0.93,
+    "translation": 0.86,
+    "lights": 16,
+    "translationAxes": [
+     0,
+     1
+    ],
+    "translationRange": 9.8,
+    "white": 0.45
+   },
+   "26": {
+    "color": 0.93,
+    "translation": 0.86,
+    "lights": 16,
+    "translationAxes": [
+     0,
+     1
+    ],
+    "translationRange": 9.8,
+    "white": 0.45
+   },
+   "27": {
+    "color": 1.0,
+    "lights": 3,
+    "white": 0.55
+   },
+   "28": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.31
+   },
+   "29": {
+    "color": 0.86,
+    "lights": 4,
+    "white": 0.32
+   },
+   "30": {
+    "color": 0.79,
+    "lights": 4,
+    "white": 0.4
+   },
+   "31": {
+    "color": 0.79,
+    "lights": 4,
+    "white": 0.4
+   },
+   "32": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.28
+   },
+   "33": {
+    "color": 0.79,
+    "lights": 4,
+    "white": 0.25
+   },
+   "34": {
+    "color": 0.64,
+    "lights": 4,
+    "white": 0.24
+   },
+   "35": {
+    "color": 0.71,
+    "lights": 4,
+    "white": 0.26
+   },
+   "36": {
+    "color": 0.93,
+    "lights": 4,
+    "white": 0.37
+   },
+   "37": {
+    "color": 0.71,
+    "lights": 4,
+    "white": 0.28
+   },
+   "38": {
+    "color": 0.71,
+    "lights": 4,
+    "white": 0.3
+   },
+   "39": {
+    "color": 0.71,
+    "lights": 4,
+    "white": 0.31
+   },
+   "40": {
+    "color": 0.79,
+    "lights": 4,
+    "white": 0.32
+   },
+   "41": {
+    "color": 0.64,
+    "lights": 4,
+    "white": 0.3
+   },
+   "42": {
+    "color": 0.64,
+    "lights": 4,
+    "white": 0.32
+   },
+   "43": {
+    "color": 0.64,
+    "lights": 4,
+    "white": 0.32
+   },
+   "44": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     1,
+     2
+    ],
+    "rotationRange": 145.0
+   },
+   "45": {
+    "rotation": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 135
+   },
+   "46": {
+    "rotation": 0.86,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 145
+   },
+   "47": {
+    "rotation": 0.79,
+    "lights": 4,
+    "rotationAxes": [
+     1,
+     2
+    ],
+    "rotationRange": 120
+   }
+  }
+ },
+ "HipHopEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.64
+  },
+  "groups": {
+   "0": {
+    "color": 0.86,
+    "translation": 0.79,
+    "lights": 5,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 1.25,
+    "white": 0.32
+   },
+   "1": {
+    "color": 0.86,
+    "translation": 0.79,
+    "lights": 5,
+    "translationAxes": [
+     1,
+     0
+    ],
+    "translationRange": 1.25,
+    "white": 0.31
+   },
+   "2": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 3,
+    "white": 0.24
+   },
+   "5": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 12,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 3,
+    "white": 0.25
+   },
+   "6": {
+    "rotation": 0.86,
+    "translation": 0.93,
+    "fx": 0.79,
+    "lights": 0,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 8,
+    "white": 0.0
+   },
+   "7": {
+    "color": 0.93,
+    "lights": 25,
+    "white": 0.12
+   },
+   "8": {
+    "rotation": 0.86,
+    "translation": 0.93,
+    "fx": 0.71,
+    "lights": 0,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 9.9,
+    "white": 0.0
+   },
+   "9": {
+    "color": 0.93,
+    "lights": 8,
+    "white": 0.12
+   },
+   "10": {
+    "rotation": 0.64,
+    "translation": 0.86,
+    "fx": 0.64,
+    "lights": 1,
+    "rotationAxes": [
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 5.35,
+    "white": 0.0
+   },
+   "11": {
+    "color": 0.93,
+    "lights": 12,
+    "white": 0.24
+   },
+   "12": {
+    "rotation": 0.64,
+    "translation": 0.86,
+    "fx": 0.57,
+    "lights": 1,
+    "rotationAxes": [
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 7,
+    "white": 0.0
+   },
+   "13": {
+    "color": 0.93,
+    "lights": 12,
+    "white": 0.24
+   },
+   "14": {
+    "translation": 0.79,
+    "lights": 0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 10,
+    "white": 0.0
+   },
+   "15": {
+    "translation": 0.86,
+    "lights": 0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 10,
+    "white": 0.0
+   },
+   "16": {
+    "translation": 0.86,
+    "lights": 2,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 10,
+    "white": 0.0
+   },
+   "17": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 1.0,
+    "white": 0.32
+   },
+   "18": {
+    "color": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 1.0,
+    "white": 0.31
+   },
+   "19": {
+    "color": 1.0,
+    "lights": 0,
+    "white": 0.48
+   },
+   "20": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 1.15,
+    "white": 0.41
+   },
+   "21": {
+    "rotation": 0.71,
+    "translation": 0.86,
+    "lights": 12,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 1
+   },
+   "22": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.25,
+    "white": 0.48
+   },
+   "23": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 2,
+    "white": 0.44
+   },
+   "24": {
+    "rotation": 0.71,
+    "translation": 0.86,
+    "lights": 12,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 2.5,
+    "white": 0.0
+   },
+   "25": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.4,
+    "white": 0.43
+   },
+   "26": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     2
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 1.26,
+    "white": 0.44
+   },
+   "27": {
+    "rotation": 0.71,
+    "translation": 0.86,
+    "lights": 12,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 3,
+    "white": 0.0
+   },
+   "28": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.25,
+    "white": 0.52
+   },
+   "29": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 0.9,
+    "white": 0.45
+   },
+   "30": {
+    "rotation": 0.71,
+    "translation": 0.86,
+    "lights": 12,
+    "rotationAxes": [
+     0
+    ],
+    "rotationRange": 45,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 1.85,
+    "white": 0.0
+   },
+   "31": {
+    "color": 0.86,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.34,
+    "white": 0.35
+   },
+   "32": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.08
+   },
+   "33": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.08
+   },
+   "34": {
+    "color": 0.93,
+    "translation": 0.71,
+    "lights": 1,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 6.25,
+    "white": 0.34
+   },
+   "35": {
+    "color": 0.93,
+    "translation": 0.79,
+    "lights": 6,
+    "translationAxes": [
+     0
+    ],
+    "translationRange": 0.8,
+    "white": 0.59
+   },
+   "36": {
+    "color": 0.93,
+    "lights": 16,
+    "white": 0.49
+   },
+   "37": {
+    "color": 0.93,
+    "lights": 16,
+    "white": 0.47
+   },
+   "38": {
+    "color": 0.64,
+    "lights": 0,
+    "white": 0.16
+   },
+   "39": {
+    "color": 0.64,
+    "lights": 0,
+    "white": 0.17
+   },
+   "40": {
+    "color": 0.93,
+    "lights": 2,
+    "white": 0.67
+   },
+   "41": {
+    "translation": 0.71,
+    "lights": 0,
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 0.4,
+    "white": 0.0
+   }
+  }
+ },
+ "ColliderEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.64
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.86,
+    "lights": 20,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 5.0,
+    "white": 0.29
+   },
+   "1": {
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 17,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 20
+   },
+   "2": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.86,
+    "lights": 40,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 9.5,
+    "white": 0.28
+   },
+   "3": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.86,
+    "lights": 40,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 75,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 4.9,
+    "white": 0.24
+   },
+   "4": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 40,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 8.55,
+    "white": 0.34
+   },
+   "5": {
+    "color": 0.86,
+    "rotation": 0.79,
+    "translation": 0.86,
+    "lights": 40,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 163,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 1.5,
+    "white": 0.36
+   },
+   "6": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 5,
+    "white": 0.4
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.86,
+    "lights": 5,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 90.0,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 3.55,
+    "white": 0.36
+   },
+   "8": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 5,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 2,
+    "white": 0.39
+   },
+   "9": {
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 5,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 130,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 18.7
+   },
+   "10": {
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 5,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 17
+   },
+   "11": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.86,
+    "lights": 10,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 0.75,
+    "white": 0.26
+   },
+   "12": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 0.71,
+    "lights": 10,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 0.6,
+    "white": 0.25
+   },
+   "13": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.71,
+    "lights": 10,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 1,
+    "white": 0.29
+   },
+   "14": {
+    "color": 0.93,
+    "rotation": 0.86,
+    "translation": 0.71,
+    "lights": 10,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 75,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 1,
+    "white": 0.18
+   },
+   "15": {
+    "color": 0.86,
+    "rotation": 0.79,
+    "translation": 0.79,
+    "lights": 10,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 75,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0.5,
+    "white": 0.33
+   },
+   "16": {
+    "color": 0.79,
+    "rotation": 0.79,
+    "translation": 0.79,
+    "lights": 10,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 30,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0.5,
+    "white": 0.29
+   },
+   "17": {
+    "color": 0.86,
+    "rotation": 0.79,
+    "translation": 0.71,
+    "lights": 10,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 141,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0.6,
+    "white": 0.28
+   },
+   "18": {
+    "color": 0.79,
+    "rotation": 0.79,
+    "translation": 0.71,
+    "lights": 10,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 30.0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0.8,
+    "white": 0.24
+   },
+   "19": {
+    "color": 1.0,
+    "fx": 0.93,
+    "lights": 5,
+    "white": 0.41
+   },
+   "20": {
+    "color": 1.0,
+    "fx": 0.93,
+    "lights": 5,
+    "white": 0.41
+   },
+   "21": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4.0,
+    "white": 0.37
+   },
+   "22": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 8.0,
+    "white": 0.35
+   },
+   "23": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "fx": 0.86,
+    "lights": 1,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 2,
+    "white": 0.15
+   },
+   "24": {
+    "fx": 0.86,
+    "lights": 0
+   },
+   "25": {
+    "fx": 0.86,
+    "lights": 0
+   },
+   "26": {
+    "fx": 0.86,
+    "lights": 0
+   },
+   "27": {
+    "fx": 0.86,
+    "lights": 0
+   }
+  }
+ },
+ "BritneyEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.79,
+   "8": 0.36,
+   "9": 0.29,
+   "12": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    9
+   ],
+   "9": [
+    0,
+    9,
+    0
+   ],
+   "12": [
+    0,
+    42,
+    6
+   ]
+  },
+  "groups": {
+   "0": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.5,
+    "lights": 24,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 2
+   },
+   "1": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 70,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 6.2
+   },
+   "2": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.43,
+    "lights": 24,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 65,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 2.35
+   },
+   "3": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 24,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 75,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 5
+   },
+   "5": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "fx": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 20,
+    "white": 0.3
+   },
+   "6": {
+    "rotation": 0.93,
+    "translation": 0.86,
+    "lights": 18,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 50
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "fx": 0.86,
+    "lights": 18,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 11,
+    "white": 0.29
+   },
+   "8": {
+    "rotation": 0.86,
+    "translation": 0.86,
+    "lights": 18,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 50
+   },
+   "9": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "fx": 0.86,
+    "lights": 18,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 40,
+    "white": 0.35
+   },
+   "10": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "fx": 0.71,
+    "lights": 1,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 2,
+    "white": 0.34
+   },
+   "11": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 76,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "white": 0.23
+   },
+   "12": {
+    "color": 1.0,
+    "fx": 0.86,
+    "lights": 2,
+    "white": 0.66
+   },
+   "13": {
+    "fx": 0.79,
+    "lights": 0
+   },
+   "14": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 50,
+    "white": 0.3
+   },
+   "15": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "fx": 0.86,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 50,
+    "white": 0.24
+   },
+   "16": {
+    "color": 1.0,
+    "fx": 0.79,
+    "lights": 3,
+    "white": 0.27
+   },
+   "17": {
+    "color": 1.0,
+    "fx": 0.86,
+    "lights": 3,
+    "white": 0.28
+   },
+   "18": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "fx": 0.79,
+    "lights": 96,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 12.5,
+    "white": 0.31
+   },
+   "19": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "fx": 0.71,
+    "lights": 96,
+    "rotationAxes": [
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 12.5,
+    "white": 0.3
+   },
+   "20": {
+    "fx": 0.71,
+    "lights": 0,
+    "white": 1.0
+   },
+   "21": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.23
+   },
+   "22": {
+    "fx": 0.71,
+    "lights": 0
+   }
+  }
+ },
+ "Monstercat2Environment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.86,
+   "8": 0.36
+  },
+  "basicValues": {
+   "8": [
+    1,
+    12,
+    8
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 0.86,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 30,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 6.8,
+    "white": 0.1
+   },
+   "1": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.64,
+    "lights": 32,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 2.8,
+    "white": 0.41
+   },
+   "2": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.5,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 12
+   },
+   "3": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.64,
+    "lights": 32,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.15,
+    "white": 0.44
+   },
+   "4": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.5,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 14.05
+   },
+   "5": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 8
+   },
+   "6": {
+    "color": 1.0,
+    "lights": 8,
+    "white": 0.1
+   },
+   "7": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 8.1
+   },
+   "8": {
+    "color": 1.0,
+    "lights": 8,
+    "white": 0.12
+   },
+   "9": {
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 0,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 7.25
+   },
+   "10": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "lights": 20,
+    "rotationAxes": [
+     1,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     2
+    ],
+    "translationRange": 5,
+    "white": 0.17
+   },
+   "11": {
+    "color": 1.0,
+    "lights": 3,
+    "white": 0.2
+   },
+   "12": {
+    "color": 1.0,
+    "lights": 3,
+    "white": 0.2
+   },
+   "13": {
+    "color": 1.0,
+    "lights": 2,
+    "white": 0.37
+   },
+   "14": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 7.65,
+    "white": 0.16
+   },
+   "15": {
+    "color": 0.93,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 165,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 7.65,
+    "white": 0.16
+   },
+   "16": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.16
+   },
+   "17": {
+    "color": 1.0,
+    "lights": 16,
+    "white": 0.15
+   },
+   "18": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "19": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 12.35,
+    "white": 0.2
+   },
+   "20": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 12.5,
+    "white": 0.2
+   },
+   "21": {
+    "color": 1.0,
+    "lights": 32,
+    "white": 0.65
+   },
+   "22": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.57,
+    "lights": 26,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 1.7
+   },
+   "23": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 10
+   },
+   "24": {
+    "color": 1.0,
+    "lights": 32,
+    "white": 0.46
+   },
+   "25": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.57,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 75,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 2
+   },
+   "26": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 6
+   },
+   "27": {
+    "color": 1.0,
+    "lights": 32,
+    "white": 0.48
+   },
+   "28": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.57,
+    "lights": 26,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 75,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 0.6
+   },
+   "29": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 6
+   },
+   "30": {
+    "color": 1.0,
+    "lights": 32,
+    "white": 0.49
+   },
+   "31": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.57,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 0.6
+   },
+   "32": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 6
+   }
+  }
+ },
+ "MetallicaEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.86,
+   "8": 0.5,
+   "13": 0.79
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    5
+   ],
+   "13": [
+    0,
+    15,
+    0
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 1,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 6.35,
+    "white": 0.42
+   },
+   "1": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 8.5,
+    "white": 0.0
+   },
+   "2": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 45,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 8.5
+   },
+   "3": {
+    "color": 0.86,
+    "rotation": 0.71,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 7,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 33,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 3.5,
+    "white": 0.23
+   },
+   "4": {
+    "color": 0.86,
+    "rotation": 0.71,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 7,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 33,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 3.5,
+    "white": 0.22
+   },
+   "5": {
+    "color": 0.86,
+    "rotation": 0.79,
+    "translation": 1.0,
+    "fx": 0.71,
+    "lights": 7,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 30,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 5,
+    "white": 0.25
+   },
+   "6": {
+    "color": 1.0,
+    "fx": 0.93,
+    "lights": 3,
+    "white": 0.44
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 30,
+    "white": 0.29
+   },
+   "8": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 110,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 30.95,
+    "white": 0.29
+   },
+   "9": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 15.1,
+    "white": 0.19
+   },
+   "10": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 16.4,
+    "white": 0.19
+   },
+   "11": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 5,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 19,
+    "white": 0.2
+   },
+   "12": {
+    "color": 0.86,
+    "rotation": 0.71,
+    "translation": 0.71,
+    "fx": 0.71,
+    "lights": 6,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4.55,
+    "white": 0.25
+   },
+   "13": {
+    "color": 0.86,
+    "rotation": 0.71,
+    "translation": 0.71,
+    "fx": 0.71,
+    "lights": 6,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4.55,
+    "white": 0.25
+   },
+   "14": {
+    "color": 0.86,
+    "lights": 6,
+    "white": 0.25
+   },
+   "15": {
+    "color": 0.86,
+    "lights": 6,
+    "white": 0.25
+   },
+   "16": {
+    "color": 0.79,
+    "fx": 0.71,
+    "lights": 0,
+    "white": 0.4
+   },
+   "17": {
+    "color": 0.71,
+    "lights": 0,
+    "white": 0.31
+   },
+   "18": {
+    "color": 0.79,
+    "fx": 0.79,
+    "lights": 0,
+    "white": 0.4
+   },
+   "19": {
+    "color": 0.71,
+    "lights": 0,
+    "white": 0.3
+   },
+   "20": {
+    "color": 0.86,
+    "translation": 0.86,
+    "fx": 0.79,
+    "lights": 4,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 3.9,
+    "white": 0.51
+   },
+   "21": {
+    "translation": 0.86,
+    "lights": 4,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 1.64
+   },
+   "22": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 24,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 2.35,
+    "white": 0.24
+   },
+   "23": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 24,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 2.8,
+    "white": 0.26
+   },
+   "24": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.86,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 100,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 4.4,
+    "white": 0.29
+   },
+   "25": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 4,
+    "white": 0.28
+   },
+   "26": {
+    "rotation": 0.79,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 30,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 5,
+    "white": 0.0
+   },
+   "27": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.15
+   },
+   "28": {
+    "color": 0.93,
+    "lights": 4,
+    "white": 0.15
+   },
+   "29": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 5.5,
+    "white": 0.25
+   },
+   "30": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 135,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 6,
+    "white": 0.25
+   },
+   "31": {
+    "translation": 1.0,
+    "lights": 1,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 5,
+    "white": 0.0
+   },
+   "32": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.55
+   },
+   "33": {
+    "color": 0.71,
+    "lights": 16,
+    "white": 0.24
+   },
+   "34": {
+    "color": 1.0,
+    "lights": 60,
+    "white": 0.34
+   },
+   "35": {
+    "color": 1.0,
+    "lights": 60,
+    "white": 0.34
+   },
+   "36": {
+    "rotation": 0.79,
+    "translation": 1.0,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 15,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 8.75
+   },
+   "37": {
+    "rotation": 0.79,
+    "translation": 1.0,
+    "lights": 3,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 15,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 8.75
+   },
+   "38": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.2
+   },
+   "39": {
+    "color": 1.0,
+    "lights": 4,
+    "white": 0.21
+   },
+   "40": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 2.3
+   },
+   "41": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 2.25
+   },
+   "42": {
+    "fx": 0.64,
+    "lights": 0
+   },
+   "43": {
+    "fx": 0.64,
+    "lights": 0
+   },
+   "44": {
+    "fx": 0.79,
+    "lights": 0
+   }
+  }
+ },
+ "GridEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.43
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 0.79,
+    "translation": 1.0,
+    "fx": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 75.0,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 1.85,
+    "white": 0.29
+   },
+   "1": {
+    "color": 0.93,
+    "rotation": 0.71,
+    "translation": 0.93,
+    "fx": 0.64,
+    "lights": 36,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 165.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4.5,
+    "white": 0.11
+   },
+   "2": {
+    "color": 0.86,
+    "rotation": 0.57,
+    "translation": 0.86,
+    "fx": 0.64,
+    "lights": 36,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 7.6,
+    "white": 0.29
+   },
+   "3": {
+    "color": 0.79,
+    "rotation": 0.71,
+    "translation": 0.79,
+    "fx": 0.57,
+    "lights": 36,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 165.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4.5,
+    "white": 0.11
+   },
+   "4": {
+    "color": 0.64,
+    "rotation": 0.57,
+    "translation": 0.71,
+    "fx": 0.57,
+    "lights": 36,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 6.3,
+    "white": 0.23
+   },
+   "5": {
+    "color": 0.86,
+    "rotation": 0.79,
+    "translation": 1.0,
+    "fx": 0.57,
+    "lights": 36,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 3.95,
+    "white": 0.4
+   },
+   "6": {
+    "color": 0.64,
+    "rotation": 0.57,
+    "translation": 0.86,
+    "fx": 0.64,
+    "lights": 36,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.32
+   },
+   "7": {
+    "color": 0.86,
+    "rotation": 0.43,
+    "translation": 0.36,
+    "fx": 1.0,
+    "lights": 36,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0,
+    "white": 0.25
+   },
+   "8": {
+    "color": 0.71,
+    "rotation": 0.43,
+    "translation": 0.43,
+    "fx": 0.93,
+    "lights": 36,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0,
+    "white": 0.16
+   },
+   "9": {
+    "color": 0.5,
+    "fx": 0.93,
+    "lights": 36,
+    "white": 0.25
+   },
+   "10": {
+    "color": 0.79,
+    "rotation": 0.71,
+    "translation": 0.79,
+    "fx": 0.64,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 1.65,
+    "white": 0.24
+   },
+   "11": {
+    "color": 0.71,
+    "rotation": 0.64,
+    "translation": 0.79,
+    "fx": 0.64,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 105.0,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 1.65,
+    "white": 0.18
+   },
+   "12": {
+    "color": 0.79,
+    "rotation": 0.79,
+    "translation": 0.79,
+    "fx": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10.45,
+    "white": 0.36
+   },
+   "13": {
+    "color": 0.79,
+    "rotation": 0.86,
+    "translation": 0.93,
+    "fx": 0.79,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 150.0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.37
+   },
+   "14": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     2,
+     1
+    ],
+    "rotationRange": 150.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.3
+   },
+   "15": {
+    "color": 0.79,
+    "rotation": 0.64,
+    "translation": 0.71,
+    "fx": 0.57,
+    "lights": 8,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.39
+   },
+   "16": {
+    "color": 0.36,
+    "fx": 0.36,
+    "lights": 0,
+    "white": 0.0
+   },
+   "17": {
+    "color": 0.43,
+    "rotation": 0.43,
+    "translation": 0.43,
+    "fx": 0.36,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0,
+    "white": 0.0
+   },
+   "18": {
+    "fx": 0.71,
+    "lights": 0
+   },
+   "19": {
+    "fx": 0.71,
+    "lights": 0,
+    "white": 0.0
+   },
+   "20": {
+    "fx": 0.71,
+    "lights": 0,
+    "white": 0.0
+   },
+   "21": {
+    "fx": 0.64,
+    "lights": 0
+   },
+   "22": {
+    "fx": 0.64,
+    "lights": 0
+   },
+   "23": {
+    "fx": 0.64,
+    "lights": 0
+   },
+   "24": {
+    "fx": 0.64,
+    "lights": 0,
+    "white": 0.0
+   },
+   "25": {
+    "fx": 0.64,
+    "lights": 0,
+    "white": 0.0
+   },
+   "26": {
+    "fx": 0.36,
+    "lights": 0,
+    "white": 0.0
+   },
+   "27": {
+    "fx": 0.64,
+    "lights": 0,
+    "white": 0.0
+   },
+   "28": {
+    "color": 0.93,
+    "fx": 0.36,
+    "lights": 8,
+    "white": 0.23
+   },
+   "29": {
+    "color": 0.93,
+    "fx": 0.36,
+    "lights": 8,
+    "white": 0.24
+   },
+   "30": {
+    "rotation": 0.36,
+    "translation": 0.36,
+    "fx": 0.79,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0
+   },
+   "31": {
+    "rotation": 0.36,
+    "translation": 0.36,
+    "fx": 0.79,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0
+   },
+   "32": {
+    "color": 0.79,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "fx": 0.79,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 0.75,
+    "white": 0.28
+   },
+   "33": {
+    "color": 0.79,
+    "rotation": 1.0,
+    "translation": 0.93,
+    "fx": 0.79,
+    "lights": 12,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 0.7,
+    "white": 0.16
+   },
+   "34": {
+    "color": 0.86,
+    "rotation": 0.64,
+    "translation": 0.93,
+    "fx": 0.64,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 20,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 5,
+    "white": 0.42
+   },
+   "35": {
+    "fx": 0.57,
+    "lights": 0
+   },
+   "36": {
+    "fx": 0.71,
+    "lights": 0
+   },
+   "37": {
+    "fx": 0.71,
+    "lights": 0
+   },
+   "38": {
+    "color": 0.36,
+    "fx": 0.36,
+    "lights": 0,
+    "white": 0.0
+   },
+   "39": {
+    "fx": 0.64,
+    "lights": 0
+   },
+   "40": {
+    "fx": 0.64,
+    "lights": 0
+   },
+   "41": {
+    "color": 0.36,
+    "rotation": 0.64,
+    "translation": 0.79,
+    "fx": 0.79,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 2.05,
+    "white": 0.0
+   },
+   "42": {
+    "color": 0.36,
+    "rotation": 0.64,
+    "translation": 0.79,
+    "fx": 0.79,
+    "lights": 12,
+    "rotationAxes": [
+     2,
+     1,
+     0
+    ],
+    "rotationRange": 105.0,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 1.6,
+    "white": 0.0
+   },
+   "43": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "44": {
+    "color": 0.79,
+    "rotation": 0.57,
+    "translation": 0.93,
+    "fx": 0.64,
+    "lights": 4,
+    "rotationAxes": [
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 5.55,
+    "white": 0.46
+   },
+   "45": {
+    "color": 0.36,
+    "rotation": 0.36,
+    "translation": 0.36,
+    "fx": 0.29,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0,
+    "white": 0.0
+   },
+   "46": {
+    "color": 0.36,
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10,
+    "white": 0.0
+   },
+   "47": {
+    "rotation": 0.86,
+    "translation": 0.93,
+    "lights": 6,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90.0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10
+   },
+   "48": {
+    "rotation": 0.36,
+    "translation": 0.36,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0
+   },
+   "49": {
+    "color": 0.36,
+    "rotation": 0.36,
+    "translation": 0.36,
+    "fx": 0.36,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0,
+    "white": 0.0
+   },
+   "50": {
+    "color": 0.36,
+    "fx": 0.36,
+    "lights": 0,
+    "white": 0.0
+   },
+   "51": {
+    "fx": 0.36,
+    "lights": 0
+   },
+   "52": {
+    "fx": 0.36,
+    "lights": 0
+   }
+  }
+ },
+ "ColdplayEnvironment": {
+  "maps": 14,
+  "basic": {
+   "6": 0.43,
+   "8": 0.36
+  },
+  "basicValues": {
+   "8": [
+    0,
+    12,
+    5
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 0.93,
+    "fx": 0.93,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 1.25,
+    "white": 0.28
+   },
+   "1": {
+    "color": 1.0,
+    "translation": 1.0,
+    "fx": 1.0,
+    "lights": 16,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 3.05,
+    "white": 0.12
+   },
+   "2": {
+    "color": 1.0,
+    "translation": 1.0,
+    "fx": 1.0,
+    "lights": 16,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 4,
+    "white": 0.11
+   },
+   "3": {
+    "fx": 0.86,
+    "lights": 0
+   },
+   "4": {
+    "fx": 0.86,
+    "lights": 0,
+    "white": 0.0
+   },
+   "5": {
+    "translation": 0.93,
+    "fx": 0.93,
+    "lights": 4,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 2.95,
+    "white": 0.0
+   },
+   "6": {
+    "translation": 0.71,
+    "fx": 0.64,
+    "lights": 3,
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 19.2,
+    "white": 0.0
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 2,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 20,
+    "white": 0.2
+   },
+   "8": {
+    "color": 0.93,
+    "rotation": 0.93,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 2,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 170,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 23.0,
+    "white": 0.34
+   },
+   "9": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "10": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "11": {
+    "fx": 0.86,
+    "lights": 0,
+    "white": 0.0
+   },
+   "12": {
+    "fx": 0.86,
+    "lights": 0,
+    "white": 0.0
+   },
+   "13": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 7.5,
+    "white": 0.36
+   },
+   "14": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 8,
+    "white": 0.36
+   },
+   "15": {
+    "color": 0.93,
+    "lights": 2,
+    "white": 0.15
+   },
+   "16": {
+    "color": 1.0,
+    "lights": 2,
+    "white": 0.53
+   },
+   "17": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 45,
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 20.4,
+    "white": 0.34
+   },
+   "18": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "19": {
+    "fx": 1.0,
+    "lights": 0,
+    "white": 0.0
+   },
+   "20": {
+    "fx": 1.0,
+    "lights": 0,
+    "white": 0.0
+   },
+   "21": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "22": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "23": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "24": {
+    "fx": 0.93,
+    "lights": 0,
+    "white": 0.0
+   },
+   "25": {
+    "fx": 0.93,
+    "lights": 0,
+    "white": 0.0
+   },
+   "28": {
+    "fx": 0.86,
+    "lights": 0,
+    "white": 0.0
+   },
+   "29": {
+    "fx": 0.86,
+    "lights": 0
+   },
+   "30": {
+    "rotation": 0.86,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 16,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 16.0
+   },
+   "31": {
+    "rotation": 0.86,
+    "translation": 1.0,
+    "fx": 0.93,
+    "lights": 16,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 96,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 17
+   },
+   "32": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.86,
+    "lights": 16,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10.0
+   },
+   "33": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.86,
+    "lights": 16,
+    "rotationAxes": [
+     1,
+     2,
+     0
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 10.0
+   },
+   "34": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "35": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "36": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "37": {
+    "fx": 0.86,
+    "lights": 0
+   },
+   "38": {
+    "color": 0.93,
+    "lights": 3,
+    "white": 0.47
+   },
+   "39": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "40": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "41": {
+    "color": 1.0,
+    "lights": 2,
+    "white": 0.4
+   },
+   "42": {
+    "color": 0.93,
+    "lights": 2,
+    "white": 0.44
+   },
+   "43": {
+    "fx": 0.93,
+    "lights": 0
+   },
+   "44": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "45": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 3.03,
+    "white": 0.17
+   },
+   "46": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 150.0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 3.97,
+    "white": 0.16
+   },
+   "47": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 39.9
+   },
+   "48": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 50
+   },
+   "49": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 1.0,
+    "fx": 0.79,
+    "lights": 16,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 120,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 5.35,
+    "white": 0.05
+   },
+   "50": {
+    "color": 0.86,
+    "fx": 0.93,
+    "lights": 16,
+    "white": 0.33
+   },
+   "51": {
+    "fx": 0.86,
+    "lights": 0
+   },
+   "52": {
+    "fx": 0.71,
+    "lights": 0
+   }
+  }
+ },
+ "ProdigyEnvironment": {
+  "maps": 1,
+  "basic": {
+   "0": 1.0,
+   "1": 1.0,
+   "2": 1.0,
+   "3": 1.0,
+   "4": 1.0,
+   "8": 1.0,
+   "9": 1.0,
+   "12": 1.0,
+   "13": 1.0
+  },
+  "basicValues": {
+   "8": [
+    0,
+    1,
+    0
+   ],
+   "9": [
+    0,
+    1,
+    0
+   ],
+   "12": [
+    0,
+    12,
+    10
+   ],
+   "13": [
+    0,
+    14,
+    10
+   ]
+  },
+  "groups": {
+   "0": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 60,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 1.3,
+    "white": 0.75
+   },
+   "1": {
+    "fx": 1.0,
+    "lights": 0
+   },
+   "2": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 4.6,
+    "white": 0.98
+   },
+   "3": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 0.5
+   },
+   "4": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 4.6,
+    "white": 0.98
+   },
+   "5": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 16,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 105,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 0.5
+   },
+   "6": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 51,
+    "white": 0.22
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 8,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 51,
+    "white": 0.22
+   },
+   "8": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 2.45
+   },
+   "9": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 2.45
+   },
+   "10": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 180,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 3.45
+   },
+   "11": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 75,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 3.45,
+    "white": 0.0
+   },
+   "12": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1
+    ],
+    "rotationRange": 180,
+    "white": 0.03
+   },
+   "13": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 0.85,
+    "white": 0.0
+   },
+   "14": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 0.85,
+    "white": 0.0
+   },
+   "15": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 45,
+    "translationAxes": [
+     1,
+     2,
+     0
+    ],
+    "translationRange": 1.8,
+    "white": 0.0
+   },
+   "16": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 30,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0.45
+   },
+   "17": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 45,
+    "translationAxes": [
+     2,
+     1,
+     0
+    ],
+    "translationRange": 2.6,
+    "white": 0.01
+   },
+   "18": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 2,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 0.45
+   },
+   "19": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 4.35
+   },
+   "20": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 4.35
+   },
+   "21": {
+    "translation": 1.0,
+    "lights": 0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 0.7
+   },
+   "22": {
+    "translation": 1.0,
+    "lights": 0,
+    "translationAxes": [
+     1,
+     0,
+     2
+    ],
+    "translationRange": 0.7
+   },
+   "24": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.68
+   },
+   "25": {
+    "color": 1.0,
+    "lights": 5,
+    "white": 0.68
+   },
+   "26": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 6.65,
+    "white": 0.39
+   },
+   "27": {
+    "color": 1.0,
+    "rotation": 1.0,
+    "translation": 1.0,
+    "lights": 0,
+    "rotationAxes": [
+     0,
+     1,
+     2
+    ],
+    "rotationRange": 0,
+    "translationAxes": [
+     0,
+     1,
+     2
+    ],
+    "translationRange": 6.65,
+    "white": 0.39
+   },
+   "28": {
+    "color": 1.0,
+    "lights": 0,
+    "white": 1.0
+   }
+  }
+ }
+}

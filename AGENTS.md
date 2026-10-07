@@ -217,13 +217,39 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    pulses, per-note laser flashes, ring spins/zooms, colour boost in the loudest sections. With
    labelled drum hits the drummer plays the lights instead of the downbeat pulses: kicks (s >= 0.3)
    pulse the back lasers, snares flash the centre, hats flicker the rings in loud sections (each
-   light at most every quarter beat). `Environment = "Pyro"` (`GroupLightshow`) switches to
-   PyroEnvironment and adds a v3 group lightshow (14 groups in left/right pairs, as a curated Pyro map
-   uses them): 0/1 ambient section colour, 2/3 downbeat chases (wave over 1 beat, direction alternating),
-   4/5 note flashes per hand, 6/7 snares (white), 8/9 kicks, 10/11 melody notes (held for the note's
-   sustain), 12/13 hats (a quarter of the lights at a time); pairs 2/3, 8/9 and 10/11 rotate to a new
-   pose at each section (wider when louder). Schema checked against that map (rotation boxes keep their
-   events under `l`); not verified in game.
+   light at most every quarter beat). Build-ups (`SongShape.BuildUps`: from the start of the section
+   a drop ends, at most 16 beats, to the drop; drops are `SongShape.Drops`, shared with the drop pause)
+   spin the rings every bar, then beat, then half beat, with laser speeds rising 2 -> 8 and the back
+   lasers strobing; drops flash every light white (values 9-12), zoom the rings and switch the boost on.
+   **Environments** (`EnvironmentCatalog`, `GeneratorSettings.Environment`): all 46 environments of
+   moddable Beat Saber (up to 1.40; GlassDesert stays the 90/360 one), each with a display name, a
+   lighting system and a character (drive: band backbeat .. four-on-the-floor, intensity, darkness,
+   typical BPM), plus the light layout learned by `scripts/environment_prior.py` into the embedded
+   `environment-prior.json`: for 14 well-rated (curated first) maps per environment, read through
+   HTTP range requests (only the .dat files; cached in `work/env-survey`), the basic event types used
+   by >= 15 % of maps with value ranges of the special ones, and per light group the share of maps
+   lighting / rotating / translating it, the axes, 90th-percentile magnitudes (angles normalized to
+   ±180°) and a light-count lower bound from filters. Classic environments use `LightingGenerator`
+   plus their extra channels: 6/7 flicker with the hats, 10/11 hold the melody, set pieces 16-19 go up
+   on loud sections and drops and down in quiet ones (value ranges <= 3 are selectors, e.g.
+   Interscope's cars: odd type on loud, even on quiet). Group environments (Weave and later) use
+   `GroupLightshow`: groups lit by >= 30 % of maps, consecutive ids used alike paired as left/right
+   units, roles by prominence (kicks, ambient section wash that breathes in quiet parts, note flashes
+   per hand, white snares, melody holds, downbeat chases, hat flickers; fallbacks share units when an
+   environment has few, extra units join the chases). Groups rotated / translated by >= 30 % of maps
+   move along their main axis within their learned range (rotation capped at 90°): slow 16-beat drifts
+   in quiet sections, downbeat swings fanned out with energy in louder ones, bar pumps for rails; over a
+   build-up they fold together (fan closed, rails pulled in) while the chases speed up and the ambient
+   strobes to white, and on the drop everything flashes white and bursts open. With two or more rotating
+   groups the most used one traces the melody (onset brightness within the song's 10th-90th percentile -> tilt). Special events 40-43 fire on
+   drops with their most common value. Standard/One Saber difficulties of group environments drop the
+   classic events (those types mean other things there); 90/360 keep them for GlassDesert. Rotation /
+   translation boxes hold the previous value at the box beat and ease in-out to the target, so a move
+   starts on its beat. `"Auto"` (default) picks by `SongShape.Character` (drive from the share of loud
+   grid beats with a kick, darkness from mean onset brightness 0.8 -> 0.64, intensity from BPM, loud
+   share and drum rate) against each environment's character, tempo compared up to doubling, +0.25 for
+   group environments and a small seed jitter so other seeds can land on another fitting one. Not
+   verified in game.
 8. **Modes** (`GeneratorSettings.Modes`, written next to Standard for the same difficulties):
    `OneSaber` is planned anew with one (right) saber covering the whole grid (no doubles, rhythm gap =
    same-hand gap, 80 % density, no crossover/hand-role costs, cell prior = mean of both hands, phrase

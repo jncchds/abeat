@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import type { DifficultyProfile, GeneratorSettings, ProfileOverride } from '../api'
+import type { DifficultyProfile, EnvironmentEntry, EnvironmentSuggestions, GeneratorSettings, ProfileOverride } from '../api'
 import { DIFFICULTIES, diffLabel, fmtNum } from '../utils/format'
 import ToggleField from './ToggleField'
 
@@ -8,6 +8,9 @@ interface Props {
   defaults?: GeneratorSettings
   /** Built-in limits per difficulty, shown where the song doesn't override them. */
   profiles?: Record<string, DifficultyProfile>
+  environments?: EnvironmentEntry[]
+  /** What "Auto" picks for this song and the best-suited environments. */
+  envSuggestions?: EnvironmentSuggestions
   layers: string[]
   layerSource: string
   onChange: (s: GeneratorSettings) => void
@@ -26,7 +29,7 @@ const LIMITS: [keyof DifficultyProfile, string, string, number, number, number][
 const WEIGHT_MAX: Record<string, number> = { reset: 100, slowReset: 10, tooFast: 60, crossover: 10, visionBlock: 8 }
 
 /** Generator settings; every committed change produces a new settings object for the parent. */
-export default function SettingsPanel({ settings: s, defaults, profiles, layers, layerSource, onChange }: Props) {
+export default function SettingsPanel({ settings: s, defaults, profiles, environments = [], envSuggestions, layers, layerSource, onChange }: Props) {
   const set = (patch: Partial<GeneratorSettings>) => onChange({ ...s, ...patch })
   const setLimits = (d: string, o: ProfileOverride | undefined) => {
     const next = { ...(s.profileOverrides ?? {}) }
@@ -67,13 +70,7 @@ export default function SettingsPanel({ settings: s, defaults, profiles, layers,
             </label>
           ))}
         </div>
-        <label className="inline-check" title="Pyro: PyroEnvironment with a v3 group lightshow (kicks, snares, hats, melody and notes each light their own group pair)">
-          Environment
-          <select value={s.environment ?? 'Default'} onChange={e => set({ environment: e.target.value })}>
-            <option value="Default">Default (classic lights)</option>
-            <option value="Pyro">Pyro (v3 group lights)</option>
-          </select>
-        </label>
+        <EnvironmentPicker value={s.environment} environments={environments} suggestions={envSuggestions} onChange={v => set({ environment: v })} />
       </fieldset>
 
       <fieldset>
@@ -155,5 +152,42 @@ function Slider({ name, value, min, max, step, onCommit }: SliderProps) {
         onChange={e => setDraft(+e.target.value)} onPointerUp={commit} onKeyUp={commit} onBlur={commit} />
       <output>{fmtNum(shown)}</output>
     </div>
+  )
+}
+
+/** Environment select: Auto (naming what it picks for this song), the song's best matches, then every
+ * environment by lighting system. Older settings saved short names ("Default", "Pyro"). */
+function EnvironmentPicker({ value, environments, suggestions, onChange }: {
+  value?: string
+  environments: EnvironmentEntry[]
+  suggestions?: EnvironmentSuggestions
+  onChange: (v: string) => void
+}) {
+  const byId = new Map(environments.map(e => [e.id.toLowerCase(), e]))
+  const raw = value ?? 'Auto'
+  const current = raw.toLowerCase() === 'auto' ? 'Auto'
+    : (byId.get(raw.toLowerCase()) ?? byId.get(`${raw.toLowerCase()}environment`) ?? environments.find(e => e.name === raw))?.id ?? raw
+  const autoName = suggestions ? byId.get(suggestions.auto.toLowerCase())?.name ?? suggestions.auto : null
+  const c = suggestions?.character
+  const title = 'Beat Saber environment the lights are made for. Group environments (Weave and later) get a v3 lightshow on their own light groups, '
+    + 'with turning and moving lights; classic ones get classic events.'
+    + (c ? `\nThis song: drive ${c.drive.toFixed(2)} (four-on-the-floor), intensity ${c.intensity.toFixed(2)}, darkness ${c.darkness.toFixed(2)}, ${Math.round(c.bpm)} BPM` : '')
+  const option = (e: EnvironmentEntry) => <option key={e.id} value={e.id}>{e.name}</option>
+  return (
+    <label className="inline-check" title={title}>
+      Environment
+      <select value={current} onChange={e => onChange(e.target.value)}>
+        <option value="Auto">{autoName ? `Auto (${autoName})` : 'Auto (suits the song)'}</option>
+        {suggestions && (
+          <optgroup label="Suits this song">
+            {suggestions.ranked.slice(0, 5).map(r => byId.get(r.id.toLowerCase())).filter((e): e is EnvironmentEntry => !!e)
+              .map(e => <option key={`s-${e.id}`} value={e.id}>{e.name}</option>)}
+          </optgroup>
+        )}
+        <optgroup label="Group lights">{environments.filter(e => e.system === 'Groups').map(option)}</optgroup>
+        <optgroup label="Classic lights">{environments.filter(e => e.system === 'Classic').map(option)}</optgroup>
+        {current !== 'Auto' && !byId.has(current.toLowerCase()) && <option value={current}>{current}</option>}
+      </select>
+    </label>
   )
 }

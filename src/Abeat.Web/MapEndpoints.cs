@@ -19,6 +19,7 @@ public static class MapEndpoints
         {
             settings = new GeneratorSettings(),
             profiles = Enum.GetValues<DifficultyName>().ToDictionary(d => d.ToString(), DifficultyProfile.Default),
+            environments = EnvironmentCatalog.All.Select(e => new { e.Id, e.Name, system = e.System.ToString() }),
         });
 
         api.MapGet("/songs", (SongStore store) => store.All.Select(m => m with { LastGeneratedUtc = Generations.Latest(store, m.Id)?.CreatedUtc }));
@@ -183,6 +184,21 @@ public static class MapEndpoints
             return File.Exists(path) ? Results.File(path, "application/json", $"{id}-analysis.json") : Results.NotFound();
         });
 
+        // How well each environment suits the song (best first) and what "Auto" picks with this seed.
+        api.MapGet("/songs/{id}/environments", (string id, int? seed, SongStore store) =>
+        {
+            var a = store.Analysis(id);
+            if (a == null) return Results.NotFound();
+            var c = SongShape.Character(a);
+            var ranked = SongShape.RankEnvironments(c, seed ?? 1).Take(8).Select(x => new { x.Env.Id, x.Env.Name, score = Math.Round(x.Score, 3) }).ToList();
+            return Results.Ok(new
+            {
+                character = new { drive = Math.Round(c.Drive, 2), intensity = Math.Round(c.Intensity, 2), darkness = Math.Round(c.Darkness, 2), bpm = Math.Round(c.Bpm, 1) },
+                auto = ranked[0].Id,
+                ranked,
+            });
+        });
+
         api.MapGet("/songs/{id}/settings", (string id, SongStore store) =>
             store.Get(id) is null ? Results.NotFound() : Results.Ok(store.Settings(id)));
 
@@ -340,7 +356,8 @@ public static class MapEndpoints
                 if (human.FirstOrDefault(h => h.Difficulty == d.Difficulty) is { } h)
                     vsHuman[d.Difficulty.ToString()] = Math.Round(MapComparer.Compare(h, a.TempoMap, d, a.TempoMap, 0).F1, 3);
         }
-        return new { g.Id, kind = "abeat", g.CreatedUtc, g.Draft, g.AppVersion, g.Difficulties, vsHuman };
+        return new { g.Id, kind = "abeat", g.CreatedUtc, g.Draft, g.AppVersion, g.Difficulties, vsHuman,
+            environment = g.Environment is { } e ? EnvironmentCatalog.Find(e)?.Name ?? e : null };
     }
 
     static object ComparisonDto(Comparison c) => new

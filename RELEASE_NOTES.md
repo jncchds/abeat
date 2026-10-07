@@ -1,5 +1,12 @@
 # Release notes
 
+## v0.2.12 — 2026-10-07
+
+- **Every environment**: the Environment picker lists all 46 environments of moddable Beat Saber (classic and group lights), and **Auto** (the new default) picks one that suits the song: how often a kick lands on the beat (dance floor vs. band), how dark it sounds, its intensity and tempo; the picker shows what Auto chose and the best matches for the song, and each version is labelled with its environment.
+- The layouts come from a survey of 14 well-rated maps per environment (`scripts/environment_prior.py`): which light groups mappers light, turn and move, on which axes and how far, and which special events they use.
+- Group environments (Weave to The Prodigy) get a lightshow on their own light groups, and the lights move with the song: slow drifts in quiet parts, swings on the bars in loud ones, a fold-together over each build-up that bursts open in white on the drop, and one group tilting with the melody. Special set-piece events go off on drops.
+- Classic environments: build-ups spin the rings faster and faster with rising laser speeds, drops flash white with a ring zoom and boost colours; extra lasers (Gaga, Billie, Skrillex, Interscope) play hats and melody, and set pieces (Gaga's towers, Interscope's cars) rise for loud parts and drops.
+
 ## v0.2.11 — 2026-10-07
 
 - Song page: the re-analysis options moved into a **Re-analyze…** panel with plain labels and hints; every row of the **Versions** list ends in **Zip** and **ArcViewer** (after settings and delete, so they line up), also the human map, which now downloads with its own cover and the original audio.
