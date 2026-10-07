@@ -1,6 +1,6 @@
 # Release notes
 
-## v0.2.8 — 2026-10-06
+## v0.2.8 — 2026-10-07
 
 - Add an existing map as a song: drop a Beat Saver map zip on **Add a song**, or paste a BeatSaver link, `!bsr` request or map key into the link box. The map's audio is analysed like an upload and the map is kept as the **Human** version, so generations show their timing F1 against it and it can be compared lane by lane.
 - Hands split like your tap runs: one hand leads the drops and the other the rest of the song, so the hands swap places where the song changes character, and the other hand takes the bar downbeats. The same hand can now play several notes in a row (no more push towards strict alternation; hand-role weight 0.8 -> 1.5). Against your Bangaranga and Everlasting taps, the generated notes are on the same hand as your taps 53-77 % of the time instead of 40-59 %. Songs that already have saved settings keep their hand-role weight until you change it or press **Defaults**.
@@ -9,6 +9,7 @@
 - Note heights follow human maps, not the song: notes no longer move up and down with the pitch or loudness of the sound. Each difficulty only uses the note figures (hand, position and cut direction) and double shapes that curated mappers commonly use at that level, learned from the curators' playlist "Curators' Favorites of 2025" plus map 37114. Easier levels keep notes lower: about 18 % of notes on the top row on Easy, 24 % on Hard, 26-30 % on Expert+.
 - Faster defaults from the curated playlist: more notes per second from Normal up (Normal 2.1 -> 2.4, Hard 2.7 -> 3.1, Expert 3.3 -> 3.7, Expert+ 4.2 -> 4.5) and shorter minimum gaps (Easy 0.45 -> 0.35 s, Normal 0.3 -> 0.2, Hard 0.22 -> 0.15, Expert 0.16 -> 0.12, Expert+ 0.12 -> 0.1; same hand: Normal 0.36 -> 0.3, Hard 0.3 -> 0.24, Expert 0.2 -> 0.18, Expert+ 0.15 -> 0.13). Speed limits you set yourself on a song stay as they are.
 - Quiet passages keep a pulse: where the song has too few clear sounds for the difficulty's note rate (pads, breakdowns), the gaps are filled on the beats and off-beat eighths, like tapping along does. On Everlasting this catches 57-67 % of the tap-along notes in its quiet sections instead of 29-43 %.
+- A newly analysed song shows its page again: the player, timeline and **Generate new version** were hidden until the song had a version, and with auto generation off it never got one.
 - **Songs** page with a button at the top of the sidebar: all songs, newest generated version first, with a filter. The sidebar shows the 10 most recently generated songs and links to the rest.
 - A dropped map zip named like a BeatSaver download (`1a2b3 (Song - Mapper).zip` or `1a2b3.zip`) links its Human version to that BeatSaver page.
 - `abeat fetch-maps --playlist <id|link>` and `--map <key|link>` download a BeatSaver playlist or a single map for the style prior.

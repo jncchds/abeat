@@ -388,7 +388,7 @@ export default function SongPage() {
         </div>
       )}
 
-      {ready && analysis && settings && sideA && (
+      {ready && analysis && settings && (
         <>
           <audio ref={setAudio} src={stemSrc?.id === id ? stemSrc.url : audioUrl(id)} preload="auto" />
           {debug && <DebugPanel id={id} onPreview={url => setStemSrc(url ? { id, url } : null)} />}
@@ -410,7 +410,7 @@ export default function SongPage() {
 
           {tapOpen && <TapPanel audio={audio} runs={tapRuns} refs={tapRefs} onChange={onTaps} onClose={() => setTapOpen(false)} />}
 
-          <div className="compare-bar">
+          {sideA ? <div className="compare-bar">
             <SidePicker name="A" color={SIDE_A} side={sideA} versions={list} labels={labels} onChange={n => setSide('a', n)} songId={id} />
             {sideB
               ? <SidePicker name="B" color={SIDE_B} side={sideB} versions={list} labels={labels} onChange={n => setSide('b', n)} songId={id}
@@ -428,7 +428,7 @@ export default function SongPage() {
                 <span>posΔ {cmp.positionDistance.toFixed(2)}</span>
               </div>
             )}
-          </div>
+          </div> : <p className="hint no-versions">No versions yet: press <b>Generate new version</b> under Generator settings to make the first map.</p>}
 
           <div className="views">
             <Timeline analysis={analysis} tracks={tracks} labels={trackLabels} audio={audio} follow={follow} taps={tapTimeline} />
@@ -443,9 +443,9 @@ export default function SongPage() {
 
           <div className="bottom-grid">
             <div>
-              <VersionsPanel versions={list} labels={labels} a={sideA} b={sideB} onPick={onPick}
-                onDelete={onDeleteVersion} onPrune={onPrune} onLoadSettings={onLoadSettings} />
-              {byVersion[sideA.v] && (
+              {sideA && <VersionsPanel versions={list} labels={labels} a={sideA} b={sideB} onPick={onPick}
+                onDelete={onDeleteVersion} onPrune={onPrune} onLoadSettings={onLoadSettings} />}
+              {sideA && byVersion[sideA.v] && (
                 <ReportCards difficulties={byVersion[sideA.v]} selected={sideA.d} onSelect={d => setSide('a', { d })}
                   vsHuman={versionA?.kind === 'abeat' ? versionA.vsHuman : null} title={`A · ${labels[sideA.v] ?? ''}`} color={SIDE_A} />
               )}
