@@ -1,5 +1,15 @@
 # Release notes
 
+## v0.2.9 — 2026-10-07
+
+- Note speed and jump distance match curated maps: NJS 12 / 13 / 14 / 16 / 17.5 and jump distance 23 / 21 / 20 / 19.5 / 18 m from Easy to Expert+ (the medians of the ~100 curated maps in the app). Notes used to appear farther away the harder the level (18 -> 26 m), while mappers bring them closer so fast streams don't fill the screen; Easy to Hard were also 1-2 NJS slower.
+- More arcs, like curated maps: the melody notes held longest over the gap to the same hand's next note (1-4 beats later) get an arc to it, on 5-13 % of those gaps depending on difficulty. Maps went from almost no arcs to 4-13 a minute (curated median 1-11).
+- Fewer chains: at most one every 120 / 50 / 30 s on Hard / Expert / Expert+ (was every 8-16 beats, ~3.4 a minute; curated maps average 0.5-1.6 and most use none).
+- Fewer dot notes on Easy and Normal: 3-5 % instead of 8-9 % (curated 2-3 %).
+- **Rhythm walls**: short walls in the upper half of the outer lanes on the strongest kicks and snares of the louder sections (at most one every 1.2 s), as 80-93 % of curated maps draw the beat along the edges. They never share a cell with a note or bomb. Toggle in the generator settings.
+- Crouch walls are off by default (only 2-10 % of curated maps use full-width overhead walls). Songs that had saved the old default were switched off when their v0.2.9 version was generated; turn **Crouch walls** back on in a song's settings to keep them.
+- `abeat bench data/songs` benchmarks against every song in the web app's store that has a human map (`--limit`, `--csv`).
+
 ## v0.2.8 — 2026-10-07
 
 - Add an existing map as a song: drop a Beat Saver map zip on **Add a song**, or paste a BeatSaver link, `!bsr` request or map key into the link box. The map's audio is analysed like an upload and the map is kept as the **Human** version, so generations show their timing F1 against it and it can be compared lane by lane.

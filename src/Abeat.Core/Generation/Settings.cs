@@ -31,12 +31,13 @@ public sealed record DifficultyProfile
     public static DifficultyProfile Default(DifficultyName d) => d switch
     {
         // densities, gaps and double rates follow curated human maps (playlist 1116456, see style-prior.json): base
-        // density ~curated median moments/s (doubles count as one event), gaps ~5th percentile of the curated gaps
-        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 10, JumpDistance = 18, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.35, MinSameHandGapSec = 0.45, Subdivision = 1, DoubleRate = 0.15, DotCost = 0.5 },
-        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 11, JumpDistance = 20, BaseNps = 2.4, MaxNps = 3.3, MinGapSec = 0.2, MinSameHandGapSec = 0.3, Subdivision = 2, DoubleRate = 0.17, DotCost = 0.8 },
-        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 22, BaseNps = 3.1, MaxNps = 4.2, MinGapSec = 0.15, MinSameHandGapSec = 0.24, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
-        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 24, BaseNps = 3.7, MaxNps = 5.4, MinGapSec = 0.12, MinSameHandGapSec = 0.18, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
-        _ => new() { Name = d, NoteJumpSpeed = 18, JumpDistance = 26, BaseNps = 4.5, MaxNps = 7.5, MinGapSec = 0.1, MinSameHandGapSec = 0.13, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
+        // density ~curated median moments/s (doubles count as one event), gaps ~5th percentile of the curated gaps;
+        // note jump speed and jump distance are the curated medians (humans shorten the jump as levels get faster)
+        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 12, JumpDistance = 23, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.35, MinSameHandGapSec = 0.45, Subdivision = 1, DoubleRate = 0.15, DotCost = 1.6 },
+        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 21, BaseNps = 2.4, MaxNps = 3.3, MinGapSec = 0.2, MinSameHandGapSec = 0.3, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6 },
+        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 14, JumpDistance = 20, BaseNps = 3.1, MaxNps = 4.2, MinGapSec = 0.15, MinSameHandGapSec = 0.24, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
+        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 19.5, BaseNps = 3.7, MaxNps = 5.4, MinGapSec = 0.12, MinSameHandGapSec = 0.18, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
+        _ => new() { Name = d, NoteJumpSpeed = 17.5, JumpDistance = 18, BaseNps = 4.5, MaxNps = 7.5, MinGapSec = 0.1, MinSameHandGapSec = 0.13, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
     };
 }
 
@@ -149,8 +150,11 @@ public sealed record GeneratorSettings
     public bool Walls { get; init; } = true;
     /// <summary>Single-lane centre walls in note-free gaps (Normal and up).</summary>
     public bool DodgeWalls { get; init; } = true;
-    /// <summary>Full-width overhead walls right before drops (Hard and up).</summary>
-    public bool CrouchWalls { get; init; } = true;
+    /// <summary>Full-width overhead walls right before drops (Hard and up). Off by default: only 2-10 % of
+    /// curated maps use any.</summary>
+    public bool CrouchWalls { get; init; } = false;
+    /// <summary>Short walls in the upper half of the outer lanes on the strongest kicks and snares of louder sections.</summary>
+    public bool RhythmWalls { get; init; } = true;
     /// <summary>Reset-signalling bombs (Normal and up) and accent bombs (Hard and up).</summary>
     public bool Bombs { get; init; } = true;
     /// <summary>Arcs from held melody notes to the same hand's next note.</summary>

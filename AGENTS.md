@@ -151,6 +151,10 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      notes that kept their role. Tuned against tap-along runs (Bangaranga, Everlasting): per-note hand
      agreement with the taps 40-59 % -> 53-77 %, lead-hand share per section 52-63 % -> 61-79 % (taps 65-80 %).
      Stem-based roles (melody vs rhythm hand) did not match: taps don't split by stem
+   - note jump speed and jump distance (`DifficultyProfile`) are the curated medians, Easy..Expert+:
+     NJS 12 / 13 / 14 / 16 / 17.5, jump distance 23 / 21 / 20 / 19.5 / 18 m. Humans shorten the jump
+     as levels get faster (less on screen in dense streams); the old defaults grew it 18 -> 26 m and were
+     1-2 NJS slower below Expert. Dots cost 1.6 on Easy/Normal too (were 0.5/0.8: 8-9 % dots vs curated 2-3 %)
    - speed defaults follow the curated playlist (median moments/s per map, 5th percentile of gaps;
      Easy/Normal/Hard/Expert/Expert+): base density 1.5/2.4/3.1/3.7/4.5 notes/s, any-hand gap
      0.35/0.2/0.15/0.12/0.1 s, same-hand gap 0.45/0.3/0.24/0.18/0.13 s (curated same-hand p5
@@ -175,15 +179,28 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - expression (`Expression`, after planning, never changes hands/cells/directions): single
      melody notes that continue a pitch line (two steps the same way, >= 0.06) get a 15° angle offset
      (30° for leaps on Expert+): rising leans vertical cuts "/" and lifts horizontal cut ends
-     (`AngleOffsets`, Normal+); arcs (v3 sliders) from a single melody note held >= 1 beat and
-     >= 45 % of the way to the same hand's next note 1-4 beats later, unless that swing is a reset or
-     a gameplay wall passes in between (`Arcs`, added after walls and bombs); chains (v3 burst sliders,
+     (`AngleOffsets`, Normal+); arcs (v3 sliders, `Arcs`, added after walls and bombs): of all same-hand
+     gaps of 1-4 beats (>= 0.35 s), single melody notes whose sustain covers >= 30 % of the gap are
+     ranked by that cover and the best `ArcShare` of the gaps (Easy 5 %, Normal/Hard 9 %, Expert 12 %,
+     Expert+ 13 %: medians of curated maps that use arcs; 93 % of curated arcs join a note to the same
+     hand's next one, median 1 beat) get an arc to the next note, unless that swing is a reset or a
+     gameplay wall passes in between. Generated maps went from ~0 to 4-13 arcs/min (curated median
+     1 / 6 / 8 / 10 / 11 per minute Easy..Expert+); chains (v3 burst sliders,
      `Chains`, Hard+) on notes followed by a fast run in their layer or the drums (`RhythmEvent.BurstCount`:
      onsets each < min(100 ms, 0.85 sixteenth) apart, so steady sixteenth hats never count): links continue
      the head's cut for 2 cells (1 if only that fits), last 1/16-1/4 beat, need a same-hand gap >= 1 beat
-     and free cells; at most one per 8 beats (16 on Hard), doubles get two chains or none
-5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+), dodge walls in note-free
-   gaps (Normal+), side walls in calm sections; all rejected if any note is inside them.
+     and free cells; at most one per 120 / 50 / 30 s on Hard / Expert / Expert+ (curated maps average 0.5 /
+     1.0 / 1.6 a minute, four in five none; one per 8-16 beats had made ~3.4/min), doubles get two chains or none
+5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+, `CrouchWalls`, off by default:
+   2-10 % of curated maps have any full-width overhead wall), dodge walls in note-free gaps (Normal+),
+   side walls in calm sections, and rhythm walls (`RhythmWalls`): 1/8-beat walls at lane 0/3, y 2,
+   height 3 (top row and above, clear of the other rows' notes), alternating sides, on the strongest
+   kick/snare hits (drum strength above the song's median; `low` band onsets without stems), strongest
+   first, >= 1.2 s apart in sections >= 80 % of the loudest section's energy and 2.4 s from 55 % (Easy
+   twice that): ~30-40 a minute in loud songs.
+   Curated maps: side-lane walls in 80-93 % of maps, median 22-51 a minute, mostly 1/8 beat at y 2 /
+   height 3, half on a note moment and half between. All walls are rejected if a note is inside them
+   (±0.25 beat), and bombs are never placed inside a wall.
 6. **Bombs** (`BombGenerator`): reset bombs where the natural reversal would cut, accent bombs on
    strong single-hand hits (Hard+); checked against `SaberPath` so no bomb is in a swing path.
 7. **Lights** (`LightingGenerator`): section palettes (repeated labels share colours), downbeat

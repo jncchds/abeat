@@ -155,6 +155,7 @@ export interface GeneratorSettings {
   walls: boolean
   dodgeWalls: boolean
   crouchWalls: boolean
+  rhythmWalls?: boolean
   bombs: boolean
   arcs: boolean
   chains: boolean

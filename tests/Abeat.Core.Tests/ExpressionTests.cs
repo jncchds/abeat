@@ -22,6 +22,10 @@ public class ExpressionTests
             Assert.DoesNotContain(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat > arc.Beat && n.Beat < arc.TailBeat);
         }
         Assert.Equal(0, r.Report.Resets);
+        // as sparing as curated maps: about 9 % of the Hard same-hand gaps of 1-4 beats
+        int gaps = r.Map.Notes.GroupBy(n => n.Hand).Sum(g => g.OrderBy(n => n.Beat).Zip(g.OrderBy(n => n.Beat).Skip(1))
+            .Count(p => p.Second.Beat - p.First.Beat is >= 1 and <= 4));
+        Assert.InRange(r.Map.Arcs.Count, 1, Math.Round(0.09 * gaps));
         Assert.Empty(MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Arcs = false }, DifficultyName.Hard).Map.Arcs);
         // percussive layers never hold
         Assert.Empty(MapGenerator.GenerateDifficulty(TestSongs.Fake(), new GeneratorSettings(), DifficultyName.Hard).Map.Arcs);

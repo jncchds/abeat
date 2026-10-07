@@ -121,7 +121,8 @@ public static class BombGenerator
         }
 
         foreach (var b in bombs.DistinctBy(b => (Math.Round(b.Beat, 3), b.X, b.Y)))
-            if (!map.Notes.Any(n => n.X == b.X && n.Y == b.Y && Math.Abs(n.Beat - b.Beat) < 0.5))
+            if (!map.Notes.Any(n => n.X == b.X && n.Y == b.Y && Math.Abs(n.Beat - b.Beat) < 0.5)
+                && !map.Obstacles.Any(o => WallGenerator.Inside(o, b.Beat, b.X, b.Y, 0.25)))
                 map.Bombs.Add(b);
         map.Bombs.Sort((a, b) => a.Beat.CompareTo(b.Beat));
     }

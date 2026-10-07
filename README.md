@@ -106,11 +106,18 @@ last swing direction, parity). Each candidate cut is scored for:
 - *variety*: stagnation penalty and per-phrase target cells keyed by section label, so repeated
   choruses get recognisably similar patterns
 
-**Expression** (`Expression`): melody notes held for a beat or more get an arc to the same hand's
-next note; notes in a rising or falling melody line get a small cut-angle offset that leans with it;
-notes followed by a roll, flam or stutter too fast for single notes become chains (Hard and up).
+**Expression** (`Expression`): the melody notes held longest over the gap to the same hand's next
+note (1-4 beats later) get an arc to it, on about as many gaps as curated mappers use (5-13 % by
+difficulty); notes in a rising or falling melody line get a small cut-angle offset that leans with it;
+notes followed by a roll, flam or stutter too fast for single notes become chains (Hard and up, at
+most one per 30-120 s, as rare as in curated maps).
 All of them leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the
 settings.
+
+**Walls** (`WallGenerator`): dodge walls in note-free gaps, side walls in calm sections and short
+rhythm walls along the top of the outer lanes on the strongest kicks and snares of loud sections, as
+most curated maps have; full-width crouch walls before drops are optional (off by default). No wall
+ever holds a note or bomb.
 
 **Pattern memory**: when a part of the song comes back, the map is planned a second time with a bonus
 for playing it the way its first occurrence was played, so a returning chorus brings its patterns back

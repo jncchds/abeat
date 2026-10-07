@@ -44,7 +44,8 @@ usage:
   abeat fetch-maps --playlist <id|url> [-o dir]                         the (mod-free) maps of a BeatSaver playlist
   abeat fetch-maps --map <key|url> [-o dir]                             one BeatSaver map
   abeat compare <map.zip|folder> [--settings f]  re-map the map's own song and compare with the human map
-  abeat bench [dir] [--settings f]             compare every map zip in dir (default work/beatsaver), write bench.csv
+  abeat bench [dir] [--settings f] [--limit n] [--csv f]compare every map zip in dir (default work/beatsaver) or every song with
+                                               a human map in a web song store (data/songs), write bench.csv
   abeat movement [map | dir] [--csv f] [--write-prior f]   hand movement per difficulty: swing angle changes, saber-tip
                                                travel and strain between consecutive swings; a dir of maps
                                                (default work/beatsaver) also prints per-difficulty tables;
@@ -274,6 +275,8 @@ static async Task<(MapSet human, List<Comparison> results)?> Compare(string inpu
 
     string song = Path.Combine(dir, human.SongFile);
     string work = Path.Combine(dir, "abeat-work");
+    if (!File.Exists(Path.Combine(work, "analysis.json")) && File.Exists(Path.Combine(dir, "..", "work", "analysis.json")))
+        work = Path.Combine(dir, "..", "work"); // app song store: songs/{id}/reference + songs/{id}/work
     SongAnalysis a;
     if (File.Exists(Path.Combine(work, "analysis.json"))) a = SongAnalysis.Load(work);
     else
@@ -305,14 +308,22 @@ static async Task<int> Bench(Options o)
     string dir = o.Positional.FirstOrDefault() ?? Path.Combine("work", "beatsaver");
     var s = LoadSettings(o);
     var rows = new List<(string map, double humanBpm, Comparison c)>();
-    foreach (var zip in Directory.EnumerateFiles(dir, "*.zip").Order())
+    // a folder of map zips, or the web app's song store (songs/{id}/reference with its analysis in work/)
+    var inputs = Directory.EnumerateFiles(dir, "*.zip")
+        .Concat(Directory.EnumerateDirectories(dir).Select(d => Path.Combine(d, "reference"))
+            .Where(r => File.Exists(Path.Combine(r, "Info.dat")) && File.Exists(Path.Combine(r, "..", "work", "analysis.json"))
+                && !File.ReadAllText(Path.Combine(r, "Info.dat")).Contains("ABeat by CHDS")))
+        .Order().ToList();
+    if (o.Get("limit") is { } limit) inputs = inputs.Take(int.Parse(limit)).ToList();
+    foreach (var input in inputs)
     {
+        string name = Path.GetFileName(input) == "reference" ? Path.GetFileName(Path.GetDirectoryName(input))! : Path.GetFileNameWithoutExtension(input);
         try
         {
-            if (await Compare(zip, s, quiet: true) is { } r)
-                rows.AddRange(r.results.Select(c => (Path.GetFileNameWithoutExtension(zip), r.human.Bpm, c)));
+            if (await Compare(input, s, quiet: true) is { } r)
+                rows.AddRange(r.results.Select(c => (name, r.human.Bpm, c)));
         }
-        catch (Exception e) { Console.Error.WriteLine($"{zip}: {e.Message}"); }
+        catch (Exception e) { Console.Error.WriteLine($"{input}: {e.Message}"); }
     }
     if (rows.Count == 0) return 1;
 
@@ -333,7 +344,7 @@ static async Task<int> Bench(Options o)
             $"{c.Average(x => x.GeneratedMovement.AboveLevel),4:P0}/{c.Average(x => x.HumanMovement.AboveLevel),-5:P0} " +
             $"{c.Average(x => x.GeneratedRepetition?.Same ?? 0),4:P0}/{c.Average(x => x.HumanRepetition?.Same ?? 0),-5:P0}");
     }
-    var csv = Path.Combine(dir, "bench.csv");
+    var csv = o.Get("csv") ?? Path.Combine(dir, "bench.csv");
     File.WriteAllLines(csv, rows.Select(r => string.Join(',', r.map, r.c.Difficulty, r.humanBpm, r.c.F1.ToString("0.000"), r.c.Precision.ToString("0.000"),
         r.c.Recall.ToString("0.000"), r.c.OffsetMs.ToString("0.0"), r.c.GeneratedNps.ToString("0.00"), r.c.HumanNps.ToString("0.00"),
         r.c.GeneratedFlow.ToString("0.0"), r.c.HumanFlow.ToString("0.0"), r.c.GeneratedResets, r.c.HumanResets,
