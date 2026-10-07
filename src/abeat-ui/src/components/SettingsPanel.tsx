@@ -20,6 +20,7 @@ const LIMITS: [keyof DifficultyProfile, string, string, number, number, number][
   ['maxNps', 'max notes/s', 'Cap on notes per second in the loudest parts', 1, 16, 0.1],
   ['minGapSec', 'min gap s', 'Shortest time between two notes of any hand', 0.05, 0.6, 0.01],
   ['minSameHandGapSec', 'hand gap s', 'Shortest time between two notes of the same hand', 0.08, 0.6, 0.01],
+  ['burstGapSec', 'burst gap s', 'Quick back-and-forth flicks of one hand (up to 4 notes, 6 on Expert+) may be this close; set it to the hand gap for no bursts', 0.05, 0.6, 0.01],
 ]
 
 const WEIGHT_MAX: Record<string, number> = { reset: 100, slowReset: 10, tooFast: 60, crossover: 10, visionBlock: 8 }

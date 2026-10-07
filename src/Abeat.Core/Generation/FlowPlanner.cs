@@ -96,7 +96,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                 if (!oneSaber && (hand == Hand.Right ? x == 0 : x == 3)) continue; // far-side crossovers are never worth it
                 for (int y = 0; y < 3; y++)
                 {
-                    var phys = model.Physical(hand, s, other, e.Time, x, y, d, profile.MinSameHandGapSec);
+                    var phys = model.Physical(hand, s, other, e.Time, x, y, d, profile.MinSameHandGapSec, profile.BurstGapSec, profile.BurstNotes);
                     double c = phys.Total + model.Musical(e.Strength, d);
                     if (d == CutDirection.Any) c += profile.DotCost;
                     if (s.Active && s.X == x && s.Y == y && d == lastDir) c += model.Weights.Repeat;
@@ -255,7 +255,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         if (!next.TryGetValue(key, out var existing) || existing.Cost > cost) next[key] = n;
     }
 
-    static void Apply(Node n, Cut c, double t, Vec2 swing)
+    void Apply(Node n, Cut c, double t, Vec2 swing)
     {
         if (Move(n.State(c.Hand), t, c.X, c.Y, swing) is var (bucket, strain))
         {
@@ -266,7 +266,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         n.Counts[(int)c.Dir]++;
         n.Counts[(c.Hand == Hand.Left ? 9 : 21) + c.Y * 4 + c.X]++;
         if (c.Hand == Hand.Left) n.NotesL++; else n.NotesR++;
-        var s = n.State(c.Hand).After(t, c.X, c.Y, c.Dir, swing, c.Hand);
+        var s = n.State(c.Hand).After(t, c.X, c.Y, c.Dir, swing, c.Hand, profile.MinSameHandGapSec);
         if (c.Hand == Hand.Left) { n.Left = s; n.LastDirL = c.Dir; }
         else { n.Right = s; n.LastDirR = c.Dir; }
     }
@@ -274,8 +274,8 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     /// <summary>States that will behave identically from here on are merged (keep the cheaper one).</summary>
     static long Key(Node n)
     {
-        static long H(HandState s) => s.Active ? 1 + s.X + 4 * (s.Y + 3 * ((int)SwingDir(s) + 9 * (int)(s.Parity ?? (Parity)2))) : 0;
-        return H(n.Left) * 1000 + H(n.Right) * 2 + (int)n.LastHand;
+        static long H(HandState s) => s.Active ? (1 + s.X + 4 * (s.Y + 3 * ((int)SwingDir(s) + 9 * (int)(s.Parity ?? (Parity)2)))) * 8 + Math.Min(s.BurstRun, 7) : 0;
+        return H(n.Left) * 100_000 + H(n.Right) * 2 + (int)n.LastHand;
     }
 
     static CutDirection SwingDir(HandState s) => Swing.FromVector(s.Swing);

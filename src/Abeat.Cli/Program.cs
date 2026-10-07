@@ -216,7 +216,7 @@ static int WriteSettings(Options o)
         ProfileOverrides = Enum.GetValues<DifficultyName>().ToDictionary(d => d, d =>
         {
             var p = DifficultyProfile.Default(d);
-            return new ProfileOverride { BaseNps = p.BaseNps, MaxNps = p.MaxNps, MinGapSec = p.MinGapSec, MinSameHandGapSec = p.MinSameHandGapSec };
+            return new ProfileOverride { BaseNps = p.BaseNps, MaxNps = p.MaxNps, MinGapSec = p.MinGapSec, MinSameHandGapSec = p.MinSameHandGapSec, BurstGapSec = p.BurstGapSec };
         }),
     };
     s.Save(path);

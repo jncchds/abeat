@@ -87,7 +87,7 @@ public static class MapGenerator
         if (s.Chains) Expression.AddChains(dm, events, a.TempoMap, p);
         if (s.Lights) LightingGenerator.Generate(a, dm, events);
         if (s.Lights && s.Environment == "Pyro") GroupLightshow.Generate(a, dm, events);
-        var report = FlowAnalyzer.Analyze(dm, a.TempoMap, s.Weights, p.MinSameHandGapSec);
+        var report = FlowAnalyzer.Analyze(dm, a.TempoMap, s.Weights, p.MinSameHandGapSec, p.BurstGapSec, p.BurstNotes);
         return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, dropHand));
     }
 

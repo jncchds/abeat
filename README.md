@@ -103,6 +103,9 @@ last swing direction, parity). Each candidate cut is scored for:
 - *musical fit*: accents prefer big vertical swings; one saber follows the
   melody (vocals) and the other the rhythm (drums, bass), swapping at section changes
 - *dynamics*: loud moments pull to the outer columns and bigger moves, soft ones stay small and central
+- *bursts*: one hand may flick back and forth faster than its usual limit (down to the difficulty's burst
+  gap, up to 4 notes in a row, 6 on Expert+) when each flick is a clean reversal in place, as curated maps
+  do in drum fills; set the burst gap to the hand gap to turn them off
 - *variety*: stagnation penalty and per-phrase target cells keyed by section label, so repeated
   choruses get recognisably similar patterns
 

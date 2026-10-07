@@ -171,7 +171,7 @@ export interface GeneratorSettings {
 }
 
 /** Built-in per-difficulty limits (notes per second, minimum gaps in seconds). */
-export interface DifficultyProfile { baseNps: number; maxNps: number; minGapSec: number; minSameHandGapSec: number }
+export interface DifficultyProfile { baseNps: number; maxNps: number; minGapSec: number; minSameHandGapSec: number; burstGapSec: number }
 export type ProfileOverride = Partial<DifficultyProfile>
 
 export interface Defaults { settings: GeneratorSettings; profiles: Record<string, DifficultyProfile> }

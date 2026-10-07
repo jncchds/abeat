@@ -18,6 +18,10 @@ public sealed record DifficultyProfile
     public double MinGapSec { get; init; }
     /// <summary>Minimum time between two notes of the same hand.</summary>
     public double MinSameHandGapSec { get; init; }
+    /// <summary>Quick back-and-forth flicks of one hand (clean reversals, little travel, at most
+    /// <see cref="BurstNotes"/> in a row) may go down to this gap. Equal to <see cref="MinSameHandGapSec"/> = off.</summary>
+    public double BurstGapSec { get; init; }
+    public int BurstNotes => Name >= DifficultyName.ExpertPlus ? 6 : 4;
     /// <summary>Finest grid subdivision used: 1 = quarter notes (beats), 2 = eighths, 4 = sixteenths.</summary>
     public int Subdivision { get; init; }
     public bool AllowTriplets { get; init; }
@@ -32,12 +36,13 @@ public sealed record DifficultyProfile
     {
         // densities, gaps and double rates follow curated human maps (playlist 1116456, see style-prior.json): base
         // density ~curated median moments/s (doubles count as one event), gaps ~5th percentile of the curated gaps;
-        // note jump speed and jump distance are the curated medians (humans shorten the jump as levels get faster)
-        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 12, JumpDistance = 23, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.35, MinSameHandGapSec = 0.45, Subdivision = 1, DoubleRate = 0.15, DotCost = 1.6 },
-        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 21, BaseNps = 2.4, MaxNps = 3.3, MinGapSec = 0.2, MinSameHandGapSec = 0.3, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6 },
-        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 14, JumpDistance = 20, BaseNps = 3.1, MaxNps = 4.2, MinGapSec = 0.15, MinSameHandGapSec = 0.24, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
-        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 19.5, BaseNps = 3.7, MaxNps = 5.4, MinGapSec = 0.12, MinSameHandGapSec = 0.18, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
-        _ => new() { Name = d, NoteJumpSpeed = 17.5, JumpDistance = 18, BaseNps = 4.5, MaxNps = 7.5, MinGapSec = 0.1, MinSameHandGapSec = 0.13, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
+        // note jump speed and jump distance are the curated medians (humans shorten the jump as levels get faster);
+        // burst gaps ~10th percentile of curated same-hand gaps under the regular same-hand gap
+        DifficultyName.Easy => new() { Name = d, NoteJumpSpeed = 12, JumpDistance = 23, BaseNps = 1.5, MaxNps = 2.4, MinGapSec = 0.35, MinSameHandGapSec = 0.45, BurstGapSec = 0.3, Subdivision = 1, DoubleRate = 0.15, DotCost = 1.6 },
+        DifficultyName.Normal => new() { Name = d, NoteJumpSpeed = 13, JumpDistance = 21, BaseNps = 2.4, MaxNps = 3.3, MinGapSec = 0.2, MinSameHandGapSec = 0.3, BurstGapSec = 0.18, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6 },
+        DifficultyName.Hard => new() { Name = d, NoteJumpSpeed = 14, JumpDistance = 20, BaseNps = 3.1, MaxNps = 4.2, MinGapSec = 0.15, MinSameHandGapSec = 0.24, BurstGapSec = 0.14, Subdivision = 2, DoubleRate = 0.17, DotCost = 1.6, BombRate = 0.04 },
+        DifficultyName.Expert => new() { Name = d, NoteJumpSpeed = 16, JumpDistance = 19.5, BaseNps = 3.7, MaxNps = 5.4, MinGapSec = 0.12, MinSameHandGapSec = 0.18, BurstGapSec = 0.12, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.15, DotCost = 2.2, BombRate = 0.06 },
+        _ => new() { Name = d, NoteJumpSpeed = 17.5, JumpDistance = 18, BaseNps = 4.5, MaxNps = 7.5, MinGapSec = 0.1, MinSameHandGapSec = 0.13, BurstGapSec = 0.1, Subdivision = 4, AllowTriplets = true, DoubleRate = 0.22, DotCost = 2.2, BombRate = 0.08 },
     };
 }
 
@@ -49,6 +54,7 @@ public sealed record ProfileOverride
     public double? MaxNps { get; init; }
     public double? MinGapSec { get; init; }
     public double? MinSameHandGapSec { get; init; }
+    public double? BurstGapSec { get; init; }
 
     public DifficultyProfile ApplyTo(DifficultyProfile p) => p with
     {
@@ -56,6 +62,7 @@ public sealed record ProfileOverride
         MaxNps = MaxNps ?? p.MaxNps,
         MinGapSec = MinGapSec ?? p.MinGapSec,
         MinSameHandGapSec = MinSameHandGapSec ?? p.MinSameHandGapSec,
+        BurstGapSec = BurstGapSec ?? p.BurstGapSec,
     };
 }
 
@@ -78,6 +85,10 @@ public sealed record FlowWeights
     public double HandClash { get; init; } = 8;
     /// <summary>Same hand twice in a row faster than the profile allows.</summary>
     public double TooFast { get; init; } = 25;
+    /// <summary>A quick flick under the regular same-hand gap that qualifies as a burst
+    /// (<see cref="DifficultyProfile.BurstGapSec"/>). 0: the effort and strain priors alone decide how often
+    /// (5-8 % of same-hand gaps on 4 bench songs; curated maps 5-19 %), as a bonus they overshoot the strain ceiling.</summary>
+    public double Burst { get; init; } = 0;
     /// <summary>Horizontal cut (extra on top of the style prior).</summary>
     public double Horizontal { get; init; } = 0;
     /// <summary>-log likelihood of the grid cell under the human style prior.</summary>

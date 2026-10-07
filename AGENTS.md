@@ -151,6 +151,16 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      notes that kept their role. Tuned against tap-along runs (Bangaranga, Everlasting): per-note hand
      agreement with the taps 40-59 % -> 53-77 %, lead-hand share per section 52-63 % -> 61-79 % (taps 65-80 %).
      Stem-based roles (melody vs rhythm hand) did not match: taps don't split by stem
+   - bursts (`DifficultyProfile.BurstGapSec`, Easy..Expert+ 0.3 / 0.18 / 0.14 / 0.12 / 0.1 s): curated maps
+     put 5-19 % of a hand's gaps under our regular same-hand gap (in ~70 % of maps), ~70 % of them clean
+     back-and-forth flips, runs of 2 (p90 4-7), one grid step finer than the level's usual (eighths on
+     Hard/Expert, sixteenths on Expert+). A same-hand gap under `MinSameHandGapSec` skips the TooFast cost
+     when it is >= the burst gap, turns <= 45° from a clean reversal, travels within the free slack, isn't a
+     reset and keeps the run (`HandState.BurstRun`, part of the beam merge key) at <= `BurstNotes` (4, Expert+
+     6); it pays `FlowWeights.Burst` (0: the effort/strain priors, learned from curated maps with their bursts,
+     set the rate). 4 bench songs: 5-8 % of same-hand gaps on Easy/Normal/Hard/Expert+ (Expert 1.6 %: its
+     events rarely fall between 0.12 and 0.18 s), 90-100 % flips, flow unchanged, no resets; a -1 bonus gave
+     8-13 % with twice the strain spikes. Burst gap = same-hand gap turns bursts off (UI "burst gap")
    - note jump speed and jump distance (`DifficultyProfile`) are the curated medians, Easy..Expert+:
      NJS 12 / 13 / 14 / 16 / 17.5, jump distance 23 / 21 / 20 / 19.5 / 18 m. Humans shorten the jump
      as levels get faster (less on screen in dense streams); the old defaults grew it 18 -> 26 m and were

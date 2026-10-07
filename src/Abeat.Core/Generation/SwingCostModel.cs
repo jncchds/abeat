@@ -13,16 +13,18 @@ public readonly record struct HandState(
     Vec2 Exit,
     Parity? Parity, // null = free (last swing was horizontal)
     int PrevX = -1,
-    int PrevY = -1)
+    int PrevY = -1,
+    int BurstRun = 0) // consecutive same-hand gaps under the regular same-hand gap (see FlowPlanner bursts)
 {
     /// <summary>Hands start low-centre as if they had just swung up, so the first swing is a natural forehand down.</summary>
     public static HandState Initial(Hand h) =>
         new(false, double.NegativeInfinity, h == Hand.Left ? 1 : 2, 0, CutDirection.Up, new Vec2(0, 1),
             new Vec2(h == Hand.Left ? 1 : 2, 1.6), Model.Parity.Backhand);
 
-    public HandState After(double time, int x, int y, CutDirection dir, Vec2 swing, Hand hand) =>
+    /// <param name="fastBelowSec">Same-hand gaps shorter than this extend <see cref="BurstRun"/>.</param>
+    public HandState After(double time, int x, int y, CutDirection dir, Vec2 swing, Hand hand, double fastBelowSec = 0) =>
         new(true, time, x, y, dir, swing, new Vec2(x, y) + swing * SwingCostModel.HalfSwing, Model.Swing.ParityAfter(hand, swing),
-            Active ? X : -1, Active ? Y : -1);
+            Active ? X : -1, Active ? Y : -1, Active && time - Time < fastBelowSec ? BurstRun + 1 : 0);
 }
 
 public sealed record CostBreakdown(double Physical, double Musical, bool Reset, bool VisionBlock, bool Crossover, bool HandClash = false)
@@ -60,7 +62,11 @@ public sealed class SwingCostModel(FlowWeights w)
     public static Vec2 EffectiveSwing(HandState s, CutDirection d) =>
         d == CutDirection.Any ? (s.Active ? -s.Swing : new Vec2(0, -1)) : Swing.Vector(d);
 
-    public CostBreakdown Physical(Hand hand, HandState s, HandState other, double t, int x, int y, CutDirection d, double minSameHandGap)
+    /// <param name="burstGap">Quick back-and-forth flicks of one hand may go down to this gap (below
+    /// <paramref name="minSameHandGap"/>): a clean reversal (turn <= 45°) with free travel, at most
+    /// <paramref name="burstNotes"/> notes in a row; >= minSameHandGap = no bursts.</param>
+    public CostBreakdown Physical(Hand hand, HandState s, HandState other, double t, int x, int y, CutDirection d, double minSameHandGap,
+        double burstGap = double.MaxValue, int burstNotes = 0)
     {
         var v = EffectiveSwing(s, d);
         double c = 0;
@@ -76,7 +82,8 @@ public sealed class SwingCostModel(FlowWeights w)
             }
             // speed factor: the less time, the more a deviation hurts
             double speed = Math.Clamp(0.45 / gap, 0.3, 3.0);
-            c += w.Angle * TurnCost(v.AngleTo(-s.Swing)) * speed;
+            double turn = v.AngleTo(-s.Swing);
+            c += w.Angle * TurnCost(turn) * speed;
 
             // real swings overshoot the grid, so moving up to TravelSlack cells between notes is free;
             // without the slack curated human maps scored ~20 points lower than ours on travel alone
@@ -84,7 +91,11 @@ public sealed class SwingCostModel(FlowWeights w)
             double dist = Math.Max(0, (entry - s.Exit).Length - TravelSlack);
             c += w.Travel * dist * dist * Math.Clamp(0.35 / gap, 0.15, 3.0);
 
-            if (gap < minSameHandGap) c += w.TooFast * (1 - gap / minSameHandGap) + 2;
+            if (gap < minSameHandGap)
+            {
+                bool burst = gap >= burstGap && turn <= 45 && dist == 0 && !reset && s.BurstRun + 2 <= burstNotes;
+                c += burst ? w.Burst : w.TooFast * (1 - gap / minSameHandGap) + 2;
+            }
         }
         else if (Swing.FixedParity(hand, v) == Parity.Backhand)
         {

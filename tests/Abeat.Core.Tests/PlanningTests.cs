@@ -124,4 +124,47 @@ public class PlanningTests
             Assert.True(left > 0.6, $"{d}: left share {left:0.00}");
         }
     }
+
+    /// <summary>Same-hand gaps of the planned notes (stacks and windows under 0.09 s count as one swing).</summary>
+    static List<(ColorNote From, ColorNote To, double Gap)> SameHandGaps(DifficultyMap m, TempoMap tempo) =>
+        m.Notes.GroupBy(n => n.Hand).SelectMany(g =>
+        {
+            var ns = g.OrderBy(n => n.Beat).ToList();
+            return ns.Zip(ns.Skip(1), (a, b) => (a, b, tempo.Seconds(a.Beat, b.Beat)));
+        }).Where(x => x.Item3 >= SwingCostModel.SliderGapSec).ToList();
+
+    [Fact]
+    public void BurstsAreShortCleanFlips()
+    {
+        var a = TestSongs.Fake(); // 128 BPM: eighths are 0.23 s, under Hard's 0.24 s same-hand gap
+        var p = DifficultyProfile.Default(DifficultyName.Hard);
+        var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Hard);
+        var fast = SameHandGaps(r.Map, a.TempoMap).Where(x => x.Gap < p.MinSameHandGapSec - 1e-6).ToList();
+        Assert.NotEmpty(fast);
+        foreach (var (from, to, gap) in fast)
+        {
+            Assert.True(gap >= p.BurstGapSec - 1e-6);
+            if (from.Direction != CutDirection.Any && to.Direction != CutDirection.Any)
+                Assert.True(Swing.Vector(to.Direction).AngleTo(-Swing.Vector(from.Direction)) <= 45, $"flip at {to.Beat}");
+        }
+        // at most BurstNotes notes in a row of one hand under the regular gap
+        foreach (var hand in new[] { Hand.Left, Hand.Right })
+        {
+            var ns = r.Map.Notes.Where(n => n.Hand == hand).OrderBy(n => n.Beat).ToList();
+            int run = 1;
+            for (int i = 1; i < ns.Count; i++)
+            {
+                double gap = a.TempoMap.Seconds(ns[i - 1].Beat, ns[i].Beat);
+                run = gap < p.MinSameHandGapSec - 1e-6 && gap >= SwingCostModel.SliderGapSec ? run + 1 : 1;
+                Assert.True(run <= p.BurstNotes, $"run of {run} at {ns[i].Beat}");
+            }
+        }
+        Assert.Equal(0, r.Report.Resets);
+
+        // a burst gap equal to the same-hand gap turns bursts off (the soft too-fast cost still lets a rare
+        // note land just under the limit, as before bursts existed)
+        var off = new GeneratorSettings { ProfileOverrides = { [DifficultyName.Hard] = new ProfileOverride { BurstGapSec = p.MinSameHandGapSec } } };
+        var r2 = MapGenerator.GenerateDifficulty(a, off, DifficultyName.Hard);
+        Assert.True(SameHandGaps(r2.Map, a.TempoMap).Count(x => x.Gap < p.MinSameHandGapSec - 1e-6) * 2 < fast.Count);
+    }
 }

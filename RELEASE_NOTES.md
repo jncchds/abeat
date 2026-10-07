@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.10 — 2026-10-07
+
+- Bursts: one hand can now flick back and forth faster than its usual limit, down to a **burst gap** per difficulty (Easy 0.3, Normal 0.18, Hard 0.14, Expert 0.12, Expert+ 0.1 s; up to 4 notes in a row, 6 on Expert+), but only as clean reversals without moving across the grid. Curated maps do this in about 70 % of maps (5-19 % of a hand's gaps); generated maps now do it for 5-8 % (Expert less, since its notes rarely come that close), with the same flow and no resets. Set the burst gap to the hand gap under **Speed and density** to turn bursts off.
+
 ## v0.2.9 — 2026-10-07
 
 - Note speed and jump distance match curated maps: NJS 12 / 13 / 14 / 16 / 17.5 and jump distance 23 / 21 / 20 / 19.5 / 18 m from Easy to Expert+ (the medians of the ~100 curated maps in the app). Notes used to appear farther away the harder the level (18 -> 26 m), while mappers bring them closer so fast streams don't fill the screen; Easy to Hard were also 1-2 NJS slower.

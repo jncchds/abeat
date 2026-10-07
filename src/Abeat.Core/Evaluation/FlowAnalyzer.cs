@@ -57,7 +57,8 @@ public static class FlowAnalyzer
     /// <summary>Mean cost of curated human maps is ~1.13 with the current weights; 7 maps that to ~85.</summary>
     public const double ScoreScale = 7;
 
-    public static FlowReport Analyze(DifficultyMap map, TempoMap tempo, FlowWeights? weights = null, double minSameHandGap = 0.2)
+    public static FlowReport Analyze(DifficultyMap map, TempoMap tempo, FlowWeights? weights = null, double minSameHandGap = 0.2,
+        double burstGap = double.MaxValue, int burstNotes = 0)
     {
         var model = new SwingCostModel(weights ?? new FlowWeights());
         var notes = map.Notes.OrderBy(n => n.Beat).ToList();
@@ -116,7 +117,7 @@ public static class FlowAnalyzer
                         if (!SwingCostModel.IsReset(n.Hand, s, want) || !s.Active) dir = Swing.FromVector(want);
                     }
                 }
-                var c = model.Physical(n.Hand, s, before[1 - h], t, n.X, n.Y, dir, minSameHandGap);
+                var c = model.Physical(n.Hand, s, before[1 - h], t, n.X, n.Y, dir, minSameHandGap, burstGap, burstNotes);
                 double cost = c.Physical;
                 if (c.Reset)
                 {
@@ -129,7 +130,7 @@ public static class FlowAnalyzer
                 if (c.HandClash) { handClashes++; issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.HandClash, cost)); }
                 if (!c.Reset && cost > 8) issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.HighCost, cost));
                 total += cost;
-                states[h] = s.After(t, n.X, n.Y, dir, SwingCostModel.EffectiveSwing(s, dir), n.Hand);
+                states[h] = s.After(t, n.X, n.Y, dir, SwingCostModel.EffectiveSwing(s, dir), n.Hand, minSameHandGap);
             }
             i = j;
         }
