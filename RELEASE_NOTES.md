@@ -10,6 +10,7 @@
 - Faster defaults from the curated playlist: more notes per second from Normal up (Normal 2.1 -> 2.4, Hard 2.7 -> 3.1, Expert 3.3 -> 3.7, Expert+ 4.2 -> 4.5) and shorter minimum gaps (Easy 0.45 -> 0.35 s, Normal 0.3 -> 0.2, Hard 0.22 -> 0.15, Expert 0.16 -> 0.12, Expert+ 0.12 -> 0.1; same hand: Normal 0.36 -> 0.3, Hard 0.3 -> 0.24, Expert 0.2 -> 0.18, Expert+ 0.15 -> 0.13). Speed limits you set yourself on a song stay as they are.
 - Quiet passages keep a pulse: where the song has too few clear sounds for the difficulty's note rate (pads, breakdowns), the gaps are filled on the beats and off-beat eighths, like tapping along does. On Everlasting this catches 57-67 % of the tap-along notes in its quiet sections instead of 29-43 %.
 - A newly analysed song shows its page again: the player, timeline and **Generate new version** were hidden until the song had a version, and with auto generation off it never got one.
+- A and B never open on the same version: a song with a single version (for example only the Human map) shows just A, with **+ Compare with B** to add another.
 - **Songs** page with a button at the top of the sidebar: all songs, newest generated version first, with a filter. The sidebar shows the 10 most recently generated songs and links to the rest.
 - A dropped map zip named like a BeatSaver download (`1a2b3 (Song - Mapper).zip` or `1a2b3.zip`) links its Human version to that BeatSaver page.
 - `abeat fetch-maps --playlist <id|link>` and `--map <key|link>` download a BeatSaver playlist or a single map for the style prior.

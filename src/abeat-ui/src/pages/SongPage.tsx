@@ -48,7 +48,8 @@ function resolveSides(list: Version[], p: { a?: Side; b?: Side | null }): { a: S
   const picked = find(p.b?.v)
   if (picked) return { a, b: { v: picked.id, d: pickDiff(picked, p.b?.d) } }
   if (p.b) return { a, b: null } // picked version was deleted
-  const bv = list.find(v => v.kind === 'human') ?? gens.find(v => v.id !== av.id)
+  // never the same version as A by default: with a single version only A is shown
+  const bv = list.find(v => v.kind === 'human' && v.id !== av.id) ?? gens.find(v => v.id !== av.id)
   return { a, b: bv ? { v: bv.id, d: pickDiff(bv, a.d) } : null }
 }
 
