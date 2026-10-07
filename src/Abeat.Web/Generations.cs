@@ -57,6 +57,11 @@ public static class Generations
     public static GenerationMeta? Get(SongStore store, string id, string gen) =>
         ValidId(gen) ? List(store, id).FirstOrDefault(g => g.Id == gen) : null;
 
+    /// <summary>ABEAT_MARK_AI=true: the level author of new generations ends in " (AI)". Beat Saber maps have
+    /// no AI flag of their own; BeatSaver asks on upload and shows the author name everywhere.</summary>
+    static readonly bool MarkAi = Environment.GetEnvironmentVariable("ABEAT_MARK_AI") is { } v && (v == "1" || bool.TryParse(v, out var b) && b);
+    const string AiSuffix = " (AI)";
+
     public static GenerationMeta? Latest(SongStore store, string id) => List(store, id).FirstOrDefault();
 
     /// <summary>Saves a generation. A draft replaces the newest generation if that one is a draft too,
@@ -77,6 +82,7 @@ public static class Generations
         };
         var dir = Dir(store, id, meta.Id);
         Directory.CreateDirectory(dir);
+        if (MarkAi && !r.Map.LevelAuthor.EndsWith(AiSuffix)) r.Map.LevelAuthor += AiSuffix;
         MapPackager.Write(r.Map, a, MapDir(store, id, meta.Id), zip: true);
         s.Save(Path.Combine(dir, "settings.json"));
         File.WriteAllText(Path.Combine(dir, "generation.json"), JsonSerializer.Serialize(meta, Json));

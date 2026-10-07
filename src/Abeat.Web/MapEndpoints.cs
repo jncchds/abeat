@@ -1,4 +1,6 @@
+using System.IO.Compression;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using Abeat.Core.Analysis;
 using Abeat.Core.Evaluation;
 using Abeat.Core.Generation;
@@ -208,7 +210,8 @@ public static class MapEndpoints
             var human = HumanDifficulties(store, id, a);
             var list = new List<object>();
             if (human != null && store.Get(id) is { } m)
-                list.Add(new { id = HumanId, kind = "human", label = $"Human · {m.ReferenceMapper}", difficulties = human.Select(d => d.Difficulty.ToString()) });
+                list.Add(new { id = HumanId, kind = "human", label = $"Human · {m.ReferenceMapper}", difficulties = human.Select(d => d.Difficulty.ToString()),
+                    zip = File.Exists(store.SourcePath(m)) });
             list.AddRange(Generations.List(store, id).Select(g => VersionDto(store, id, a, g, human)));
             return Results.Ok(list);
         });
@@ -251,8 +254,10 @@ public static class MapEndpoints
         api.MapGet("/songs/{id}/map.zip", (string id, string? version, SongStore store, HttpContext ctx) =>
         {
             var m = store.Get(id);
-            var zip = (version ?? Generations.Latest(store, id)?.Id) is { } gen ? Generations.Zip(store, id, gen) : null;
-            if (m == null || zip == null) return Results.NotFound();
+            if (m == null) return Results.NotFound();
+            var zip = version == HumanId ? HumanZip(store, m)
+                : (version ?? Generations.Latest(store, id)?.Id) is { } gen ? Generations.Zip(store, id, gen) : null;
+            if (zip == null) return Results.NotFound();
             ctx.Response.Headers.AccessControlAllowOrigin = "*";
             ctx.Response.Headers["Access-Control-Allow-Private-Network"] = "true";
             string name = string.IsNullOrWhiteSpace(m.Artist) ? m.Title : $"{m.Artist} - {m.Title}";
@@ -290,6 +295,34 @@ public static class MapEndpoints
         if (!Directory.Exists(dir)) return null;
         var human = Abeat.Core.Formats.MapReader.Read(dir);
         return [.. human.Difficulties.Where(d => d.Notes.Count > 0).Select(d => Generations.OnGrid(d, human.Tempo, 0, a))];
+    }
+
+    /// <summary>The imported human map as a playable zip: its own .dat files with the original audio (as
+    /// uploaded, without the analysis padding) and its cover; built once, null without the original audio.</summary>
+    static string? HumanZip(SongStore store, SongMeta m)
+    {
+        string dir = store.ReferenceDir(m.Id), audio = store.SourcePath(m), zip = Path.Combine(store.Dir(m.Id), "reference.zip");
+        if (File.Exists(zip)) return zip;
+        var infoFile = Directory.Exists(dir) ? Directory.EnumerateFiles(dir, "*.dat")
+            .FirstOrDefault(f => Path.GetFileName(f).Equals("Info.dat", StringComparison.OrdinalIgnoreCase)) : null;
+        if (infoFile == null || !File.Exists(audio)) return null;
+        var info = JsonNode.Parse(File.ReadAllText(infoFile));
+        string songFile = (string?)info?["_songFilename"] ?? (string?)info?["audio"]?["songFilename"] ?? Path.GetFileName(audio);
+        string? coverFile = (string?)info?["_coverImageFilename"] ?? (string?)info?["coverImageFilename"];
+        string tmp = zip + ".tmp";
+        using (var z = ZipFile.Open(tmp, ZipArchiveMode.Create))
+        {
+            foreach (var f in Directory.EnumerateFiles(dir, "*.dat"))
+                z.CreateEntryFromFile(f, Path.GetFileName(f));
+            z.CreateEntryFromFile(audio, Path.GetFileName(songFile));
+            // the map's own cover (kept since imports copy it), else the song's
+            string? cover = string.IsNullOrEmpty(coverFile) ? null : Path.Combine(dir, Path.GetFileName(coverFile));
+            if (cover != null && !File.Exists(cover))
+                cover = store.Analysis(m.Id) is { } a && File.Exists(Path.Combine(a.Directory, a.Cover)) ? Path.Combine(a.Directory, a.Cover) : null;
+            if (cover != null) z.CreateEntryFromFile(cover, Path.GetFileName(coverFile!));
+        }
+        File.Move(tmp, zip, overwrite: true);
+        return zip;
     }
 
     static List<DifficultyMap>? ReadVersion(SongStore store, string id, string version, SongAnalysis a) =>

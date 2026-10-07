@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 const KEY = 'abeatDebug'
 
@@ -12,21 +12,22 @@ function initial(): boolean {
   return localStorage.getItem(KEY) === 'true'
 }
 
-/** Hidden debug mode: Ctrl+Shift+D or ?debug=1 (?debug=0 to turn off); remembered per browser. */
-export function useDebug(): boolean {
+/** Hidden debug mode: Ctrl+Shift+D, ?debug=1 (?debug=0 to turn off) or the returned toggle; remembered per browser. */
+export function useDebug(): [boolean, () => void] {
   const [debug, setDebug] = useState(initial)
+  const toggle = useCallback(() => setDebug(d => {
+    localStorage.setItem(KEY, String(!d))
+    return !d
+  }), [])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.shiftKey && e.code === 'KeyD') {
         e.preventDefault()
-        setDebug(d => {
-          localStorage.setItem(KEY, String(!d))
-          return !d
-        })
+        toggle()
       }
     }
     document.addEventListener('keydown', key)
     return () => document.removeEventListener('keydown', key)
-  }, [])
-  return debug
+  }, [toggle])
+  return [debug, toggle]
 }

@@ -9,7 +9,8 @@
 # Run:    docker compose up -d          (GPU: see docker-compose.<nvidia|rocm|intel>.yml)
 
 # ── React UI ──
-FROM node:22-alpine AS ui-build
+# build stages run natively: their output (JS bundle, framework-dependent .NET) works on every platform
+FROM --platform=$BUILDPLATFORM node:22-alpine AS ui-build
 WORKDIR /ui
 COPY src/abeat-ui/package*.json ./
 RUN npm ci
@@ -18,7 +19,7 @@ COPY VERSION /VERSION
 RUN npx tsc -b && npx vite build --outDir ./dist --emptyOutDir
 
 # ── .NET server ──
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY VERSION ./
 COPY src/Abeat.Core/Abeat.Core.csproj src/Abeat.Core/

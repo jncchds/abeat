@@ -1,5 +1,15 @@
 # Release notes
 
+## v0.2.11 — 2026-10-07
+
+- Song page: the re-analysis options moved into a **Re-analyze…** panel with plain labels and hints; every row of the **Versions** list ends in **Zip** and **ArcViewer** (after settings and delete, so they line up), also the human map, which now downloads with its own cover and the original audio.
+- Timeline: **A / B** stacks all of A's lanes above B's, next to **A + B** (shared lanes).
+- Tap along: **Append from playhead** adds taps to a run instead of replacing it (taps already there are kept; a new tap within 40 ms of one counts once).
+- Debug panel: tick stems to hear any mix of them (e.g. all but the vocals); ten taps on the song title toggle the panel on phones.
+- All difficulties are selected by default. `ABEAT_MARK_AI=true` adds " (AI)" to the level author of generated maps.
+- Fixed: phones scrolled the whole page a little (a hidden toggle checkbox stretched it); the **Auto** toggle now lines up with the buttons beside it.
+- Docker image `jncchds/abeat` (amd64 and arm64) is published to Docker Hub on every push to main, with the README as its description.
+
 ## v0.2.10 — 2026-10-07
 
 - Bursts: one hand can now flick back and forth faster than its usual limit, down to a **burst gap** per difficulty (Easy 0.3, Normal 0.18, Hard 0.14, Expert 0.12, Expert+ 0.1 s; up to 4 notes in a row, 6 on Expert+), but only as clean reversals without moving across the grid. Curated maps do this in about 70 % of maps (5-19 % of a hand's gaps); generated maps now do it for 5-8 % (Expert less, since its notes rarely come that close), with the same flow and no resets. Set the burst gap to the hand gap under **Speed and density** to turn bursts off.

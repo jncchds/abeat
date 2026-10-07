@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { cancelJob,
   audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getDefaults, getSettings, getSong,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
-  type Analysis, type AnalysisOptions, type Comparison, type Difficulty, type DifficultyProfile, type GeneratorSettings, type SongMeta, type TapRun, type Version,
+  type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type GeneratorSettings, type SongMeta, type TapRun, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
@@ -14,9 +14,8 @@ import SettingsPanel from '../components/SettingsPanel'
 import Timeline from '../components/Timeline'
 import ToggleField from '../components/ToggleField'
 import AddToPlaylist from '../components/AddToPlaylist'
-import VersionsPanel, { type Side } from '../components/VersionsPanel'
-import VocalSelect from '../components/VocalSelect'
-import AnalysisExtras from '../components/AnalysisExtras'
+import VersionsPanel, { type MapLinks, type Side } from '../components/VersionsPanel'
+import AnalysisPanel, { type AnalysisChoice } from '../components/AnalysisPanel'
 import { useDebug } from '../hooks/useDebug'
 import { useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
@@ -24,7 +23,14 @@ import { diffLabel, fmtTime } from '../utils/format'
 import { tempoOf, type Tempo } from '../utils/tempo'
 import { tapRef, tapRows, type TapRef } from '../utils/taps'
 
-type Mode = 'a' | 'b' | 'both'
+type Mode = 'a' | 'b' | 'both' | 'stack'
+
+const MODES: [Mode, string, string][] = [
+  ['a', 'A', 'Only A'],
+  ['b', 'B', 'Only B'],
+  ['both', 'A + B', 'Both in the same lanes: A in the top half of each lane, B in the bottom half'],
+  ['stack', 'A / B', 'All of A\'s lanes above all of B\'s lanes'],
+]
 
 /** "#3 · Oct 3, 12:03:10 · v0.1.1" for generations (numbered oldest first), the mapper for the human map. */
 function versionLabels(versions: Version[]): Record<string, string> {
@@ -77,15 +83,22 @@ export default function SongPage() {
   const [autoRegen, setAutoRegen] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  // vocal onset method for the next re-analysis (defaults to the song's current one)
-  const [vocalPick, setVocalPick] = useState<{ id: string; v: string } | null>(null)
-  const [extrasPick, setExtrasPick] = useState<{ id: string; v: Pick<AnalysisOptions, 'tempo' | 'pitched' | 'separator'> } | null>(null)
+  // options for the next re-analysis (default to the song's current ones)
+  const [analysisPick, setAnalysisPick] = useState<{ id: string; v: AnalysisChoice } | null>(null)
+  const [analysisOpen, setAnalysisOpen] = useState(false)
   const [lyricsOpen, setLyricsOpen] = useState(false)
   const [tapOpen, setTapOpen] = useState(false)
   const [taps, setTaps] = useState<{ id: string; runs: TapRun[] }>({ id: '', runs: [] })
   const [follow, setFollow] = useState(true)
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null)
-  const debug = useDebug()
+  const [debug, toggleDebug] = useDebug()
+  // ten quick taps on the title toggle debug mode (phones have no Ctrl+Shift+D)
+  const titleTaps = useRef<number[]>([])
+  const onTitleTap = () => {
+    const now = performance.now()
+    titleTaps.current = [...titleTaps.current.filter(t => now - t < 4000), now]
+    if (titleTaps.current.length >= 10) { titleTaps.current = []; toggleDebug() }
+  }
   // debug: play a single stem in the player instead of the mix (same timing as song.egg)
   const [stemSrc, setStemSrc] = useState<{ id: string; url: string } | null>(null)
 
@@ -294,24 +307,45 @@ export default function SongPage() {
     navigate('/')
   }
 
-  const vocals = vocalPick?.id === id ? vocalPick.v : meta?.analysis.vocalOnsets ?? 'flux'
-  const extras = extrasPick?.id === id ? extrasPick.v
-    : { tempo: meta?.analysis.tempo, pitched: meta?.analysis.pitched, separator: meta?.analysis.separator }
+  const choice: AnalysisChoice = analysisPick?.id === id ? analysisPick.v : {
+    vocals: meta?.analysis.vocalOnsets ?? 'flux', tempo: meta?.analysis.tempo, pitched: meta?.analysis.pitched, separator: meta?.analysis.separator,
+  }
+  const vocals = choice.vocals
+  const onChoice = (v: AnalysisChoice) => {
+    setAnalysisPick({ id, v })
+    if (v.vocals === 'lyrics' && vocals !== 'lyrics') setLyricsOpen(true)
+  }
   // the lyrics box opens with the Lyrics button, and when lyric syllables are picked
   const showLyrics = ready && lyricsOpen
   const onReanalyze = async () => {
     if (!meta) return
     // sung notes and lyric syllables work on the separated vocals, so they switch stems on
-    const stems = meta.analysis.stems || vocals !== 'flux' || extras.pitched === 'notes' || extras.separator === 'roformer'
-    await reanalyze(id, { ...meta.analysis, ...extras, vocalOnsets: vocals, stems })
+    const { vocals: vocalOnsets, ...extras } = choice
+    const stems = meta.analysis.stems || vocalOnsets !== 'flux' || extras.pitched === 'notes' || extras.separator === 'roformer'
+    await reanalyze(id, { ...meta.analysis, ...extras, vocalOnsets, stems })
+    setAnalysisOpen(false)
     await refresh()
   }
 
   const current = showA ? diffA : diffB
   const versionA = list.find(v => v.id === sideA?.v)
   const versionB = list.find(v => v.id === sideB?.v)
-  // download / ArcViewer: the generation shown as A (the newest one when A is the human map)
-  const zipVersion = versionA?.kind === 'abeat' ? versionA.id : undefined
+  const linksOf = (v: Version | undefined): MapLinks | undefined => {
+    if (!v || (v.kind === 'human' && !v.zip)) return undefined
+    const zip = zipUrl(id, v.id)
+    const viewerZip = encodeURIComponent(zipOrigin + zip)
+    const firstTime = zipOrigin.startsWith('https:') && location.protocol !== 'https:'
+    return config.arcViewer
+      ? {
+        zip, viewer: `${zipOrigin}/arcviewer/?url=${viewerZip}&noProxy=true`,
+        viewerTitle: firstTime ? `Opens in ArcViewer over https. First time on this device: accept the certificate warning of ${zipOrigin}` : 'Opens in the bundled ArcViewer',
+      }
+      : {
+        zip, viewer: `https://allpoland.github.io/ArcViewer/?url=${viewerZip}&noProxy=true`,
+        viewerTitle: firstTime ? `First time on this device: open ${zipOrigin} once and accept the certificate warning`
+          : 'Opens in ArcViewer (allpoland.github.io; run scripts/fetch-arcviewer.sh to bundle it)',
+      }
+  }
   const title = meta?.title || meta?.fileName || meta?.sourceUrl || '…'
 
   return (
@@ -319,7 +353,7 @@ export default function SongPage() {
       <div className="song-header">
         {ready ? <img className="cover" src={`${coverUrl(id)}?v=${meta?.bpm ?? ''}`} alt="" /> : <div className="cover cover-placeholder">🎵</div>}
         <div className="song-title">
-          <h2>{title}</h2>
+          <h2 onClick={onTitleTap}>{title}</h2>
           <div className="muted">
             {meta?.artist}
             {meta?.referenceMapper && (
@@ -333,41 +367,22 @@ export default function SongPage() {
           {analysis && <Facts a={analysis} />}
         </div>
         <div className="song-actions">
-          {ready && <a className="btn" href={zipUrl(id, zipVersion)} title="Downloads version A">⬇ Download map</a>}
-          {ready && (config.arcViewer
-            ? (
-              <a className="btn btn-secondary" target="_blank" rel="noopener noreferrer"
-                title={zipOrigin.startsWith('https:') && location.protocol !== 'https:'
-                  ? `Opens version A in ArcViewer over https. First time on this device: accept the certificate warning of ${zipOrigin}`
-                  : 'Opens version A in the bundled ArcViewer'}
-                href={`${zipOrigin}/arcviewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id, zipVersion))}&noProxy=true`}>
-                ArcViewer
-              </a>
-            )
-            : (
-              <a className="btn btn-secondary" target="_blank" rel="noopener noreferrer"
-                title={zipOrigin.startsWith('https:') && location.protocol !== 'https:'
-                  ? `First time on this device: open ${zipOrigin} once and accept the certificate warning`
-                  : 'Opens version A in ArcViewer (allpoland.github.io; run scripts/fetch-arcviewer.sh to bundle it)'}
-                href={`https://allpoland.github.io/ArcViewer/?url=${encodeURIComponent(zipOrigin + zipUrl(id, zipVersion))}&noProxy=true`}>
-                ArcViewer
-              </a>
-            ))}
-          {meta && <VocalSelect compact value={vocals} onChange={v => { setVocalPick({ id, v }); if (v === 'lyrics') setLyricsOpen(true) }} />}
-          {meta && <AnalysisExtras value={extras} onChange={v => setExtrasPick({ id, v })} />}
-          {ready && (
-            <button className={`btn-secondary${showLyrics ? ' active' : ''}`} onClick={() => setLyricsOpen(o => !o)}
-              title="Lyrics to align for lyric-syllable vocal onsets">Lyrics</button>
+          {meta && (
+            <button className={`btn-secondary${analysisOpen ? ' active' : ''}`} onClick={() => setAnalysisOpen(o => !o)}
+              title="Change how the song is analysed (tempo, vocals, separation) and run the analysis again">Re-analyze…</button>
           )}
           {busy && <button className="btn-secondary" onClick={() => cancelJob(id).then(refresh).catch(e => setError(errorText(e)))}
-            title="Stops the running analysis; the current analysis and versions stay">Cancel</button>}
-          <button className="btn-secondary" onClick={onReanalyze} disabled={busy}
-            title="Runs the analysis again (separated stems are reused) and adds a new version">Re-analyze</button>
-          <button className="delete-btn" onClick={onDelete}>Delete</button>
+            title="Stops the running analysis; the current analysis and versions stay">Cancel analysis</button>}
+          <button className="delete-btn" onClick={onDelete} title="Delete this song and all its versions">Delete song</button>
         </div>
       </div>
 
       {error && <p className="error-text">{error}</p>}
+
+      {meta && analysisOpen && (
+        <AnalysisPanel value={choice} onChange={onChoice} busy={busy} lyricsOpen={showLyrics} onLyrics={() => setLyricsOpen(o => !o)}
+          onRun={onReanalyze} onClose={() => setAnalysisOpen(false)} />
+      )}
 
       {showLyrics && analysis && <LyricsPanel id={id} analysis={analysis} usesLyrics={vocals === 'lyrics'} onClose={() => setLyricsOpen(false)} />}
 
@@ -400,10 +415,8 @@ export default function SongPage() {
             </button>
             {sideB && (
               <div className="view-switch" title="Which version the timeline and player view show">
-                {(['a', 'b', 'both'] as const).map(m => (
-                  <button key={m} className={mode === m ? 'active' : ''} onClick={() => setMode(m)}>
-                    {m === 'a' ? 'A' : m === 'b' ? 'B' : 'A + B'}
-                  </button>
+                {MODES.map(([m, label, hint]) => (
+                  <button key={m} className={mode === m ? 'active' : ''} title={hint} onClick={() => setMode(m)}>{label}</button>
                 ))}
               </div>
             )}
@@ -432,7 +445,8 @@ export default function SongPage() {
           </div> : <p className="hint no-versions">No versions yet: press <b>Generate new version</b> under Generator settings to make the first map.</p>}
 
           <div className="views">
-            <Timeline analysis={analysis} tracks={tracks} labels={trackLabels} audio={audio} follow={follow} taps={tapTimeline} />
+            <Timeline analysis={analysis} tracks={tracks} labels={trackLabels} audio={audio} follow={follow} taps={tapTimeline}
+              stacked={mode === 'stack'} />
             <div className="front-stack">
               {tracks.length > 1
                 ? tracks.map((t, k) => (
@@ -445,7 +459,7 @@ export default function SongPage() {
           <div className="bottom-grid">
             <div>
               {sideA && <VersionsPanel versions={list} labels={labels} a={sideA} b={sideB} onPick={onPick}
-                onDelete={onDeleteVersion} onPrune={onPrune} onLoadSettings={onLoadSettings} />}
+                onDelete={onDeleteVersion} onPrune={onPrune} onLoadSettings={onLoadSettings} linksOf={linksOf} />}
               {sideA && byVersion[sideA.v] && (
                 <ReportCards difficulties={byVersion[sideA.v]} selected={sideA.d} onSelect={d => setSide('a', { d })}
                   vsHuman={versionA?.kind === 'abeat' ? versionA.vsHuman : null} title={`A · ${labels[sideA.v] ?? ''}`} color={SIDE_A} />

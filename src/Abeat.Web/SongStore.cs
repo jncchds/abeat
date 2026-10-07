@@ -188,11 +188,13 @@ public sealed class SongStore
         }
         if (human != null)
         {
-            // only the difficulty files: the audio is already in work/ or source/
+            // the difficulty files and the cover: the audio is already in work/ or source/
             Directory.CreateDirectory(ReferenceDir(id));
             foreach (var f in Directory.EnumerateFiles(path, "*.dat"))
                 File.Copy(f, Path.Combine(ReferenceDir(id), Path.GetFileName(f)));
-            SaveSettings(id, new GeneratorSettings { Difficulties = human.Difficulties.Select(d => d.Difficulty).Distinct().ToList() });
+            string cover = Path.GetFileName(human.CoverFile); // a name from the zip, never a path out of it
+            if (cover != "" && !cover.EndsWith(".dat", StringComparison.OrdinalIgnoreCase) && File.Exists(Path.Combine(path, cover)))
+                File.Copy(Path.Combine(path, cover), Path.Combine(ReferenceDir(id), cover));
         }
         metas[id] = meta;
         Save(meta);

@@ -3,6 +3,9 @@ import { SIDE_A, SIDE_B } from '../utils/draw'
 
 export interface Side { v: string; d: string }
 
+/** Download and ArcViewer links of one version's zip. */
+export interface MapLinks { zip: string; viewer: string; viewerTitle: string }
+
 interface Props {
   versions: Version[]
   labels: Record<string, string>
@@ -12,10 +15,11 @@ interface Props {
   onDelete: (v: string) => void
   onPrune: () => void
   onLoadSettings: (v: string) => void
+  linksOf: (v: Version) => MapLinks | undefined
 }
 
-/** Generation history (newest first) plus the human map: pick A / B, load settings, delete. */
-export default function VersionsPanel({ versions, labels, a, b, onPick, onDelete, onPrune, onLoadSettings }: Props) {
+/** Generation history (newest first) plus the human map: pick A / B, download, ArcViewer, load settings, delete. */
+export default function VersionsPanel({ versions, labels, a, b, onPick, onDelete, onPrune, onLoadSettings, linksOf }: Props) {
   const generations = versions.filter(v => v.kind === 'abeat')
   const prunable = generations.filter(v => v.id !== a.v && v.id !== b?.v).length
   return (
@@ -31,6 +35,7 @@ export default function VersionsPanel({ versions, labels, a, b, onPick, onDelete
         {versions.map(v => {
           const isA = v.id === a.v, isB = v.id === b?.v
           const f1 = v.kind === 'abeat' ? v.vsHuman?.[a.d] : undefined
+          const links = linksOf(v)
           return (
             <li key={v.id} className={`version-row${isA ? ' is-a' : ''}${isB ? ' is-b' : ''}`}>
               <button className={`side-pick${isA ? ' on' : ''}`} style={{ '--side': SIDE_A } as React.CSSProperties}
@@ -48,6 +53,12 @@ export default function VersionsPanel({ versions, labels, a, b, onPick, onDelete
                   <button className="icon-btn" title="Load this version's generator settings" onClick={() => onLoadSettings(v.id)}>⚙</button>
                   <button className="icon-btn danger" title="Delete this version" onClick={() => onDelete(v.id)}>✕</button>
                 </>
+              )}
+              {links && (
+                <span className="map-links">
+                  <a className="btn btn-secondary" href={links.zip} title="Download this version as a Beat Saber map zip">⬇ Zip</a>
+                  <a className="btn btn-secondary" href={links.viewer} target="_blank" rel="noopener noreferrer" title={links.viewerTitle}>ArcViewer</a>
+                </span>
               )}
             </li>
           )

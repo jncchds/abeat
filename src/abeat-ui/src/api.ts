@@ -118,7 +118,7 @@ export interface MapData { difficulties: Difficulty[] }
 
 /** A saved generation, or the imported human map (id "human"). */
 export type Version =
-  | { id: 'human'; kind: 'human'; label: string; difficulties: string[] }
+  | { id: 'human'; kind: 'human'; label: string; difficulties: string[]; zip: boolean }
   | {
       id: string
       kind: 'abeat'

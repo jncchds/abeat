@@ -34,7 +34,7 @@ docker compose up -d          # http://localhost:8080
 3. The song is analysed (beats, sections, separated stems; a few minutes on a CPU, much less on a GPU)
    and a map for the selected difficulties is generated.
 4. On the song page: listen and watch the timeline, tweak settings (the map regenerates in seconds),
-   **⬇ Download map** or open it in **ArcViewer**.
+   **⬇ Zip** (download) or open it in **ArcViewer** from the **Versions** list under the timeline.
 
 Only use audio you have the rights to. Generated maps are for your own use; BeatSaver requires
 automatically generated maps to be declared as such.
@@ -114,6 +114,7 @@ Whisper transcription stays on the CPU (int8). `ABEAT_DEVICE=cpu` forces the CPU
 | `ABEAT_HTTP_PUBLIC_PORT` | `8080` | compose only: host port for HTTP |
 | `ABEAT_HTTPS_HOSTS` | — | in a container: this machine's name and LAN IPs (`mypc,192.168.1.20`) for the HTTPS certificate, so phones and headsets can open ArcViewer; the certificate (`/data/https-cert.pfx`) is kept as long as it covers them |
 | `ABEAT_HTTP_PORT` | `8080` | HTTP listener when HTTPS is on |
+| `ABEAT_MARK_AI` | `false` | `true`: the level author of new generations ends in " (AI)". Map files have no AI flag of their own; BeatSaver also asks on upload |
 | `HF_TOKEN` | — | optional Hugging Face token (faster model downloads) |
 
 Outside Docker: `ABEAT_DATA` (data folder, default `~/.local/share/abeat`; a relative path resolves
@@ -177,16 +178,17 @@ at a time; the generator itself is fast and runs right after.
 vocal method, number of sections, link to the source page.
 
 **Actions**:
-- **⬇ Download map**: the zip of version A (see below), ready for the game's `CustomLevels` folder.
-- **ArcViewer**: opens the map in the bundled ArcViewer (3D preview with audio).
-- **＋ playlist**: adds version A to a playlist.
-- **vocals: …**, **tempo: …**, **other/bass: …**, **vocals: Demucs/RoFormer**: analysis options for the
-  next re-analysis.
-- **Lyrics**: paste the lyrics (repeats written out) for lyric-syllable onsets; can start from the
-  Whisper transcription to correct it.
-- **Re-analyze**: runs the analysis again with the selected options and generates a new version.
-- **Cancel**: stops a queued or running analysis.
-- **Delete**: removes the song with all versions.
+- **Re-analyze…**: opens the analysis options for the next run (tempo, vocal rhythm, bass and melody
+  rhythm, vocal separation; see [Analysis options](#4-analysis-options)), **Lyrics…** (paste the lyrics,
+  repeats written out, for lyric-syllable onsets; can start from the Whisper transcription) and
+  **Re-analyze with these options**. Nothing changes until that button is pressed.
+- **Cancel analysis**: stops a queued or running analysis.
+- **Delete song**: removes the song with all versions.
+
+**Per version** (each row of the **Versions** list under the timeline): **⬇ Zip** downloads that
+version's map, ready for the game's `CustomLevels` folder; **ArcViewer** opens it in the bundled
+ArcViewer (3D preview with audio). The human map has both too (its own files, cover and the original
+audio). **＋ playlist** on the A and B pickers adds that version to a playlist.
 
 **While a re-analysis runs** the song stays fully usable: the current analysis, all versions,
 comparisons and regenerating keep working. A banner shows the progress. The new analysis replaces the
@@ -205,8 +207,9 @@ scrolls with the music).
 - flow issues of version A as triangles under the lanes (resets, vision blocks, crossovers, clashes,
   strain spikes).
 
-With two versions shown, every lane splits: A on top, B below; notes only one side has are ringed in
-that version's colour and marked on the *only* strip.
+With two versions shown, **A + B** splits every lane: A on top, B below; **A / B** stacks all of A's
+lanes above all of B's. Either way, notes only one side has are ringed in that version's colour and
+marked on the *only* strip.
 
 **Player view**: the 4×3 grid as the player sees it, with the next two beats of notes, arcs, chains and
 bombs approaching. One per version when comparing.
@@ -233,7 +236,9 @@ changed the BPM or the padding.
 
 **Tap beats** (player bar) records how you hear the song, one run per hand, right hand first. Each run
 plays the song from the start, and every key press (or touch on the pad) is a note that hand would cut.
-Esc stops a run early. The timeline shows the runs as *tap R* / *tap L* rows above the lanes, with taps
+Esc stops a run early; **Append from playhead** records from where the player is (seek on the timeline
+first) and adds the taps to the run without removing any; a new tap within 40 ms of one already there
+counts once. The timeline shows the runs as *tap R* / *tap L* rows above the lanes, with taps
 that have no note nearby drawn tall. The table scores each hand against the same hand's notes of A (and
 B): your median offset (latency, removed before matching), F1, precision (taps that have a note), recall
 (notes that have a tap) at ±70 ms, and *any* (taps that have a note of either hand). *Both* merges the two
@@ -245,7 +250,7 @@ early only counts up to where it stopped. Runs are saved per song in `taps.json`
 Changes regenerate the map at once (with auto-regenerate on). Every setting is described in the
 [reference](#6-generator-settings-reference). Sections:
 
-- **Difficulties**: Easy … Expert+.
+- **Difficulties**: Easy … Expert+ (all on by default).
 - **Extra modes**: One Saber, 90°, 360° (written next to Standard; see [Game modes](#7-game-modes-lights-and-environments)).
 - **Environment**: Default (classic lights) or Pyro (v3 group lightshow).
 - **General**: density, seed (a different seed gives a different but equally valid map), beam width,
@@ -262,8 +267,9 @@ added.
 
 ### Debug panel
 
-Ctrl+Shift+D (or `?debug=1`): download or play each separated stem in the player (same timing as the
-map), download `analysis.json`.
+Ctrl+Shift+D, `?debug=1`, or ten quick taps on the song title (for phones): tick the separated stems
+to hear in the player (e.g. everything except the vocals; mixed in the browser, same timing as the map),
+download each stem and `analysis.json`.
 
 ## 4. Analysis options
 

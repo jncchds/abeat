@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { TapRun } from '../api'
-import { compareBoth, compareHand, HANDS, TAP_COLORS, type TapRef } from '../utils/taps'
+import { compareBoth, compareHand, HANDS, mergeTaps, TAP_COLORS, type TapRef } from '../utils/taps'
 
 
 interface Props {
@@ -19,6 +19,9 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
   const [recording, setRecording] = useState<number | null>(null)
   const [count, setCount] = useState(0)
   const taps = useRef<number[]>([])
+  // appending: the run's taps so far, merged with the new ones on stop
+  const kept = useRef<number[]>([])
+  const [appending, setAppending] = useState(false)
   const pad = useRef<HTMLButtonElement>(null)
   const stopRef = useRef<(() => void) | null>(null)
   const latest = useRef({ runs, onChange })
@@ -38,7 +41,7 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
       setRecording(null)
       if (!taps.current.length) return
       const next = [...latest.current.runs]
-      next[recording] = { recordedUtc: new Date().toISOString(), taps: [...taps.current] }
+      next[recording] = { recordedUtc: new Date().toISOString(), taps: mergeTaps(kept.current, taps.current) }
       latest.current.onChange(next.filter(Boolean))
     }
     const key = (e: KeyboardEvent) => {
@@ -65,12 +68,15 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
       stopRef.current = null
     }
   }, [recording, audio])
-  const start = (k: number) => {
+  /** Records run k from the start, or with `append` from the playhead on, adding to all of the run's taps. */
+  const start = (k: number, append = false) => {
     if (!audio) return
     ;(document.activeElement as HTMLElement | null)?.blur()
+    kept.current = append ? runs[k]?.taps ?? [] : []
+    setAppending(append)
     taps.current = []
     setCount(0)
-    playFromStart(audio)
+    playFrom(audio, append ? audio.currentTime : 0)
     setRecording(k)
   }
 
@@ -84,7 +90,7 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
       </div>
       <p className="muted tap-hint">
         One run per hand, right hand first: the song plays from the start, press any key (or tap the pad) on every note that hand
-        would cut. Esc stops early. Each run is shifted by its median offset, then matched (±70 ms) to the notes of the same
+        would cut. Esc stops early; Append from playhead adds taps to a run from where the player is. Each run is shifted by its median offset, then matched (±70 ms) to the notes of the same
         hand; "any" also counts notes of the other hand. Both runs together are compared with all notes and doubles.
       </p>
 
@@ -92,7 +98,7 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
         ? (
           <div className="tap-rec">
             <button ref={pad} className="tap-pad" style={{ borderColor: TAP_COLORS[recording], color: TAP_COLORS[recording] }}>
-              {HANDS[recording]} · {count} taps
+              {HANDS[recording]} · {count} {appending ? 'new ' : ''}taps
               <span>any key / tap here</span>
             </button>
             <button className="btn-secondary" onClick={() => stopRef.current?.()}>Stop</button>
@@ -107,7 +113,14 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
                   {runs[k] ? `${runs[k].taps.length} taps · ${new Date(runs[k].recordedUtc).toLocaleString()}` : 'not recorded'}
                 </span>
                 <button className={runs[k] || k > runs.length ? 'btn-secondary' : ''} disabled={!audio || k > runs.length}
+                  title={runs[k] ? 'Replace this run: records again from the start of the song' : 'Records from the start of the song'}
                   onClick={() => start(k)}>{runs[k] ? 'Record again' : 'Record'}</button>
+                {runs[k] && (
+                  <button className="btn-secondary" disabled={!audio} onClick={() => start(k, true)}
+                    title="Records from the playhead (seek on the timeline first) and adds the taps to this run; a tap on one already there counts once">
+                    Append from playhead
+                  </button>
+                )}
               </div>
             ))}
             {runs.length > 0 && (
@@ -166,8 +179,8 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
 }
 
 // media element mutations live outside components (React treats props as immutable)
-function playFromStart(audio: HTMLAudioElement) {
+function playFrom(audio: HTMLAudioElement, t: number) {
   audio.pause()
-  audio.currentTime = 0
+  audio.currentTime = t
   audio.play()
 }

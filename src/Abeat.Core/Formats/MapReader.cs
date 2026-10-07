@@ -44,6 +44,7 @@ public static class MapReader
             map.LevelAuthor = (string?)info["_levelAuthorName"] ?? "";
             map.Bpm = (double?)info["_beatsPerMinute"] ?? 120;
             map.SongFile = (string?)info["_songFilename"] ?? map.SongFile;
+            map.CoverFile = (string?)info["_coverImageFilename"] ?? map.CoverFile;
             foreach (var set in info["_difficultyBeatmapSets"]?.AsArray() ?? [])
             {
                 if ((string?)set!["_beatmapCharacteristicName"] != "Standard") continue;
@@ -58,6 +59,7 @@ public static class MapReader
             map.SongAuthor = (string?)info["song"]?["author"] ?? "";
             map.Bpm = (double?)info["audio"]?["bpm"] ?? 120;
             map.SongFile = (string?)info["audio"]?["songFilename"] ?? map.SongFile;
+            map.CoverFile = (string?)info["coverImageFilename"] ?? map.CoverFile;
             foreach (var d in info["difficultyBeatmaps"]?.AsArray() ?? [])
             {
                 if ((string?)d!["characteristic"] != "Standard") continue;

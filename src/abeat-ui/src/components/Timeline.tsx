@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react'
 import type { Analysis } from '../api'
-import { drawTimeline, timelineHeight, type TapRow, type Track, type View } from '../utils/draw'
+import { drawTimeline, timelineHeight, type TapRow, type Track, type TrackLayout, type View } from '../utils/draw'
 
 interface Props {
   analysis: Analysis
@@ -12,15 +12,18 @@ interface Props {
   follow: boolean
   /** Tap-along runs shown above the lanes. */
   taps?: TapRow[]
+  /** Two tracks: all of A's lanes above all of B's instead of sharing each lane. */
+  stacked?: boolean
 }
 
 /** Zoomable song timeline: sections, energy, onset layers, the 12 note lanes and flow issues.
  * Redraws itself every frame while playing; wheel zooms, drag scrolls, click seeks. */
-export default function Timeline({ analysis, tracks, labels, audio, follow, taps = [] }: Props) {
+export default function Timeline({ analysis, tracks, labels, audio, follow, taps = [], stacked = false }: Props) {
   const canvas = useRef<HTMLCanvasElement>(null)
   const view = useRef<View>({ pxPerSec: 60, start: 0 })
-  const props = useRef({ analysis, tracks, audio, follow, taps })
-  useLayoutEffect(() => { props.current = { analysis, tracks, audio, follow, taps } })
+  const layout: TrackLayout = stacked ? 'stacked' : 'split'
+  const props = useRef({ analysis, tracks, audio, follow, taps, layout })
+  useLayoutEffect(() => { props.current = { analysis, tracks, audio, follow, taps, layout } })
 
   useEffect(() => {
     view.current.start = 0
@@ -30,13 +33,13 @@ export default function Timeline({ analysis, tracks, labels, audio, follow, taps
     let raf = 0
     const frame = () => {
       const c = canvas.current
-      const { analysis: a, tracks: tr, audio: au, follow: f, taps: tp } = props.current
+      const { analysis: a, tracks: tr, audio: au, follow: f, taps: tp, layout: lo } = props.current
       if (c && a) {
         const now = au?.currentTime ?? 0
         const width = c.clientWidth / view.current.pxPerSec
         if (f && au && !au.paused && (now > view.current.start + width * 0.85 || now < view.current.start))
           view.current.start = Math.max(0, now - width * 0.15)
-        drawTimeline(c, a, tr, view.current, now, tp)
+        drawTimeline(c, a, tr, view.current, now, tp, lo)
       }
       raf = requestAnimationFrame(frame)
     }
@@ -115,13 +118,13 @@ export default function Timeline({ analysis, tracks, labels, audio, follow, taps
           {tracks.map((t, k) => (
             <span key={k} className="legend-chip" style={{ borderColor: t.color, color: t.color }}>
               <span className="legend-swatch" style={{ background: t.color }} />
-              {k === 0 ? 'top of each lane' : 'bottom of each lane'}: <b>{labels[k]}</b>
+              {stacked ? (k === 0 ? 'upper lanes' : 'lower lanes') : k === 0 ? 'top of each lane' : 'bottom of each lane'}: <b>{labels[k]}</b>
               {t.unmatched && <span className="muted"> · {t.unmatched.size} only here (ringed)</span>}
             </span>
           ))}
         </div>
       )}
-      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length, tracks.length > 1, !!analysis.lyrics?.words.length, taps.length) }} />
+      <canvas ref={canvas} className="timeline" style={{ height: timelineHeight(Object.keys(analysis.layers).length, tracks.length, layout, !!analysis.lyrics?.words.length, taps.length) }} />
       <div className="timeline-foot">
         <div className="hint">wheel / pinch: zoom · drag: scroll · click: seek · lanes: top row first, columns left → right</div>
         <div className="zoom-btns">

@@ -36,13 +36,23 @@ export interface TapRow {
   unmatched?: Set<number>
 }
 
-export const LAYOUT = { layersTop: 64, layerH: 9, lyricsH: 14, tapH: 13, laneH: 15, splitLaneH: 26, diffH: 18, issuesH: 14 }
+export const LAYOUT = { layersTop: 64, layerH: 9, lyricsH: 14, tapH: 13, laneH: 15, splitLaneH: 26, diffH: 18, issuesH: 14, stackGap: 6 }
 
-const laneHeight = (split: boolean) => (split ? LAYOUT.splitLaneH : LAYOUT.laneH)
+/** How several tracks share the 12 lanes: halves of each lane, or one full set of lanes per track. */
+export type TrackLayout = 'split' | 'stacked'
 
-export function timelineHeight(layerCount: number, split = false, lyrics = false, tapRows = 0) {
-  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + (lyrics ? LAYOUT.lyricsH : 0) + tapRows * LAYOUT.tapH + 8 + 12 * laneHeight(split)
-    + (split ? LAYOUT.diffH : 0) + LAYOUT.issuesH + 4
+/** Lane height, height of one track's set of lanes and height of all lanes. */
+function laneGeometry(tracks: number, layout: TrackLayout) {
+  const stacked = tracks > 1 && layout === 'stacked'
+  const laneH = tracks > 1 && !stacked ? LAYOUT.splitLaneH : LAYOUT.laneH
+  const blockH = 12 * laneH
+  const blocks = stacked ? tracks : 1
+  return { stacked, laneH, blockH, total: blocks * blockH + (blocks - 1) * LAYOUT.stackGap }
+}
+
+export function timelineHeight(layerCount: number, tracks = 1, layout: TrackLayout = 'split', lyrics = false, tapRows = 0) {
+  return LAYOUT.layersTop + layerCount * LAYOUT.layerH + (lyrics ? LAYOUT.lyricsH : 0) + tapRows * LAYOUT.tapH + 8
+    + laneGeometry(tracks, layout).total + (tracks > 1 ? LAYOUT.diffH : 0) + LAYOUT.issuesH + 4
 }
 
 /** Beats of notes in `a` without a note in `b` within `tolBeats` (any lane). */
@@ -98,7 +108,8 @@ function drawRing(g: CanvasRenderingContext2D, cx: number, cy: number, size: num
   g.stroke()
 }
 
-export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Track[], view: View, now: number, taps: TapRow[] = []) {
+export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Track[], view: View, now: number, taps: TapRow[] = [],
+  layout: TrackLayout = 'split') {
   const dpr = window.devicePixelRatio || 1
   const w = canvas.clientWidth, h = canvas.clientHeight
   if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
@@ -119,15 +130,17 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
   const X = (t: number) => (t - t0) * pxPerSec
   const layers = Object.keys(a.layers)
   const split = tracks.length > 1
-  const laneH = laneHeight(split)
-  const sub = laneH / Math.max(1, tracks.length)
+  const { stacked, laneH, blockH, total } = laneGeometry(tracks.length, layout)
+  const sub = stacked ? laneH : laneH / Math.max(1, tracks.length)
   const lyricsTop = LAYOUT.layersTop + layers.length * LAYOUT.layerH
   const tapsTop = lyricsTop + (a.lyrics?.words.length ? LAYOUT.lyricsH : 0)
   const lanesTop = tapsTop + taps.length * LAYOUT.tapH + 8
-  const diffTop = lanesTop + 12 * laneH
+  const diffTop = lanesTop + total
   const lanesBottom = diffTop + (split ? LAYOUT.diffH : 0)
+  /** Top of track k's lane `lane` (0..11): its own set of lanes when stacked, else its share of the lane. */
+  const laneTop = (lane: number, k: number) => stacked ? lanesTop + k * (blockH + LAYOUT.stackGap) + lane * laneH : lanesTop + lane * laneH + k * sub
   /** Centre of a grid cell's (sub-)lane for track k. */
-  const laneY = (x: number, y: number, k: number) => lanesTop + ((2 - y) * 4 + x) * laneH + k * sub + sub / 2
+  const laneY = (x: number, y: number, k: number) => laneTop((2 - y) * 4 + x, k) + sub / 2
   const tempo = tempoOf(a.tempo)
   const beatToSec = tempo.toSec
 
@@ -224,20 +237,22 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
     for (let lane = 0; lane < 12; lane++)
       tracks.forEach((tr, k) => {
         g.fillStyle = tr.color
-        g.globalAlpha = 0.11
-        g.fillRect(0, lanesTop + lane * laneH + k * sub, w, sub)
+        g.globalAlpha = stacked ? 0.06 : 0.11
+        g.fillRect(0, laneTop(lane, k), w, sub)
         g.globalAlpha = 0.9
-        g.fillRect(0, lanesTop + lane * laneH + k * sub + 1, 3, sub - 2)
+        g.fillRect(0, laneTop(lane, k) + 1, 3, sub - 2)
       })
   g.globalAlpha = 1
-  for (let r = 0; r <= 12; r++) {
-    g.fillStyle = grid
-    g.globalAlpha = r % 4 === 0 ? 0.9 : 0.35
-    g.fillRect(0, lanesTop + r * laneH, w, 1)
+  for (let k = 0; k < (stacked ? tracks.length : 1); k++) {
+    for (let r = 0; r <= 12; r++) {
+      g.fillStyle = grid
+      g.globalAlpha = r % 4 === 0 ? 0.9 : 0.35
+      g.fillRect(0, r < 12 ? laneTop(r, k) : laneTop(11, k) + laneH, w, 1)
+    }
+    g.globalAlpha = 1
+    g.fillStyle = muted
+    ;['top', 'mid', 'bot'].forEach((n, i) => g.fillText(stacked && i === 0 ? `${k === 0 ? 'A' : 'B'} · top` : n, 6, laneTop(i * 4, k) + 11))
   }
-  g.globalAlpha = 1
-  g.fillStyle = muted
-  ;['top', 'mid', 'bot'].forEach((n, i) => g.fillText(n, 6, lanesTop + i * 4 * laneH + 11))
 
   const size = Math.min(sub - 3, Math.max(6, (60 / tempo.max) * pxPerSec * 0.35))
   tracks.forEach(({ d, color, unmatched }, k) => {

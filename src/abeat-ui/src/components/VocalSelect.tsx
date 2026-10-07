@@ -5,12 +5,14 @@ const VOCAL_OPTIONS = [
 ]
 
 /** How vocal-stem onsets are found (needs stem separation). */
-export default function VocalSelect({ value, onChange, compact }: { value: string; onChange: (v: string) => void; compact?: boolean }) {
-  const select = (
-    <select value={value} onChange={e => onChange(e.target.value)} aria-label="Vocal onsets"
-      title="How vocal syllables are found: energy changes, sung notes (pitch), or transcribed lyrics aligned to the audio">
-      {VOCAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{compact ? `vocals: ${o.value}` : o.label}</option>)}
-    </select>
+export default function VocalSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <label>
+      Vocal onsets
+      <select value={value} onChange={e => onChange(e.target.value)}
+        title="How vocal syllables are found: energy changes, sung notes (pitch), or transcribed lyrics aligned to the audio">
+        {VOCAL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+      </select>
+    </label>
   )
-  return compact ? select : <label>Vocal onsets{select}</label>
 }

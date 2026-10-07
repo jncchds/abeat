@@ -34,6 +34,8 @@ into bind-mounted folders: `./docker-data/data` (songs, maps: back this up), `./
 (downloaded models) and `./docker-data/runtime` (Python environment, ArcViewer). GPUs:
 `docker compose -f docker-compose.yml -f docker-compose.nvidia.yml up -d` (or `.rocm.yml`, `.intel.yml`).
 Optional features: `ABEAT_EXTRAS=lyrics,roformer`. Details in the [manual](docs/MANUAL.md#2-running-abeat).
+Prebuilt images (amd64, arm64) are on Docker Hub as [`jncchds/abeat`](https://hub.docker.com/r/jncchds/abeat): set
+`image: jncchds/abeat:latest` in `docker-compose.yml` and run `docker compose up -d --no-build` to skip building.
 
 ### Local
 
@@ -52,6 +54,7 @@ dotnet run --project src/Abeat.Cli -- movement work/beatsaver      # hand moveme
 
 Web data defaults to `~/.local/share/abeat` (set `ABEAT_DATA` to change). Songs are only analysed on upload;
 set `ABEAT_AUTO_GENERATE=true` to also generate a map right after each analysis.
+`ABEAT_MARK_AI=true` adds " (AI)" to the level author of generated maps.
 
 `scripts/fetch-arcviewer.sh` downloads [ArcViewer](https://github.com/AllPoland/ArcViewer) (GPL-3.0, ~80 MB)
 so the web app can open maps in it from the same server (the container fetches it on first start). Without it the

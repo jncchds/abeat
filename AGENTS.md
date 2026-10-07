@@ -279,10 +279,12 @@ move, `--write-prior` rewrites the prior.
 ## Web app
 
 - `SongStore`: `data/songs/{id}/` with `source/`, `meta.json`, `work/` (analysis), `settings.json`
-  (current settings), `reference/` (human map) and `generations/{yyyyMMdd-HHmmss-fff}/`
+  (current settings), `reference/` (human map: its .dat files and cover; `reference.zip` is built from them
+  with `source/` audio for `map.zip?version=human`) and `generations/{yyyyMMdd-HHmmss-fff}/`
   (`Generations`: `generation.json` with app version, draft flag and the BPM/padding it was written
   on, its `settings.json`, `map/` + `map.zip`). File based; survives restarts via the Docker volume.
   A pre-history `map/` folder is moved into `generations/` on first access.
+- `ABEAT_MARK_AI=true`: `Generations.Save` appends " (AI)" to the level author (map files have no AI flag).
 - `AnalysisQueue`: one analysis at a time; with `ABEAT_AUTO_GENERATE=true` (default off) it then generates
   with the song's saved settings (also for `/admin/import`), otherwise maps are made from the song page. Every analysis writes `work.next/` (seeded with the cached
   `stems/` and `download/`) and `SongStore.CommitNextWorkDir` swaps it in only on success, so the

@@ -10,6 +10,19 @@ const RUN_NOTE_COLOR = [1, 0]
 export const TAP_TOL = 0.07
 /** Taps of both hands this close together are one double. */
 const DOUBLE_TOL = 0.05
+/** An appended tap this close to one already in the run is the same tap. */
+const SAME_TAP_TOL = 0.04
+
+/** The run's taps plus the new ones, sorted; new taps within SAME_TAP_TOL of an existing one are dropped. */
+export function mergeTaps(existing: number[], added: number[]): number[] {
+  const old = [...existing].sort((a, b) => a - b)
+  const fresh = added.filter(t => {
+    let lo = 0, hi = old.length
+    while (lo < hi) { const m = (lo + hi) >> 1; if (old[m] < t) lo = m + 1; else hi = m }
+    return !(Math.abs((old[lo] ?? Infinity) - t) <= SAME_TAP_TOL || Math.abs((old[lo - 1] ?? Infinity) - t) <= SAME_TAP_TOL)
+  })
+  return [...old, ...fresh].sort((a, b) => a - b)
+}
 
 /** Note times (seconds) of a shown map: all, per note colour (0 left, 1 right), and the times both hands hit. */
 export interface TapRef { name: string; color: string; all: number[]; hand: [number[], number[]]; doubles: number[] }

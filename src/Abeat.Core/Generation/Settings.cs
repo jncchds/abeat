@@ -132,7 +132,7 @@ public sealed record FlowWeights
 
 public sealed record GeneratorSettings
 {
-    public List<DifficultyName> Difficulties { get; init; } = [DifficultyName.Expert, DifficultyName.ExpertPlus];
+    public List<DifficultyName> Difficulties { get; init; } = [.. Enum.GetValues<DifficultyName>()];
     /// <summary>Extra game modes written next to Standard, for the same difficulties: "OneSaber",
     /// "90Degree", "360Degree" (rotations on the Standard notes).</summary>
     public List<string> Modes { get; init; } = [];
