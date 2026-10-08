@@ -1,10 +1,11 @@
 import type { Version } from '../api'
+import type { VersionLink } from '../extensions'
 import { SIDE_A, SIDE_B } from '../utils/draw'
 
 export interface Side { v: string; d: string }
 
 /** Download and ArcViewer links of one version's zip. */
-export interface MapLinks { zip: string; viewer: string; viewerTitle: string }
+export interface MapLinks { zip: string; viewer: string; viewerTitle: string; extra: VersionLink[] }
 
 interface Props {
   versions: Version[]
@@ -58,6 +59,9 @@ export default function VersionsPanel({ versions, labels, a, b, onPick, onDelete
                 <span className="map-links">
                   <a className="btn btn-secondary" href={links.zip} title="Download this version as a Beat Saber map zip">⬇ Zip</a>
                   <a className="btn btn-secondary" href={links.viewer} target="_blank" rel="noopener noreferrer" title={links.viewerTitle}>ArcViewer</a>
+                  {links.extra.map(l => (
+                    <a key={l.label} className="btn btn-secondary" href={l.href} target="_blank" rel="noopener noreferrer" title={l.title}>{l.label}</a>
+                  ))}
                 </span>
               )}
             </li>

@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.15 — 2026-10-08
+
+- Machine-local UI extensions: a git-ignored `src/abeat-ui/src/local/<name>/index.ts` can add links next to each map version (see `src/abeat-ui/src/extensions.ts`).
+
 ## v0.2.14 — 2026-10-07
 
 - Click the cover on a song page to upload a new one (JPEG or PNG, up to 10 MB); new versions use it, the cover colours follow it, and it survives re-analysis. The small × on the cover goes back to the original.

@@ -20,3 +20,6 @@ src/Abeat.Web/arcviewer/
 
 docker-data/
 docker-compose.override.yml
+
+# machine-local UI extensions (see src/abeat-ui/src/extensions.ts)
+src/abeat-ui/src/local/

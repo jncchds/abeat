@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { extensions } from '../extensions'
 import { cancelJob,
   audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong, resetCover, uploadCover,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
@@ -364,15 +365,16 @@ export default function SongPage() {
   const linksOf = (v: Version | undefined): MapLinks | undefined => {
     if (!v || (v.kind === 'human' && !v.zip)) return undefined
     const zip = zipUrl(id, v.id)
+    const extra = extensions.flatMap(e => e.versionLinks?.(id, v.id, zip) ?? [])
     const viewerZip = encodeURIComponent(zipOrigin + zip)
     const firstTime = zipOrigin.startsWith('https:') && location.protocol !== 'https:'
     return config.arcViewer
       ? {
-        zip, viewer: `${zipOrigin}/arcviewer/?url=${viewerZip}&noProxy=true`,
+        zip, extra, viewer: `${zipOrigin}/arcviewer/?url=${viewerZip}&noProxy=true`,
         viewerTitle: firstTime ? `Opens in ArcViewer over https. First time on this device: accept the certificate warning of ${zipOrigin}` : 'Opens in the bundled ArcViewer',
       }
       : {
-        zip, viewer: `https://allpoland.github.io/ArcViewer/?url=${viewerZip}&noProxy=true`,
+        zip, extra, viewer: `https://allpoland.github.io/ArcViewer/?url=${viewerZip}&noProxy=true`,
         viewerTitle: firstTime ? `First time on this device: open ${zipOrigin} once and accept the certificate warning`
           : 'Opens in ArcViewer (allpoland.github.io; run scripts/fetch-arcviewer.sh to bundle it)',
       }

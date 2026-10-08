@@ -355,6 +355,9 @@ move, `--write-prior` rewrites the prior.
   (`ABEAT_HTTPS_PORT`, self-signed LAN certificate; `/api/config` reports `ABEAT_HTTPS_PUBLIC_PORT` when the
   container publishes it under another host port). Routing runs after the static files so the SPA
   fallback doesn't swallow `/arcviewer/`.
+- Machine-local UI extensions: `src/abeat-ui/src/extensions.ts` eagerly globs the git-ignored
+  `src/local/*/index.ts`; an extension's `versionLinks(song, version, zipUrl)` adds buttons next to Zip/ArcViewer.
+  Nothing under `src/local/` (or files it relies on that a local tool installs) belongs in the repo.
 - Lyrics: `GET|PUT /api/songs/{id}/lyrics` (`lyrics.txt`), passed to the worker on re-analysis.
 - Tap along: `GET|PUT /api/songs/{id}/taps` (`taps.json`: run 0 right hand, run 1 left, song.egg seconds);
   the UI scores them in `utils/taps.ts` (per-hand median offset removed, ±70 ms matching).
