@@ -396,18 +396,26 @@ public static class RhythmSelector
         return rank;
     }
 
+    /// <summary>Doubles spread over the sections, strongest hits first within each: curated maps put a
+    /// median 14 % of hits in calm sections and 19 % in the loudest on doubles, so a section's share only
+    /// leans gently on its energy.</summary>
     static List<RhythmEvent> MarkDoubles(List<RhythmEvent> events, DifficultyProfile p, HashSet<int> forced)
     {
         if (events.Count < 3 || p.DoubleRate <= 0) return events.Select((e, i) => forced.Contains(i) ? e with { IsDouble = true } : e).ToList();
-        int want = (int)Math.Round(events.Count * p.DoubleRate);
         // both hands hit a double, so each needs its own same-hand recovery time around it
         double minGap = p.MinSameHandGapSec;
-        var order = Enumerable.Range(0, events.Count)
-            .Where(i => (i == 0 || events[i].Time - events[i - 1].Time >= minGap)
-                     && (i == events.Count - 1 || events[i + 1].Time - events[i].Time >= minGap))
-            .OrderByDescending(i => events[i].Strength * (0.5 + events[i].Energy))
-            .Take(want)
-            .ToHashSet();
+        double maxEnergy = Math.Max(1e-9, events.Max(e => e.Energy));
+        var order = new HashSet<int>();
+        foreach (var section in Enumerable.Range(0, events.Count).GroupBy(i => events[i].Section))
+        {
+            double rel = section.Average(i => events[i].Energy) / maxEnergy;
+            int want = (int)Math.Round(section.Count() * p.DoubleRate * (0.75 + 0.35 * rel));
+            order.UnionWith(section
+                .Where(i => (i == 0 || events[i].Time - events[i - 1].Time >= minGap)
+                         && (i == events.Count - 1 || events[i + 1].Time - events[i].Time >= minGap))
+                .OrderByDescending(i => events[i].Strength)
+                .Take(want));
+        }
         order.UnionWith(forced);
         return events.Select((e, i) => order.Contains(i) ? e with { IsDouble = true } : e).ToList();
     }

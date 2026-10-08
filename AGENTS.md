@@ -96,7 +96,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    onset strength on eighth-triplets and 1.5x more than on sixteenth off-beats), scored by layer
    weight x strength x metric position x energy, with the "e" sixteenth (x0.6), "a" (x0.8) and
    triplets (x0.85) discounted as human maps rarely use them; bars filled to a
-   notes-per-second target that follows section and local energy; strong isolated hits become doubles.
+   notes-per-second target that follows section and local energy; strong isolated hits become doubles,
+   strongest first within each section, a section's share x(0.75 + 0.35 x relative energy) (curated maps:
+   median 14 % doubles in calm sections, 19 % in the loudest).
    Pulse fill: a bar whose scored slots can't reach its target (pads, breakdowns: the lead only in the
    weak full mix) is topped up on beats, then off-beat eighths, at the slot's onset time or the grid
    time (layer "pulse"), unless the bar is quieter than 0.35 energy. Tap-along runs follow an eighth
@@ -190,10 +192,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      melody notes that continue a pitch line (two steps the same way, >= 0.06) get a 15° angle offset
      (30° for leaps on Expert+): rising leans vertical cuts "/" and lifts horizontal cut ends
      (`AngleOffsets`, Normal+); arcs (v3 sliders, `Arcs`, added after walls and bombs): of all same-hand
-     gaps of 1-4 beats (>= 0.35 s), single melody notes whose sustain covers >= 30 % of the gap are
-     ranked by that cover and the best `ArcShare` of the gaps (Easy 5 %, Normal/Hard 9 %, Expert 12 %,
-     Expert+ 13 %: medians of curated maps that use arcs; 93 % of curated arcs join a note to the same
-     hand's next one, median 1 beat) get an arc to the next note, unless that swing is a reset or a
+     gaps of 0.3-2 s (seconds, so half-time tempo detection doesn't hide them), melody notes (doubles
+     included, so both hands can arc together) whose sustain covers >= 30 % of the gap are ranked by that
+     cover and the best `ArcShare` of the gaps (Easy 6 %, Normal/Hard 7.5 %, Expert/Expert+ 9 %: medians
+     of curated maps that use arcs; 93 % of curated arcs join a note to the same hand's next one, median
+     0.43 s, a third start on a double) get an arc to the next note, unless that swing is a reset or a
      gameplay wall passes in between. Generated maps went from ~0 to 4-13 arcs/min (curated median
      1 / 6 / 8 / 10 / 11 per minute Easy..Expert+); chains (v3 burst sliders,
      `Chains`, Hard+) on notes followed by a fast run in their layer or the drums (`RhythmEvent.BurstCount`:
@@ -203,13 +206,14 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      1.0 / 1.6 a minute, four in five none; one per 8-16 beats had made ~3.4/min), doubles get two chains or none
 5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+, `CrouchWalls`, off by default:
    2-10 % of curated maps have any full-width overhead wall), dodge walls in note-free gaps (Normal+),
-   side walls in calm sections, and rhythm walls (`RhythmWalls`): 1/8-beat walls at lane 0/3, y 2,
-   height 3 (top row and above, clear of the other rows' notes), alternating sides, on the strongest
+   side walls in calm sections, and rhythm walls (`RhythmWalls`): ~0.15 s walls (rounded to 1/8 beat) at lane
+   0/3, full height where the lane is free so a saber resting there vibrates on each hit (Bytrius' style),
+   else y 2 / height 3 (clear of lower notes), alternating sides, on the strongest
    kick/snare hits (drum strength above the song's median; `low` band onsets without stems), strongest
    first, >= 1.2 s apart in sections >= 80 % of the loudest section's energy and 2.4 s from 55 % (Easy
    twice that): ~30-40 a minute in loud songs.
-   Curated maps: side-lane walls in 80-93 % of maps, median 22-51 a minute, mostly 1/8 beat at y 2 /
-   height 3, half on a note moment and half between. All walls are rejected if a note is inside them
+   Curated maps: side-lane walls in 80-93 % of maps, median 22-51 a minute, mostly 1/8 beat (0.08 s), 38 %
+   full height, half on a note moment and half between. All walls are rejected if a note is inside them
    (±0.25 beat), and bombs are never placed inside a wall.
 6. **Bombs** (`BombGenerator`): reset bombs where the natural reversal would cut, accent bombs on
    strong single-hand hits (Hard+); checked against `SaberPath` so no bomb is in a swing path.

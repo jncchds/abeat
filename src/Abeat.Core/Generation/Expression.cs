@@ -40,22 +40,23 @@ public static class Expression
         }
     }
 
-    /// <summary>Arcs per same-hand gap of 1-4 beats, by difficulty: the median of curated maps that use arcs
-    /// (Easy 0.09 is lower in practice: half of the Easy maps have none). 93 % of curated arcs join a note
-    /// to the same hand's next note, most often one beat (~0.45 s) later.</summary>
+    /// <summary>Arcs per same-hand gap of 0.3-2 s, by difficulty: the median of curated maps that use arcs
+    /// (about half of the Easy-Hard maps use none). Curated arcs span a median 0.43 s and a third of them
+    /// start on a double.</summary>
     static double ArcShare(DifficultyName d) => d switch
     {
-        DifficultyName.Easy => 0.05,
-        DifficultyName.Normal or DifficultyName.Hard => 0.09,
-        DifficultyName.Expert => 0.12,
-        _ => 0.13,
+        DifficultyName.Easy => 0.06,
+        DifficultyName.Normal or DifficultyName.Hard => 0.075,
+        _ => 0.09,
     };
+
+    const double MinArcGapSec = 0.3, MaxArcGapSec = 2.0;
 
     /// <summary>Melody sound covering at least this share of the gap before an arc may be drawn over it.</summary>
     const double MinArcCover = 0.3;
 
-    /// <summary>Arcs over held melody notes: of all single notes followed by the same hand's next note 1-4
-    /// beats later, the ones whose sound covers the most of that gap get an arc to it, up to
+    /// <summary>Arcs over held melody notes: of all notes followed by the same hand's next note 0.3-2 s
+    /// later, the ones whose sound covers the most of that gap get an arc to it, up to
     /// <see cref="ArcShare"/> of those gaps. Skipped when the next swing is a reset (no continuous motion
     /// to draw) or a gameplay wall passes in between.</summary>
     public static void AddArcs(DifficultyMap map, IReadOnlyList<RhythmEvent> events, TempoMap tempo)
@@ -74,10 +75,10 @@ public static class Expression
                 state = state.After(tempo.BeatToSeconds(n.Beat), n.X, n.Y, n.Direction, v, hand);
                 if (i + 1 >= notes.Count) continue;
                 var tail = notes[i + 1];
-                double gapBeats = tail.Beat - n.Beat, gapSec = tempo.Seconds(n.Beat, tail.Beat);
-                if (gapBeats < 1 - 1e-6 || gapBeats > 4 + 1e-6 || gapSec < 0.35) continue;
+                double gapSec = tempo.Seconds(n.Beat, tail.Beat);
+                if (gapSec < MinArcGapSec || gapSec > MaxArcGapSec) continue;
                 gaps++;
-                if (!byBeat.TryGetValue(Math.Round(n.Beat, 4), out var e) || e.IsDouble) continue;
+                if (!byBeat.TryGetValue(Math.Round(n.Beat, 4), out var e)) continue;
                 double cover = Math.Min(1, e.Sustain / gapSec);
                 if (cover < MinArcCover) continue;
                 var tv = SwingCostModel.EffectiveSwing(state, tail.Direction);

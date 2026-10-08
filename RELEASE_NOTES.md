@@ -3,6 +3,7 @@
 ## v0.2.15 — 2026-10-08
 
 - Machine-local UI extensions: a git-ignored `src/abeat-ui/src/local/<name>/index.ts` can add links next to each map version (see `src/abeat-ui/src/extensions.ts`).
+- Arcs over 0.3-2 s same-hand gaps (not 1-4 beats, which half-time tempos made too long for loud parts) and on doubles, so both hands can arc together; doubles spread over the sections instead of piling into the loudest; rhythm walls ~0.15 s and full height where free, so a saber in the outer lane buzzes on the beat (after Bytrius' The Emptiness Machine).
 
 ## v0.2.14 — 2026-10-07
 

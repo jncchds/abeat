@@ -5,10 +5,10 @@ namespace Abeat.Core.Tests;
 
 public class WallTests
 {
-    static bool IsRhythmWall(Obstacle o) => o.Width == 1 && o.X is 0 or 3 && o.Y == 2 && o.Height == 3 && o.Duration == 0.125;
+    static bool IsRhythmWall(Obstacle o) => o.Width == 1 && o.X is 0 or 3 && o.Duration < 1 && (o.Y, o.Height) is (0, 5) or (2, 3);
 
     [Fact]
-    public void RhythmWallsFollowLoudHitsAlongTheTopOfTheOuterLanes()
+    public void RhythmWallsFollowLoudHitsAlongTheOuterLanes()
     {
         var a = TestSongs.Fake();
         var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Expert);
@@ -20,6 +20,8 @@ public class WallTests
         Assert.All(times.Zip(times.Skip(1)), p => Assert.True(p.Second - p.First >= 1.2 - 1e-6));
         Assert.Contains(walls, w => w.X == 0);
         Assert.Contains(walls, w => w.X == 3);
+        Assert.Contains(walls, w => w.Height == 5);
+        Assert.All(walls, w => Assert.InRange(a.TempoMap.Seconds(w.Beat, w.Beat + w.Duration), 0.1, 0.25));
         Assert.Equal(0, r.Report.WallClashes + r.Report.BombHits);
         Assert.DoesNotContain(r.Map.Bombs, b => r.Map.Obstacles.Any(o => WallGenerator.Inside(o, b.Beat, b.X, b.Y, 0)));
 

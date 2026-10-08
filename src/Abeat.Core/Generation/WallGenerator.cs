@@ -49,7 +49,7 @@ public static class WallGenerator
         }
 
         var decor = SideWalls(a, notes, p);
-        if (s.RhythmWalls && notes.Count > 0) decor = decor.Concat(RhythmWalls(a, p, notes[0].Beat, notes[^1].Beat));
+        if (s.RhythmWalls && notes.Count > 0) decor = decor.Concat(RhythmWalls(a, p, notes));
         foreach (var o in gameplay.Concat(decor))
             if (!Clashes(o, notes) && !map.Obstacles.Any(x => Overlaps(x, o)))
                 map.Obstacles.Add(o);
@@ -70,13 +70,15 @@ public static class WallGenerator
         }
     }
 
-    /// <summary>Rhythm walls: 1/8-beat walls in the top row and above of lane 0 or 3 (alternating), on the
-    /// strongest kick and snare hits (above the song's median drum strength), picked strongest first at least
+    /// <summary>Rhythm walls: short walls in lane 0 or 3 (alternating), on the strongest kick and snare hits (above the song's median drum strength), picked strongest first at least
     /// 1.2 s apart in sections at >= 80 % of the loudest section's energy and 2.4 s from 55 % (Easy: 2.4 / 4.8 s).
     /// Curated maps: side-lane walls in 80-93 % of maps, a median 22-51 a minute, mostly 1/8 beat long at
-    /// y 2 / height 3 (clear of bottom and middle-row notes), half on a note and half between notes.</summary>
-    static IEnumerable<Obstacle> RhythmWalls(SongAnalysis a, DifficultyProfile p, double firstBeat, double lastBeat)
+    /// y 2 / height 3 (clear of bottom and middle-row notes), half on a note and half between notes. They are drawn
+    /// <see cref="RhythmWallSec"/> long instead, full height where the lane is free, so a saber resting in the
+    /// outer lane vibrates on every hit (as Bytrius maps the beat); the top part only when a note is below.</summary>
+    static IEnumerable<Obstacle> RhythmWalls(SongAnalysis a, DifficultyProfile p, List<ColorNote> notes)
     {
+        double firstBeat = notes[0].Beat, lastBeat = notes[^1].Beat;
         var hits = a.Layers.TryGetValue("drums", out var drums)
             ? drums.Where(o => o.K is { } k && (k.Contains('k') || k.Contains('s'))).ToList()
             : a.Layers.GetValueOrDefault("low") ?? [];
@@ -99,10 +101,16 @@ public static class WallGenerator
         bool left = true;
         foreach (double t in picked.Order())
         {
-            yield return new Obstacle(a.SecondsToBeat(t), 0.125, left ? 0 : 3, 2, 1, 3);
+            double beat = a.SecondsToBeat(t);
+            double length = Math.Max(1, Math.Round(RhythmWallSec / a.TempoMap.SecPerBeat(beat) * 8)) / 8;
+            var full = new Obstacle(beat, length, left ? 0 : 3, 0, 1, 5);
+            yield return Clashes(full, notes) ? full with { Y = 2, Height = 3 } : full;
             left = !left;
         }
     }
+
+    /// <summary>Long enough to be felt through the controller: about half a beat at 184 BPM.</summary>
+    const double RhythmWallSec = 0.15;
 
     /// <summary>A note inside the wall's cells while the wall passes (plus a small margin) is unplayable.</summary>
     public static bool Clashes(Obstacle o, IEnumerable<ColorNote> notes) => notes.Any(n => Hits(o, n, 0.25));

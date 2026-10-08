@@ -92,7 +92,7 @@ share a label even when the arrangement changes.
 triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×
 energy, and picked bar by bar to hit a notes-per-second target that follows section energy. Notes are
 not snapped: each lands at the detected time of its sound (corrected for the stem's detection lag). Strong,
-isolated hits become doubles. Before a drop the map pauses for a beat or two and lands on a double. Vocal, bass and other stems use spectral-flux onsets (one per sung
+isolated hits become doubles, spread over the sections (calm parts get nearly as many as loud ones, as in curated maps). Before a drop the map pauses for a beat or two and lands on a double. Vocal, bass and other stems use spectral-flux onsets (one per sung
 syllable or note) rather than energy rises, which fired on consonants and breaths.
 
 **Flow planning** (`FlowPlanner` + `SwingCostModel`): beam search over both sabers' states (position,
@@ -113,15 +113,15 @@ last swing direction, parity). Each candidate cut is scored for:
   choruses get recognisably similar patterns
 
 **Expression** (`Expression`): the melody notes held longest over the gap to the same hand's next
-note (1-4 beats later) get an arc to it, on about as many gaps as curated mappers use (5-13 % by
-difficulty); notes in a rising or falling melody line get a small cut-angle offset that leans with it;
+note (0.3-2 s later) get an arc to it, both hands at once on a double, on about as many gaps as curated
+mappers use (6-9 % by difficulty); notes in a rising or falling melody line get a small cut-angle offset that leans with it;
 notes followed by a roll, flam or stutter too fast for single notes become chains (Hard and up, at
 most one per 30-120 s, as rare as in curated maps).
 All of them leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the
 settings.
 
 **Walls** (`WallGenerator`): dodge walls in note-free gaps, side walls in calm sections and short
-rhythm walls along the top of the outer lanes on the strongest kicks and snares of loud sections, as
+rhythm walls in the outer lanes (full height where free, long enough to make the controller buzz) on the strongest kicks and snares of loud sections, as
 most curated maps have; full-width crouch walls before drops are optional (off by default). No wall
 ever holds a note or bomb.
 
