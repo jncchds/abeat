@@ -198,6 +198,19 @@ const http = axios.create({ baseURL: '/api' })
 export interface RuntimeState { status: 'installing' | 'ready' | 'failed'; accel?: string | null; extras?: string[] | null; message?: string | null }
 export const getConfig = () => http.get<{ httpsPort: number | null; arcViewer: boolean; runtime?: RuntimeState }>('/config')
 export const getDefaults = () => http.get<Defaults>('/defaults')
+export interface VocabularyDifficulty {
+  maps: number
+  stacked: number
+  figures: number[][]
+  figureUse: number[][]
+  moves: number[][]
+  moveUse: number[][]
+  stacks: number[][]
+  stackUse: number[][]
+  doubleShapes: [number, number][]
+  doubleUse: number[]
+}
+export const getVocabulary = () => http.get<{ difficulties: Record<string, VocabularyDifficulty> }>('/vocabulary')
 export const getSongs = () => http.get<SongMeta[]>('/songs')
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[]; customCover?: boolean }>(`/songs/${id}`)
 export const deleteSong = (id: string) => http.delete(`/songs/${id}`)

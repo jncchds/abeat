@@ -97,10 +97,17 @@ public static class FlowAnalyzer
                 handClashes++;
                 issues.Add(new FlowIssue(ln.Beat, Hand.Right, IssueKind.HandClash, 0));
             }
-            // with several notes for one hand on a beat (stacks/sliders), score only the first
+            // with several notes for one hand on a beat (stacks/sliders), score only the first: along the cut
+            // when they share a direction (the swing meets that one first and leaves from the last), else the top one
             foreach (var group in notes.Skip(i).Take(j - i).GroupBy(n => n.Hand))
             {
-                var n = group.OrderByDescending(x => x.Y).First();
+                var d0 = group.First().Direction;
+                var sv = Swing.Vector(d0);
+                var ordered = d0 != CutDirection.Any && group.All(x => x.Direction == d0)
+                    ? group.OrderBy(x => x.X * sv.X + x.Y * sv.Y).ToList()
+                    : group.OrderByDescending(x => x.Y).ToList();
+                var n = ordered[0];
+                var exit = ordered[^1];
                 int h = (int)n.Hand;
                 double t = tempo.BeatToSeconds(n.Beat);
                 var s = before[h];
@@ -130,7 +137,7 @@ public static class FlowAnalyzer
                 if (c.HandClash) { handClashes++; issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.HandClash, cost)); }
                 if (!c.Reset && cost > 8) issues.Add(new FlowIssue(n.Beat, n.Hand, IssueKind.HighCost, cost));
                 total += cost;
-                states[h] = s.After(t, n.X, n.Y, dir, SwingCostModel.EffectiveSwing(s, dir), n.Hand, minSameHandGap);
+                states[h] = s.After(t, exit.X, exit.Y, dir, SwingCostModel.EffectiveSwing(s, dir), n.Hand, minSameHandGap);
             }
             i = j;
         }

@@ -346,7 +346,7 @@ label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bot
 .page-header { margin-bottom: 0; }
 .card h3, .section-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-bottom: 0.75rem; }
 button:disabled { opacity: 0.5; cursor: not-allowed; }
-.btn, a.btn { display: inline-flex; align-items: center; gap: 0.35rem; background: var(--accent); color: #fff; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.875rem; white-space: nowrap; }
+.btn, a.btn { display: inline-flex; align-items: center; gap: 0.35rem; background: var(--accent); color: #fff; padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.875rem; }
 .btn:hover { background: var(--accent-hover); color: #fff; }
 .btn-secondary, a.btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
 .btn-secondary:hover, a.btn-secondary:hover { background: var(--accent-faint); color: var(--text); border-color: var(--accent); }
@@ -663,3 +663,17 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 .cover-button { display: block; padding: 0; border: none; background: none; cursor: pointer; border-radius: 10px; }
 .cover-button:hover .cover, .cover-button:focus-visible .cover { outline: 2px solid var(--accent, #3b82f6); outline-offset: 2px; }
 .cover-reset { position: absolute; top: -0.45rem; right: -0.45rem; width: 1.3rem; height: 1.3rem; padding: 0; border-radius: 50%; font-size: 0.8rem; line-height: 1; }
+
+/* Vocabulary page */
+.vocab-controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin: 1rem 0 0.5rem; }
+.vocab-check { display: inline-flex; gap: 0.35rem; align-items: center; color: var(--text-muted); font-size: 0.875rem; }
+.vocab-check input { width: auto; margin: 0; }
+.vocab-hint { max-width: 60rem; margin-bottom: 0.5rem; font-size: 0.85rem; }
+.vocab-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 0.6rem; margin-top: 0.75rem; }
+.vocab-card { display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 0.5rem 0.25rem; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); min-width: 0; }
+.vocab-card.crossing { border-color: var(--warning); }
+.vocab-card svg { max-width: 100%; height: auto; }
+.vocab-label { font-size: 0.8rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.vocab-use { font-size: 0.72rem; }
+.vocab-more { margin-top: 1rem; }
+@media (max-width: 600px) { .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); } }

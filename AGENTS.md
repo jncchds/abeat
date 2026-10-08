@@ -123,7 +123,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 4. **Flow planning** (`FlowPlanner`): beam search over both hands' states (position, swing vector,
    parity, previous cell). Costs from `SwingCostModel`:
    - physical: resets (same parity within 1 s), angle vs clean reversal, saber travel, too-fast
-     same-hand hits, crossovers, vision blocks, over-extension
+     same-hand hits, arms crossing (reaching past where the other hand just cut; which side of the grid a
+     hand plays on is up to the figure and move vocabularies, no lane ownership), vision blocks,
+     over-extension; a cut into the cell the other saber left < 0.2 s ago is never a candidate
    - musical: accents prefer vertical swings; dynamics (`FlowWeights.Dynamics`): swing size
      (distance from the centre columns + move from the hand's last cell) follows `Intensity`, zero-mean
      so the cell mix still matches the style prior. Note height never follows the audio (brightness or
@@ -135,6 +137,16 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      pooled with their mirror image. Curated playlist 1116456 + map 37114 (89 maps): Easy 30 figures
      per hand (7 top-row), Normal 39 (7), Hard 48 (11), Expert 70 (20), Expert+ 96 (30), covering
      97-99.7 % of human notes; top-row share 18 / 21 / 24 / 26 / 26 %
+   - move vocabulary (`FlowWeights.Move`, 6): a hand's previous figure -> this figure outside the
+     difficulty's moves (used >= 2 times by >= 5 % of maps, mirror-pooled: 143 / 244 / 271 / 549 / 927 per
+     hand, covering 90 / 92 / 89 / 88 / 79 % of curated moves) pays this. Crossings come only from these
+     moves (curated: 8 / 17 / 23 / 28 / 35 % of notes on the other hand's half; generated ~15-25 %)
+   - stacks: a cut may be a stack, one swing through 2-3 notes lined up along its direction (head
+     first, the hand leaves from the last), when (hand, head figure, length) is in the stack vocabulary
+     (>= 10 % of maps; 0 / 6 / 7 / 17 / 32 shapes). Cost 1.5 x MatchCost(stacked share of notes vs
+     curated 1.0 / 3.5 / 4.9 / 7.2 / 10.3 %) + `StackAccent` (3) x max(0, 0.6 - strength): curated stacks
+     sit on the beat 74 % of the time (singles 45 %). `FlowAnalyzer` scores a lined-up stack by its head and
+     continues from its last note
    - pattern memory (`FlowWeights.Repetition`): when a section label repeats, the song is planned a second
      time and every event pays -Repetition for the exact cut (hand, cell, direction) the same position of
      the label's first occurrence got in the first plan (first occurrences are pulled to their own cuts,
@@ -379,6 +391,8 @@ move, `--write-prior` rewrites the prior.
 - UI: React SPA with ABook's layout (collapsible sidebar, theme toggle) and a Beat Saber palette. The
   sidebar lists the 10 songs with the most recent generated version (`lastGeneratedUtc` on `GET
   /api/songs`, computed from the newest saved version, else the add time); the **Songs** page (`/songs`)
-  lists and filters all of them
+  lists and filters all of them; the **Vocabulary** page (`/vocabulary`, `GET /api/vocabulary` = the
+  embedded style-prior.json) draws every move, stack, double shape and figure per difficulty on a 4x3
+  grid, sorted by how many curated maps use it (`figureUse`, `moveUse`, `stackUse`, `doubleUse`)
   (blue saber = accent, red saber = secondary). Canvases redraw per animation frame from the
   `<audio>` element's current time.

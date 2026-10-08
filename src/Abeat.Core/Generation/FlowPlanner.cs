@@ -18,7 +18,20 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     /// <summary>Offset of the strain buckets in <see cref="Node.Counts"/>.</summary>
     static readonly int StrainBase = MoveBase + MovementPrior.Buckets;
 
-    readonly record struct Cut(Hand Hand, int X, int Y, CutDirection Dir);
+    /// <summary>A swing: its first note, and for a stack the number of notes lined up along the cut.</summary>
+    readonly record struct Cut(Hand Hand, int X, int Y, CutDirection Dir, int Notes = 1)
+    {
+        public (int X, int Y) Step => Swing.Vector(Dir) is var v ? (Math.Sign(Math.Round(v.X, 3)), Math.Sign(Math.Round(v.Y, 3))) : default;
+        public IEnumerable<(int X, int Y)> Cells
+        {
+            get
+            {
+                var (x, y, (sx, sy)) = (X, Y, Step);
+                return Enumerable.Range(0, Notes).Select(k => (x + k * sx, y + k * sy));
+            }
+        }
+        public (int X, int Y) Last => (X + (Notes - 1) * Step.X, Y + (Notes - 1) * Step.Y);
+    }
 
     sealed class Node
     {
@@ -32,7 +45,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         /// <summary>Running style counts on this path: [0..8] directions, [9..20] left cells, [21..32] right cells,
         /// then the <see cref="MovementPrior"/> move and strain buckets.</summary>
         public int[] Counts = new int[StrainBase + MovementPrior.StrainBuckets];
-        public int NotesL, NotesR, Moves;
+        public int NotesL, NotesR, Moves, Stacked;
 
         public HandState State(Hand h) => h == Hand.Left ? Left : Right;
     }
@@ -70,8 +83,9 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         var notes = new List<ColorNote>();
         for (int i = events.Count - 1; best.Parent != null; i--, best = best.Parent)
         {
-            notes.Add(new ColorNote(events[i].Beat, best.A.X, best.A.Y, best.A.Hand, best.A.Dir));
-            if (best.B is { } b) notes.Add(new ColorNote(events[i].Beat, b.X, b.Y, b.Hand, b.Dir));
+            foreach (var cut in best.B is { } b ? new[] { best.A, b } : [best.A])
+                foreach (var (x, y) in cut.Cells.Reverse())
+                    notes.Add(new ColorNote(events[i].Beat, x, y, cut.Hand, cut.Dir));
         }
         notes.Reverse();
         return notes;
@@ -93,10 +107,10 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
             if (mustFlip && SwingCostModel.IsReset(hand, s, v)) continue;
             for (int x = 0; x < 4; x++)
             {
-                if (!oneSaber && (hand == Hand.Right ? x == 0 : x == 3)) continue; // far-side crossovers are never worth it
                 for (int y = 0; y < 3; y++)
                 {
                     var phys = model.Physical(hand, s, other, e.Time, x, y, d, profile.MinSameHandGapSec, profile.BurstGapSec, profile.BurstNotes);
+                    if (phys.HandClash) continue; // the other saber is still in this cell
                     double c = phys.Total + model.Musical(e.Strength, d);
                     if (d == CutDirection.Any) c += profile.DotCost;
                     if (s.Active && s.X == x && s.Y == y && d == lastDir) c += model.Weights.Repeat;
@@ -111,6 +125,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                         c += model.Weights.StyleDirection * StylePrior.MatchCost(node.Counts[(int)d], node.NotesL + node.NotesR, style.Directions[(int)d]);
                         bool known = oneSaber ? style.HasFigure(Hand.Left, x, y, d) || style.HasFigure(Hand.Right, x, y, d) : style.HasFigure(hand, x, y, d);
                         if (!known) c += model.Weights.Figure;
+                        if (!oneSaber && s.Active && !style.HasMove(hand, s.X, s.Y, lastDir, x, y, d)) c += model.Weights.Move;
                     }
                     if (movement != null && Move(s, e.Time, x, y, v) is var (bucket, strain))
                     {
@@ -122,6 +137,19 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                     c += model.Weights.Noise * Noise(eventIndex, hand, x, y, d);
                     if (reference.TryGetValue(eventIndex, out var refCuts) && refCuts.Contains(new Cut(hand, x, y, d))) c -= model.Weights.Repetition;
                     yield return (new Cut(hand, x, y, d), c, v);
+                    if (style?.Stacks is null || oneSaber || d == CutDirection.Any) continue;
+                    for (int len = 2; len <= 3; len++)
+                    {
+                        var stack = new Cut(hand, x, y, d, len);
+                        var (lx, ly) = stack.Last;
+                        if (lx is < 0 or > 3 || ly is < 0 or > 2 || !style.HasStack(hand, x, y, d, len)) break;
+                        // the rest of the stack must not run into where the other saber just was
+                        if (other.Active && e.Time - other.Time < SwingCostModel.SameCellSec && stack.Cells.Skip(1).Contains((other.X, other.Y))) break;
+                        int notes = node.NotesL + node.NotesR;
+                        double sc = 1.5 * StylePrior.MatchCost(node.Stacked + len, notes + len, style.Stacked)
+                                  + model.Weights.StackAccent * Math.Max(0, 0.6 - e.Strength);
+                        yield return (stack, c + sc, v);
+                    }
                 }
             }
         }
@@ -223,7 +251,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     /// <summary>Doubles should be parallel or mirrored, side by side, and must never collide.</summary>
     static double PairCost(Cut l, Cut r, Vec2 lv, Vec2 rv)
     {
-        if (l.X == r.X && l.Y == r.Y) return double.PositiveInfinity;
+        if (l.Cells.Intersect(r.Cells).Any()) return double.PositiveInfinity;
         double c = 0;
         if (l.X > r.X) c += 12; // crossed doubles
         else if (l.X == r.X) c += 4; // stacked in one column
@@ -246,7 +274,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         {
             Left = parent.Left, Right = parent.Right, Cost = cost, Parent = parent, A = a, B = b,
             LastHand = a.Hand, LastDirL = parent.LastDirL, LastDirR = parent.LastDirR,
-            Counts = (int[])parent.Counts.Clone(), NotesL = parent.NotesL, NotesR = parent.NotesR, Moves = parent.Moves,
+            Counts = (int[])parent.Counts.Clone(), NotesL = parent.NotesL, NotesR = parent.NotesR, Moves = parent.Moves, Stacked = parent.Stacked,
         };
         Apply(n, a, t, sa);
         if (b is { } bb) Apply(n, bb, t, sb);
@@ -263,10 +291,16 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
             n.Counts[StrainBase + MovementPrior.StrainBucket(strain)]++;
             n.Moves++;
         }
-        n.Counts[(int)c.Dir]++;
-        n.Counts[(c.Hand == Hand.Left ? 9 : 21) + c.Y * 4 + c.X]++;
-        if (c.Hand == Hand.Left) n.NotesL++; else n.NotesR++;
-        var s = n.State(c.Hand).After(t, c.X, c.Y, c.Dir, swing, c.Hand, profile.MinSameHandGapSec);
+        foreach (var (x, y) in c.Cells)
+        {
+            n.Counts[(int)c.Dir]++;
+            n.Counts[(c.Hand == Hand.Left ? 9 : 21) + y * 4 + x]++;
+        }
+        if (c.Hand == Hand.Left) n.NotesL += c.Notes; else n.NotesR += c.Notes;
+        if (c.Notes > 1) n.Stacked += c.Notes;
+        // a stack's swing leaves from its last note
+        var (ex, ey) = c.Last;
+        var s = n.State(c.Hand).After(t, ex, ey, c.Dir, swing, c.Hand, profile.MinSameHandGapSec);
         if (c.Hand == Hand.Left) { n.Left = s; n.LastDirL = c.Dir; }
         else { n.Right = s; n.LastDirR = c.Dir; }
     }

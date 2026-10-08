@@ -111,7 +111,7 @@ public static class MapGenerator
     static double HandRoleShare(IReadOnlyList<RhythmEvent> events, List<ColorNote> notes, Hand dropHand)
     {
         var roles = FlowPlanner.HandRoles(events, dropHand);
-        var hands = notes.GroupBy(n => n.Beat).ToDictionary(g => g.Key, g => g.Select(n => n.Hand).ToList());
+        var hands = notes.GroupBy(n => n.Beat).ToDictionary(g => g.Key, g => g.Select(n => n.Hand).Distinct().ToList());
         int total = 0, kept = 0;
         for (int i = 0; i < events.Count; i++)
         {

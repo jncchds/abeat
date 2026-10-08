@@ -79,7 +79,8 @@ public sealed record FlowWeights
     public double Travel { get; init; } = 0.9;
     /// <summary>Note placed in the middle-row center, which hides notes behind it.</summary>
     public double VisionBlock { get; init; } = 2.0;
-    /// <summary>Hand reaching into the other hand's side.</summary>
+    /// <summary>Hand reaching past where the other hand just cut (arms crossing). Which side of the grid a
+    /// hand plays on is left to the figure and move vocabularies.</summary>
     public double Crossover { get; init; } = 3.0;
     /// <summary>The other hand cut the same cell a moment ago (see <see cref="SwingCostModel.SameCellSec"/>).</summary>
     public double HandClash { get; init; } = 8;
@@ -98,6 +99,12 @@ public sealed record FlowWeights
     /// <summary>A figure (hand + cell + cut direction) or double shape outside the difficulty's human
     /// vocabulary (<see cref="StylePrior"/>). High enough that they only appear when nothing else fits.</summary>
     public double Figure { get; init; } = 25;
+    /// <summary>A move (the hand's previous figure -> this one) outside the difficulty's human move
+    /// vocabulary (<see cref="StylePrior"/>), which covers 79-92 % of curated moves.</summary>
+    public double Move { get; init; } = 6;
+    /// <summary>Stacks (one swing through 2-3 lined-up notes, from the stack vocabulary) lean towards strong
+    /// hits: curated stacks sit on the beat 74 % of the time (single notes 45 %).</summary>
+    public double StackAccent { get; init; } = 3;
     /// <summary>Strong accents prefer big vertical swings.</summary>
     public double Emphasis { get; init; } = 0.8;
     /// <summary>Random jitter for variety; also what the seed changes.</summary>

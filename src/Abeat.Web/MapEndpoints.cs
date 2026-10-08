@@ -22,6 +22,11 @@ public static class MapEndpoints
             environments = EnvironmentCatalog.All.Select(e => new { e.Id, e.Name, system = e.System.ToString() }),
         });
 
+        // the style prior's vocabularies (figures, moves, stacks, double shapes) for the Vocabulary page
+        api.MapGet("/vocabulary", () =>
+            typeof(StylePrior).Assembly.GetManifestResourceStream("Abeat.Core.style-prior.json") is { } s
+                ? Results.Stream(s, "application/json") : Results.NotFound());
+
         api.MapGet("/songs", (SongStore store) => store.All.Select(m => m with { LastGeneratedUtc = Generations.Latest(store, m.Id)?.CreatedUtc }));
 
         api.MapPost("/songs", async (HttpRequest req, SongStore store, AnalysisQueue queue) =>

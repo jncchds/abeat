@@ -102,13 +102,6 @@ public sealed class SwingCostModel(FlowWeights w)
             c += 1.0; // first swing: prefer forehand
         }
 
-        // lanes: each hand owns its side; centre columns are shared
-        int outward = hand == Hand.Right ? x - 1 : 2 - x; // 1..2 = home side, 0 = centre-other, -1 = far side
-        if (outward <= 0)
-        {
-            c += w.Crossover * (outward < 0 ? 3 : 0.3);
-            cross = outward < 0;
-        }
         // reaching past the other hand's recent position (passing in the middle columns is normal)
         if (other.Active && t - other.Time < 0.4)
         {

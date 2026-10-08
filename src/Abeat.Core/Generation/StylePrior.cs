@@ -5,8 +5,8 @@ namespace Abeat.Core.Generation;
 
 /// <summary>How human mappers use the grid and cut directions per difficulty, learned from curated maps
 /// by scripts/style_prior.py and embedded as style-prior.json. The planner matches the cell and direction
-/// shares and only places figures (hand + cell + cut direction) and double shapes from the difficulty's
-/// vocabulary: what curated mappers commonly use, so lower difficulties keep notes lower.</summary>
+/// shares and only places figures (hand + cell + cut direction), moves (a hand's figure -> its next figure)
+/// and double shapes from the difficulty's vocabulary: what curated mappers commonly use, so lower difficulties keep notes lower.</summary>
 public sealed class StylePrior
 {
     const double Eps = 0.004;
@@ -17,6 +17,13 @@ public sealed class StylePrior
     public required bool[][] Figures { get; init; }
     /// <summary>Double shapes in the vocabulary: (left figure, right figure).</summary>
     public required HashSet<(int L, int R)> DoubleShapes { get; init; }
+    /// <summary>Stacks in the vocabulary, per hand, indexed head figure * 4 + notes: one swing through notes
+    /// lined up along its cut direction, head first. Null when the prior has none.</summary>
+    public bool[][]? Stacks { get; init; }
+    /// <summary>Share of notes that sit in stacks.</summary>
+    public double Stacked { get; init; }
+    /// <summary>Moves in the vocabulary, per hand, indexed from figure * 108 + to figure; null when the prior has none.</summary>
+    public bool[][]? Moves { get; init; }
     public double Nps { get; init; }
     public double Doubles { get; init; }
     public double Dots { get; init; }
@@ -36,6 +43,12 @@ public sealed class StylePrior
     public static int Figure(int x, int y, CutDirection d) => y * 36 + x * 9 + (int)d;
 
     public bool HasFigure(Hand h, int x, int y, CutDirection d) => Figures[(int)h][Figure(x, y, d)];
+
+    public bool HasStack(Hand h, int x, int y, CutDirection d, int notes) =>
+        Stacks is not null && notes <= 3 && Stacks[(int)h][Figure(x, y, d) * 4 + notes];
+
+    public bool HasMove(Hand h, int px, int py, CutDirection pd, int x, int y, CutDirection d) =>
+        Moves is null || Moves[(int)h][Figure(px, py, pd) * 108 + Figure(x, y, d)];
 
     public bool HasDouble(int lx, int ly, CutDirection ld, int rx, int ry, CutDirection rd) =>
         DoubleShapes.Contains((Figure(lx, ly, ld), Figure(rx, ry, rd)));
@@ -76,6 +89,19 @@ public sealed class StylePrior
                     return allowed;
                 }).ToArray(),
                 DoubleShapes = v.GetProperty("doubleShapes").EnumerateArray().Select(p => (p[0].GetInt32(), p[1].GetInt32())).ToHashSet(),
+                Stacks = v.TryGetProperty("stacks", out var stacks) ? stacks.EnumerateArray().Select(h =>
+                {
+                    var allowed = new bool[108 * 4];
+                    foreach (var k in h.EnumerateArray()) allowed[k.GetInt32()] = true;
+                    return allowed;
+                }).ToArray() : null,
+                Stacked = v.TryGetProperty("stacked", out var stacked) ? stacked.GetDouble() : 0,
+                Moves = v.TryGetProperty("moves", out var moves) ? moves.EnumerateArray().Select(h =>
+                {
+                    var allowed = new bool[108 * 108];
+                    foreach (var m in h.EnumerateArray()) allowed[m.GetInt32()] = true;
+                    return allowed;
+                }).ToArray() : null,
                 Nps = v.GetProperty("nps").GetDouble(),
                 Doubles = v.GetProperty("doubles").GetDouble(),
                 Dots = v.GetProperty("dots").GetDouble(),

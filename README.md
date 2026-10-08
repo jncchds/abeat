@@ -99,9 +99,11 @@ syllable or note) rather than energy rises, which fired on consonants and breath
 last swing direction, parity). Each candidate cut is scored for:
 
 - *physical flow*: parity resets, angle change vs. a clean reversal, saber travel, swing speed,
-  crossovers, vision blocks, over-extension
-- *figures*: only figures (hand + cell + cut direction) and double shapes that curated mappers commonly
-  use on that difficulty; note height never follows the audio, so easier levels keep notes lower
+  arms crossing, vision blocks, over-extension
+- *figures and moves*: only figures (hand + cell + cut direction), moves (a hand's figure to its next
+  one), stacks (one swing through 2-3 lined-up notes) and double shapes that curated mappers commonly
+  use on that difficulty. A hand crosses to the other side of the grid only where a known move takes it;
+  the **Vocabulary** page shows every one of them drawn on the grid; note height never follows the audio, so easier levels keep notes lower
   like human maps do (top row: ~18 % of notes on Easy, ~26 % on Expert+)
 - *musical fit*: accents prefer big vertical swings; one saber follows the
   melody (vocals) and the other the rhythm (drums, bass), swapping at section changes

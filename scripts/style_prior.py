@@ -3,7 +3,8 @@
 
 Writes src/Abeat.Core/Generation/style-prior.json: per difficulty, the distribution of cut
 directions and of grid cells per hand, the figure vocabulary (hand + cell + cut direction that
-mappers actually use) and the vocabulary of double shapes, plus density / doubles / dots rates
+mappers actually use), the move vocabulary (one hand's figure -> its next figure) and the vocabulary
+of double shapes, plus density / doubles / dots rates
 for reference. Hands are pooled with their mirror image so both vocabularies stay symmetric.
 
     python3 scripts/style_prior.py work/beatsaver-prior
@@ -21,6 +22,10 @@ MIRROR_DIR = [0, 1, 3, 2, 5, 4, 7, 6, 8]
 # a figure is in the vocabulary when this share of the difficulty's maps use it at least MIN_USES times
 FIGURE_MAPS = 0.1
 DOUBLE_MAPS = 0.05
+MOVE_MAPS = 0.05
+STACK_MAPS = 0.1
+# grid step along each cut direction (y up); dots have none
+DIR_STEP = [(0, 1), (0, -1), (-1, 0), (1, 0), (-1, 1), (1, 1), (-1, -1), (1, -1)]
 MIN_USES = 2
 
 
@@ -67,10 +72,26 @@ def mirror(c, x, y, d):
     return 1 - c, 3 - x, y, MIRROR_DIR[d]
 
 
+def stack(group):
+    """(head figure, length) when one hand's simultaneous notes form a line along their shared cut
+    direction (the swing meets the head first), else None."""
+    dirs = {n[4] for n in group}
+    if len(dirs) != 1 or 8 in dirs:
+        return None
+    d = dirs.pop()
+    dx, dy = DIR_STEP[d]
+    cells = sorted(((n[2], n[3]) for n in group), key=lambda c: -(c[0] * dx + c[1] * dy))
+    hx, hy = cells[-1]  # lowest projection on the swing: met first
+    line = [(hx + k * dx, hy + k * dy) for k in range(len(group))]
+    return (figure(hx, hy, d), len(group)) if sorted(line) == sorted(cells) else None
+
+
 def main(root):
     acc = {k: {"dir": collections.Counter(), "cell": [collections.Counter(), collections.Counter()],
                "fig": [collections.Counter(), collections.Counter()], "figMaps": [collections.Counter(), collections.Counter()],
                "dbl": collections.Counter(), "dblMaps": collections.Counter(),
+               "mov": [collections.Counter(), collections.Counter()], "movMaps": [collections.Counter(), collections.Counter()],
+               "stk": [collections.Counter(), collections.Counter()], "stkMaps": [collections.Counter(), collections.Counter()], "stacked": [],
                "nps": [], "doubles": [], "dots": [], "maps": 0} for k in ORDER}
     paths = sorted(set(glob.glob(os.path.join(root, "*/"))) | set(glob.glob(os.path.join(root, "*.zip"))))
     seen = set()
@@ -100,6 +121,40 @@ def main(root):
             for h in (0, 1):
                 a["fig"][h].update(figs[h])
                 a["figMaps"][h].update(f for f, n in figs[h].items() if n >= 2 * MIN_USES)  # mirrored: counted twice
+            moves = [collections.Counter(), collections.Counter()]
+            for c in (0, 1):
+                prev = None
+                for t in sorted({round(n[0], 3) for n in notes if n[1] == c}):
+                    cur = next(n for n in notes if n[1] == c and round(n[0], 3) == t)  # a stack's first note
+                    if prev is not None:
+                        _, px, py, pd = prev[1:]
+                        x, y, d = cur[2:]
+                        moves[c][(figure(px, py, pd), figure(x, y, d))] += 1
+                        mc, mpx, mpy, mpd = mirror(c, px, py, pd)
+                        _, mx, my, md = mirror(c, x, y, d)
+                        moves[mc][(figure(mpx, mpy, mpd), figure(mx, my, md))] += 1
+                    prev = cur
+            stacks = [collections.Counter(), collections.Counter()]
+            stacked = 0
+            for c in (0, 1):
+                groups = collections.defaultdict(list)
+                for n in notes:
+                    if n[1] == c:
+                        groups[round(n[0], 3)].append(n)
+                for g in groups.values():
+                    if len(g) < 2 or (st := stack(g)) is None:
+                        continue
+                    stacked += len(g)
+                    stacks[c][st] += 1
+                    mg = [(n[0], *mirror(*n[1:])) for n in g]
+                    stacks[1 - c][stack(mg)] += 1
+            a["stacked"].append(stacked / len(notes))
+            for h in (0, 1):
+                a["stk"][h].update(stacks[h])
+                a["stkMaps"][h].update(k for k, n in stacks[h].items() if n >= MIN_USES)
+            for h in (0, 1):
+                a["mov"][h].update(moves[h])
+                a["movMaps"][h].update(m for m, n in moves[h].items() if n >= MIN_USES)
             dbls = collections.Counter()
             for g in beats.values():
                 left = [n for n in g if n[1] == 0]
@@ -121,6 +176,8 @@ def main(root):
         "source": f"{len(seen)} maps from {root}",
         "figureMaps": FIGURE_MAPS,
         "doubleMaps": DOUBLE_MAPS,
+        "moveMaps": MOVE_MAPS,
+        "stackMaps": STACK_MAPS,
         "difficulties": {},
     }
     for k, a in acc.items():
@@ -128,6 +185,8 @@ def main(root):
             continue
         figures = [[f for f in range(108) if a["figMaps"][h][f] >= FIGURE_MAPS * a["maps"]] for h in (0, 1)]
         doubles = sorted(s for s, n in a["dblMaps"].items() if n >= DOUBLE_MAPS * a["maps"])
+        stacks = [sorted(k for k, n in a["stkMaps"][h].items() if n >= STACK_MAPS * a["maps"]) for h in (0, 1)]
+        moves = [sorted(m for m, n in a["movMaps"][h].items() if n >= MOVE_MAPS * a["maps"]) for h in (0, 1)]
         out["difficulties"][k] = {
             "maps": a["maps"],
             "nps": mean(a["nps"]),
@@ -136,14 +195,23 @@ def main(root):
             "directions": dist(a["dir"], 9),
             "cells": [dist(a["cell"][0], 12), dist(a["cell"][1], 12)],
             "figures": figures,
+            "figureUse": [[a["figMaps"][h][f] for f in figures[h]] for h in (0, 1)],  # curated maps using each
             "doubleShapes": [list(s) for s in doubles],
+            "doubleUse": [a["dblMaps"][s] for s in doubles],
+            "stacked": mean(a["stacked"]),
+            "stacks": [[f * 4 + n for f, n in stacks[h]] for h in (0, 1)],  # head figure * 4 + notes in the stack
+            "stackUse": [[a["stkMaps"][h][k] for k in stacks[h]] for h in (0, 1)],
+            "moves": [[f * 108 + t for f, t in moves[h]] for h in (0, 1)],  # from figure * 108 + to figure
+            "moveUse": [[a["movMaps"][h][m] for m in moves[h]] for h in (0, 1)],
         }
+        mcover = sum(a["mov"][h][m] for h in (0, 1) for m in moves[h]) / max(1, sum(sum(a["mov"][h].values()) for h in (0, 1)))
         cover = sum(a["fig"][h][f] for h in (0, 1) for f in figures[h]) / sum(sum(a["fig"][h].values()) for h in (0, 1))
         dcover = sum(a["dbl"][s] for s in doubles) / max(1, sum(a["dbl"].values()))
         top = max((f // 36 for f in figures[1]), default=0)
         print(f"{k:10} maps {a['maps']:3}  nps {mean(a['nps']):.2f}  doubles {mean(a['doubles']):.0%}  dots {mean(a['dots']):.1%}  "
               f"figures {len(figures[1]):3} ({cover:.1%} of notes, top row {sum(1 for f in figures[1] if f // 36 == 2)})  "
-              f"double shapes {len(doubles):3} ({dcover:.1%})")
+              f"double shapes {len(doubles):3} ({dcover:.1%})  moves {len(moves[1]):3} ({mcover:.1%})  "
+              f"stacked {mean(a['stacked']):.1%} in {len(stacks[1])} shapes")
     path = os.path.join(os.path.dirname(__file__), "..", "src", "Abeat.Core", "Generation", "style-prior.json")
     json.dump(out, open(path, "w"), indent=1)
     print("wrote", os.path.normpath(path))

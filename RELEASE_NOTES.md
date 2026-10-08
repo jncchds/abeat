@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.16 — 2026-10-08
+
+- Move vocabulary: hands cross to the other side only where a move curated mappers use leads there (the fixed "each hand owns its side" rule is gone); stacks (one swing through 2-3 lined-up notes) from the curated stack shapes, mostly on strong beats. New **Vocabulary** page draws every move, stack, double shape and figure per difficulty.
+
 ## v0.2.15 — 2026-10-08
 
 - Machine-local UI extensions: a git-ignored `src/abeat-ui/src/local/<name>/index.ts` can add links next to each map version (see `src/abeat-ui/src/extensions.ts`).

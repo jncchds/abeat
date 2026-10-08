@@ -8,6 +8,7 @@ import PlaylistPage from './pages/PlaylistPage'
 import RuntimeBanner from './components/RuntimeBanner'
 import SongPage from './pages/SongPage'
 import SongsPage from './pages/SongsPage'
+import VocabularyPage from './pages/VocabularyPage'
 
 const SIDEBAR_SONGS = 10
 
@@ -37,6 +38,7 @@ function Layout() {
       </div>}>
         <SidebarBtn icon="🎵" label="Songs" active={location.pathname === '/songs'} onClick={() => navigate('/songs')} />
         <SidebarBtn icon="➕" label="Add song" active={location.pathname === '/'} onClick={() => navigate('/')} />
+        <SidebarBtn icon="🧩" label="Vocabulary" active={location.pathname === '/vocabulary'} onClick={() => navigate('/vocabulary')} />
         <SidebarDivider />
         <SidebarSection title="Playlists" />
         <div className="sidebar-book-list">
@@ -93,6 +95,7 @@ export default function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/songs" element={<SongsPage />} />
+            <Route path="/vocabulary" element={<VocabularyPage />} />
             <Route path="/songs/:id" element={<SongPage />} />
             <Route path="/playlists/:id" element={<PlaylistPage />} />
           </Route>
