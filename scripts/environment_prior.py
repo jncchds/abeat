@@ -8,9 +8,10 @@ work/env-survey) and writes src/Abeat.Core/Generation/environment-prior.json:
 - classic environments: the share of maps using each basic event type, and value ranges of the
   ring / laser-speed types;
 - group environments (v3/v4 lightshows): per light group, the share of maps lighting / rotating /
-  translating it, the axes and magnitudes used, a lower bound on its light count from filters, the
-  poses mappers move it to (angles per rotation axis, distance percentiles per axis) and its mirror partner; per
-  environment the median length of eased rotations / translations.
+  translating it, how often it is switched on, the axes and magnitudes used, a lower bound on its
+  light count from filters, the poses mappers move it to (angles per rotation axis, distance percentiles
+  per axis) and its mirror partner; per environment the median length of eased rotations / translations,
+  and how the basic light types (0-7, e.g. Pyro's runway and projectors) are used next to the groups.
 
     python3 scripts/environment_prior.py [maps per environment, default 14]
 """
@@ -205,20 +206,33 @@ class Stats:
         self.pairs = collections.defaultdict(lambda: [0, 0])
         self.ease = {"rotation": [], "translation": []}  # beats each eased move takes
         self.pair_maps = collections.defaultdict(set)
+        self.on_rates = collections.defaultdict(list)    # group -> per map: beats it is switched on / song beats
+        # basic light type -> per map events / song beats; value classes; identical-event partners
+        self.basic_rates = collections.defaultdict(list)
+        self.basic_kinds = collections.defaultdict(collections.Counter)
+        self.basic_pairs = collections.defaultdict(list)  # (type, other) -> per map [same-beat events, identical]
 
     def add(self, basic, color, rotation, translation, fx):
-        """basic: [(type, value, float)]; color: [(group, filter, [color], beat)]; rotation/translation:
-        [(group, filter, axis, [magnitude], beat)]; fx: [group]."""
+        """basic: [(type, value, float, beat)]; color: [(group, filter, [color], beat, switched on)];
+        rotation/translation: [(group, filter, axis, [magnitude], beat, [(beat, easing, previous)])]; fx: [group]."""
         self.maps += 1
         for t in {b[0] for b in basic}:
             self.basic[t] += 1
-        for t, v, fl in basic:
+        for t, v, fl, _ in basic:
             if t in (8, 9, 12, 13) or t >= 14:
                 self.basic_values[t][v] += 1
+        span = max([b[3] for b in basic] + [c[3] for c in color] + [r[4] for r in rotation + translation] + [1])
+        on = collections.defaultdict(set)
+        for g, _, _, b, lit in color:
+            if lit:
+                on[g].add(round(b, 3))
+        for g, beats in on.items():
+            self.on_rates[g].append(len(beats) / span)
+        self.add_basic_lights(basic, span)
         used = collections.defaultdict(set)
         hints = collections.defaultdict(int)
         rot_axes = collections.defaultdict(set)
-        for g, filt, colors, _ in color:
+        for g, filt, colors, _, _ in color:
             s = self.groups[g]
             used[g].add("color")
             s["events"] += 1
@@ -254,11 +268,35 @@ class Stats:
                 self.groups[g][k] += 1
 
 
+    def add_basic_lights(self, basic, span):
+        """Basic light types (0-7): how often each fires, which values (off / on / flash / fade / transition,
+        colour) and which other type gets the same events (mirrored sides)."""
+        lights = [(t, v, fl, b) for t, v, fl, b in basic if 0 <= t <= 7 and 0 <= v <= 12]
+        per = collections.Counter(t for t, *_ in lights)
+        for t, n in per.items():
+            if n >= 0.9 * sum(1 for x in basic if x[0] == t):
+                self.basic_rates[t].append(n / span)
+        at, pairs = collections.defaultdict(dict), collections.defaultdict(lambda: [0, 0])
+        for t, v, fl, b in lights:
+            k = self.basic_kinds[t]
+            k["off" if v == 0 else ("on", "flash", "fade", "transition")[(v - 1) % 4]] += 1
+            if v:
+                k["white" if v > 8 else "color"] += 1
+            at[round(b, 3)][t] = (v, round(fl, 2))
+        for evs in at.values():
+            for t, e in evs.items():
+                for u, e2 in evs.items():
+                    if t != u:
+                        pairs[(t, u)][0] += 1
+                        pairs[(t, u)][1] += e == e2
+        for k, p in pairs.items():
+            self.basic_pairs[k].append(p)
+
     def add_pairs(self, color, rotation, translation):
         """Mirror partners: groups that get the same event at the same beat (the game mirrors the right
         side itself, so mappers send both halves identical values)."""
         at = collections.defaultdict(lambda: collections.defaultdict(list))
-        for g, filt, colors, b in color:
+        for g, filt, colors, b, _ in color:
             at[("c", round(b, 3))][g].append((json.dumps(filt, sort_keys=True), tuple(colors)))
         for kind, rows in (("r", rotation), ("t", translation)):
             for g, filt, axis, mags, b, _ in rows:
@@ -305,13 +343,14 @@ def lights_hint(f):
 
 
 def parse_v2(j):
-    basic = [(e.get("_type", 0), e.get("_value", 0), e.get("_floatValue", 1)) for e in j.get("_events", [])]
+    basic = [(e.get("_type", 0), e.get("_value", 0), e.get("_floatValue", 1), e.get("_time", 0)) for e in j.get("_events", [])]
     return basic, [], [], [], []
 
 
 def parse_v3(j):
-    basic = [(e.get("et", 0), e.get("i", 0), e.get("f", 1)) for e in j.get("basicBeatmapEvents", [])]
-    color = [(g.get("g", 0), box.get("f", {}), [e.get("c", 0) for e in box.get("e", [])], g.get("b", 0))
+    basic = [(e.get("et", 0), e.get("i", 0), e.get("f", 1), e.get("b", 0)) for e in j.get("basicBeatmapEvents", [])]
+    color = [(g.get("g", 0), box.get("f", {}), [e.get("c", 0) for e in box.get("e", [])], g.get("b", 0),
+              any(e.get("s", 1) > 0 for e in box.get("e", [])))
              for g in j.get("lightColorEventBoxGroups", []) for box in g.get("e", [])]
     rotation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("r", 0) for e in box.get("l", [])], g.get("b", 0),
                  [(e.get("b", 0), e.get("e", -1), e.get("p", 0)) for e in box.get("l", [])])
@@ -326,7 +365,7 @@ def parse_v3(j):
 def parse_v4(j, ls):
     src = ls or j
     data = src.get("basicEventsData", [])
-    basic = [(data[e["i"]].get("t", 0), data[e["i"]].get("i", 0), data[e["i"]].get("f", 1))
+    basic = [(data[e["i"]].get("t", 0), data[e["i"]].get("i", 0), data[e["i"]].get("f", 1), e.get("b", 0))
              for e in src.get("basicEvents", []) if e.get("i", 0) < len(data)]
     filters = src.get("indexFilters", [])
     cboxes, rboxes, tboxes = src.get("lightColorEventBoxes", []), src.get("lightRotationEventBoxes", []), src.get("lightTranslationEventBoxes", [])
@@ -339,7 +378,8 @@ def parse_v4(j, ls):
             evs = [x.get("i", 0) for x in box.get("l", [])]
             bi = box.get("e", 0)
             if typ == 1 and bi < len(cboxes):
-                color.append((gid, filt, [cev[i].get("c", 0) for i in evs if i < len(cev)], g.get("b", 0)))
+                color.append((gid, filt, [cev[i].get("c", 0) for i in evs if i < len(cev)], g.get("b", 0),
+                              any(cev[i].get("b", 1) > 0 for i in evs if i < len(cev))))
             elif typ == 2 and bi < len(rboxes):
                 rotation.append((gid, filt, rboxes[bi].get("a", 0), [rev[i].get("r", 0) for i in evs if i < len(rev)], g.get("b", 0),
                                  [(x.get("b", 0), rev[x.get("i", 0)].get("e", -1), rev[x.get("i", 0)].get("p", 0)) for x in box.get("l", []) if x.get("i", 0) < len(rev)]))
@@ -391,6 +431,27 @@ def summarize(env, st):
             vals[str(t)] = [min(c), max(c), max(c, key=c.get)]
     if vals:
         out["basicValues"] = vals
+    lights = {}
+    for t, rates in sorted(st.basic_rates.items()):
+        # only next to light groups (classic environments light with these types anyway)
+        if len(rates) < 0.3 * st.maps or not any(g["color"] for g in st.groups.values()):
+            continue
+        k = st.basic_kinds[t]
+        tot, lit = sum(k[c] for c in ("off", "on", "flash", "fade", "transition")), k["white"] + k["color"]
+        row = {"share": round(len(rates) / st.maps, 2), "rate": round(statistics.median(rates), 3)}
+        row.update({c: round(k[c] / tot, 2) for c in ("off", "on", "flash", "fade", "transition")})
+        row["white"] = round(k["white"] / lit, 2) if lit else 0
+        # the mirrored type: identical events (>= 70 % of shared beats) in >= 60 % of the maps (>= 3) firing both
+        votes = {u: [n >= 5 and same >= 0.7 * n for n, same in p if n >= 5] for (x, u), p in st.basic_pairs.items() if x == t}
+        mirror = [u for u, v in votes.items() if len(v) >= 3 and sum(v) >= 0.6 * len(v)]
+        if mirror:
+            row["mirror"] = max(mirror, key=lambda u: sum(votes[u]))
+        lights[str(t)] = row
+    for row in lights.values():  # partners are mutual
+        if "mirror" in row and lights.get(str(row["mirror"]), {}).get("mirror") != int(next(k for k, r in lights.items() if r is row)):
+            del row["mirror"]
+    if lights:
+        out["basicLights"] = lights
     groups = {}
     mirrors = st.mirrors()
     for g, s in sorted(st.groups.items()):
@@ -401,6 +462,8 @@ def summarize(env, st):
         # the largest light count at least three maps' filters imply (a map or two copy filters between groups)
         lights = s["lights"]
         row["lights"] = max((h for h in lights if sum(n for k, n in lights.items() if k >= h) >= min(3, sum(lights.values()))), default=0)
+        if st.on_rates[g]:
+            row["rate"] = round(statistics.median(st.on_rates[g]), 3)
         if s["rot_axes"] and share["rotation"] >= 0.2:
             # an axis counts when it carries 15 % of the turns or half the maps that turn the group use it
             row["rotationAxes"] = [a for a, n in s["rot_axes"].most_common() if n >= 0.15 * sum(s["rot_axes"].values())

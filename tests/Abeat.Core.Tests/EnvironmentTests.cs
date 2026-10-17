@@ -46,9 +46,31 @@ public class EnvironmentTests
             Assert.All(d.GroupLights, g => Assert.Contains(g.Group, ids));
             Assert.All(d.GroupRotations, x => Assert.True(env.Groups.Single(g => g.Id == x.Group).Rotation >= 0.3, $"{env.Id} rotates group {x.Group}"));
             Assert.All(d.GroupTranslations, x => Assert.True(env.Groups.Single(g => g.Id == x.Group).Translation >= 0.3, $"{env.Id} moves group {x.Group}"));
-            // classic event types mean other things here; only special events (40+) are written
-            Assert.All(d.Lights, l => Assert.True(l.Type >= 40));
+            // classic event types mean other things here: only the environment's own basic lights and
+            // special events (40+) are written
+            var basic = (env.BasicLights ?? []).Select(b => b.Type).ToHashSet();
+            Assert.All(d.Lights, l => Assert.True(l.Type >= 40 || basic.Contains(l.Type), $"{env.Id} writes type {l.Type}"));
         }
+    }
+
+    [Fact]
+    public void PyroFiresItsFireRarelyAndLightsItsStage()
+    {
+        var env = EnvironmentCatalog.Find("Pyro")!;
+        var d = Gen(Drummed(), "Pyro").Difficulties[0].Map;
+        double end = d.Notes.Max(n => n.Beat);
+        // the fire jets (12/13) burst about as often as curated maps fire them, not on every note
+        var fire = env.Groups.Single(g => g.Id == 12);
+        Assert.True(fire.Rate < 0.1);
+        int bursts = d.GroupLights.Count(g => g.Group == 12 && g.Boxes[0].Events[0].Brightness > 0);
+        Assert.InRange(bursts, 1, Math.Max(2, 3 * fire.Rate!.Value * end));
+        Assert.Equal(bursts, d.GroupLights.Count(g => g.Group == 13 && g.Boxes[0].Events[0].Brightness > 0));
+        // the runway (4) washes with the sections, the projectors (2/3) mirror each other
+        Assert.Contains(env.BasicLights!, b => b.Type == 4);
+        Assert.Contains(d.Lights, l => l.Type == 4 && l.Value != LightValue.Off);
+        var left = d.Lights.Where(l => l.Type == 2).Select(l => (l.Beat, l.Value, l.Brightness)).ToList();
+        Assert.NotEmpty(left);
+        Assert.Equal(left, d.Lights.Where(l => l.Type == 3).Select(l => (l.Beat, l.Value, l.Brightness)).ToList());
     }
 
     [Fact]

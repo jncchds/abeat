@@ -15,15 +15,22 @@ public enum LightingSystem { Classic, Groups }
 /// <param name="AxisPoses">The same for each further rotation axis (Weave's lights also turn about y).</param>
 /// <param name="TranslationValues">Per translation axis: 10th percentile, median and 90th percentile of the
 /// distances mappers move it to.</param>
+/// <param name="Rate">Median share of song beats on which maps switch it on (Pyro's fire: 0.03).</param>
 public sealed record LightGroupInfo(int Id, double Color, double Rotation, double Translation, int Lights,
     int[] RotationAxes, double RotationRange, int[] TranslationAxes, double TranslationRange,
     int? Mirror = null, int[]? RotationPoses = null, IReadOnlyDictionary<int, double[]>? TranslationValues = null,
-    IReadOnlyDictionary<int, int[]>? AxisPoses = null)
+    IReadOnlyDictionary<int, int[]>? AxisPoses = null, double? Rate = null)
 {
     /// <summary>The poses mappers turn it to about <paramref name="axis"/> (null when unknown).</summary>
     public int[]? PosesOn(int axis) =>
         RotationAxes.Length > 0 && axis == RotationAxes[0] ? RotationPoses : AxisPoses?.GetValueOrDefault(axis);
 }
+
+/// <summary>A basic light type (0-7) of a group environment as curated maps use it next to the groups
+/// (e.g. Pyro: 4 runway, 2/3 projectors, 1 logo): share of maps, events per song beat, the share of
+/// "on" and "transition" values among its events, the share of white among its lit events, and the type
+/// on the other side that gets identical events.</summary>
+public sealed record BasicLightInfo(int Type, double Share, double Rate, double On, double Transition, double White, int? Mirror);
 
 /// <param name="Drive">0 live band (backbeat) .. 1 electronic four-on-the-floor.</param>
 /// <param name="Intensity">0 calm .. 1 relentless.</param>
@@ -36,9 +43,10 @@ public sealed record EnvironmentCharacter(double Drive, double Intensity, double
 /// <param name="BasicValues">Per special basic event type: lowest, highest and most common value curated maps use.</param>
 /// <param name="RotationEase">Median length (beats) of the eased light group turns curated maps make here.</param>
 /// <param name="TranslationEase">Median length (beats) of their eased light group moves.</param>
+/// <param name="BasicLights">Basic light types curated maps light next to the groups (group environments).</param>
 public sealed record EnvironmentInfo(string Id, string Name, LightingSystem System, EnvironmentCharacter Character,
     IReadOnlySet<int> BasicTypes, IReadOnlyList<LightGroupInfo> Groups, int SurveyMaps, IReadOnlyDictionary<int, int[]> BasicValues,
-    double? RotationEase = null, double? TranslationEase = null)
+    double? RotationEase = null, double? TranslationEase = null, IReadOnlyList<BasicLightInfo>? BasicLights = null)
 {
     public bool Has(int basicType) => BasicTypes.Contains(basicType);
 
@@ -136,20 +144,25 @@ public static class EnvironmentCatalog
                     kv.Value.Translation, kv.Value.Lights, kv.Value.RotationAxes ?? [], kv.Value.RotationRange,
                     kv.Value.TranslationAxes ?? [], kv.Value.TranslationRange, kv.Value.Mirror, kv.Value.RotationPoses,
                     kv.Value.TranslationValues?.ToDictionary(t => int.Parse(t.Key), t => t.Value),
-                    kv.Value.AxisPoses?.ToDictionary(t => int.Parse(t.Key), t => t.Value)))
+                    kv.Value.AxisPoses?.ToDictionary(t => int.Parse(t.Key), t => t.Value), kv.Value.Rate))
                 .OrderBy(g => g.Id).ToList();
             // a group environment nobody has mapped yet cannot be lit safely; fall back to classic events
             var sys = system == LightingSystem.Groups && groups.Count(g => g.Color > 0) == 0 ? LightingSystem.Classic : system;
             if (sys == LightingSystem.Classic && system == LightingSystem.Groups) basic = [.. ClassicDefault];
             var values = (p?.BasicValues ?? []).ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value);
-            list.Add(new EnvironmentInfo(id, name, sys, c, basic, groups, p?.Maps ?? 0, values, p?.RotationEase, p?.TranslationEase));
+            var basicLights = sys == LightingSystem.Groups
+                ? (p?.BasicLights ?? []).Select(kv => new BasicLightInfo(int.Parse(kv.Key), kv.Value.Share, kv.Value.Rate, kv.Value.On,
+                    kv.Value.Transition, kv.Value.White, kv.Value.Mirror)).OrderBy(b => b.Type).ToList()
+                : [];
+            list.Add(new EnvironmentInfo(id, name, sys, c, basic, groups, p?.Maps ?? 0, values, p?.RotationEase, p?.TranslationEase, basicLights));
         }
         return list;
     }
 
     sealed record PriorGroup(double Color, double Rotation, double Translation, int Lights, int[]? RotationAxes,
         double RotationRange, int[]? TranslationAxes, double TranslationRange, int? Mirror, int[]? RotationPoses,
-        Dictionary<string, double[]>? TranslationValues, Dictionary<string, int[]>? AxisPoses);
+        Dictionary<string, double[]>? TranslationValues, Dictionary<string, int[]>? AxisPoses, double? Rate);
+    sealed record PriorBasicLight(double Share, double Rate, double On, double Transition, double White, int? Mirror);
     sealed record PriorEntry(int Maps, Dictionary<string, double>? Basic, Dictionary<string, int[]>? BasicValues, Dictionary<string, PriorGroup>? Groups,
-        double? RotationEase, double? TranslationEase);
+        double? RotationEase, double? TranslationEase, Dictionary<string, PriorBasicLight>? BasicLights);
 }

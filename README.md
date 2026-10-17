@@ -173,7 +173,7 @@ map's own song and compares. Current results on 18 songs / 62 difficulties with 
 | mean turn / tip travel between swings | 17° / 1.44 cells | 21° / 1.55 cells |
 
 The environment layouts (`scripts/environment_prior.py`: which light groups, event types, axes,
-ranges, poses and mirror partners curated maps use in each environment, read from BeatSaver without downloading the audio) are
+ranges, poses, mirror partners, how often each group is switched on and how the basic light types are used next to the groups that curated maps use in each environment, read from BeatSaver without downloading the audio) are
 embedded as `environment-prior.json`; rerun the script when Beat Saber adds environments.
 
 The style prior (`scripts/style_prior.py`: cell and direction shares, figure and double-shape
