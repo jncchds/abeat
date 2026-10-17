@@ -340,13 +340,20 @@ public static class GroupLightshow
                         // pose and its counterpart, further from home and fanned wider with energy
                         int every = rel >= 0.8 ? 1 : 2;
                         var (out1, out2) = p.Swing(0.3 + 0.7 * rel);
+                        // groups curated maps mostly leave at home (EDM's circle rotations) come back home between swings
+                        double[] seq = g.HomeShare >= 0.5 ? [out1, p.Home, out2, p.Home] : [out1, out2];
                         double fan = Math.Abs(Angle(out1 - p.Home)) * 0.3 * rel;
                         for (int i = 0; i < bars.Count; i += every)
                         {
                             int k = i / every;
-                            Rot(bars[i], (k % 2 == 0) != flip ? out1 : out2, fan, turn, 0.5);
+                            Rot(bars[i], seq[(k + (flip ? seq.Length / 2 : 0)) % seq.Length], fan, turn, 0.5);
                             if (k % 2 == 0)
-                                Extra(bars[i], q => q.Swing(0.3 + 0.7 * rel) switch { var (x1, x2) => (k / 2 % 2 == 0) != flip ? x1 : x2 }, turn, 0.5);
+                                Extra(bars[i], q =>
+                                {
+                                    var (x1, x2) = q.Swing(0.3 + 0.7 * rel);
+                                    double[] xs = g.HomeShare >= 0.5 ? [x1, q.Home, x2, q.Home] : [x1, x2];
+                                    return xs[(k / 2 + (flip ? xs.Length / 2 : 0)) % xs.Length];
+                                }, turn, 0.5);
                         }
                     }
                 }

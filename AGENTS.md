@@ -248,7 +248,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    ±180°; a rotation axis counts when it carries 15 % of the turns or half the maps turning the group use
    it, e.g. Weave's y) and a light count from filters (the largest one >= 3 maps imply, shared by mirror
    partners); the poses mappers move each group to (keyframes that only hold the previous value skipped;
-   rotation: angles per axis in 15° steps used by >= 4 % of keyframes, most used first, `rotationPoses`
+   rotation: angles per axis in 15° steps used by >= 4 % of keyframes, home first (the angle it rests at
+   longest, per-map share of held time, e.g. EDM's circle rotations rest at 0° while mappers flick them to
+   ±90°; `homeShare` = that share), then most used, `rotationPoses`
    for the main axis and `axisPoses` for the others; translation: 10th /
    50th / 90th percentile per axis) and its mirror partner (the group that gets identical events at the
    same beat >= 70 % of the time, mutual; the game mirrors the other side, so partners are sent the same
@@ -276,7 +278,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    and neighbouring units in opposite phase: each starts at its home pose (most used angle / median
    distance), quiet sections drift to the nearest pose and back over 16 beats, louder ones swing on
    downbeats between the pose ~(0.3 + 0.7 x energy) of the way to the furthest one (within 135° of home)
-   and the pose mirroring it about home (or home), eased over the environment's `RotationEase`; rails
+   and the pose mirroring it about home (or home; groups resting at home >= half the time go home between
+   swings), eased over the environment's `RotationEase`; rails
    move on every axis mappers use (Lattice's cube clusters sit out, down and forward: home on all axes),
    pumping on downbeats towards the far percentile over `TranslationEase` (other axes at half size); over a
    build-up rotations gather home and rails pull towards the near side, while the chases speed up and the ambient

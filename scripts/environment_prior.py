@@ -9,8 +9,9 @@ work/env-survey) and writes src/Abeat.Core/Generation/environment-prior.json:
   ring / laser-speed types;
 - group environments (v3/v4 lightshows): per light group, the share of maps lighting / rotating /
   translating it, how often it is switched on, the axes and magnitudes used, a lower bound on its
-  light count from filters, the poses mappers move it to (angles per rotation axis, distance percentiles
-  per axis) and its mirror partner; per environment the median length of eased rotations / translations,
+  light count from filters, the poses mappers move it to (angles per rotation axis, home first: the one
+  it rests at longest, with the share of time it rests there; distance percentiles per axis) and its
+  mirror partner; per environment the median length of eased rotations / translations,
   and how the basic light types (0-7, e.g. Pyro's runway and projectors) are used next to the groups.
 
     python3 scripts/environment_prior.py [maps per environment, default 14]
@@ -201,6 +202,7 @@ class Stats:
             "rot_max": [], "tr_max": [], "lights": collections.Counter(), "colors": collections.Counter(), "events": 0,
             "rot_vals": collections.defaultdict(list), "tr_vals": collections.defaultdict(list),
             "rot_axis_maps": collections.Counter(),
+            "rot_held": collections.defaultdict(collections.Counter), "rot_held_maps": collections.Counter(),
         })
         # (group, other group) -> [events of the group with an event of the other at the same beat, identical ones]
         self.pairs = collections.defaultdict(lambda: [0, 0])
@@ -254,6 +256,7 @@ class Stats:
                         mags = [(m + 180) % 360 - 180 for m in mags]
                     s["rot_max" if kind == "rotation" else "tr_max"].append(max(abs(m) for m in mags))
                     s["rot_vals" if kind == "rotation" else "tr_vals"][axis].extend(mags)
+        self.add_held(rotation, span)
         self.add_pairs(color, rotation, translation)
         self.add_eases(rotation, translation)
         for g, h in hints.items():
@@ -310,6 +313,25 @@ class Stats:
                         p[1] += sorted(ev) == sorted(ev2)
                         self.pair_maps[(g, h)].add(self.maps)
 
+    def add_held(self, rotation, end):
+        """How long each group rests at each angle (15° steps) per axis, as a share of the map's held time, so
+        a group's home is where it rests, not where mappers flick it to and back (EDM's circles rest at 0°)."""
+        keys = collections.defaultdict(list)
+        for g, _, axis, mags, b, kk in rotation:
+            for m, (kb, _, prev) in zip(mags, kk):
+                if not prev:
+                    keys[(g, axis)].append((b + kb, step15(m)))
+        for (g, axis), ks in keys.items():
+            ks.sort()
+            held = collections.Counter()
+            for (b, a), (nb, _) in zip(ks, ks[1:] + [(max(end, ks[-1][0]), None)]):
+                held[a] += nb - b
+            tot = sum(held.values())
+            if tot > 0:
+                self.groups[g]["rot_held_maps"][axis] += 1
+                for a, n in held.items():
+                    self.groups[g]["rot_held"][axis][a] += n / tot
+
     def add_eases(self, rotation, translation):
         """Length of every eased move: from a group axis' previous keyframe to a keyframe with an easing."""
         for kind, rows in (("rotation", rotation), ("translation", translation)):
@@ -329,6 +351,12 @@ class Stats:
             if n >= 30 and same >= 0.7 * n and len(self.pair_maps[(g, h)]) >= 3 and same > best.get(g, (None, 0))[1]:
                 best[g] = (h, same)
         return {g: h for g, (h, _) in best.items() if best.get(h, (None,))[0] == g}
+
+
+def step15(a):
+    """An angle rounded to 15° steps in -165..180."""
+    r = int(round(((a + 180) % 360 - 180) / 15)) * 15
+    return 180 if r == -180 else r
 
 
 def lights_hint(f):
@@ -407,14 +435,16 @@ def pct(values, q):
     return s[min(len(s) - 1, int(q * len(s)))]
 
 
-def poses(angles):
-    """Angles (-180..180, 15° steps) mappers turn a group to, most used first (>= 4 % of keyframes)."""
-    merged = collections.Counter()
-    for a in angles:
-        r = int(round(((a + 180) % 360 - 180) / 15)) * 15
-        merged[180 if r == -180 else r] += 1
+def poses(angles, held=None):
+    """Angles (-180..180, 15° steps) mappers turn a group to (>= 4 % of keyframes): first the home, where
+    the group rests longest (`held`: angle -> held time), then the others most used first."""
+    merged = collections.Counter(step15(a) for a in angles)
     tot = sum(merged.values())
-    return [a for a, n in merged.most_common() if n >= 0.04 * tot] if tot else []
+    out = [a for a, n in merged.most_common() if n >= 0.04 * tot] if tot else []
+    if held and out:
+        home = max(out, key=lambda a: held.get(a, 0))
+        out = [home] + [a for a in out if a != home]
+    return out
 
 
 def summarize(env, st):
@@ -469,9 +499,13 @@ def summarize(env, st):
             row["rotationAxes"] = [a for a, n in s["rot_axes"].most_common() if n >= 0.15 * sum(s["rot_axes"].values())
                                    or s["rot_axis_maps"][a] >= 0.5 * s["rotation"]]
             row["rotationRange"] = round(pct(s["rot_max"], 0.9), 1)
-            row["rotationPoses"] = poses(s["rot_vals"][row["rotationAxes"][0]])
+            main = row["rotationAxes"][0]
+            row["rotationPoses"] = poses(s["rot_vals"][main], s["rot_held"][main])
+            if row["rotationPoses"] and s["rot_held_maps"][main]:
+                # the share of the time it rests at home (EDM's circle rotations: most of it, flicking out and back)
+                row["homeShare"] = round(s["rot_held"][main][row["rotationPoses"][0]] / s["rot_held_maps"][main], 2)
             if len(row["rotationAxes"]) > 1:
-                row["axisPoses"] = {str(a): poses(s["rot_vals"][a]) for a in row["rotationAxes"][1:]}
+                row["axisPoses"] = {str(a): poses(s["rot_vals"][a], s["rot_held"][a]) for a in row["rotationAxes"][1:]}
         if s["tr_axes"] and share["translation"] >= 0.2:
             row["translationAxes"] = [a for a, n in s["tr_axes"].most_common() if n >= 0.15 * sum(s["tr_axes"].values())]
             row["translationRange"] = round(pct(s["tr_max"], 0.9), 2)
