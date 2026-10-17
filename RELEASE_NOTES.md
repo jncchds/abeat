@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.22 — 2026-10-17
+
+- The Second review: its ring spacing (basic type 9, a step value, not a light) pulses between the low and high spacing curated maps use, ramps down over build-ups and jumps open on drops; group roles go by how often mappers switch each group on (the busiest roles to the busiest groups), so the per-group rhythm matches curated maps far better in every group environment (rank correlation with curated rates 0.37 -> 0.76 on The Second, 0.19 -> 0.70 on Weave, -0.10 -> 0.67 on Lattice).
+
 ## v0.2.21 — 2026-10-17
 
 - Song folders: the Songs page lists folders first, then the songs in no folder; folders nest up to two levels, songs sit in at most one. Create, rename, move and delete folders from the page (deleting moves the contents up a level); drag songs or folders onto a folder or breadcrumb, or pick a song's folder on its page. The filter searches every folder and lists matching folders as well as matching songs, each with the folder it is in.
