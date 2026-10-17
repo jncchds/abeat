@@ -3,6 +3,7 @@
 ## v0.2.21 — 2026-10-17
 
 - Song folders: the Songs page lists folders first, then the songs in no folder; folders nest up to two levels, songs sit in at most one. Create, rename, move and delete folders from the page (deleting moves the contents up a level); drag songs or folders onto a folder or breadcrumb, or pick a song's folder on its page. The filter searches every folder and lists matching folders as well as matching songs, each with the folder it is in.
+- EDM review: a light group's home is the angle curated maps leave it at longest, not the one keyframed most (mappers flick EDM's circles out and straight back, so the close ring was turned sideways most of the song); groups that rest at home most of the time come back home between downbeat swings.
 
 ## v0.2.20 — 2026-10-17
 
