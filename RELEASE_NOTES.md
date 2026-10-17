@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.19 — 2026-10-17
+
+- Weave review: light groups also turn about their second axis where curated mappers do (all of Weave's groups turn on y in most maps), each axis between its own learned poses; the environment survey ignores keyframes that only hold the previous value (they made 0° look like home) and takes light counts that at least three maps agree on, shared by mirror partners.
+
 ## v0.2.18 — 2026-10-17
 
 - Light rails move on every axis mappers use, not only the main one (Lattice's cube clusters now sit out, down and forward from the start like in curated maps), and swings and pumps take as long as the eased moves curated maps make in each environment (Lattice 0.75 beats instead of 2-4).
