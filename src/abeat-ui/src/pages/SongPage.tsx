@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { extensions } from '../extensions'
 import { cancelJob,
-  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong, resetCover, uploadCover,
+  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong, resetCover, setSongFolder, uploadCover,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
   type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type EnvironmentEntry, type EnvironmentSuggestions, type GeneratorSettings, type SongColors, type SongMeta, type TapRun, type Version,
 } from '../api'
@@ -18,7 +18,7 @@ import AddToPlaylist from '../components/AddToPlaylist'
 import VersionsPanel, { type MapLinks, type Side } from '../components/VersionsPanel'
 import AnalysisPanel, { type AnalysisChoice } from '../components/AnalysisPanel'
 import { useDebug } from '../hooks/useDebug'
-import { useSongs } from '../hooks/useSongs'
+import { folderOptions, useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
 import { diffLabel, fmtTime } from '../utils/format'
 import { tempoOf, type Tempo } from '../utils/tempo'
@@ -67,7 +67,8 @@ const pickDiff = (v: Version | undefined, want?: string) =>
 export default function SongPage() {
   const { id = '' } = useParams()
   const navigate = useNavigate()
-  const { songs, refresh } = useSongs()
+  const { songs, folders, refresh } = useSongs()
+  const folderOf = (f?: string | null) => f && folders.some(x => x.id === f) ? f : ''
   const [meta, setMeta] = useState<SongMeta | null>(null)
   const [log, setLog] = useState<string[]>([])
   // everything loaded for a ready song, tagged with its id so stale data is never shown
@@ -422,6 +423,14 @@ export default function SongPage() {
           )}
           {busy && <button className="btn-secondary" onClick={() => cancelJob(id).then(refresh).catch(e => setError(errorText(e)))}
             title="Stops the running analysis; the current analysis and versions stay">Cancel analysis</button>}
+          {meta && (
+            <select className="folder-move" value={folderOf(songs.find(s => s.id === id)?.folderId)}
+              aria-label="Folder" title="The song-list folder holding this song"
+              onChange={e => setSongFolder(id, e.target.value || null).then(refresh).catch(err => setError(errorText(err)))}>
+              <option value="">📁 No folder</option>
+              {folderOptions(folders).map(f => <option key={f.id} value={f.id}>{f.label}</option>)}
+            </select>
+          )}
           <button className="delete-btn" onClick={onDelete} title="Delete this song and all its versions">Delete song</button>
         </div>
       </div>

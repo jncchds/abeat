@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.21 — 2026-10-17
+
+- Song folders: the Songs page lists folders first, then the songs in no folder; folders nest up to two levels, songs sit in at most one. Create, rename, move and delete folders from the page (deleting moves the contents up a level); drag songs or folders onto a folder or breadcrumb, or pick a song's folder on its page. The filter still searches every folder and shows each match's folder.
+
 ## v0.2.20 — 2026-10-17
 
 - Pyro review: group environments light their own basic switches (runway, projectors, logo...) the way curated maps do (types, rates, colour/white/transition shares and mirrored pairs learned per environment), instead of no basic events at all; groups mappers switch on far less often than the rest (Pyro's fire jets) are set pieces that go off on drops and loud downbeats at the curated rate (16 bursts in Pretender instead of 147 on melody notes).

@@ -60,6 +60,9 @@ set `ABEAT_AUTO_GENERATE=true` to also generate a map right after each analysis.
 so the web app can open maps in it from the same server (the container fetches it on first start). Without it the
 ArcViewer button uses the public site.
 
+**Folders**: the Songs page shows folders first, then songs that are in no folder; folders nest two levels.
+Drag a song onto a folder or a breadcrumb, or pick its folder on the song page. Deleting a folder keeps its songs.
+
 **Playlists**: add versions from a song page ("＋ playlist"), then download the playlist zip and import
 it in BSManager (Maps → Import; the `.bplist` inside goes to Playlists → Import). BSManager's one-click
 links only work for maps published on BeatSaver.

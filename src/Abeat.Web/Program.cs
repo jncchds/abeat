@@ -33,6 +33,7 @@ builder.Services.ConfigureHttpJsonOptions(o =>
 });
 builder.Services.AddSingleton<SongStore>();
 builder.Services.AddSingleton<PlaylistStore>();
+builder.Services.AddSingleton<FolderStore>();
 builder.Services.AddSingleton<WorkerRuntime>();
 builder.Services.AddSingleton<AnalysisQueue>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<AnalysisQueue>());
@@ -83,6 +84,7 @@ if (ArcViewer() || builder.Configuration["ABEAT_ARCVIEWER_DIR"] != null)
 app.UseRouting();
 MapEndpoints.Map(app);
 PlaylistEndpoints.Map(app);
+FolderEndpoints.Map(app);
 app.MapGet("/healthz", () => "ok");
 app.MapGet("/api/config", (WorkerRuntime runtime) => new { httpsPort = publicHttpsPort, arcViewer = ArcViewer(), runtime = runtime.Current });
 // client-side routes (/songs/{id}) are served by the React app

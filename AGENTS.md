@@ -389,6 +389,10 @@ move, `--write-prior` rewrites the prior.
   files in Info.dat order) and `/{id}/playlist.bplist`. Human reference maps can't be added. BSManager's
   one-click links (`beatsaver://`, `bsplaylist://`) resolve maps through api.beatsaver.com only, so
   generated maps are installed with BSManager's zip import instead.
+- Song-list folders (`FolderStore`, `data/folders.json`): at most two levels (a sub-folder's parent is a
+  top-level folder; a folder with sub-folders cannot move under another). A song is in 0-1 folder
+  (`SongMeta.FolderId`, null = top level). `/api/folders` CRUD (`PATCH` renames with `name`, moves with
+  `parentId`), `PUT /api/songs/{id}/folder`. Deleting a folder moves its songs and sub-folders up a level.
 - ArcViewer (GPL-3.0, AllPoland) is fetched by `scripts/fetch-arcviewer.sh` (pinned v0.8.1 deploy commit)
   into the git-ignored `src/Abeat.Web/arcviewer` (Docker: `/opt/abeat/app/arcviewer`, or
   `ABEAT_ARCVIEWER_DIR`) and served same-origin at `/arcviewer/`; `/api/config` reports `arcViewer`

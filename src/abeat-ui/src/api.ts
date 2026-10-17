@@ -35,7 +35,12 @@ export interface SongMeta {
   referenceUrl?: string | null
   /** When the newest saved version was generated (song list only). */
   lastGeneratedUtc?: string | null
+  /** Song-list folder holding the song; none: the top level. */
+  folderId?: string | null
 }
+
+/** A song-list folder; folders nest two levels at most (a sub-folder has a top-level parent). */
+export interface Folder { id: string; name: string; parentId?: string | null; createdUtc: string }
 
 export interface Onset { t: number; s: number; br: number }
 export interface Section { start: number; end: number; label: string; energy: number }
@@ -212,6 +217,12 @@ export interface VocabularyDifficulty {
 }
 export const getVocabulary = () => http.get<{ difficulties: Record<string, VocabularyDifficulty> }>('/vocabulary')
 export const getSongs = () => http.get<SongMeta[]>('/songs')
+export const getFolders = () => http.get<Folder[]>('/folders')
+export const createFolder = (name: string, parentId: string | null) => http.post<Folder>('/folders', { name, parentId })
+export const renameFolder = (id: string, name: string) => http.patch<Folder>(`/folders/${id}`, { name })
+export const moveFolder = (id: string, parentId: string | null) => http.patch<Folder>(`/folders/${id}`, { parentId })
+export const deleteFolder = (id: string) => http.delete(`/folders/${id}`)
+export const setSongFolder = (id: string, folderId: string | null) => http.put<SongMeta>(`/songs/${id}/folder`, { folderId })
 export const getSong = (id: string) => http.get<{ meta: SongMeta; log: string[]; customCover?: boolean }>(`/songs/${id}`)
 export const deleteSong = (id: string) => http.delete(`/songs/${id}`)
 export const getAnalysis = (id: string) => http.get<Analysis>(`/songs/${id}/analysis`)
