@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.17 — 2026-10-17
+
+- Songs imported from a Beat Saver map (zip or BeatSaver link) use the map's own cover instead of the one generated from the audio; it drives the map colours and goes into generated versions, and an uploaded cover still overrides it.
+
 ## v0.2.16 — 2026-10-08
 
 - Move vocabulary: hands cross to the other side only where a move curated mappers use leads there (the fixed "each hand owns its side" rule is gone); stacks (one swing through 2-3 lined-up notes) from the curated stack shapes, mostly on strong beats. New **Vocabulary** page draws every move, stack, double shape and figure per difficulty.

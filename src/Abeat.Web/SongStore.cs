@@ -272,8 +272,9 @@ public sealed class SongStore
         if (analysisCache.TryGetValue(id, out var a)) return a;
         if (!File.Exists(Path.Combine(WorkDir(id), "analysis.json"))) return null;
         var loaded = SongAnalysis.Load(WorkDir(id));
-        // an uploaded cover lives next to work/ so a re-analysis keeps it
-        if (CustomCover(id) is { } cover) loaded.Cover = Path.GetRelativePath(loaded.Directory, cover);
+        // an uploaded cover lives next to work/ so a re-analysis keeps it; an imported map's own cover
+        // beats the one the analysis extracted or generated
+        if ((CustomCover(id) ?? ReferenceCover(id)) is { } cover) loaded.Cover = Path.GetRelativePath(loaded.Directory, cover);
         return analysisCache[id] = loaded;
     }
 
@@ -282,6 +283,15 @@ public sealed class SongStore
     /// <summary>The cover uploaded for the song (replacing the downloaded / extracted one), if any.</summary>
     public string? CustomCover(string id) =>
         CoverNames.Select(n => Path.Combine(Dir(id), n)).FirstOrDefault(File.Exists);
+
+    static readonly string[] ImageExtensions = [".jpg", ".jpeg", ".png"];
+
+    /// <summary>The cover that came with an imported Beat Saver map (copied into reference/), if any.</summary>
+    public string? ReferenceCover(string id) =>
+        Directory.Exists(ReferenceDir(id))
+            ? Directory.EnumerateFiles(ReferenceDir(id)).Order()
+                .FirstOrDefault(f => ImageExtensions.Contains(Path.GetExtension(f).ToLowerInvariant()))
+            : null;
 
     public void SaveCustomCover(string id, byte[] data, string extension)
     {
