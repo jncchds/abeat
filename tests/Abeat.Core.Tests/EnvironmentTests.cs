@@ -193,15 +193,23 @@ public class EnvironmentTests
                 Assert.True(Math.Abs(Signed(r.Degrees - poses[0])) <= reach + 1e-6, $"{env.Id} group {r.Group} turns to {r.Degrees}");
             }
 
-            // rails move on each axis within the distances mappers use there, starting from home
-            foreach (var t in d.GroupTranslations)
+            // rails move on each axis within the distances mappers use there, starting from home, or from the
+            // intro pose mappers start them at (The Weeknd's ring sets start lowered) and rising home next
+            double? Intro(LightTranslation t) => Lead(t.Group).TranslationIntro?.TryGetValue(t.Axis, out var x) == true ? x : null;
+            foreach (var t in d.GroupTranslations.GroupBy(t => (t.Group, t.Axis)))
             {
-                if (Lead(t.Group).TranslationValues?.GetValueOrDefault(t.Axis) is not { Length: 3 } v) continue;
-                Assert.InRange(t.Distance, Math.Min(v[0], v[1]) - 1e-6, Math.Max(v[2], v[1]) + 1e-6);
+                var moves = t.OrderBy(x => x.Beat).ToList();
+                if (Lead(moves[0].Group).TranslationValues?.GetValueOrDefault(moves[0].Axis) is not { Length: 3 } v) continue;
+                int from = 0;
+                if (Intro(moves[0]) is double intro)
+                {
+                    Assert.Equal(intro, moves[0].Distance);
+                    from = 1;
+                }
+                Assert.Equal(v[1], moves[from].Distance);
+                foreach (var m in moves.Skip(from))
+                    Assert.InRange(m.Distance, Math.Min(v[0], v[1]) - 1e-6, Math.Max(v[2], v[1]) + 1e-6);
             }
-            foreach (var first in d.GroupTranslations.GroupBy(t => (t.Group, t.Axis)).Select(x => x.MinBy(t => t.Beat)!))
-                if (Lead(first.Group).TranslationValues?.GetValueOrDefault(first.Axis) is { Length: 3 } v)
-                    Assert.Equal(v[1], first.Distance);
         }
     }
 

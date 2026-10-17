@@ -48,6 +48,8 @@ ENVIRONMENTS = [
     "MetallicaEnvironment", "GridEnvironment", "ColdplayEnvironment", "ProdigyEnvironment",
 ]
 
+# maps the user picked as references for an environment's style, surveyed before the search results
+PINNED = {"TheWeekndEnvironment": ["37114"]}  # Taylor Swift - Style (Scorefam)
 # basic event types whose value is a position step rather than a light, a speed or a trigger (game
 # facts: The Second's small rings sit value x 0.5 m apart, values clamped to 0..9)
 STEP_TYPES = {"TheSecondEnvironment": {9: (0, 9)}}
@@ -135,6 +137,15 @@ def fetch_dats(map_id, url):
 def candidates(env, count):
     """Well-rated maps declaring the environment: curated first, then the best-rated others."""
     seen, out = set(), []
+    for key in PINNED.get(env, []):
+        try:
+            d = get_json(f"{API}/maps/id/{key}")
+        except Exception as e:
+            print(f"  {key}: {e}", file=sys.stderr)
+            continue
+        v = d["versions"][0]
+        seen.add(d["id"])
+        out.append((d["id"], v["downloadURL"], any(x.get("chroma") for x in v["diffs"])))
     for curated in ("&curated=true", ""):
         for page in range(6):
             if len(out) >= count:
@@ -209,6 +220,7 @@ class Stats:
             "rot_vals": collections.defaultdict(list), "tr_vals": collections.defaultdict(list),
             "rot_axis_maps": collections.Counter(),
             "rot_held": collections.defaultdict(collections.Counter), "rot_held_maps": collections.Counter(),
+            "tr_first": collections.defaultdict(list),
         })
         # (group, other group) -> [events of the group with an event of the other at the same beat, identical ones]
         self.pairs = collections.defaultdict(lambda: [0, 0])
@@ -272,6 +284,7 @@ class Stats:
             turns[g].update(round(b + kb, 3) for kb, _, prev in keys if not prev)
         for g, beats in turns.items():
             self.turn_rates[g].append(len(beats) / span)
+        self.add_first(translation)
         self.add_pairs(color, rotation, translation)
         self.add_eases(rotation, translation)
         for g, h in hints.items():
@@ -362,6 +375,18 @@ class Stats:
                 self.groups[g]["rot_held_maps"][axis] += 1
                 for a, n in held.items():
                     self.groups[g]["rot_held"][axis][a] += n / tot
+
+    def add_first(self, translation):
+        """Where each map starts a group's rail: the first keyframe's value when it comes in the first two bars
+        (None when it comes later: the group starts where the environment puts it). The Weeknd's lamp poles and
+        buildings start lowered and rise into place on the first big moment."""
+        first = {}
+        for g, _, axis, mags, b, keys in translation:
+            for m, (kb, _, _) in zip(mags, keys):
+                if (g, axis) not in first or b + kb < first[(g, axis)][0]:
+                    first[(g, axis)] = (b + kb, m)
+        for (g, axis), (b, m) in first.items():
+            self.groups[g]["tr_first"][axis].append(m if b <= 8 else None)
 
     def add_eases(self, rotation, translation):
         """Length of every eased move: from a group axis' previous keyframe to a keyframe with an easing."""
@@ -566,6 +591,23 @@ def summarize(env, st):
             row["translationRange"] = round(pct(s["tr_max"], 0.9), 2)
             row["translationValues"] = {str(a): [round(pct(s["tr_vals"][a], q), 2) for q in (0.1, 0.5, 0.9)]
                                         for a in row["translationAxes"] if s["tr_vals"][a]}
+            # an axis mappers only ever set to one value carries no motion (a stray x on The Weeknd's ring)
+            moving = [a for a in row["translationAxes"] if s["tr_vals"][a] and min(s["tr_vals"][a]) != max(s["tr_vals"][a])]
+            if moving and len(moving) < len(row["translationAxes"]):
+                row["translationAxes"] = moving
+                row["translationValues"] = {str(a): row["translationValues"][str(a)] for a in moving}
+            # the intro pose: >= 40 % of the maps moving the group start it beyond the distances it later moves
+            # between (outside the 10th-90th percentile; median of those starts), e.g. The Weeknd's lamp poles
+            # start lowered
+            intro = {}
+            for a in row["translationAxes"]:
+                lo, _, hi = row["translationValues"].get(str(a), (0, 0, 0))
+                firsts = s["tr_first"][a]
+                away = [m for m in firsts if m is not None and (m < lo or m > hi)]
+                if firsts and len(away) >= 0.4 * len(firsts) and len(away) >= 3:
+                    intro[str(a)] = round(statistics.median(away), 2)
+            if intro:
+                row["translationIntro"] = intro
         if g in mirrors:
             row["mirror"] = mirrors[g]
         if s["colors"]:
