@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.23 — 2026-10-17
+
+- Lizzo review: basic types 8-12 count as lights where their values say so (Lizzo's peaches 7/8 now fire together as curated maps do instead of 7 copying the floor, plus type 8 in Britney, Monstercat 2, Metallica and Coldplay); light groups turn as often as curated maps turn them (Lizzo's rainbow and end lasers turned 4-8x too often) and the melody tracer is the group mappers turn most.
+
 ## v0.2.22 — 2026-10-17
 
 - The Second review: its ring spacing (basic type 9, a step value, not a light) pulses between the low and high spacing curated maps use, ramps down over build-ups and jumps open on drops; group roles go by how often mappers switch each group on (the busiest roles to the busiest groups), so the per-group rhythm matches curated maps far better in every group environment (rank correlation with curated rates 0.37 -> 0.76 on The Second, 0.19 -> 0.70 on Weave, -0.10 -> 0.67 on Lattice).
