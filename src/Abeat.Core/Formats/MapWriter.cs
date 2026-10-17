@@ -193,16 +193,18 @@ public static class MapWriter
                 ["l"] = Motion(r.Duration, Math.Round(r.Degrees, 1), "r"),
             }),
         }).ToArray()),
-        ["lightTranslationEventBoxGroups"] = new JsonArray(d.GroupTranslations.OrderBy(g => g.Beat).ThenBy(g => g.Group).Select(t => (JsonNode)new JsonObject
-        {
-            ["b"] = B(t.Beat), ["g"] = t.Group,
-            ["e"] = new JsonArray(new JsonObject
+        // one box group per beat and group, one box per axis (as mappers write moves on several axes)
+        ["lightTranslationEventBoxGroups"] = new JsonArray(d.GroupTranslations.GroupBy(t => (B(t.Beat), t.Group)).OrderBy(g => g.Key.Item1).ThenBy(g => g.Key.Group)
+            .Select(g => (JsonNode)new JsonObject
             {
-                ["f"] = new JsonObject { ["f"] = 1, ["p"] = 1, ["t"] = 0, ["r"] = 0 },
-                ["w"] = B(t.BeatSpread), ["d"] = 1, ["s"] = Math.Round(t.Spread, 3), ["t"] = 1, ["b"] = 1, ["a"] = t.Axis, ["r"] = 0,
-                ["l"] = Motion(t.Duration, Math.Round(t.Distance, 3), "t"),
-            }),
-        }).ToArray()),
+                ["b"] = g.Key.Item1, ["g"] = g.Key.Group,
+                ["e"] = new JsonArray(g.OrderBy(t => t.Axis).Select(t => (JsonNode)new JsonObject
+                {
+                    ["f"] = new JsonObject { ["f"] = 1, ["p"] = 1, ["t"] = 0, ["r"] = 0 },
+                    ["w"] = B(t.BeatSpread), ["d"] = 1, ["s"] = Math.Round(t.Spread, 3), ["t"] = 1, ["b"] = 1, ["a"] = t.Axis, ["r"] = 0,
+                    ["l"] = Motion(t.Duration, Math.Round(t.Distance, 3), "t"),
+                }).ToArray()),
+            }).ToArray()),
         ["basicEventTypesWithKeywords"] = new JsonObject { ["d"] = new JsonArray() },
         ["useNormalEventsAsCompatibleEvents"] = true,
     };

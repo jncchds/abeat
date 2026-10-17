@@ -8,11 +8,14 @@ work/env-survey) and writes src/Abeat.Core/Generation/environment-prior.json:
 - classic environments: the share of maps using each basic event type, and value ranges of the
   ring / laser-speed types;
 - group environments (v3/v4 lightshows): per light group, the share of maps lighting / rotating /
-  translating it, the axes and magnitudes used, and a lower bound on its light count from filters.
+  translating it, the axes and magnitudes used, a lower bound on its light count from filters, the
+  poses mappers move it to (angles, distance percentiles per axis) and its mirror partner; per
+  environment the median length of eased rotations / translations.
 
     python3 scripts/environment_prior.py [maps per environment, default 14]
 """
 import collections
+import statistics
 import io
 import json
 import os
@@ -199,6 +202,7 @@ class Stats:
         })
         # (group, other group) -> [events of the group with an event of the other at the same beat, identical ones]
         self.pairs = collections.defaultdict(lambda: [0, 0])
+        self.ease = {"rotation": [], "translation": []}  # beats each eased move takes
         self.pair_maps = collections.defaultdict(set)
 
     def add(self, basic, color, rotation, translation, fx):
@@ -219,7 +223,7 @@ class Stats:
             for c in colors:
                 s["colors"][c] += 1
         for kind, rows in (("rotation", rotation), ("translation", translation)):
-            for g, filt, axis, mags, _ in rows:
+            for g, filt, axis, mags, _, _ in rows:
                 s = self.groups[g]
                 used[g].add(kind)
                 s["lights"] = max(s["lights"], lights_hint(filt))
@@ -230,6 +234,7 @@ class Stats:
                     s["rot_max" if kind == "rotation" else "tr_max"].append(max(abs(m) for m in mags))
                     s["rot_vals" if kind == "rotation" else "tr_vals"][axis].extend(mags)
         self.add_pairs(color, rotation, translation)
+        self.add_eases(rotation, translation)
         for g in fx:
             used[g].add("fx")
         for g, kinds in used.items():
@@ -244,7 +249,7 @@ class Stats:
         for g, filt, colors, b in color:
             at[("c", round(b, 3))][g].append((json.dumps(filt, sort_keys=True), tuple(colors)))
         for kind, rows in (("r", rotation), ("t", translation)):
-            for g, filt, axis, mags, b in rows:
+            for g, filt, axis, mags, b, _ in rows:
                 at[(kind, round(b, 3))][g].append((axis, tuple(round(m, 3) for m in mags)))
         for groups in at.values():
             for g, ev in groups.items():
@@ -254,6 +259,17 @@ class Stats:
                         p[0] += 1
                         p[1] += sorted(ev) == sorted(ev2)
                         self.pair_maps[(g, h)].add(self.maps)
+
+    def add_eases(self, rotation, translation):
+        """Length of every eased move: from a group axis' previous keyframe to a keyframe with an easing."""
+        for kind, rows in (("rotation", rotation), ("translation", translation)):
+            last = {}
+            for g, _, axis, _, b, keys in sorted(rows, key=lambda r: r[4]):
+                for kb, ease, prev in keys:
+                    t = b + kb
+                    if ease != -1 and not prev and (g, axis) in last and t > last[(g, axis)]:
+                        self.ease[kind].append(t - last[(g, axis)])
+                    last[(g, axis)] = t
 
     def mirrors(self):
         """group -> its mirror partner: the group it moves identically with most often (>= 70 % of shared
@@ -285,9 +301,11 @@ def parse_v3(j):
     basic = [(e.get("et", 0), e.get("i", 0), e.get("f", 1)) for e in j.get("basicBeatmapEvents", [])]
     color = [(g.get("g", 0), box.get("f", {}), [e.get("c", 0) for e in box.get("e", [])], g.get("b", 0))
              for g in j.get("lightColorEventBoxGroups", []) for box in g.get("e", [])]
-    rotation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("r", 0) for e in box.get("l", [])], g.get("b", 0))
+    rotation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("r", 0) for e in box.get("l", [])], g.get("b", 0),
+                 [(e.get("b", 0), e.get("e", -1), e.get("p", 0)) for e in box.get("l", [])])
                 for g in j.get("lightRotationEventBoxGroups", []) for box in g.get("e", [])]
-    translation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("t", 0) for e in box.get("l", [])], g.get("b", 0))
+    translation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("t", 0) for e in box.get("l", [])], g.get("b", 0),
+                    [(e.get("b", 0), e.get("e", -1), e.get("p", 0)) for e in box.get("l", [])])
                    for g in j.get("lightTranslationEventBoxGroups", []) for box in g.get("e", [])]
     fx = [g.get("g", 0) for g in j.get("vfxEventBoxGroups", [])]
     return basic, color, rotation, translation, fx
@@ -311,9 +329,11 @@ def parse_v4(j, ls):
             if typ == 1 and bi < len(cboxes):
                 color.append((gid, filt, [cev[i].get("c", 0) for i in evs if i < len(cev)], g.get("b", 0)))
             elif typ == 2 and bi < len(rboxes):
-                rotation.append((gid, filt, rboxes[bi].get("a", 0), [rev[i].get("r", 0) for i in evs if i < len(rev)], g.get("b", 0)))
+                rotation.append((gid, filt, rboxes[bi].get("a", 0), [rev[i].get("r", 0) for i in evs if i < len(rev)], g.get("b", 0),
+                                 [(x.get("b", 0), rev[x.get("i", 0)].get("e", -1), rev[x.get("i", 0)].get("p", 0)) for x in box.get("l", []) if x.get("i", 0) < len(rev)]))
             elif typ == 3 and bi < len(tboxes):
-                translation.append((gid, filt, tboxes[bi].get("a", 0), [tev[i].get("t", 0) for i in evs if i < len(tev)], g.get("b", 0)))
+                translation.append((gid, filt, tboxes[bi].get("a", 0), [tev[i].get("t", 0) for i in evs if i < len(tev)], g.get("b", 0),
+                                    [(x.get("b", 0), tev[x.get("i", 0)].get("e", -1), tev[x.get("i", 0)].get("p", 0)) for x in box.get("l", []) if x.get("i", 0) < len(tev)]))
             elif typ == 4:
                 fx.append(gid)
     return basic, color, rotation, translation, fx
@@ -349,6 +369,9 @@ def summarize(env, st):
     out = {"maps": st.maps}
     if st.maps == 0:
         return out
+    for kind in ("rotation", "translation"):
+        if len(st.ease[kind]) >= 100:
+            out[kind + "Ease"] = round(statistics.median(st.ease[kind]), 2)
     out["basic"] = {str(t): round(n / st.maps, 2) for t, n in sorted(st.basic.items()) if n / st.maps >= 0.15}
     vals = {}
     for t, c in sorted(st.basic_values.items()):

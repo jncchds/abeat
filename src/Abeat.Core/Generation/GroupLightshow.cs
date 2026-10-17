@@ -171,7 +171,7 @@ public static class GroupLightshow
     }
 
     /// <summary>Rotation and translation choreography for every group curated maps move, between the poses
-    /// mappers use for that group (<see cref="LightGroupInfo.RotationPoses"/>, <see cref="LightGroupInfo.TranslationValues"/>):
+    /// mappers use for that group (rails on every axis mappers move them on) (<see cref="LightGroupInfo.RotationPoses"/>, <see cref="LightGroupInfo.TranslationValues"/>):
     /// every moving group starts at its home pose (the most used one), quiet sections drift to a nearby
     /// pose and back, louder ones swing between learned poses on downbeats (further from home with energy),
     /// over a build-up the lights return home and they burst out to their widest pose on the drop. Mirror
@@ -187,6 +187,8 @@ public static class GroupLightshow
         var tracer = rotating.Count >= 2 && melody.Count >= 16 ? rotating[0] : null;
         var pitch = SongShape.RelativePitch(melody);
         bool InBuild(double b) => builds.Any(x => b >= x.Start && b < x.Drop + 0.01);
+        // swings and pumps take as long as curated maps' eased moves in this environment
+        double turn = Math.Clamp(env.RotationEase ?? 1, 0.25, 4), push = Math.Clamp(env.TranslationEase ?? 1, 0.25, 4);
         double start = a.Sections.Count > 0 ? Math.Max(0, Math.Round(a.SecondsToBeat(a.Sections[0].Start))) : 0;
 
         foreach (var (u, ui) in rotating.Select((u, i) => (u, i)))
@@ -233,7 +235,7 @@ public static class GroupLightshow
                         var (out1, out2) = p.Swing(0.3 + 0.7 * rel);
                         double fan = Math.Abs(Angle(out1 - p.Home)) * 0.3 * rel;
                         for (int i = 0; i < bars.Count; i += every)
-                            Rot(bars[i], (i / every % 2 == 0) != flip ? out1 : out2, fan, Math.Min(4, 2 * every), 0.5);
+                            Rot(bars[i], (i / every % 2 == 0) != flip ? out1 : out2, fan, turn, 0.5);
                     }
                 }
             foreach (var bu in builds)
@@ -246,43 +248,55 @@ public static class GroupLightshow
         foreach (var u in moving)
         {
             var g = u.Groups[0];
-            int axis = g.TranslationAxes[0];
-            // home = the median distance mappers use, the far side = the percentile further from it
+            // every axis mappers move the group on, the main one first: home = the median distance, the far
+            // side = the percentile further from it. Mappers set the axes together (Lattice's cube clusters sit
+            // out, down and forward), so all axes go home at the start, follow the drops and builds, and the
+            // others join the main axis' bar pumps at half size.
             double range = g.TranslationRange > 0.01 ? g.TranslationRange : 1;
-            var v = g.TranslationValues?.GetValueOrDefault(axis) is { Length: 3 } tv ? tv : [0, 0, range];
-            double home = v[1];
-            double Clamp(double x) => Math.Clamp(x, home - range, home + range);
-            double lo = Clamp(v[0]), hi = Clamp(v[2]);
-            double far = Math.Abs(hi - home) >= Math.Abs(lo - home) ? hi : lo, near = far == hi ? lo : hi;
-            void Move(double beat, double dist, double spread, double dur, double wave = 0)
+            var axes = g.TranslationAxes.Select((axis, i) => (axis, v: g.TranslationValues?.GetValueOrDefault(axis) is { Length: 3 } tv ? tv : i == 0 ? [0, 0, range] : null))
+                .Where(x => x.v != null).Select(x =>
+                {
+                    double home = x.v![1];
+                    double lo = Math.Clamp(x.v[0], home - range, home + range), hi = Math.Clamp(x.v[2], home - range, home + range);
+                    double far = Math.Abs(hi - home) >= Math.Abs(lo - home) ? hi : lo;
+                    return (x.axis, home, far, near: far == hi ? lo : hi);
+                }).ToList();
+            void Move(double beat, Func<(int axis, double home, double far, double near), int, double> to, double spread, double dur, double wave = 0)
             {
                 if (beat >= end) return;
-                foreach (var x in u.Groups) map.GroupTranslations.Add(new LightTranslation(beat, x.Id, axis, dist, spread, dur, wave));
+                foreach (var (ax, i) in axes.Select((x, i) => (x, i)))
+                {
+                    double d = to(ax, i), sp = spread * (ax.far - ax.home) * (i == 0 ? 1 : 0.5);
+                    foreach (var x in u.Groups) map.GroupTranslations.Add(new LightTranslation(beat, x.Id, ax.axis, d, sp, dur, wave));
+                }
             }
-            Move(start, home, 0, 0);
+            Move(start, (x, _) => x.home, 0, 0);
             foreach (var sec in a.Sections)
             {
                 double b0 = Math.Round(a.SecondsToBeat(sec.Start)), b1 = a.SecondsToBeat(sec.End);
                 if (b0 >= end) break;
                 double rel = maxEnergy > 0 ? sec.Energy / maxEnergy : 0.5;
-                if (rel < 0.45) { Move(b0, home, 0, 4); continue; }
+                if (rel < 0.45) { Move(b0, (x, _) => x.home, 0, 4); continue; }
                 // pump with the bars: out towards the far side on the downbeat, partly back on the next
                 var bars = downbeats.Where(b => b >= b0 - 0.01 && b < b1 - 0.01 && !InBuild(b)).ToList();
                 for (int i = 0; i < bars.Count; i++)
-                    Move(bars[i], home + (far - home) * rel * (i % 2 == 0 ? 1 : 0.4), (far - home) * 0.3 * rel, 1, 0.25);
+                {
+                    double k = rel * (i % 2 == 0 ? 1 : 0.4);
+                    Move(bars[i], (x, ai) => x.home + (x.far - x.home) * k * (ai == 0 ? 1 : 0.5), 0.3 * rel, push, 0.25);
+                }
             }
             foreach (var bu in builds)
-                Move(bu.Start, home + (near - home) * 0.5, 0, bu.Drop - bu.Start - 0.25); // pull in over the build
+                Move(bu.Start, (x, _) => x.home + (x.near - x.home) * 0.5, 0, bu.Drop - bu.Start - 0.25); // pull in over the build
             foreach (var d in drops)
-                Move(d, far, (far - home) * 0.5, 0.5, 0.5); // and burst out on the drop
-            Move(end - 2, home, 0, 2);
+                Move(d, (x, _) => x.far, 0.5, 0.5, 0.5); // and burst out on the drop
+            Move(end - 2, (x, _) => x.home, 0, 2);
         }
 
         // one motion per group and beat (later rules win)
         var rot = map.GroupRotations.GroupBy(r => (Math.Round(r.Beat, 4), r.Group)).Select(x => x.Last()).OrderBy(r => r.Beat).ToList();
         map.GroupRotations.Clear();
         map.GroupRotations.AddRange(rot);
-        var tr = map.GroupTranslations.GroupBy(t => (Math.Round(t.Beat, 4), t.Group)).Select(x => x.Last()).OrderBy(t => t.Beat).ToList();
+        var tr = map.GroupTranslations.GroupBy(t => (Math.Round(t.Beat, 4), t.Group, t.Axis)).Select(x => x.Last()).OrderBy(t => t.Beat).ToList();
         map.GroupTranslations.Clear();
         map.GroupTranslations.AddRange(tr);
     }

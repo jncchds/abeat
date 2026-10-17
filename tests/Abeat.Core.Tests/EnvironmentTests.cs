@@ -76,6 +76,9 @@ public class EnvironmentTests
     [Fact]
     public void LatticeMirrorsAreLearned()
     {
+        // Lattice's cube clusters are moved on all three axes: every one gets its home pose
+        var d = Gen(Drummed(), "Lattice").Difficulties[0].Map;
+        Assert.Equal([0, 1, 2], d.GroupTranslations.Where(t => t.Group == 0).Select(t => t.Axis).Distinct().Order());
         // the survey pairs each Lattice group with the one the game mirrors (n <-> n + 7)
         var env = EnvironmentCatalog.Find("Lattice")!;
         Assert.Equal(8, env.Groups.Single(g => g.Id == 1).Mirror);
@@ -108,15 +111,14 @@ public class EnvironmentTests
                 Assert.True(Math.Abs(Signed(r.Degrees - poses[0])) <= reach + 1e-6, $"{env.Id} group {r.Group} turns to {r.Degrees}");
             }
 
-            // rails move within the distances mappers use on their axis, starting from home
+            // rails move on each axis within the distances mappers use there, starting from home
             foreach (var t in d.GroupTranslations)
             {
-                var g = Lead(t.Group);
-                if (g.TranslationValues?.GetValueOrDefault(g.TranslationAxes[0]) is not { Length: 3 } v) continue;
+                if (Lead(t.Group).TranslationValues?.GetValueOrDefault(t.Axis) is not { Length: 3 } v) continue;
                 Assert.InRange(t.Distance, Math.Min(v[0], v[1]) - 1e-6, Math.Max(v[2], v[1]) + 1e-6);
             }
-            foreach (var first in d.GroupTranslations.GroupBy(t => t.Group).Select(x => x.MinBy(t => t.Beat)!))
-                if (Lead(first.Group).TranslationValues?.GetValueOrDefault(Lead(first.Group).TranslationAxes[0]) is { Length: 3 } v)
+            foreach (var first in d.GroupTranslations.GroupBy(t => (t.Group, t.Axis)).Select(x => x.MinBy(t => t.Beat)!))
+                if (Lead(first.Group).TranslationValues?.GetValueOrDefault(first.Axis) is { Length: 3 } v)
                     Assert.Equal(v[1], first.Distance);
         }
     }

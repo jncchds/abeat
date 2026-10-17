@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.18 — 2026-10-17
+
+- Light rails move on every axis mappers use, not only the main one (Lattice's cube clusters now sit out, down and forward from the start like in curated maps), and swings and pumps take as long as the eased moves curated maps make in each environment (Lattice 0.75 beats instead of 2-4).
+
 ## v0.2.17 — 2026-10-17
 
 - Songs imported from a Beat Saver map (zip or BeatSaver link) use the map's own cover instead of the one generated from the audio; it drives the map colours and goes into generated versions, and an uploaded cover still overrides it.

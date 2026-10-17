@@ -249,7 +249,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    angles on its main axis in 15° steps used by >= 4 % of keyframes, most used first; translation: 10th /
    50th / 90th percentile per axis) and its mirror partner (the group that gets identical events at the
    same beat >= 70 % of the time, mutual; the game mirrors the other side, so partners are sent the same
-   values: Lattice n <-> n+7, Weave 2k <-> 2k+1). Classic environments use `LightingGenerator`
+   values: Lattice n <-> n+7, Weave 2k <-> 2k+1), plus per environment the median length of eased
+   turns / moves (`RotationEase` / `TranslationEase`, e.g. Lattice 0.75 / 0.75 beats, Weave 0.5, Coldplay 3.75). Classic environments use `LightingGenerator`
    plus their extra channels: 6/7 flicker with the hats, 10/11 hold the melody, set pieces 16-19 go up
    on loud sections and drops and down in quiet ones (value ranges <= 3 are selectors, e.g.
    Interscope's cars: odd type on loud, even on quiet). Group environments (Weave and later) use
@@ -261,7 +262,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    and neighbouring units in opposite phase: each starts at its home pose (most used angle / median
    distance), quiet sections drift to the nearest pose and back over 16 beats, louder ones swing on
    downbeats between the pose ~(0.3 + 0.7 x energy) of the way to the furthest one (within 135° of home)
-   and the pose mirroring it about home (or home), rails pump towards the far percentile; over a
+   and the pose mirroring it about home (or home), eased over the environment's `RotationEase`; rails
+   move on every axis mappers use (Lattice's cube clusters sit out, down and forward: home on all axes),
+   pumping on downbeats towards the far percentile over `TranslationEase` (other axes at half size); over a
    build-up rotations gather home and rails pull towards the near side, while the chases speed up and the ambient
    strobes to white, and on the drop everything flashes white and bursts out to the widest pose;
    after the last note every moving group settles home. With two or more rotating

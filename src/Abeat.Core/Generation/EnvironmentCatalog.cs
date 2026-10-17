@@ -27,8 +27,11 @@ public sealed record EnvironmentCharacter(double Drive, double Intensity, double
 /// <param name="BasicTypes">Basic event types curated maps use in this environment (classic lights and
 /// specials such as ring spins or hydraulics).</param>
 /// <param name="BasicValues">Per special basic event type: lowest, highest and most common value curated maps use.</param>
+/// <param name="RotationEase">Median length (beats) of the eased light group turns curated maps make here.</param>
+/// <param name="TranslationEase">Median length (beats) of their eased light group moves.</param>
 public sealed record EnvironmentInfo(string Id, string Name, LightingSystem System, EnvironmentCharacter Character,
-    IReadOnlySet<int> BasicTypes, IReadOnlyList<LightGroupInfo> Groups, int SurveyMaps, IReadOnlyDictionary<int, int[]> BasicValues)
+    IReadOnlySet<int> BasicTypes, IReadOnlyList<LightGroupInfo> Groups, int SurveyMaps, IReadOnlyDictionary<int, int[]> BasicValues,
+    double? RotationEase = null, double? TranslationEase = null)
 {
     public bool Has(int basicType) => BasicTypes.Contains(basicType);
 
@@ -131,7 +134,7 @@ public static class EnvironmentCatalog
             var sys = system == LightingSystem.Groups && groups.Count(g => g.Color > 0) == 0 ? LightingSystem.Classic : system;
             if (sys == LightingSystem.Classic && system == LightingSystem.Groups) basic = [.. ClassicDefault];
             var values = (p?.BasicValues ?? []).ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value);
-            list.Add(new EnvironmentInfo(id, name, sys, c, basic, groups, p?.Maps ?? 0, values));
+            list.Add(new EnvironmentInfo(id, name, sys, c, basic, groups, p?.Maps ?? 0, values, p?.RotationEase, p?.TranslationEase));
         }
         return list;
     }
@@ -139,5 +142,6 @@ public static class EnvironmentCatalog
     sealed record PriorGroup(double Color, double Rotation, double Translation, int Lights, int[]? RotationAxes,
         double RotationRange, int[]? TranslationAxes, double TranslationRange, int? Mirror, int[]? RotationPoses,
         Dictionary<string, double[]>? TranslationValues);
-    sealed record PriorEntry(int Maps, Dictionary<string, double>? Basic, Dictionary<string, int[]>? BasicValues, Dictionary<string, PriorGroup>? Groups);
+    sealed record PriorEntry(int Maps, Dictionary<string, double>? Basic, Dictionary<string, int[]>? BasicValues, Dictionary<string, PriorGroup>? Groups,
+        double? RotationEase, double? TranslationEase);
 }

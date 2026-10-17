@@ -933,6 +933,7 @@
  },
  "WeaveEnvironment": {
   "maps": 14,
+  "rotationEase": 0.5,
   "basic": {
    "4": 0.21
   },
@@ -1260,6 +1261,7 @@
  },
  "PyroEnvironment": {
   "maps": 14,
+  "rotationEase": 1.5,
   "basic": {
    "0": 0.5,
    "1": 0.43,
@@ -1482,6 +1484,7 @@
  },
  "EDMEnvironment": {
   "maps": 14,
+  "rotationEase": 0.75,
   "basic": {
    "0": 0.64,
    "1": 0.57,
@@ -1821,6 +1824,7 @@
  },
  "TheSecondEnvironment": {
   "maps": 14,
+  "rotationEase": 0.75,
   "basic": {
    "0": 0.79,
    "1": 0.93,
@@ -2084,6 +2088,7 @@
  },
  "LizzoEnvironment": {
   "maps": 14,
+  "rotationEase": 0.5,
   "basic": {
    "0": 1.0,
    "1": 1.0,
@@ -2374,6 +2379,8 @@
  },
  "TheWeekndEnvironment": {
   "maps": 14,
+  "rotationEase": 1.0,
+  "translationEase": 0.5,
   "basic": {
    "0": 1.0,
    "1": 1.0,
@@ -3008,6 +3015,8 @@
  },
  "RockMixtapeEnvironment": {
   "maps": 14,
+  "rotationEase": 0.62,
+  "translationEase": 0.5,
   "basic": {
    "3": 0.71,
    "4": 1.0,
@@ -3655,6 +3664,8 @@
  },
  "Dragons2Environment": {
   "maps": 14,
+  "rotationEase": 0.75,
+  "translationEase": 0.5,
   "basic": {
    "0": 1.0,
    "1": 1.0,
@@ -3870,6 +3881,8 @@
  },
  "Panic2Environment": {
   "maps": 14,
+  "rotationEase": 0.75,
+  "translationEase": 0.5,
   "basic": {
    "3": 0.79
   },
@@ -4363,6 +4376,8 @@
  },
  "QueenEnvironment": {
   "maps": 14,
+  "rotationEase": 0.5,
+  "translationEase": 0.5,
   "basic": {
    "6": 0.79,
    "40": 0.71
@@ -4774,6 +4789,8 @@
  },
  "LinkinPark2Environment": {
   "maps": 14,
+  "rotationEase": 1.5,
+  "translationEase": 0.62,
   "basic": {
    "3": 0.79,
    "40": 0.57,
@@ -5196,6 +5213,8 @@
  },
  "TheRollingStonesEnvironment": {
   "maps": 14,
+  "rotationEase": 1.0,
+  "translationEase": 0.5,
   "basic": {
    "6": 1.0,
    "40": 0.21
@@ -6460,6 +6479,8 @@
  },
  "LatticeEnvironment": {
   "maps": 14,
+  "rotationEase": 0.75,
+  "translationEase": 0.75,
   "basic": {
    "6": 0.57
   },
@@ -7062,6 +7083,8 @@
  },
  "DaftPunkEnvironment": {
   "maps": 14,
+  "rotationEase": 1,
+  "translationEase": 0.5,
   "basic": {
    "6": 0.71,
    "40": 0.21,
@@ -7822,6 +7845,8 @@
  },
  "HipHopEnvironment": {
   "maps": 14,
+  "rotationEase": 1,
+  "translationEase": 0.25,
   "basic": {
    "6": 0.64
   },
@@ -8824,6 +8849,8 @@
  },
  "ColliderEnvironment": {
   "maps": 14,
+  "rotationEase": 1.5,
+  "translationEase": 1,
   "basic": {
    "6": 0.64
   },
@@ -9820,6 +9847,8 @@
  },
  "BritneyEnvironment": {
   "maps": 14,
+  "rotationEase": 1.5,
+  "translationEase": 0.5,
   "basic": {
    "6": 0.79,
    "8": 0.36,
@@ -10472,6 +10501,8 @@
  },
  "Monstercat2Environment": {
   "maps": 14,
+  "rotationEase": 1.0,
+  "translationEase": 0.25,
   "basic": {
    "6": 0.86,
    "8": 0.36
@@ -11422,6 +11453,8 @@
  },
  "MetallicaEnvironment": {
   "maps": 14,
+  "rotationEase": 1.25,
+  "translationEase": 1.0,
   "basic": {
    "6": 0.86,
    "8": 0.5,
@@ -12676,6 +12709,8 @@
  },
  "GridEnvironment": {
   "maps": 14,
+  "rotationEase": 1.0,
+  "translationEase": 0.75,
   "basic": {
    "6": 0.43
   },
@@ -14037,6 +14072,8 @@
  },
  "ColdplayEnvironment": {
   "maps": 14,
+  "rotationEase": 3.75,
+  "translationEase": 1.0,
   "basic": {
    "6": 0.43,
    "8": 0.36
@@ -14964,6 +15001,8 @@
  },
  "ProdigyEnvironment": {
   "maps": 1,
+  "rotationEase": 1.25,
+  "translationEase": 0.5,
   "basic": {
    "0": 1.0,
    "1": 1.0,
