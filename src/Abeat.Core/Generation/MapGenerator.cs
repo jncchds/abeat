@@ -45,10 +45,16 @@ public static class MapGenerator
             .ToList();
         map.Difficulties.AddRange(extra.Select(r => r.Map));
         // group environments give classic event types their own meanings; only the 90/360 copies (played
-        // in GlassDesert) keep the classic lightshow
+        // in GlassDesert) keep the classic lightshow, the others get the environment's own basic lights
         if (env.System == LightingSystem.Groups)
             foreach (var d in map.Difficulties.Where(d => d.Characteristic is not (Characteristic.Degree90 or Characteristic.Degree360)))
+            {
                 d.Lights.RemoveAll(l => l.Type < 40);
+                d.Lights.AddRange(d.EnvironmentLights);
+                var sorted = d.Lights.OrderBy(l => l.Beat).ToList();
+                d.Lights.Clear();
+                d.Lights.AddRange(sorted);
+            }
         return new GenerationResult(map, results, extra);
     }
 

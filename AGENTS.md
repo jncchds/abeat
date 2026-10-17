@@ -253,14 +253,24 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    50th / 90th percentile per axis) and its mirror partner (the group that gets identical events at the
    same beat >= 70 % of the time, mutual; the game mirrors the other side, so partners are sent the same
    values: Lattice n <-> n+7, Weave 2k <-> 2k+1), plus per environment the median length of eased
-   turns / moves (`RotationEase` / `TranslationEase`, e.g. Lattice 0.75 / 0.75 beats, Weave 0.5, Coldplay 3.75). Classic environments use `LightingGenerator`
+   turns / moves (`RotationEase` / `TranslationEase`, e.g. Lattice 0.75 / 0.75 beats, Weave 0.5, Coldplay 3.75), each
+   group's `Rate` (median share of song beats it is switched on) and, for group environments, `BasicLights`: the
+   basic light types 0-7 lit by >= 30 % of maps (events per beat, on / transition / white shares, the type
+   getting identical events in >= 60 % of the maps firing both, mutual; Pyro: 4 runway 0.39/beat, 2 <-> 3
+   projectors 0.2, 0 <-> 1 logo, 6). Classic environments use `LightingGenerator`
    plus their extra channels: 6/7 flicker with the hats, 10/11 hold the melody, set pieces 16-19 go up
    on loud sections and drops and down in quiet ones (value ranges <= 3 are selectors, e.g.
    Interscope's cars: odd type on loud, even on quiet). Group environments (Weave and later) use
    `GroupLightshow`: groups lit by >= 30 % of maps, mirror partners (else consecutive ids used alike)
    paired as left/right units, roles by prominence (kicks, ambient section wash that breathes in quiet parts, note flashes
    per hand, white snares, melody holds, downbeat chases, hat flickers; fallbacks share units when an
-   environment has few, extra units join the chases). Groups rotated / translated by >= 30 % of maps
+   environment has few, extra units join the chases). Groups switched on under a quarter as often as the median lit group
+   (Pyro's fire 12/13: 0.034 vs 0.23) take no role: they burst (on, off a beat later) as often as curated maps fire
+   them, on drops first, then loud section starts and the loudest sections' downbeats, a bar apart. The basic light
+   types get `DifficultyMap.EnvironmentLights` (replacing the classic events outside 90/360): one event per power-of-two
+   step near 1 / rate (doubled in quiet sections), "on" in the section colour at its start, then on / transition values
+   to the other colour or white in the learned shares, mirrored types identical, white on drops, off at the end.
+   Groups rotated / translated by >= 30 % of maps
    move along their main axis between their learned poses (further rotation axes join every other swing
    between their own poses, and follow the builds and drops), mirror partners together (identical events)
    and neighbouring units in opposite phase: each starts at its home pose (most used angle / median
@@ -274,8 +284,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    after the last note every moving group settles home. With two or more rotating
    groups the most used one traces the melody (onset brightness within the song's 10th-90th percentile -> turn from home towards the
    furthest pose on that side). Special events 40-43 fire on
-   drops with their most common value. Standard/One Saber difficulties of group environments drop the
-   classic events (those types mean other things there); 90/360 keep them for GlassDesert. Rotation /
+   drops with their most common value. Standard/One Saber difficulties of group environments replace the
+   classic events with the environment's own basic lights (those types mean other things there); 90/360 keep them for GlassDesert. Rotation /
    translation boxes hold the previous value at the box beat and ease in-out to the target, so a move
    starts on its beat. `"Auto"` (default) picks by `SongShape.Character` (drive from the share of loud
    grid beats with a kick, darkness from mean onset brightness 0.8 -> 0.64, intensity from BPM, loud

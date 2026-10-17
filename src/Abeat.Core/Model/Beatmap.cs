@@ -94,6 +94,9 @@ public sealed class DifficultyMap
     public List<Chain> Chains { get; init; } = [];
     public List<Obstacle> Obstacles { get; init; } = [];
     public List<LightEvent> Lights { get; init; } = [];
+    /// <summary>Basic light events of a group environment (its own switches, e.g. Pyro's runway and
+    /// projectors); they replace the classic <see cref="Lights"/> in the modes played in that environment.</summary>
+    public List<LightEvent> EnvironmentLights { get; init; } = [];
     public List<BoostEvent> Boosts { get; init; } = [];
     public List<RotationEvent> Rotations { get; init; } = [];
     public List<LightGroupEvent> GroupLights { get; init; } = [];

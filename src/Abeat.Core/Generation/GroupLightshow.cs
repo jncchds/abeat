@@ -8,7 +8,9 @@ namespace Abeat.Core.Generation;
 /// units get musical roles by prominence (kicks, ambient section wash, note flashes per hand, snares,
 /// melody, downbeat chases, hats) and groups that turn or move get choreography that follows the song:
 /// slow drifts in quiet parts, swings on downbeats in loud parts, lights folding together over a
-/// build-up and bursting open on the drop, and a group tracing the melody's contour.</summary>
+/// build-up and bursting open on the drop, and a group tracing the melody's contour. Groups mappers switch
+/// on far less often than the rest (Pyro's fire) go off on the big moments only, and the environment's
+/// basic light types (Pyro's runway and projectors) wash along with the sections.</summary>
 public static class GroupLightshow
 {
     const int Red = 0, Blue = 1, White = 2;
@@ -27,6 +29,12 @@ public static class GroupLightshow
         var lit = env.Groups.Where(g => g.Color >= 0.3).ToList();
         if (lit.Count == 0) lit = env.Groups.Where(g => g.Color > 0).ToList();
         if (lit.Count == 0) return;
+        // groups switched on under a quarter as often as the typical lit group (Pyro's fire jets) are set
+        // pieces, not lights: they take no role and go off on the big moments only
+        var rates = lit.Where(g => g.Rate > 0).Select(g => g.Rate!.Value).Order().ToList();
+        var accents = rates.Count >= 4 ? lit.Where(g => g.Rate < 0.25 * rates[rates.Count / 2]).ToList() : [];
+        if (accents.Count < lit.Count) lit = lit.Except(accents).ToList();
+        else accents = [];
         var units = Pair(lit).OrderByDescending(u => u.Color).ThenByDescending(u => u.Lights).ToList();
         var roles = AssignRoles(units);
         Unit? For(Role r) => roles.GetValueOrDefault(r);
@@ -151,6 +159,8 @@ public static class GroupLightshow
         }
 
         Motion(a, map, env, end, maxEnergy, downbeats, drops, builds, melody);
+        Accents(a, map, Pair(accents), end, maxEnergy, downbeats, drops);
+        BasicLights(a, map, env, end, maxEnergy, drops, labelColor);
 
         // environment special events (40-43: set-piece animations) go off on the drops, with the value
         // curated maps use most
@@ -161,13 +171,99 @@ public static class GroupLightshow
         }
 
         // everything out after the last note
-        foreach (var g in lit)
+        foreach (var g in lit.Concat(accents))
             lights.Add(new LightGroupEvent(end, g.Id, [new LightBox(1, 0, false, 0, 0, [new(0, Blue, 0)])]));
 
         // one event per group and beat (later rules win)
         var unique = lights.GroupBy(l => (Math.Round(l.Beat, 4), l.Group)).Select(g => g.Last()).OrderBy(l => l.Beat).ToList();
         lights.Clear();
         lights.AddRange(unique);
+    }
+
+    /// <summary>Set-piece groups (<paramref name="units"/>, e.g. Pyro's fire) burst as often as curated maps
+    /// fire them (<see cref="LightGroupInfo.Rate"/> of the song's beats): on the drops first, then the starts
+    /// of loud sections and the downbeats of the loudest ones, at least a bar apart. Each burst is a
+    /// switch on and, a beat later, off (fire effects start on any lit event and end on a dark one).</summary>
+    static void Accents(SongAnalysis a, DifficultyMap map, List<Unit> units, double end, double maxEnergy,
+        List<double> downbeats, List<double> drops)
+    {
+        if (units.Count == 0 || end <= 0) return;
+        double rate = units.SelectMany(u => u.Groups).Select(g => g.Rate ?? 0).Order().ElementAt(units.Sum(u => u.Groups.Length) / 2);
+        int target = Math.Max(drops.Count, (int)Math.Round(rate * end));
+        var candidates = drops.Select(d => (Beat: d, Rank: 0, Energy: 1.0)).ToList();
+        foreach (var sec in a.Sections)
+        {
+            double b0 = Math.Round(a.SecondsToBeat(sec.Start)), b1 = a.SecondsToBeat(sec.End);
+            double rel = maxEnergy > 0 ? sec.Energy / maxEnergy : 0.5;
+            if (rel < 0.6) continue;
+            var bars = downbeats.Where(b => b >= b0 - 0.01 && b < b1 - 0.01).ToList();
+            if (bars.Count > 0) candidates.Add((bars[0], 1, rel));
+            candidates.AddRange(bars.Skip(1).Select((b, i) => (b, rel >= 0.8 && i % 2 == 1 ? 2 : 3, rel)));
+        }
+        var chosen = new List<double>();
+        foreach (var c in candidates.OrderBy(c => c.Rank).ThenByDescending(c => c.Energy).ThenBy(c => c.Beat))
+        {
+            if (chosen.Count >= target) break;
+            if (c.Beat < end - 1 && chosen.All(b => Math.Abs(b - c.Beat) >= 4)) chosen.Add(c.Beat);
+        }
+        foreach (var b in chosen.Order())
+            foreach (var g in units.SelectMany(u => u.Groups))
+                map.GroupLights.Add(new LightGroupEvent(b, g.Id, [new LightBox(1, 0, false, 0, 0, [new(0, Red, 1), new(1, Red, 0)])]));
+    }
+
+    /// <summary>The environment's basic light types (<see cref="EnvironmentInfo.BasicLights"/>) as curated maps
+    /// light them next to the groups: one event per step (as often as the maps fire the type, half as often in
+    /// quiet sections), each section starting "on" in its colour and the following events switching on or
+    /// fading ("transition") to the other colour or white in the learned proportions, brighter with energy;
+    /// white on the drops, off after the last note. Mirrored types get identical events.</summary>
+    static void BasicLights(SongAnalysis a, DifficultyMap map, EnvironmentInfo env, double end, double maxEnergy,
+        List<double> drops, Dictionary<string, int> labelColor)
+    {
+        var types = env.BasicLights ?? [];
+        foreach (var t in types)
+        {
+            bool paired = t.Mirror is int m && types.Any(x => x.Type == m);
+            if (paired && t.Mirror < t.Type) continue; // written with its partner
+            int[] ids = paired ? [t.Type, t.Mirror!.Value] : [t.Type];
+            void Add(double beat, int value, double f)
+            {
+                if (beat > end) return;
+                foreach (int id in ids) map.EnvironmentLights.Add(new LightEvent(beat, id, value, Math.Round(f, 2)));
+            }
+            // a power of two between half a beat and 32 beats, as often as curated maps fire the type
+            double step = Math.Pow(2, Math.Clamp(Math.Round(Math.Log2(1 / Math.Max(t.Rate, 1e-3))), -1, 5));
+            double fades = t.On + t.Transition > 0 ? t.Transition / (t.On + t.Transition) : 0;
+            double accFade = 0, accWhite = 0;
+            foreach (var sec in a.Sections)
+            {
+                double b0 = Math.Round(a.SecondsToBeat(sec.Start)), b1 = Math.Min(a.SecondsToBeat(sec.End), end);
+                if (b0 >= end) break;
+                int color = labelColor.GetValueOrDefault(sec.Label, Blue);
+                double rel = maxEnergy > 0 ? sec.Energy / maxEnergy : 0.5;
+                double s = rel < 0.45 ? step * 2 : step;
+                int k = 0;
+                for (double b = b0; b < b1 - 0.01; b += s, k++)
+                {
+                    accWhite += t.White;
+                    bool white = accWhite >= 1;
+                    if (white) accWhite--;
+                    int c = white ? White : k % 2 == 0 ? color : 1 - color;
+                    int on = c == Red ? LightValue.RedOn : c == Blue ? LightValue.BlueOn : LightValue.WhiteOn;
+                    if (k == 0) { Add(b, color == Red ? LightValue.RedOn : LightValue.BlueOn, 0.4 + 0.6 * rel); continue; }
+                    accFade += fades;
+                    bool fade = accFade >= 1;
+                    if (fade) accFade--;
+                    // a transition value fades from the previous event to this colour
+                    Add(b, fade ? on + 3 : on, fade ? 0.2 + 0.5 * rel : 0.4 + 0.6 * rel);
+                }
+            }
+            foreach (var d in drops) Add(d, LightValue.WhiteOn, 1.2);
+            Add(end, LightValue.Off, 0);
+        }
+        // one event per type and beat (later rules win)
+        var unique = map.EnvironmentLights.GroupBy(l => (Math.Round(l.Beat, 4), l.Type)).Select(g => g.Last()).OrderBy(l => l.Beat).ToList();
+        map.EnvironmentLights.Clear();
+        map.EnvironmentLights.AddRange(unique);
     }
 
     /// <summary>Rotation and translation choreography for every group curated maps move, between the poses

@@ -817,6 +817,60 @@
     20,
     1
    ]
+  },
+  "basicLights": {
+   "0": {
+    "share": 1.0,
+    "rate": 1.163,
+    "off": 0.3,
+    "on": 0.26,
+    "flash": 0.04,
+    "fade": 0.32,
+    "transition": 0.07,
+    "white": 0.01
+   },
+   "1": {
+    "share": 1.0,
+    "rate": 1.005,
+    "off": 0.3,
+    "on": 0.24,
+    "flash": 0.04,
+    "fade": 0.36,
+    "transition": 0.06,
+    "white": 0.04
+   },
+   "2": {
+    "share": 1.0,
+    "rate": 1.108,
+    "off": 0.37,
+    "on": 0.28,
+    "flash": 0.05,
+    "fade": 0.2,
+    "transition": 0.1,
+    "white": 0.06,
+    "mirror": 3
+   },
+   "3": {
+    "share": 1.0,
+    "rate": 1.105,
+    "off": 0.36,
+    "on": 0.28,
+    "flash": 0.05,
+    "fade": 0.2,
+    "transition": 0.1,
+    "white": 0.06,
+    "mirror": 2
+   },
+   "4": {
+    "share": 1.0,
+    "rate": 1.046,
+    "off": 0.28,
+    "on": 0.22,
+    "flash": 0.05,
+    "fade": 0.37,
+    "transition": 0.07,
+    "white": 0.02
+   }
   }
  },
  "GagaEnvironment": {
@@ -942,6 +996,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.231,
     "rotationAxes": [
      0,
      1
@@ -974,6 +1029,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.2,
     "rotationAxes": [
      0,
      1
@@ -1006,6 +1062,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.176,
     "rotationAxes": [
      0,
      1
@@ -1038,6 +1095,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.207,
     "rotationAxes": [
      0,
      1
@@ -1070,6 +1128,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.212,
     "rotationAxes": [
      0,
      1
@@ -1097,6 +1156,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.217,
     "rotationAxes": [
      0,
      1
@@ -1124,6 +1184,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.173,
     "rotationAxes": [
      0,
      1
@@ -1152,6 +1213,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.175,
     "rotationAxes": [
      0,
      1
@@ -1180,6 +1242,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.149,
     "rotationAxes": [
      0,
      1
@@ -1215,6 +1278,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.162,
     "rotationAxes": [
      0,
      1
@@ -1250,6 +1314,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.137,
     "rotationAxes": [
      0,
      1
@@ -1285,6 +1350,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.137,
     "rotationAxes": [
      0,
      1
@@ -1320,6 +1386,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 12,
+    "rate": 0.201,
     "rotationAxes": [
      0,
      1
@@ -1350,6 +1417,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 12,
+    "rate": 0.229,
     "rotationAxes": [
      0,
      1
@@ -1378,6 +1446,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.25,
     "rotationAxes": [
      0,
      1
@@ -1412,6 +1481,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 8,
+    "rate": 0.258,
     "rotationAxes": [
      0,
      1
@@ -1455,10 +1525,77 @@
    "4": 1.0,
    "6": 0.71
   },
+  "basicLights": {
+   "0": {
+    "share": 0.5,
+    "rate": 0.079,
+    "off": 0.04,
+    "on": 0.43,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.52,
+    "white": 0.49,
+    "mirror": 1
+   },
+   "1": {
+    "share": 0.43,
+    "rate": 0.036,
+    "off": 0.03,
+    "on": 0.49,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.47,
+    "white": 0.07,
+    "mirror": 0
+   },
+   "2": {
+    "share": 0.79,
+    "rate": 0.204,
+    "off": 0.15,
+    "on": 0.55,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.3,
+    "white": 0.57,
+    "mirror": 3
+   },
+   "3": {
+    "share": 0.79,
+    "rate": 0.213,
+    "off": 0.15,
+    "on": 0.54,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.3,
+    "white": 0.57,
+    "mirror": 2
+   },
+   "4": {
+    "share": 1.0,
+    "rate": 0.385,
+    "off": 0.04,
+    "on": 0.46,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.5,
+    "white": 0.18
+   },
+   "6": {
+    "share": 0.71,
+    "rate": 0.049,
+    "off": 0.08,
+    "on": 0.37,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.55,
+    "white": 0.15
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "lights": 3,
+    "rate": 0.323,
     "mirror": 1,
     "white": 0.33
    },
@@ -1466,6 +1603,7 @@
     "color": 1.0,
     "rotation": 0.21,
     "lights": 3,
+    "rate": 0.322,
     "rotationAxes": [
      1,
      0,
@@ -1488,6 +1626,7 @@
     "color": 1.0,
     "rotation": 0.79,
     "lights": 5,
+    "rate": 0.1,
     "rotationAxes": [
      0,
      1
@@ -1519,6 +1658,7 @@
     "color": 1.0,
     "rotation": 0.79,
     "lights": 5,
+    "rate": 0.099,
     "rotationAxes": [
      0,
      1
@@ -1550,6 +1690,7 @@
     "color": 0.79,
     "rotation": 0.57,
     "lights": 3,
+    "rate": 0.07,
     "rotationAxes": [
      0,
      1
@@ -1580,6 +1721,7 @@
     "color": 0.79,
     "rotation": 0.21,
     "lights": 3,
+    "rate": 0.17,
     "rotationAxes": [
      0,
      1
@@ -1602,12 +1744,14 @@
    "6": {
     "color": 1.0,
     "lights": 8,
+    "rate": 0.329,
     "mirror": 7,
     "white": 0.45
    },
    "7": {
     "color": 1.0,
     "lights": 8,
+    "rate": 0.326,
     "mirror": 6,
     "white": 0.45
    },
@@ -1615,6 +1759,7 @@
     "color": 1.0,
     "rotation": 0.79,
     "lights": 4,
+    "rate": 0.308,
     "rotationAxes": [
      0,
      1
@@ -1649,6 +1794,7 @@
     "color": 1.0,
     "rotation": 0.79,
     "lights": 4,
+    "rate": 0.307,
     "rotationAxes": [
      0,
      1
@@ -1683,6 +1829,7 @@
     "color": 0.93,
     "rotation": 0.64,
     "lights": 3,
+    "rate": 0.227,
     "rotationAxes": [
      0,
      1
@@ -1717,6 +1864,7 @@
     "color": 0.93,
     "rotation": 0.64,
     "lights": 3,
+    "rate": 0.227,
     "rotationAxes": [
      0,
      1
@@ -1749,12 +1897,14 @@
    "12": {
     "color": 0.93,
     "lights": 2,
+    "rate": 0.034,
     "mirror": 13,
     "white": 0.02
    },
    "13": {
     "color": 0.93,
     "lights": 2,
+    "rate": 0.034,
     "mirror": 12,
     "white": 0.02
    }
@@ -1768,11 +1918,46 @@
    "1": 0.57,
    "4": 0.5
   },
+  "basicLights": {
+   "0": {
+    "share": 0.64,
+    "rate": 0.61,
+    "off": 0.02,
+    "on": 0.48,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.51,
+    "white": 0.4,
+    "mirror": 1
+   },
+   "1": {
+    "share": 0.57,
+    "rate": 0.396,
+    "off": 0.01,
+    "on": 0.5,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.49,
+    "white": 0.57,
+    "mirror": 0
+   },
+   "4": {
+    "share": 0.5,
+    "rate": 0.055,
+    "off": 0.07,
+    "on": 0.45,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.48,
+    "white": 0.23
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "rotation": 1.0,
     "lights": 24,
+    "rate": 0.257,
     "rotationAxes": [
      0,
      1
@@ -1804,6 +1989,7 @@
     "color": 0.86,
     "rotation": 0.71,
     "lights": 3,
+    "rate": 0.026,
     "rotationAxes": [
      0,
      1
@@ -1829,6 +2015,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 24,
+    "rate": 0.138,
     "rotationAxes": [
      0,
      1,
@@ -1863,6 +2050,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 24,
+    "rate": 0.111,
     "rotationAxes": [
      0,
      1,
@@ -1901,6 +2089,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.141,
     "rotationAxes": [
      0,
      1
@@ -1931,6 +2120,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.143,
     "rotationAxes": [
      0,
      1
@@ -1960,6 +2150,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 10,
+    "rate": 0.198,
     "rotationAxes": [
      1,
      0,
@@ -1996,6 +2187,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 10,
+    "rate": 0.17,
     "rotationAxes": [
      0,
      1,
@@ -2031,6 +2223,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 10,
+    "rate": 0.179,
     "rotationAxes": [
      1,
      0,
@@ -2066,6 +2259,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 10,
+    "rate": 0.2,
     "rotationAxes": [
      0,
      1,
@@ -2105,6 +2299,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 10,
+    "rate": 0.119,
     "rotationAxes": [
      0,
      1,
@@ -2142,6 +2337,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 10,
+    "rate": 0.117,
     "rotationAxes": [
      0,
      1,
@@ -2379,11 +2575,44 @@
     9
    ]
   },
+  "basicLights": {
+   "0": {
+    "share": 0.79,
+    "rate": 0.543,
+    "off": 0.09,
+    "on": 0.48,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.43,
+    "white": 0.14
+   },
+   "1": {
+    "share": 0.93,
+    "rate": 0.72,
+    "off": 0.06,
+    "on": 0.39,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.55,
+    "white": 0.26
+   },
+   "4": {
+    "share": 0.93,
+    "rate": 0.467,
+    "off": 0.16,
+    "on": 0.5,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.34,
+    "white": 0.26
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "rotation": 0.86,
     "lights": 4,
+    "rate": 0.318,
     "rotationAxes": [
      0
     ],
@@ -2399,6 +2628,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 23,
+    "rate": 0.383,
     "rotationAxes": [
      0
     ],
@@ -2414,12 +2644,14 @@
    "2": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.481,
     "mirror": 3,
     "white": 0.37
    },
    "3": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.481,
     "mirror": 2,
     "white": 0.37
    },
@@ -2427,6 +2659,7 @@
     "color": 1.0,
     "rotation": 0.93,
     "lights": 12,
+    "rate": 0.209,
     "rotationAxes": [
      0,
      1
@@ -2454,6 +2687,7 @@
     "color": 1.0,
     "rotation": 0.86,
     "lights": 12,
+    "rate": 0.209,
     "rotationAxes": [
      0,
      1
@@ -2481,6 +2715,7 @@
     "color": 0.93,
     "rotation": 1.0,
     "lights": 4,
+    "rate": 0.169,
     "rotationAxes": [
      0,
      1
@@ -2506,6 +2741,7 @@
     "color": 0.93,
     "rotation": 1.0,
     "lights": 4,
+    "rate": 0.167,
     "rotationAxes": [
      0,
      1
@@ -2531,6 +2767,7 @@
     "color": 0.93,
     "rotation": 1.0,
     "lights": 4,
+    "rate": 0.123,
     "rotationAxes": [
      0,
      1
@@ -2567,6 +2804,7 @@
     "color": 0.93,
     "rotation": 1.0,
     "lights": 4,
+    "rate": 0.118,
     "rotationAxes": [
      0,
      1
@@ -2601,6 +2839,7 @@
     "color": 1.0,
     "rotation": 0.93,
     "lights": 4,
+    "rate": 0.124,
     "rotationAxes": [
      0,
      1
@@ -2638,6 +2877,7 @@
     "color": 1.0,
     "rotation": 0.93,
     "lights": 4,
+    "rate": 0.122,
     "rotationAxes": [
      0,
      1
@@ -2674,6 +2914,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 2,
+    "rate": 0.092,
     "rotationAxes": [
      0,
      1
@@ -2701,6 +2942,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 2,
+    "rate": 0.092,
     "rotationAxes": [
      0,
      1
@@ -2773,37 +3015,121 @@
     0
    ]
   },
+  "basicLights": {
+   "0": {
+    "share": 1.0,
+    "rate": 0.326,
+    "off": 0.07,
+    "on": 0.52,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.41,
+    "white": 0.1,
+    "mirror": 1
+   },
+   "1": {
+    "share": 1.0,
+    "rate": 0.326,
+    "off": 0.07,
+    "on": 0.52,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.41,
+    "white": 0.1,
+    "mirror": 0
+   },
+   "2": {
+    "share": 1.0,
+    "rate": 0.228,
+    "off": 0.08,
+    "on": 0.49,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.43,
+    "white": 0.17,
+    "mirror": 3
+   },
+   "3": {
+    "share": 1.0,
+    "rate": 0.228,
+    "off": 0.07,
+    "on": 0.49,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.44,
+    "white": 0.17,
+    "mirror": 2
+   },
+   "4": {
+    "share": 1.0,
+    "rate": 0.463,
+    "off": 0.06,
+    "on": 0.55,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.4,
+    "white": 0.12,
+    "mirror": 7
+   },
+   "6": {
+    "share": 0.86,
+    "rate": 0.15,
+    "off": 0.1,
+    "on": 0.54,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.36,
+    "white": 0.09
+   },
+   "7": {
+    "share": 0.43,
+    "rate": 0.086,
+    "off": 0.08,
+    "on": 0.56,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.36,
+    "white": 0.08,
+    "mirror": 4
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "lights": 10,
+    "rate": 0.276,
     "white": 0.06
    },
    "1": {
     "color": 1.0,
     "lights": 11,
+    "rate": 0.152,
     "white": 0.1
    },
    "2": {
     "color": 1.0,
     "lights": 9,
+    "rate": 0.173,
     "white": 0.12
    },
    "3": {
     "color": 1.0,
     "lights": 11,
+    "rate": 0.212,
     "mirror": 4,
     "white": 0.11
    },
    "4": {
     "color": 1.0,
     "lights": 11,
+    "rate": 0.206,
     "mirror": 3,
     "white": 0.11
    },
    "5": {
     "color": 1.0,
     "lights": 11,
+    "rate": 0.191,
     "white": 0.11
    },
    "6": {
@@ -2838,6 +3164,7 @@
     "color": 0.86,
     "rotation": 0.86,
     "lights": 1,
+    "rate": 0.027,
     "rotationAxes": [
      0
     ],
@@ -2857,6 +3184,7 @@
     "color": 0.86,
     "rotation": 0.86,
     "lights": 1,
+    "rate": 0.027,
     "rotationAxes": [
      0
     ],
@@ -2876,6 +3204,7 @@
     "color": 0.86,
     "rotation": 0.64,
     "lights": 4,
+    "rate": 0.071,
     "rotationAxes": [
      0,
      1
@@ -2902,24 +3231,28 @@
    "11": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.324,
     "mirror": 12,
     "white": 0.09
    },
    "12": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.321,
     "mirror": 11,
     "white": 0.09
    },
    "13": {
     "color": 1.0,
     "lights": 7,
+    "rate": 0.189,
     "mirror": 14,
     "white": 0.13
    },
    "14": {
     "color": 1.0,
     "lights": 7,
+    "rate": 0.189,
     "mirror": 13,
     "white": 0.15
    },
@@ -2927,6 +3260,7 @@
     "color": 1.0,
     "rotation": 0.86,
     "lights": 4,
+    "rate": 0.086,
     "rotationAxes": [
      0,
      1
@@ -2967,6 +3301,7 @@
     "color": 1.0,
     "rotation": 0.86,
     "lights": 4,
+    "rate": 0.086,
     "rotationAxes": [
      0,
      1
@@ -3007,6 +3342,7 @@
     "color": 0.71,
     "rotation": 0.64,
     "lights": 0,
+    "rate": 0.028,
     "rotationAxes": [
      0,
      1
@@ -3032,6 +3368,7 @@
     "color": 0.71,
     "rotation": 0.64,
     "lights": 0,
+    "rate": 0.028,
     "rotationAxes": [
      0,
      1
@@ -3057,6 +3394,7 @@
     "color": 0.93,
     "rotation": 0.43,
     "lights": 2,
+    "rate": 0.076,
     "rotationAxes": [
      0,
      1
@@ -3094,11 +3432,46 @@
    "1": 1.0,
    "6": 0.93
   },
+  "basicLights": {
+   "0": {
+    "share": 1.0,
+    "rate": 0.831,
+    "off": 0.09,
+    "on": 0.42,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.49,
+    "white": 0.34,
+    "mirror": 1
+   },
+   "1": {
+    "share": 1.0,
+    "rate": 0.833,
+    "off": 0.1,
+    "on": 0.42,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.48,
+    "white": 0.33,
+    "mirror": 0
+   },
+   "6": {
+    "share": 0.93,
+    "rate": 0.089,
+    "off": 0.03,
+    "on": 0.33,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.64,
+    "white": 0.43
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.134,
     "translationAxes": [
      1
     ],
@@ -3117,6 +3490,7 @@
     "color": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.137,
     "translationAxes": [
      1
     ],
@@ -3134,6 +3508,7 @@
    "2": {
     "translation": 0.93,
     "lights": 4,
+    "rate": 0.003,
     "translationAxes": [
      1
     ],
@@ -3168,6 +3543,7 @@
     "color": 0.93,
     "translation": 0.71,
     "lights": 2,
+    "rate": 0.043,
     "translationAxes": [
      2
     ],
@@ -3187,6 +3563,7 @@
     "rotation": 0.79,
     "translation": 0.93,
     "lights": 4,
+    "rate": 0.139,
     "rotationAxes": [
      0
     ],
@@ -3220,6 +3597,7 @@
     "rotation": 0.79,
     "translation": 0.93,
     "lights": 4,
+    "rate": 0.139,
     "rotationAxes": [
      0
     ],
@@ -3251,6 +3629,7 @@
    "7": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.174,
     "mirror": 4,
     "white": 0.22
    },
@@ -3259,6 +3638,7 @@
     "rotation": 0.86,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.222,
     "rotationAxes": [
      1
     ],
@@ -3292,6 +3672,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 6,
+    "rate": 0.04,
     "rotationAxes": [
      0,
      1
@@ -3319,62 +3700,73 @@
    "10": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.274,
     "white": 0.31
    },
    "11": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.33,
     "mirror": 16,
     "white": 0.41
    },
    "12": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.311,
     "mirror": 17,
     "white": 0.39
    },
    "13": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.351,
     "mirror": 18,
     "white": 0.44
    },
    "14": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.325,
     "white": 0.34
    },
    "15": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.286,
     "white": 0.31
    },
    "16": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.335,
     "mirror": 11,
     "white": 0.4
    },
    "17": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.293,
     "mirror": 12,
     "white": 0.39
    },
    "18": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.351,
     "mirror": 13,
     "white": 0.44
    },
    "19": {
     "color": 1.0,
     "lights": 25,
+    "rate": 0.327,
     "white": 0.33
    },
    "20": {
     "translation": 1.0,
     "lights": 3,
+    "rate": 0.002,
     "translationAxes": [
      1,
      0
@@ -3398,6 +3790,7 @@
    "21": {
     "translation": 1.0,
     "lights": 3,
+    "rate": 0.004,
     "translationAxes": [
      1,
      0
@@ -3422,6 +3815,7 @@
     "color": 1.0,
     "translation": 0.21,
     "lights": 8,
+    "rate": 0.155,
     "translationAxes": [
      1
     ],
@@ -3439,6 +3833,7 @@
    "23": {
     "color": 1.0,
     "lights": 8,
+    "rate": 0.158,
     "mirror": 22,
     "white": 0.34
    },
@@ -3447,6 +3842,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.144,
     "rotationAxes": [
      0,
      2
@@ -3487,6 +3883,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.156,
     "rotationAxes": [
      0,
      2
@@ -3529,6 +3926,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.144,
     "rotationAxes": [
      0,
      2
@@ -3569,6 +3967,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.144,
     "rotationAxes": [
      0,
      2
@@ -3610,6 +4009,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.129,
     "rotationAxes": [
      0,
      2
@@ -3650,6 +4050,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.146,
     "rotationAxes": [
      0,
      2
@@ -3692,6 +4093,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.141,
     "rotationAxes": [
      0,
      2
@@ -3733,6 +4135,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.132,
     "rotationAxes": [
      0,
      2
@@ -3772,12 +4175,14 @@
    "37": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.239,
     "mirror": 38,
     "white": 0.32
    },
    "38": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.239,
     "mirror": 37,
     "white": 0.32
    },
@@ -3785,6 +4190,7 @@
     "color": 0.29,
     "translation": 0.36,
     "lights": 0,
+    "rate": 0.004,
     "translationAxes": [
      1,
      0
@@ -3815,12 +4221,45 @@
    "4": 1.0,
    "6": 1.0
   },
+  "basicLights": {
+   "3": {
+    "share": 0.71,
+    "rate": 0.168,
+    "off": 0.09,
+    "on": 0.6,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.31,
+    "white": 0.12
+   },
+   "4": {
+    "share": 1.0,
+    "rate": 0.221,
+    "off": 0.09,
+    "on": 0.57,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.33,
+    "white": 0.12
+   },
+   "6": {
+    "share": 1.0,
+    "rate": 0.143,
+    "off": 0.13,
+    "on": 0.55,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.32,
+    "white": 0.22
+   }
+  },
   "groups": {
    "0": {
     "color": 0.93,
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 5,
+    "rate": 0.235,
     "rotationAxes": [
      0,
      1
@@ -3872,6 +4311,7 @@
     "rotation": 1.0,
     "translation": 0.86,
     "lights": 5,
+    "rate": 0.165,
     "rotationAxes": [
      0,
      1
@@ -3922,72 +4362,84 @@
    "2": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.211,
     "mirror": 13,
     "white": 0.17
    },
    "3": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.173,
     "mirror": 12,
     "white": 0.22
    },
    "4": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.22,
     "mirror": 11,
     "white": 0.18
    },
    "5": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.195,
     "mirror": 10,
     "white": 0.27
    },
    "6": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.207,
     "mirror": 9,
     "white": 0.29
    },
    "7": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.178,
     "mirror": 8,
     "white": 0.26
    },
    "8": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.182,
     "mirror": 7,
     "white": 0.26
    },
    "9": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.209,
     "mirror": 6,
     "white": 0.29
    },
    "10": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.193,
     "mirror": 5,
     "white": 0.27
    },
    "11": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.208,
     "mirror": 4,
     "white": 0.18
    },
    "12": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.173,
     "mirror": 3,
     "white": 0.22
    },
    "13": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.193,
     "mirror": 2,
     "white": 0.17
    },
@@ -3995,6 +4447,7 @@
     "color": 0.93,
     "translation": 0.93,
     "lights": 2,
+    "rate": 0.059,
     "translationAxes": [
      1
     ],
@@ -4011,17 +4464,20 @@
    "15": {
     "color": 1.0,
     "lights": 3,
+    "rate": 0.181,
     "white": 0.32
    },
    "16": {
     "color": 0.93,
     "lights": 5,
+    "rate": 0.198,
     "white": 0.13
    },
    "17": {
     "color": 1.0,
     "translation": 1.0,
     "lights": 5,
+    "rate": 0.137,
     "translationAxes": [
      2
     ],
@@ -4038,12 +4494,14 @@
    "18": {
     "color": 0.93,
     "lights": 5,
+    "rate": 0.13,
     "mirror": 19,
     "white": 0.22
    },
    "19": {
     "color": 0.86,
     "lights": 5,
+    "rate": 0.13,
     "mirror": 18,
     "white": 0.22
    },
@@ -4051,6 +4509,7 @@
     "color": 0.29,
     "rotation": 0.86,
     "lights": 0,
+    "rate": 0.009,
     "rotationAxes": [
      2,
      0,
@@ -4081,6 +4540,7 @@
    "21": {
     "rotation": 0.86,
     "lights": 0,
+    "rate": 0.011,
     "rotationAxes": [
      2,
      0,
@@ -4113,6 +4573,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 8,
+    "rate": 0.131,
     "rotationAxes": [
      2,
      1,
@@ -4153,6 +4614,7 @@
     "rotation": 0.93,
     "translation": 0.86,
     "lights": 8,
+    "rate": 0.131,
     "rotationAxes": [
      2,
      1,
@@ -4191,6 +4653,7 @@
    "24": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.217,
     "mirror": 26,
     "white": 0.14
    },
@@ -4198,6 +4661,7 @@
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 3,
+    "rate": 0.013,
     "rotationAxes": [
      2,
      0,
@@ -4238,6 +4702,7 @@
    "26": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.217,
     "mirror": 24,
     "white": 0.17
    },
@@ -4284,11 +4749,13 @@
    "28": {
     "color": 0.79,
     "lights": 2,
+    "rate": 0.074,
     "white": 0.16
    },
    "29": {
     "translation": 0.93,
     "lights": 1,
+    "rate": 0.003,
     "translationAxes": [
      1
     ],
@@ -4305,6 +4772,7 @@
    "30": {
     "color": 0.93,
     "lights": 2,
+    "rate": 0.06,
     "white": 0.26
    },
    "31": {
@@ -4312,6 +4780,7 @@
     "rotation": 0.86,
     "translation": 0.79,
     "lights": 4,
+    "rate": 0.139,
     "rotationAxes": [
      1,
      0,
@@ -4353,6 +4822,7 @@
     "rotation": 0.79,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.105,
     "rotationAxes": [
      1,
      0,
@@ -4394,6 +4864,7 @@
     "rotation": 0.86,
     "translation": 0.79,
     "lights": 4,
+    "rate": 0.168,
     "rotationAxes": [
      1,
      0,
@@ -4435,6 +4906,7 @@
     "rotation": 0.86,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.098,
     "rotationAxes": [
      1,
      0,
@@ -4611,6 +5083,72 @@
    "4": 1.0,
    "6": 0.86
   },
+  "basicLights": {
+   "0": {
+    "share": 1.0,
+    "rate": 0.755,
+    "off": 0.06,
+    "on": 0.49,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.46,
+    "white": 0.4,
+    "mirror": 1
+   },
+   "1": {
+    "share": 1.0,
+    "rate": 0.753,
+    "off": 0.06,
+    "on": 0.49,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.46,
+    "white": 0.4,
+    "mirror": 0
+   },
+   "2": {
+    "share": 1.0,
+    "rate": 0.46,
+    "off": 0.03,
+    "on": 0.49,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.48,
+    "white": 0.2,
+    "mirror": 3
+   },
+   "3": {
+    "share": 1.0,
+    "rate": 0.46,
+    "off": 0.04,
+    "on": 0.48,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.48,
+    "white": 0.2,
+    "mirror": 2
+   },
+   "4": {
+    "share": 1.0,
+    "rate": 0.111,
+    "off": 0.07,
+    "on": 0.47,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.46,
+    "white": 0.23
+   },
+   "6": {
+    "share": 0.86,
+    "rate": 0.079,
+    "off": 0.08,
+    "on": 0.48,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.44,
+    "white": 0.23
+   }
+  },
   "groups": {
    "0": {
     "rotation": 1.0,
@@ -4649,6 +5187,7 @@
    "1": {
     "color": 1.0,
     "lights": 12,
+    "rate": 0.185,
     "white": 0.23
    },
    "2": {
@@ -4671,6 +5210,7 @@
     "rotation": 1.0,
     "translation": 0.79,
     "lights": 15,
+    "rate": 0.186,
     "rotationAxes": [
      2,
      0,
@@ -4708,6 +5248,7 @@
     "color": 1.0,
     "rotation": 0.86,
     "lights": 8,
+    "rate": 0.121,
     "rotationAxes": [
      0,
      1
@@ -4733,24 +5274,28 @@
    "5": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.201,
     "mirror": 6,
     "white": 0.36
    },
    "6": {
     "color": 1.0,
     "lights": 6,
+    "rate": 0.201,
     "mirror": 5,
     "white": 0.35
    },
    "7": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.182,
     "mirror": 8,
     "white": 0.1
    },
    "8": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.182,
     "mirror": 7,
     "white": 0.1
    },
@@ -4758,6 +5303,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 5,
+    "rate": 0.145,
     "rotationAxes": [
      0,
      1
@@ -4786,6 +5332,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 5,
+    "rate": 0.126,
     "rotationAxes": [
      0,
      1
@@ -4816,6 +5363,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 5,
+    "rate": 0.107,
     "rotationAxes": [
      0,
      1
@@ -4847,6 +5395,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 5,
+    "rate": 0.148,
     "rotationAxes": [
      0,
      1
@@ -4881,12 +5430,25 @@
   "basic": {
    "3": 0.79
   },
+  "basicLights": {
+   "3": {
+    "share": 0.79,
+    "rate": 0.034,
+    "off": 0.21,
+    "on": 0.43,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.35,
+    "white": 0.43
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 7,
+    "rate": 0.12,
     "rotationAxes": [
      2,
      1
@@ -4926,6 +5488,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 7,
+    "rate": 0.164,
     "rotationAxes": [
      2,
      1
@@ -5028,6 +5591,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 8,
+    "rate": 0.043,
     "rotationAxes": [
      2,
      1
@@ -5099,6 +5663,7 @@
     "color": 1.0,
     "rotation": 0.93,
     "lights": 7,
+    "rate": 0.08,
     "rotationAxes": [
      2,
      1
@@ -5126,6 +5691,7 @@
     "color": 1.0,
     "rotation": 0.93,
     "lights": 7,
+    "rate": 0.087,
     "rotationAxes": [
      2,
      1
@@ -5180,6 +5746,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 6,
+    "rate": 0.088,
     "rotationAxes": [
      2,
      1
@@ -5228,6 +5795,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 6,
+    "rate": 0.112,
     "rotationAxes": [
      2,
      1
@@ -5277,6 +5845,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 6,
+    "rate": 0.134,
     "rotationAxes": [
      2,
      1
@@ -5328,6 +5897,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 6,
+    "rate": 0.106,
     "rotationAxes": [
      2,
      1
@@ -5376,29 +5946,34 @@
    "13": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.033,
     "mirror": 14,
     "white": 0.53
    },
    "14": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.033,
     "mirror": 13,
     "white": 0.56
    },
    "15": {
     "color": 0.86,
     "lights": 2,
+    "rate": 0.065,
     "white": 0.24
    },
    "16": {
     "color": 1.0,
     "lights": 28,
+    "rate": 0.269,
     "mirror": 17,
     "white": 0.28
    },
    "17": {
     "color": 1.0,
     "lights": 28,
+    "rate": 0.254,
     "mirror": 16,
     "white": 0.28
    },
@@ -5437,24 +6012,28 @@
    "20": {
     "color": 0.93,
     "lights": 12,
+    "rate": 0.127,
     "mirror": 22,
     "white": 0.52
    },
    "21": {
     "color": 0.86,
     "lights": 0,
+    "rate": 0.028,
     "mirror": 23,
     "white": 0.52
    },
    "22": {
     "color": 0.93,
     "lights": 12,
+    "rate": 0.123,
     "mirror": 20,
     "white": 0.52
    },
    "23": {
     "color": 0.86,
     "lights": 0,
+    "rate": 0.027,
     "mirror": 21,
     "white": 0.52
    }
@@ -5475,12 +6054,25 @@
     4
    ]
   },
+  "basicLights": {
+   "6": {
+    "share": 0.79,
+    "rate": 0.27,
+    "off": 0.06,
+    "on": 0.59,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.35,
+    "white": 0.17
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.155,
     "rotationAxes": [
      0
     ],
@@ -5595,6 +6187,7 @@
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.154,
     "rotationAxes": [
      0
     ],
@@ -5710,6 +6303,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 15,
+    "rate": 0.385,
     "rotationAxes": [
      2,
      0,
@@ -5784,6 +6378,7 @@
     "color": 1.0,
     "rotation": 0.86,
     "lights": 20,
+    "rate": 0.314,
     "rotationAxes": [
      0,
      1,
@@ -5837,6 +6432,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 20,
+    "rate": 0.126,
     "rotationAxes": [
      0
     ],
@@ -5854,6 +6450,7 @@
     "color": 1.0,
     "translation": 1.0,
     "lights": 24,
+    "rate": 0.572,
     "translationAxes": [
      1
     ],
@@ -5872,6 +6469,7 @@
     "color": 1.0,
     "translation": 1.0,
     "lights": 24,
+    "rate": 0.581,
     "translationAxes": [
      1
     ],
@@ -5890,6 +6488,7 @@
     "color": 1.0,
     "translation": 1.0,
     "lights": 3,
+    "rate": 0.087,
     "translationAxes": [
      1,
      2
@@ -5932,6 +6531,18 @@
     2
    ]
   },
+  "basicLights": {
+   "3": {
+    "share": 0.79,
+    "rate": 0.045,
+    "off": 0.04,
+    "on": 0.29,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.68,
+    "white": 0.13
+   }
+  },
   "groups": {
    "0": {
     "rotation": 0.57,
@@ -5965,6 +6576,7 @@
     "rotation": 1.0,
     "translation": 0.71,
     "lights": 20,
+    "rate": 0.135,
     "rotationAxes": [
      1,
      0
@@ -6035,6 +6647,7 @@
     "rotation": 0.93,
     "translation": 0.71,
     "lights": 20,
+    "rate": 0.125,
     "rotationAxes": [
      1,
      0
@@ -6071,6 +6684,7 @@
     "rotation": 0.86,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.166,
     "rotationAxes": [
      2
     ],
@@ -6112,6 +6726,7 @@
     "color": 0.93,
     "translation": 0.93,
     "lights": 4,
+    "rate": 0.095,
     "translationAxes": [
      1,
      2
@@ -6136,6 +6751,7 @@
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 2,
+    "rate": 0.117,
     "rotationAxes": [
      0,
      1,
@@ -6201,6 +6817,7 @@
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 2,
+    "rate": 0.103,
     "rotationAxes": [
      0,
      1,
@@ -6262,24 +6879,28 @@
    "8": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.453,
     "mirror": 9,
     "white": 0.29
    },
    "9": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.453,
     "mirror": 8,
     "white": 0.3
    },
    "10": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.144,
     "white": 0.33
    },
    "11": {
     "color": 0.79,
     "translation": 0.64,
     "lights": 0,
+    "rate": 0.106,
     "translationAxes": [
      1,
      2,
@@ -6324,30 +6945,35 @@
    "13": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.082,
     "mirror": 14,
     "white": 0.05
    },
    "14": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.081,
     "mirror": 13,
     "white": 0.05
    },
    "15": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.036,
     "mirror": 16,
     "white": 0.19
    },
    "16": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.036,
     "mirror": 15,
     "white": 0.19
    },
    "17": {
     "rotation": 0.36,
     "lights": 0,
+    "rate": 0.017,
     "rotationAxes": [
      2
     ],
@@ -6401,6 +7027,18 @@
     1
    ]
   },
+  "basicLights": {
+   "6": {
+    "share": 1.0,
+    "rate": 0.041,
+    "off": 0.14,
+    "on": 0.32,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.54,
+    "white": 0.23
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
@@ -6408,6 +7046,7 @@
     "translation": 0.93,
     "fx": 1.0,
     "lights": 0,
+    "rate": 0.098,
     "rotationAxes": [
      1,
      0
@@ -6443,6 +7082,7 @@
     "translation": 0.93,
     "fx": 1.0,
     "lights": 0,
+    "rate": 0.098,
     "rotationAxes": [
      1,
      0
@@ -6477,6 +7117,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.112,
     "rotationAxes": [
      1
     ],
@@ -6518,6 +7159,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.118,
     "rotationAxes": [
      1
     ],
@@ -6559,6 +7201,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.116,
     "rotationAxes": [
      1
     ],
@@ -6600,6 +7243,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.137,
     "rotationAxes": [
      1
     ],
@@ -6641,6 +7285,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.112,
     "rotationAxes": [
      1
     ],
@@ -6682,6 +7327,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.118,
     "rotationAxes": [
      1
     ],
@@ -6723,6 +7369,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.118,
     "rotationAxes": [
      1
     ],
@@ -6764,6 +7411,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.137,
     "rotationAxes": [
      1
     ],
@@ -6804,6 +7452,7 @@
     "color": 1.0,
     "translation": 0.93,
     "lights": 4,
+    "rate": 0.21,
     "translationAxes": [
      1,
      0
@@ -6828,6 +7477,7 @@
     "color": 1.0,
     "translation": 0.93,
     "lights": 4,
+    "rate": 0.21,
     "translationAxes": [
      1,
      0
@@ -6854,6 +7504,7 @@
     "translation": 0.86,
     "fx": 0.93,
     "lights": 1,
+    "rate": 0.154,
     "rotationAxes": [
      0,
      1
@@ -6889,6 +7540,7 @@
     "translation": 0.86,
     "fx": 0.93,
     "lights": 1,
+    "rate": 0.154,
     "rotationAxes": [
      0,
      1
@@ -6923,6 +7575,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.185,
     "rotationAxes": [
      2,
      0
@@ -6980,6 +7633,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.207,
     "rotationAxes": [
      2,
      0
@@ -7036,6 +7690,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.179,
     "rotationAxes": [
      2,
      0
@@ -7093,6 +7748,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.188,
     "rotationAxes": [
      2,
      0
@@ -7146,6 +7802,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.176,
     "rotationAxes": [
      2,
      0
@@ -7202,6 +7859,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.184,
     "rotationAxes": [
      2,
      0
@@ -7258,6 +7916,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.199,
     "rotationAxes": [
      2,
      0
@@ -7315,6 +7974,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.185,
     "rotationAxes": [
      2,
      0
@@ -7366,12 +8026,14 @@
    "22": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.211,
     "mirror": 23,
     "white": 0.27
    },
    "23": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.204,
     "mirror": 22,
     "white": 0.26
    },
@@ -7381,6 +8043,7 @@
     "translation": 1.0,
     "fx": 0.5,
     "lights": 4,
+    "rate": 0.047,
     "rotationAxes": [
      0
     ],
@@ -7416,6 +8079,7 @@
     "translation": 1.0,
     "fx": 0.5,
     "lights": 4,
+    "rate": 0.047,
     "rotationAxes": [
      0
     ],
@@ -7538,6 +8202,7 @@
     "rotation": 0.57,
     "fx": 0.79,
     "lights": 0,
+    "rate": 0.061,
     "rotationAxes": [
      1,
      0
@@ -7607,6 +8272,7 @@
     "translation": 0.93,
     "fx": 0.5,
     "lights": 6,
+    "rate": 0.036,
     "rotationAxes": [
      2,
      1
@@ -7699,18 +8365,21 @@
    "35": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.215,
     "mirror": 36,
     "white": 0.49
    },
    "36": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.214,
     "mirror": 35,
     "white": 0.49
    },
    "37": {
     "color": 0.86,
     "lights": 4,
+    "rate": 0.033,
     "white": 0.33
    },
    "38": {
@@ -7758,12 +8427,14 @@
    "40": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.091,
     "mirror": 41,
     "white": 0.33
    },
    "41": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.091,
     "mirror": 40,
     "white": 0.33
    },
@@ -7778,12 +8449,14 @@
    "44": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.121,
     "mirror": 45,
     "white": 0.51
    },
    "45": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.121,
     "mirror": 44,
     "white": 0.51
    }
@@ -7795,6 +8468,18 @@
   "translationEase": 0.75,
   "basic": {
    "6": 0.57
+  },
+  "basicLights": {
+   "6": {
+    "share": 0.57,
+    "rate": 0.064,
+    "off": 0.02,
+    "on": 0.52,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.46,
+    "white": 0.12
+   }
   },
   "groups": {
    "0": {
@@ -7830,6 +8515,7 @@
     "rotation": 1.0,
     "fx": 1.0,
     "lights": 8,
+    "rate": 0.049,
     "rotationAxes": [
      2,
      0
@@ -7894,6 +8580,7 @@
    "3": {
     "color": 0.93,
     "lights": 8,
+    "rate": 0.139,
     "mirror": 10,
     "white": 0.28
    },
@@ -7901,6 +8588,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.186,
     "rotationAxes": [
      2
     ],
@@ -7922,6 +8610,7 @@
    "5": {
     "color": 0.93,
     "lights": 8,
+    "rate": 0.148,
     "mirror": 12,
     "white": 0.23
    },
@@ -7929,6 +8618,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.152,
     "rotationAxes": [
      2
     ],
@@ -7978,6 +8668,7 @@
     "rotation": 1.0,
     "fx": 1.0,
     "lights": 8,
+    "rate": 0.036,
     "rotationAxes": [
      2,
      0
@@ -8046,6 +8737,7 @@
    "10": {
     "color": 0.93,
     "lights": 8,
+    "rate": 0.12,
     "mirror": 3,
     "white": 0.27
    },
@@ -8053,6 +8745,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.163,
     "rotationAxes": [
      2
     ],
@@ -8074,6 +8767,7 @@
    "12": {
     "color": 0.93,
     "lights": 8,
+    "rate": 0.122,
     "mirror": 5,
     "white": 0.26
    },
@@ -8081,6 +8775,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.155,
     "rotationAxes": [
      2
     ],
@@ -8127,6 +8822,7 @@
     "rotation": 1.0,
     "fx": 1.0,
     "lights": 8,
+    "rate": 0.11,
     "rotationAxes": [
      2,
      0
@@ -8194,12 +8890,14 @@
    "17": {
     "color": 0.93,
     "lights": 8,
+    "rate": 0.139,
     "white": 0.28
    },
    "18": {
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.178,
     "rotationAxes": [
      2
     ],
@@ -8217,12 +8915,14 @@
    "19": {
     "color": 1.0,
     "lights": 8,
+    "rate": 0.105,
     "white": 0.29
    },
    "20": {
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.08,
     "rotationAxes": [
      2
     ],
@@ -8272,6 +8972,7 @@
     "rotation": 1.0,
     "fx": 1.0,
     "lights": 8,
+    "rate": 0.108,
     "rotationAxes": [
      2,
      0
@@ -8338,12 +9039,14 @@
    "24": {
     "color": 0.86,
     "lights": 8,
+    "rate": 0.118,
     "white": 0.27
    },
    "25": {
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.139,
     "rotationAxes": [
      2
     ],
@@ -8364,12 +9067,14 @@
    "26": {
     "color": 1.0,
     "lights": 8,
+    "rate": 0.088,
     "white": 0.22
    },
    "27": {
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.067,
     "rotationAxes": [
      2
     ],
@@ -8390,6 +9095,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 8,
+    "rate": 0.167,
     "rotationAxes": [
      1
     ],
@@ -8426,12 +9132,14 @@
    "29": {
     "color": 1.0,
     "lights": 3,
+    "rate": 0.133,
     "white": 0.39
    },
    "30": {
     "color": 0.93,
     "translation": 0.86,
     "lights": 0,
+    "rate": 0.071,
     "translationAxes": [
      1,
      0,
@@ -8480,11 +9188,24 @@
     0
    ]
   },
+  "basicLights": {
+   "6": {
+    "share": 0.71,
+    "rate": 0.04,
+    "off": 0.11,
+    "on": 0.32,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.57,
+    "white": 0.75
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
     "translation": 1.0,
     "lights": 75,
+    "rate": 0.119,
     "translationAxes": [
      2
     ],
@@ -8503,6 +9224,7 @@
     "color": 1.0,
     "translation": 1.0,
     "lights": 75,
+    "rate": 0.119,
     "translationAxes": [
      2
     ],
@@ -8521,6 +9243,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 12,
+    "rate": 0.105,
     "rotationAxes": [
      0,
      2
@@ -8556,6 +9279,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 12,
+    "rate": 0.08,
     "rotationAxes": [
      2,
      0
@@ -8591,6 +9315,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 12,
+    "rate": 0.103,
     "rotationAxes": [
      0,
      2
@@ -8626,6 +9351,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 12,
+    "rate": 0.088,
     "rotationAxes": [
      2,
      0
@@ -8661,6 +9387,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 12,
+    "rate": 0.109,
     "rotationAxes": [
      0,
      2
@@ -8695,6 +9422,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 3,
+    "rate": 0.079,
     "rotationAxes": [
      2,
      0
@@ -8727,6 +9455,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 12,
+    "rate": 0.106,
     "rotationAxes": [
      0,
      2
@@ -8761,6 +9490,7 @@
     "color": 0.93,
     "rotation": 0.93,
     "lights": 2,
+    "rate": 0.089,
     "rotationAxes": [
      2,
      0
@@ -8792,24 +9522,28 @@
    "10": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.13,
     "mirror": 11,
     "white": 0.22
    },
    "11": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.13,
     "mirror": 10,
     "white": 0.21
    },
    "12": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.135,
     "mirror": 13,
     "white": 0.22
    },
    "13": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.135,
     "mirror": 12,
     "white": 0.22
    },
@@ -8818,6 +9552,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.069,
     "rotationAxes": [
      0,
      2,
@@ -8879,6 +9614,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.049,
     "rotationAxes": [
      1,
      0,
@@ -8939,6 +9675,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.039,
     "rotationAxes": [
      2,
      1,
@@ -8999,6 +9736,7 @@
     "rotation": 0.86,
     "translation": 0.86,
     "lights": 0,
+    "rate": 0.034,
     "rotationAxes": [
      2,
      0,
@@ -9064,6 +9802,7 @@
     "color": 0.93,
     "translation": 0.86,
     "lights": 2,
+    "rate": 0.099,
     "translationAxes": [
      0,
      1
@@ -9086,11 +9825,13 @@
    "19": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.037,
     "white": 0.24
    },
    "20": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.043,
     "white": 0.34
    },
    "23": {
@@ -9099,6 +9840,7 @@
     "translation": 0.93,
     "fx": 0.79,
     "lights": 0,
+    "rate": 0.09,
     "rotationAxes": [
      1,
      0,
@@ -9158,6 +9900,7 @@
     "translation": 0.93,
     "fx": 0.79,
     "lights": 0,
+    "rate": 0.083,
     "rotationAxes": [
      1,
      0,
@@ -9218,6 +9961,7 @@
     "color": 0.93,
     "translation": 0.86,
     "lights": 2,
+    "rate": 0.114,
     "translationAxes": [
      0,
      1
@@ -9242,6 +9986,7 @@
     "color": 0.93,
     "translation": 0.86,
     "lights": 2,
+    "rate": 0.116,
     "translationAxes": [
      0,
      1
@@ -9265,95 +10010,112 @@
    "27": {
     "color": 1.0,
     "lights": 3,
+    "rate": 0.034,
     "white": 0.55
    },
    "28": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.052,
     "mirror": 29,
     "white": 0.31
    },
    "29": {
     "color": 0.86,
     "lights": 4,
+    "rate": 0.057,
     "mirror": 28,
     "white": 0.32
    },
    "30": {
     "color": 0.79,
     "lights": 4,
+    "rate": 0.043,
     "white": 0.4
    },
    "31": {
     "color": 0.79,
     "lights": 4,
+    "rate": 0.046,
     "white": 0.4
    },
    "32": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.03,
     "white": 0.28
    },
    "33": {
     "color": 0.79,
     "lights": 0,
+    "rate": 0.015,
     "mirror": 35,
     "white": 0.25
    },
    "34": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.036,
     "white": 0.24
    },
    "35": {
     "color": 0.71,
     "lights": 0,
+    "rate": 0.015,
     "mirror": 33,
     "white": 0.26
    },
    "36": {
     "color": 0.93,
     "lights": 4,
+    "rate": 0.016,
     "mirror": 37,
     "white": 0.37
    },
    "37": {
     "color": 0.71,
     "lights": 4,
+    "rate": 0.017,
     "mirror": 36,
     "white": 0.28
    },
    "38": {
     "color": 0.71,
     "lights": 0,
+    "rate": 0.026,
     "mirror": 39,
     "white": 0.3
    },
    "39": {
     "color": 0.71,
     "lights": 0,
+    "rate": 0.015,
     "mirror": 38,
     "white": 0.31
    },
    "40": {
     "color": 0.79,
     "lights": 4,
+    "rate": 0.018,
     "white": 0.32
    },
    "41": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.019,
     "white": 0.3
    },
    "42": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.016,
     "mirror": 43,
     "white": 0.32
    },
    "43": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.016,
     "mirror": 42,
     "white": 0.32
    },
@@ -9472,11 +10234,24 @@
   "basic": {
    "6": 0.64
   },
+  "basicLights": {
+   "6": {
+    "share": 0.64,
+    "rate": 0.024,
+    "off": 0.12,
+    "on": 0.45,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.43,
+    "white": 0.14
+   }
+  },
   "groups": {
    "0": {
     "color": 0.86,
     "translation": 0.79,
     "lights": 5,
+    "rate": 0.088,
     "translationAxes": [
      1,
      0
@@ -9501,6 +10276,7 @@
     "color": 0.86,
     "translation": 0.79,
     "lights": 5,
+    "rate": 0.088,
     "translationAxes": [
      1,
      0
@@ -9526,6 +10302,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 12,
+    "rate": 0.083,
     "rotationAxes": [
      1,
      2,
@@ -9584,6 +10361,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 12,
+    "rate": 0.061,
     "rotationAxes": [
      1,
      2,
@@ -9690,6 +10468,7 @@
    "7": {
     "color": 0.93,
     "lights": 2,
+    "rate": 0.063,
     "mirror": 9,
     "white": 0.12
    },
@@ -9745,6 +10524,7 @@
    "9": {
     "color": 0.93,
     "lights": 2,
+    "rate": 0.036,
     "mirror": 7,
     "white": 0.12
    },
@@ -9799,6 +10579,7 @@
    "11": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.077,
     "mirror": 13,
     "white": 0.24
    },
@@ -9852,6 +10633,7 @@
    "13": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.077,
     "mirror": 11,
     "white": 0.24
    },
@@ -9907,6 +10689,7 @@
     "color": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.083,
     "translationAxes": [
      0,
      1,
@@ -9937,6 +10720,7 @@
     "color": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.083,
     "translationAxes": [
      0,
      1,
@@ -9966,6 +10750,7 @@
    "19": {
     "color": 1.0,
     "lights": 2,
+    "rate": 0.021,
     "mirror": 40,
     "white": 0.48
    },
@@ -9974,6 +10759,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.051,
     "rotationAxes": [
      2,
      0
@@ -10053,6 +10839,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 0,
+    "rate": 0.035,
     "rotationAxes": [
      0,
      2,
@@ -10111,6 +10898,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.051,
     "rotationAxes": [
      0,
      2
@@ -10192,6 +10980,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 0,
+    "rate": 0.016,
     "rotationAxes": [
      0,
      2,
@@ -10255,6 +11044,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.051,
     "rotationAxes": [
      0,
      2
@@ -10333,6 +11123,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 0,
+    "rate": 0.019,
     "rotationAxes": [
      0,
      2,
@@ -10393,6 +11184,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 3,
+    "rate": 0.049,
     "rotationAxes": [
      2,
      0
@@ -10471,6 +11263,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "lights": 0,
+    "rate": 0.025,
     "rotationAxes": [
      0,
      2,
@@ -10525,12 +11318,14 @@
    "32": {
     "color": 1.0,
     "lights": 16,
+    "rate": 0.089,
     "mirror": 33,
     "white": 0.08
    },
    "33": {
     "color": 1.0,
     "lights": 16,
+    "rate": 0.089,
     "mirror": 32,
     "white": 0.08
    },
@@ -10538,6 +11333,7 @@
     "color": 0.93,
     "translation": 0.71,
     "lights": 6,
+    "rate": 0.079,
     "translationAxes": [
      1,
      2,
@@ -10568,6 +11364,7 @@
     "color": 0.93,
     "translation": 0.79,
     "lights": 6,
+    "rate": 0.044,
     "translationAxes": [
      0
     ],
@@ -10585,28 +11382,33 @@
    "36": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.055,
     "mirror": 37,
     "white": 0.49
    },
    "37": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.055,
     "mirror": 36,
     "white": 0.47
    },
    "38": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.019,
     "white": 0.16
    },
    "39": {
     "color": 0.64,
     "lights": 0,
+    "rate": 0.022,
     "white": 0.17
    },
    "40": {
     "color": 0.93,
     "lights": 2,
+    "rate": 0.031,
     "mirror": 19,
     "white": 0.67
    },
@@ -10635,6 +11437,18 @@
   "basic": {
    "6": 0.64
   },
+  "basicLights": {
+   "6": {
+    "share": 0.64,
+    "rate": 0.032,
+    "off": 0.3,
+    "on": 0.26,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.44,
+    "white": 0.05
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
@@ -10642,6 +11456,7 @@
     "translation": 1.0,
     "fx": 0.86,
     "lights": 20,
+    "rate": 0.072,
     "rotationAxes": [
      1,
      2,
@@ -10698,6 +11513,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 12,
+    "rate": 0.003,
     "rotationAxes": [
      2,
      0,
@@ -10746,6 +11562,7 @@
     "rotation": 0.86,
     "translation": 0.86,
     "lights": 40,
+    "rate": 0.082,
     "rotationAxes": [
      0,
      2,
@@ -10802,6 +11619,7 @@
     "rotation": 0.86,
     "translation": 0.86,
     "lights": 24,
+    "rate": 0.066,
     "rotationAxes": [
      0,
      2,
@@ -10859,6 +11677,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "lights": 32,
+    "rate": 0.088,
     "rotationAxes": [
      2,
      0,
@@ -10915,6 +11734,7 @@
     "rotation": 0.79,
     "translation": 0.86,
     "lights": 32,
+    "rate": 0.062,
     "rotationAxes": [
      0,
      2,
@@ -10972,6 +11792,7 @@
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.024,
     "rotationAxes": [
      0,
      2,
@@ -11031,6 +11852,7 @@
     "translation": 1.0,
     "fx": 0.86,
     "lights": 5,
+    "rate": 0.064,
     "rotationAxes": [
      2,
      1,
@@ -11087,6 +11909,7 @@
     "translation": 1.0,
     "fx": 0.93,
     "lights": 5,
+    "rate": 0.052,
     "rotationAxes": [
      2,
      0,
@@ -11143,6 +11966,7 @@
     "rotation": 0.86,
     "translation": 1.0,
     "lights": 5,
+    "rate": 0.003,
     "rotationAxes": [
      2,
      0,
@@ -11202,6 +12026,7 @@
     "rotation": 0.86,
     "translation": 1.0,
     "lights": 5,
+    "rate": 0.003,
     "rotationAxes": [
      2,
      0,
@@ -11264,6 +12089,7 @@
     "rotation": 0.93,
     "translation": 0.86,
     "lights": 10,
+    "rate": 0.051,
     "rotationAxes": [
      2,
      0,
@@ -11320,6 +12146,7 @@
     "rotation": 0.86,
     "translation": 0.71,
     "lights": 10,
+    "rate": 0.024,
     "rotationAxes": [
      2,
      0,
@@ -11373,6 +12200,7 @@
     "rotation": 0.86,
     "translation": 0.71,
     "lights": 10,
+    "rate": 0.056,
     "rotationAxes": [
      2,
      0,
@@ -11438,6 +12266,7 @@
     "rotation": 0.86,
     "translation": 0.71,
     "lights": 10,
+    "rate": 0.052,
     "rotationAxes": [
      2,
      0,
@@ -11491,6 +12320,7 @@
     "rotation": 0.79,
     "translation": 0.79,
     "lights": 9,
+    "rate": 0.03,
     "rotationAxes": [
      2,
      0,
@@ -11553,6 +12383,7 @@
     "rotation": 0.79,
     "translation": 0.79,
     "lights": 9,
+    "rate": 0.02,
     "rotationAxes": [
      2,
      0,
@@ -11605,6 +12436,7 @@
     "rotation": 0.79,
     "translation": 0.71,
     "lights": 10,
+    "rate": 0.035,
     "rotationAxes": [
      0,
      2,
@@ -11669,6 +12501,7 @@
     "rotation": 0.79,
     "translation": 0.71,
     "lights": 10,
+    "rate": 0.02,
     "rotationAxes": [
      0,
      2,
@@ -11722,6 +12555,7 @@
     "color": 1.0,
     "fx": 0.93,
     "lights": 5,
+    "rate": 0.106,
     "mirror": 20,
     "white": 0.41
    },
@@ -11729,6 +12563,7 @@
     "color": 1.0,
     "fx": 0.93,
     "lights": 5,
+    "rate": 0.1,
     "mirror": 19,
     "white": 0.41
    },
@@ -11737,6 +12572,7 @@
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.039,
     "rotationAxes": [
      1,
      2,
@@ -11791,6 +12627,7 @@
     "rotation": 0.86,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.039,
     "rotationAxes": [
      1,
      2,
@@ -11850,6 +12687,7 @@
     "translation": 0.93,
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.06,
     "rotationAxes": [
      2,
      1,
@@ -11908,11 +12746,13 @@
    "24": {
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.003,
     "white": 0.0
    },
    "25": {
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.003,
     "white": 0.0
    },
    "26": {
@@ -11951,6 +12791,18 @@
     42,
     6
    ]
+  },
+  "basicLights": {
+   "6": {
+    "share": 0.79,
+    "rate": 0.058,
+    "off": 0.14,
+    "on": 0.34,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.52,
+    "white": 0.19
+   }
   },
   "groups": {
    "0": {
@@ -12176,6 +13028,7 @@
     "translation": 1.0,
     "fx": 0.86,
     "lights": 1,
+    "rate": 0.03,
     "rotationAxes": [
      0,
      1,
@@ -12290,6 +13143,7 @@
     "translation": 0.93,
     "fx": 0.86,
     "lights": 18,
+    "rate": 0.056,
     "rotationAxes": [
      2,
      0,
@@ -12400,6 +13254,7 @@
     "translation": 0.93,
     "fx": 0.86,
     "lights": 18,
+    "rate": 0.058,
     "rotationAxes": [
      2,
      0,
@@ -12461,6 +13316,7 @@
     "translation": 0.93,
     "fx": 0.71,
     "lights": 0,
+    "rate": 0.032,
     "rotationAxes": [
      0,
      1,
@@ -12518,6 +13374,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 76,
+    "rate": 0.089,
     "rotationAxes": [
      0,
      2,
@@ -12552,6 +13409,7 @@
     "color": 1.0,
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.053,
     "white": 0.66
    },
    "13": {
@@ -12564,6 +13422,7 @@
     "translation": 1.0,
     "fx": 0.86,
     "lights": 2,
+    "rate": 0.038,
     "rotationAxes": [
      1,
      0,
@@ -12624,6 +13483,7 @@
     "translation": 0.93,
     "fx": 0.86,
     "lights": 2,
+    "rate": 0.021,
     "rotationAxes": [
      0,
      1,
@@ -12688,6 +13548,7 @@
     "color": 1.0,
     "fx": 0.79,
     "lights": 3,
+    "rate": 0.099,
     "mirror": 17,
     "white": 0.27
    },
@@ -12695,6 +13556,7 @@
     "color": 1.0,
     "fx": 0.86,
     "lights": 3,
+    "rate": 0.062,
     "mirror": 16,
     "white": 0.28
    },
@@ -12704,6 +13566,7 @@
     "translation": 0.93,
     "fx": 0.79,
     "lights": 96,
+    "rate": 0.085,
     "rotationAxes": [
      2
     ],
@@ -12734,6 +13597,7 @@
     "translation": 0.93,
     "fx": 0.71,
     "lights": 96,
+    "rate": 0.083,
     "rotationAxes": [
      2
     ],
@@ -12761,11 +13625,13 @@
    "20": {
     "fx": 0.71,
     "lights": 0,
+    "rate": 0.001,
     "white": 1.0
    },
    "21": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.019,
     "white": 0.23
    },
    "22": {
@@ -12789,6 +13655,18 @@
     8
    ]
   },
+  "basicLights": {
+   "6": {
+    "share": 0.86,
+    "rate": 0.085,
+    "off": 0.07,
+    "on": 0.39,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.53,
+    "white": 0.08
+   }
+  },
   "groups": {
    "0": {
     "color": 0.86,
@@ -12796,6 +13674,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 0,
+    "rate": 0.041,
     "rotationAxes": [
      0,
      1,
@@ -12856,6 +13735,7 @@
     "translation": 1.0,
     "fx": 0.64,
     "lights": 32,
+    "rate": 0.344,
     "rotationAxes": [
      2,
      1,
@@ -12958,6 +13838,7 @@
     "translation": 1.0,
     "fx": 0.64,
     "lights": 32,
+    "rate": 0.348,
     "rotationAxes": [
      2,
      1,
@@ -13125,6 +14006,7 @@
    "6": {
     "color": 1.0,
     "lights": 8,
+    "rate": 0.173,
     "mirror": 8,
     "white": 0.1
    },
@@ -13198,6 +14080,7 @@
    "8": {
     "color": 1.0,
     "lights": 8,
+    "rate": 0.173,
     "mirror": 6,
     "white": 0.12
    },
@@ -13259,6 +14142,7 @@
     "rotation": 1.0,
     "translation": 0.93,
     "lights": 4,
+    "rate": 0.044,
     "rotationAxes": [
      1,
      0
@@ -13300,18 +14184,21 @@
    "11": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.081,
     "mirror": 12,
     "white": 0.2
    },
    "12": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.083,
     "mirror": 11,
     "white": 0.2
    },
    "13": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.072,
     "white": 0.37
    },
    "14": {
@@ -13319,6 +14206,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.059,
     "rotationAxes": [
      0,
      2,
@@ -13379,6 +14267,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.059,
     "rotationAxes": [
      0,
      1,
@@ -13437,12 +14326,14 @@
    "16": {
     "color": 1.0,
     "lights": 16,
+    "rate": 0.106,
     "mirror": 17,
     "white": 0.16
    },
    "17": {
     "color": 1.0,
     "lights": 16,
+    "rate": 0.106,
     "mirror": 16,
     "white": 0.15
    },
@@ -13455,6 +14346,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.079,
     "rotationAxes": [
      2,
      1,
@@ -13520,6 +14412,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.079,
     "rotationAxes": [
      2,
      1,
@@ -13583,6 +14476,7 @@
    "21": {
     "color": 1.0,
     "lights": 31,
+    "rate": 0.058,
     "mirror": 24,
     "white": 0.65
    },
@@ -13694,6 +14588,7 @@
    "24": {
     "color": 1.0,
     "lights": 31,
+    "rate": 0.045,
     "mirror": 21,
     "white": 0.46
    },
@@ -13810,6 +14705,7 @@
    "27": {
     "color": 1.0,
     "lights": 31,
+    "rate": 0.052,
     "mirror": 30,
     "white": 0.48
    },
@@ -13922,6 +14818,7 @@
    "30": {
     "color": 1.0,
     "lights": 31,
+    "rate": 0.041,
     "mirror": 27,
     "white": 0.49
    },
@@ -14053,6 +14950,18 @@
     0
    ]
   },
+  "basicLights": {
+   "6": {
+    "share": 0.86,
+    "rate": 0.042,
+    "off": 0.16,
+    "on": 0.36,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.49,
+    "white": 0.28
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
@@ -14060,6 +14969,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 0,
+    "rate": 0.056,
     "rotationAxes": [
      2,
      1,
@@ -14118,6 +15028,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 6,
+    "rate": 0.002,
     "rotationAxes": [
      2,
      1,
@@ -14231,6 +15142,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 7,
+    "rate": 0.082,
     "rotationAxes": [
      0,
      1,
@@ -14290,6 +15202,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 7,
+    "rate": 0.088,
     "rotationAxes": [
      0,
      1,
@@ -14349,6 +15262,7 @@
     "translation": 1.0,
     "fx": 0.71,
     "lights": 0,
+    "rate": 0.062,
     "rotationAxes": [
      0,
      1,
@@ -14399,6 +15313,7 @@
     "color": 1.0,
     "fx": 0.93,
     "lights": 3,
+    "rate": 0.086,
     "white": 0.44
    },
    "7": {
@@ -14407,6 +15322,7 @@
     "translation": 1.0,
     "fx": 0.93,
     "lights": 6,
+    "rate": 0.078,
     "rotationAxes": [
      2,
      0,
@@ -14469,6 +15385,7 @@
     "translation": 1.0,
     "fx": 0.93,
     "lights": 6,
+    "rate": 0.075,
     "rotationAxes": [
      2,
      0,
@@ -14532,6 +15449,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 6,
+    "rate": 0.068,
     "rotationAxes": [
      2,
      1,
@@ -14592,6 +15510,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 6,
+    "rate": 0.068,
     "rotationAxes": [
      2,
      1,
@@ -14652,6 +15571,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 5,
+    "rate": 0.035,
     "rotationAxes": [
      1,
      0,
@@ -14710,6 +15630,7 @@
     "translation": 0.71,
     "fx": 0.71,
     "lights": 0,
+    "rate": 0.01,
     "rotationAxes": [
      0,
      1
@@ -14755,6 +15676,7 @@
     "translation": 0.71,
     "fx": 0.71,
     "lights": 0,
+    "rate": 0.01,
     "rotationAxes": [
      0,
      1
@@ -14797,12 +15719,14 @@
    "14": {
     "color": 0.86,
     "lights": 4,
+    "rate": 0.031,
     "mirror": 15,
     "white": 0.25
    },
    "15": {
     "color": 0.86,
     "lights": 4,
+    "rate": 0.031,
     "mirror": 14,
     "white": 0.25
    },
@@ -14810,12 +15734,14 @@
     "color": 0.79,
     "fx": 0.71,
     "lights": 0,
+    "rate": 0.04,
     "mirror": 18,
     "white": 0.4
    },
    "17": {
     "color": 0.71,
     "lights": 0,
+    "rate": 0.014,
     "mirror": 19,
     "white": 0.31
    },
@@ -14823,12 +15749,14 @@
     "color": 0.79,
     "fx": 0.79,
     "lights": 0,
+    "rate": 0.04,
     "mirror": 16,
     "white": 0.4
    },
    "19": {
     "color": 0.71,
     "lights": 0,
+    "rate": 0.014,
     "mirror": 17,
     "white": 0.3
    },
@@ -14837,6 +15765,7 @@
     "translation": 0.86,
     "fx": 0.79,
     "lights": 4,
+    "rate": 0.061,
     "translationAxes": [
      0,
      1,
@@ -14895,6 +15824,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 24,
+    "rate": 0.069,
     "rotationAxes": [
      0,
      2,
@@ -14951,6 +15881,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 24,
+    "rate": 0.07,
     "rotationAxes": [
      0,
      2,
@@ -15007,6 +15938,7 @@
     "translation": 1.0,
     "fx": 0.86,
     "lights": 4,
+    "rate": 0.031,
     "rotationAxes": [
      2,
      0,
@@ -15068,6 +16000,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 4,
+    "rate": 0.034,
     "rotationAxes": [
      2,
      0,
@@ -15126,6 +16059,7 @@
     "rotation": 0.79,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.002,
     "rotationAxes": [
      0,
      1,
@@ -15176,12 +16110,14 @@
    "27": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.018,
     "mirror": 28,
     "white": 0.15
    },
    "28": {
     "color": 0.93,
     "lights": 4,
+    "rate": 0.018,
     "mirror": 27,
     "white": 0.15
    },
@@ -15190,6 +16126,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 12,
+    "rate": 0.075,
     "rotationAxes": [
      2,
      1,
@@ -15254,6 +16191,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 12,
+    "rate": 0.073,
     "rotationAxes": [
      2,
      0,
@@ -15311,6 +16249,7 @@
    "31": {
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.002,
     "translationAxes": [
      1,
      2,
@@ -15339,22 +16278,26 @@
    "32": {
     "color": 1.0,
     "lights": 4,
+    "rate": 0.011,
     "white": 0.55
    },
    "33": {
     "color": 0.71,
     "lights": 4,
+    "rate": 0.021,
     "white": 0.24
    },
    "34": {
     "color": 1.0,
     "lights": 60,
+    "rate": 0.046,
     "mirror": 35,
     "white": 0.34
    },
    "35": {
     "color": 1.0,
     "lights": 60,
+    "rate": 0.046,
     "mirror": 34,
     "white": 0.34
    },
@@ -15461,12 +16404,14 @@
    "38": {
     "color": 1.0,
     "lights": 1,
+    "rate": 0.007,
     "mirror": 39,
     "white": 0.2
    },
    "39": {
     "color": 1.0,
     "lights": 1,
+    "rate": 0.006,
     "mirror": 38,
     "white": 0.21
    },
@@ -15600,6 +16545,18 @@
   "basic": {
    "6": 0.43
   },
+  "basicLights": {
+   "6": {
+    "share": 0.43,
+    "rate": 0.102,
+    "off": 0.03,
+    "on": 0.08,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.89,
+    "white": 0.8
+   }
+  },
   "groups": {
    "0": {
     "color": 0.93,
@@ -15607,6 +16564,7 @@
     "translation": 0.93,
     "fx": 0.93,
     "lights": 0,
+    "rate": 0.024,
     "rotationAxes": [
      0,
      1,
@@ -15669,6 +16627,7 @@
     "translation": 0.93,
     "fx": 0.71,
     "lights": 36,
+    "rate": 0.098,
     "rotationAxes": [
      2,
      0,
@@ -15732,6 +16691,7 @@
     "translation": 0.93,
     "fx": 0.71,
     "lights": 9,
+    "rate": 0.082,
     "rotationAxes": [
      2,
      0,
@@ -15788,6 +16748,7 @@
     "translation": 0.79,
     "fx": 0.64,
     "lights": 36,
+    "rate": 0.075,
     "rotationAxes": [
      2,
      0,
@@ -15848,6 +16809,7 @@
     "translation": 0.79,
     "fx": 0.64,
     "lights": 9,
+    "rate": 0.052,
     "rotationAxes": [
      2,
      0,
@@ -15907,6 +16869,7 @@
     "translation": 1.0,
     "fx": 0.64,
     "lights": 36,
+    "rate": 0.06,
     "rotationAxes": [
      2,
      1,
@@ -15967,6 +16930,7 @@
     "translation": 0.93,
     "fx": 0.64,
     "lights": 8,
+    "rate": 0.049,
     "rotationAxes": [
      2,
      1,
@@ -16018,6 +16982,7 @@
     "translation": 0.36,
     "fx": 1.0,
     "lights": 8,
+    "rate": 0.039,
     "rotationAxes": [
      0,
      1,
@@ -16067,6 +17032,7 @@
     "translation": 0.43,
     "fx": 0.93,
     "lights": 36,
+    "rate": 0.056,
     "rotationAxes": [
      0,
      1,
@@ -16113,6 +17079,7 @@
     "color": 0.57,
     "fx": 0.93,
     "lights": 36,
+    "rate": 0.05,
     "white": 0.23
    },
    "10": {
@@ -16121,6 +17088,7 @@
     "translation": 0.79,
     "fx": 0.71,
     "lights": 8,
+    "rate": 0.082,
     "rotationAxes": [
      2,
      0,
@@ -16181,6 +17149,7 @@
     "translation": 0.79,
     "fx": 0.71,
     "lights": 8,
+    "rate": 0.07,
     "rotationAxes": [
      2,
      0,
@@ -16241,6 +17210,7 @@
     "translation": 0.79,
     "fx": 1.0,
     "lights": 8,
+    "rate": 0.058,
     "rotationAxes": [
      2,
      0,
@@ -16302,6 +17272,7 @@
     "translation": 0.93,
     "fx": 0.86,
     "lights": 8,
+    "rate": 0.055,
     "rotationAxes": [
      0,
      2,
@@ -16362,6 +17333,7 @@
     "translation": 1.0,
     "fx": 1.0,
     "lights": 8,
+    "rate": 0.06,
     "rotationAxes": [
      0,
      2,
@@ -16423,6 +17395,7 @@
     "translation": 0.71,
     "fx": 0.64,
     "lights": 8,
+    "rate": 0.055,
     "rotationAxes": [
      2,
      0,
@@ -16482,6 +17455,7 @@
     "color": 0.36,
     "fx": 0.36,
     "lights": 0,
+    "rate": 0.022,
     "white": 0.0
    },
    "17": {
@@ -16490,6 +17464,7 @@
     "translation": 0.43,
     "fx": 0.36,
     "lights": 0,
+    "rate": 0.022,
     "rotationAxes": [
      0,
      1,
@@ -16582,6 +17557,7 @@
     "color": 0.93,
     "fx": 0.36,
     "lights": 2,
+    "rate": 0.046,
     "mirror": 29,
     "white": 0.24
    },
@@ -16589,6 +17565,7 @@
     "color": 0.93,
     "fx": 0.36,
     "lights": 2,
+    "rate": 0.044,
     "mirror": 28,
     "white": 0.24
    },
@@ -16690,6 +17667,7 @@
     "translation": 0.93,
     "fx": 0.79,
     "lights": 12,
+    "rate": 0.043,
     "rotationAxes": [
      2,
      0,
@@ -16742,6 +17720,7 @@
     "translation": 0.93,
     "fx": 0.79,
     "lights": 12,
+    "rate": 0.057,
     "rotationAxes": [
      1,
      2,
@@ -16797,6 +17776,7 @@
     "translation": 0.93,
     "fx": 0.71,
     "lights": 4,
+    "rate": 0.03,
     "rotationAxes": [
      0,
      1,
@@ -16859,6 +17839,7 @@
     "color": 0.36,
     "fx": 0.36,
     "lights": 0,
+    "rate": 0.022,
     "white": 0.0
    },
    "39": {
@@ -16875,6 +17856,7 @@
     "translation": 0.79,
     "fx": 0.79,
     "lights": 2,
+    "rate": 0.022,
     "rotationAxes": [
      2,
      0,
@@ -16936,6 +17918,7 @@
     "translation": 0.79,
     "fx": 0.79,
     "lights": 2,
+    "rate": 0.022,
     "rotationAxes": [
      2,
      1,
@@ -16997,6 +17980,7 @@
     "translation": 0.93,
     "fx": 0.64,
     "lights": 4,
+    "rate": 0.016,
     "rotationAxes": [
      1,
      0,
@@ -17049,6 +18033,7 @@
     "translation": 0.36,
     "fx": 0.29,
     "lights": 0,
+    "rate": 0.022,
     "rotationAxes": [
      0,
      1,
@@ -17096,6 +18081,7 @@
     "rotation": 0.93,
     "translation": 1.0,
     "lights": 2,
+    "rate": 0.022,
     "rotationAxes": [
      2,
      0,
@@ -17251,6 +18237,7 @@
     "translation": 0.36,
     "fx": 0.36,
     "lights": 0,
+    "rate": 0.022,
     "rotationAxes": [
      0,
      1,
@@ -17297,6 +18284,7 @@
     "color": 0.36,
     "fx": 0.36,
     "lights": 0,
+    "rate": 0.022,
     "white": 0.0
    },
    "51": {
@@ -17324,6 +18312,18 @@
     5
    ]
   },
+  "basicLights": {
+   "6": {
+    "share": 0.43,
+    "rate": 0.031,
+    "off": 0.09,
+    "on": 0.46,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.46,
+    "white": 0.25
+   }
+  },
   "groups": {
    "0": {
     "color": 0.93,
@@ -17331,6 +18331,7 @@
     "translation": 0.93,
     "fx": 0.93,
     "lights": 2,
+    "rate": 0.036,
     "rotationAxes": [
      0,
      1,
@@ -17385,6 +18386,7 @@
     "translation": 1.0,
     "fx": 1.0,
     "lights": 16,
+    "rate": 0.064,
     "translationAxes": [
      0,
      1,
@@ -17416,6 +18418,7 @@
     "translation": 1.0,
     "fx": 1.0,
     "lights": 16,
+    "rate": 0.054,
     "translationAxes": [
      1,
      0,
@@ -17449,12 +18452,14 @@
    "4": {
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "5": {
     "translation": 0.93,
     "fx": 0.93,
     "lights": 0,
+    "rate": 0.006,
     "translationAxes": [
      2,
      1,
@@ -17484,6 +18489,7 @@
     "translation": 0.71,
     "fx": 0.64,
     "lights": 3,
+    "rate": 0.004,
     "translationAxes": [
      0,
      2,
@@ -17515,6 +18521,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 2,
+    "rate": 0.056,
     "rotationAxes": [
      2,
      0,
@@ -17575,6 +18582,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 2,
+    "rate": 0.039,
     "rotationAxes": [
      1,
      2,
@@ -17648,11 +18656,13 @@
    "11": {
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "12": {
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "13": {
@@ -17661,6 +18671,7 @@
     "translation": 1.0,
     "fx": 0.93,
     "lights": 16,
+    "rate": 0.056,
     "rotationAxes": [
      2,
      0,
@@ -17725,6 +18736,7 @@
     "translation": 1.0,
     "fx": 0.93,
     "lights": 16,
+    "rate": 0.057,
     "rotationAxes": [
      2,
      0,
@@ -17786,12 +18798,14 @@
    "15": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.016,
     "mirror": 16,
     "white": 0.15
    },
    "16": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.046,
     "mirror": 15,
     "white": 0.53
    },
@@ -17800,6 +18814,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 3,
+    "rate": 0.027,
     "rotationAxes": [
      2,
      0,
@@ -17855,11 +18870,13 @@
    "19": {
     "fx": 1.0,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "20": {
     "fx": 1.0,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "21": {
@@ -17877,16 +18894,19 @@
    "24": {
     "fx": 0.93,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "25": {
     "fx": 0.93,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "28": {
     "fx": 0.86,
     "lights": 0,
+    "rate": 0.004,
     "white": 0.0
    },
    "29": {
@@ -18127,6 +19147,7 @@
    "38": {
     "color": 0.93,
     "lights": 3,
+    "rate": 0.035,
     "white": 0.47
    },
    "39": {
@@ -18140,11 +19161,13 @@
    "41": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.054,
     "white": 0.4
    },
    "42": {
     "color": 0.93,
     "lights": 0,
+    "rate": 0.037,
     "white": 0.44
    },
    "43": {
@@ -18160,6 +19183,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 16,
+    "rate": 0.089,
     "rotationAxes": [
      2,
      0,
@@ -18216,6 +19240,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 16,
+    "rate": 0.089,
     "rotationAxes": [
      2,
      0,
@@ -18381,6 +19406,7 @@
     "translation": 1.0,
     "fx": 0.79,
     "lights": 4,
+    "rate": 0.047,
     "rotationAxes": [
      2,
      0,
@@ -18432,6 +19458,7 @@
     "color": 0.86,
     "fx": 0.93,
     "lights": 16,
+    "rate": 0.039,
     "white": 0.33
    },
    "51": {
@@ -18481,6 +19508,58 @@
     10
    ]
   },
+  "basicLights": {
+   "0": {
+    "share": 1.0,
+    "rate": 1.119,
+    "off": 0.0,
+    "on": 0.45,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.54,
+    "white": 0.24
+   },
+   "1": {
+    "share": 1.0,
+    "rate": 3.6,
+    "off": 0.0,
+    "on": 0.49,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.51,
+    "white": 0.06
+   },
+   "2": {
+    "share": 1.0,
+    "rate": 1.333,
+    "off": 0.0,
+    "on": 0.46,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.54,
+    "white": 0.68
+   },
+   "3": {
+    "share": 1.0,
+    "rate": 1.381,
+    "off": 0.0,
+    "on": 0.46,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.53,
+    "white": 0.65
+   },
+   "4": {
+    "share": 1.0,
+    "rate": 0.077,
+    "off": 0.0,
+    "on": 0.97,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.03,
+    "white": 0.39
+   }
+  },
   "groups": {
    "0": {
     "color": 1.0,
@@ -18488,6 +19567,7 @@
     "translation": 1.0,
     "fx": 1.0,
     "lights": 0,
+    "rate": 0.065,
     "rotationAxes": [
      0,
      1,
@@ -18541,6 +19621,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.259,
     "rotationAxes": [
      0,
      1,
@@ -18646,6 +19727,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.259,
     "rotationAxes": [
      0,
      1,
@@ -18750,6 +19832,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.279,
     "rotationAxes": [
      0,
      1,
@@ -18778,6 +19861,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 8,
+    "rate": 0.279,
     "rotationAxes": [
      0,
      1,
@@ -18955,6 +20039,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.09,
     "rotationAxes": [
      0,
      1,
@@ -19004,6 +20089,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "lights": 2,
+    "rate": 0.1,
     "rotationAxes": [
      0,
      1
@@ -19026,6 +20112,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.045,
     "rotationAxes": [
      0,
      1,
@@ -19074,6 +20161,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.045,
     "rotationAxes": [
      0,
      1,
@@ -19122,6 +20210,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.112,
     "rotationAxes": [
      0,
      1,
@@ -19221,6 +20310,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 4,
+    "rate": 0.112,
     "rotationAxes": [
      2,
      0,
@@ -19462,11 +20552,13 @@
    "24": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.358,
     "white": 0.68
    },
    "25": {
     "color": 1.0,
     "lights": 5,
+    "rate": 0.358,
     "white": 0.68
    },
    "26": {
@@ -19474,6 +20566,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.104,
     "rotationAxes": [
      0,
      1,
@@ -19522,6 +20615,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "lights": 0,
+    "rate": 0.104,
     "rotationAxes": [
      0,
      1,
@@ -19568,6 +20662,7 @@
    "28": {
     "color": 1.0,
     "lights": 0,
+    "rate": 0.04,
     "white": 1.0
    }
   }
