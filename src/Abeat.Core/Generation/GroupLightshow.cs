@@ -39,6 +39,15 @@ public static class GroupLightshow
         var units = Pair(lit).OrderByDescending(u => u.Color).ThenByDescending(u => u.Lights).ToList();
         var roles = AssignRoles(units);
         Unit? For(Role r) => roles.GetValueOrDefault(r);
+        // more units than roles: the rest join the downbeat chases, each about as often as curated maps switch
+        // it on (a power of two of bars from its rate against the typical lit group's: Rock Mixtape's eyes and
+        // equalizer every fourth bar, taking turns; the same in build-up chase steps)
+        var extras = units.Skip(Enum.GetValues<Role>().Length).Select((u, i) =>
+        {
+            int every = u.Rate > 0 && rates.Count > 0
+                ? (int)Math.Pow(2, Math.Clamp(Math.Round(Math.Log2(rates[rates.Count / 2] / u.Rate.Value)), 0, 3)) : 1;
+            return (Unit: u, Every: every, Phase: i % every);
+        }).ToList();
 
         var lights = map.GroupLights;
         double maxEnergy = a.Sections.Count > 0 ? a.Sections.Max(s => s.Energy) : 1;
@@ -78,7 +87,12 @@ public static class GroupLightshow
             {
                 int bar = 0;
                 foreach (var db in downbeats.Where(b => b >= b0 - 0.01 && b < b1 - 0.01 && !InBuild(b)))
+                {
                     Light(For(Role.Chase), db, _ => Flash(bar % 2 == 0 ? color : other, 1, 1, spread: 1, reverse: bar++ % 2 == 1));
+                    int n = downbeats.IndexOf(db);
+                    foreach (var x in extras.Where(x => n % x.Every == x.Phase))
+                        Light(x.Unit, db, side => Flash((n / x.Every + side) % 2 == 0 ? color : other, 1, 1, spread: 1, reverse: (n / x.Every + side) % 2 == 1));
+                }
             }
 
             // the drummer: kicks pulse the kick unit, snares flash white, hats flicker a quarter of the lights
@@ -130,6 +144,8 @@ public static class GroupLightshow
                 if (len < 8) step /= 2;
                 int c = i % 2 == 0 ? Blue : Red;
                 Light(For(Role.Chase), b, side => Flash(c, 0.5 + 0.7 * prog, step, spread: step, reverse: (i + side) % 2 == 1));
+                foreach (var x in extras.Where(x => i % x.Every == x.Phase))
+                    Light(x.Unit, b, side => Flash(c, 0.5 + 0.7 * prog, step, spread: step, reverse: (i + side) % 2 == 1));
                 b += step;
             }
             Light(For(Role.Ambient), bu.Start, _ => new LightBox(1, 0, false, 0, 0, [new(0, White, 0.1), new(len, White, 1, Transition: 1, Strobe: 4)]));
@@ -462,11 +478,16 @@ public static class GroupLightshow
                 if (b0 >= end) break;
                 double rel = maxEnergy > 0 ? sec.Energy / maxEnergy : 0.5;
                 if (rel < 0.45) { Move(b0, (x, _) => x.home, 0, 4); continue; }
-                // pump with the bars: out towards the far side on the downbeat, partly back on the next
+                // pump with the bars: out towards the far side on the downbeat, partly back on the next pump,
+                // as often as curated maps move the group (Rock Mixtape's back lasers every few bars, its eyes
+                // every bar; half as often below the loudest sections, every bar when unknown)
+                int every = g.TranslationRate > 0
+                    ? (int)Math.Pow(2, Math.Clamp(Math.Round(Math.Log2(1 / (g.TranslationRate.Value * barBeats))), 0, 3)) * (rel >= 0.8 ? 1 : 2)
+                    : 1;
                 var bars = downbeats.Where(b => b >= b0 - 0.01 && b < b1 - 0.01 && !InBuild(b)).ToList();
-                for (int i = 0; i < bars.Count; i++)
+                for (int i = 0; i < bars.Count; i += every)
                 {
-                    double k = rel * (i % 2 == 0 ? 1 : 0.4);
+                    double k = rel * (i / every % 2 == 0 ? 1 : 0.4);
                     Move(bars[i], (x, ai) => x.home + (x.far - x.home) * k * (ai == 0 ? 1 : 0.5), 0.3 * rel, push, 0.25);
                 }
             }
@@ -600,7 +621,6 @@ public static class GroupLightshow
         }
         else
             for (int i = 0; i < n; i++) roles[order[i]] = units[i];
-        // more units than roles: the rest join in as extra chases (cycling) so no group stays dark
         var fallback = new (Role Role, Role[] From)[]
         {
             (Role.Ambient, [Role.Kick]), (Role.Notes, [Role.Kick]), (Role.Snare, [Role.Kick]), (Role.Melody, [Role.Ambient]),
@@ -609,8 +629,6 @@ public static class GroupLightshow
         foreach (var (role, from) in fallback)
             if (!roles.ContainsKey(role) && from.Select(roles.GetValueOrDefault).FirstOrDefault(u => u != null) is { } u)
                 roles[role] = u;
-        if (units.Count > order.Length)
-            roles[Role.Chase] = new Unit([.. roles[Role.Chase].Groups, .. units.Skip(order.Length).SelectMany(u => u.Groups)]);
         return roles;
     }
 }
