@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.24 — 2026-10-17
+
+- The Weeknd review: rails that curated maps start away from home (The Weeknd's buildings and lamp rings sit sunk below the stage until the song opens up) start in that intro pose and rise home on the first loud section or drop; translation axes mappers only ever set to one value are dropped (they did nothing in game); the survey can pin style-reference maps (The Weeknd: map 37114), which makes its rarely lit arrows and ring lasers set pieces as in curated maps.
+
 ## v0.2.23 — 2026-10-17
 
 - Lizzo review: basic types 8-12 count as lights where their values say so (Lizzo's peaches 7/8 now fire together as curated maps do instead of 7 copying the floor, plus type 8 in Britney, Monstercat 2, Metallica and Coldplay); light groups turn as often as curated maps turn them (Lizzo's rainbow and end lasers turned 4-8x too often) and the melody tracer is the group mappers turn most.
