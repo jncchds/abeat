@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.20 — 2026-10-17
+
+- Pyro review: group environments light their own basic switches (runway, projectors, logo...) the way curated maps do (types, rates, colour/white/transition shares and mirrored pairs learned per environment), instead of no basic events at all; groups mappers switch on far less often than the rest (Pyro's fire jets) are set pieces that go off on drops and loud downbeats at the curated rate (16 bursts in Pretender instead of 147 on melody notes).
+
 ## v0.2.19 — 2026-10-17
 
 - Weave review: light groups also turn about their second axis where curated mappers do (all of Weave's groups turn on y in most maps), each axis between its own learned poses; the environment survey ignores keyframes that only hold the previous value (they made 0° look like home) and takes light counts that at least three maps agree on, shared by mirror partners.
