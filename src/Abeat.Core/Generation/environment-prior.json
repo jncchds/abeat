@@ -3573,12 +3573,12 @@
  },
  "TheWeekndEnvironment": {
   "maps": 14,
-  "rotationEase": 1.0,
+  "rotationEase": 1,
   "translationEase": 0.5,
   "basic": {
    "0": 1.0,
    "1": 1.0,
-   "6": 0.93
+   "6": 0.86
   },
   "basicLights": {
    "0": {
@@ -3589,23 +3589,23 @@
     "flash": 0.0,
     "fade": 0.0,
     "transition": 0.49,
-    "white": 0.34,
+    "white": 0.35,
     "mirror": 1
    },
    "1": {
     "share": 1.0,
     "rate": 0.833,
-    "off": 0.1,
-    "on": 0.42,
+    "off": 0.09,
+    "on": 0.43,
     "flash": 0.0,
     "fade": 0.0,
     "transition": 0.48,
-    "white": 0.33,
+    "white": 0.35,
     "mirror": 0
    },
    "6": {
-    "share": 0.93,
-    "rate": 0.089,
+    "share": 0.86,
+    "rate": 0.148,
     "off": 0.03,
     "on": 0.33,
     "flash": 0.0,
@@ -3616,14 +3616,14 @@
   },
   "groups": {
    "0": {
-    "color": 1.0,
+    "color": 0.93,
     "translation": 1.0,
     "lights": 4,
-    "rate": 0.134,
+    "rate": 0.142,
     "translationAxes": [
      1
     ],
-    "translationRange": 3.15,
+    "translationRange": 3.7,
     "translationValues": {
      "1": [
       -2.1,
@@ -3635,10 +3635,10 @@
     "white": 0.28
    },
    "1": {
-    "color": 1.0,
+    "color": 0.93,
     "translation": 1.0,
     "lights": 4,
-    "rate": 0.137,
+    "rate": 0.142,
     "translationAxes": [
      1
     ],
@@ -3663,10 +3663,13 @@
     "translationRange": 2.05,
     "translationValues": {
      "1": [
-      -1.7,
+      -1.75,
       -0.85,
-      0.0
+      0
      ]
+    },
+    "translationIntro": {
+     "1": -3.7
     },
     "mirror": 3,
     "white": 1.0
@@ -3680,18 +3683,21 @@
     "translationRange": 2.05,
     "translationValues": {
      "1": [
-      -1.6,
+      -1.75,
       -0.85,
-      0.0
+      0
      ]
+    },
+    "translationIntro": {
+     "1": -3.7
     },
     "mirror": 2
    },
    "4": {
-    "color": 0.93,
-    "translation": 0.71,
+    "color": 1.0,
+    "translation": 0.79,
     "lights": 2,
-    "rate": 0.043,
+    "rate": 0.042,
     "translationAxes": [
      2
     ],
@@ -3708,8 +3714,8 @@
    },
    "5": {
     "color": 1.0,
-    "rotation": 0.79,
-    "translation": 0.93,
+    "rotation": 0.86,
+    "translation": 0.86,
     "lights": 4,
     "rate": 0.139,
     "rotationAxes": [
@@ -3721,7 +3727,7 @@
      0,
      -15
     ],
-    "homeShare": 0.85,
+    "homeShare": 0.86,
     "translationAxes": [
      1,
      0
@@ -3740,12 +3746,12 @@
      ]
     },
     "mirror": 6,
-    "white": 0.23
+    "white": 0.21
    },
    "6": {
     "color": 1.0,
-    "rotation": 0.79,
-    "translation": 0.93,
+    "rotation": 0.86,
+    "translation": 0.86,
     "lights": 4,
     "rate": 0.139,
     "rotationAxes": [
@@ -3757,7 +3763,7 @@
      0,
      -15
     ],
-    "homeShare": 0.85,
+    "homeShare": 0.86,
     "translationAxes": [
      1,
      0
@@ -3776,63 +3782,60 @@
      ]
     },
     "mirror": 5,
-    "white": 0.23
+    "white": 0.21
    },
    "7": {
     "color": 1.0,
     "lights": 2,
-    "rate": 0.174,
+    "rate": 0.147,
     "mirror": 4,
-    "white": 0.22
+    "white": 0.21
    },
    "8": {
     "color": 0.93,
     "rotation": 0.86,
     "translation": 1.0,
     "lights": 0,
-    "rate": 0.222,
+    "rate": 0.199,
     "rotationAxes": [
      1
     ],
     "rotationRange": 180.0,
-    "rotationRate": 0.051,
+    "rotationRate": 0.037,
     "rotationPoses": [
      0,
      45,
      60,
      180
     ],
-    "homeShare": 0.76,
+    "homeShare": 0.71,
     "translationAxes": [
-     1,
-     0
+     1
     ],
     "translationRange": 3,
     "translationValues": {
      "1": [
       -0.9,
       0,
-      2.15
-     ],
-     "0": [
-      -1,
-      -1,
-      -1
+      2.3
      ]
     },
-    "white": 0.48
+    "translationIntro": {
+     "1": -2.88
+    },
+    "white": 0.49
    },
    "9": {
     "color": 0.93,
     "rotation": 0.93,
     "lights": 6,
-    "rate": 0.04,
+    "rate": 0.021,
     "rotationAxes": [
      0,
      1
     ],
     "rotationRange": 90,
-    "rotationRate": 0.042,
+    "rotationRate": 0.021,
     "rotationPoses": [
      0,
      30,
@@ -3842,7 +3845,7 @@
      -60,
      90
     ],
-    "homeShare": 0.21,
+    "homeShare": 0.28,
     "axisPoses": {
      "1": [
       0,
@@ -3851,73 +3854,77 @@
       -15
      ]
     },
-    "white": 0.28
+    "white": 0.29
    },
    "10": {
     "color": 1.0,
     "lights": 5,
-    "rate": 0.274,
-    "white": 0.31
+    "rate": 0.26,
+    "mirror": 15,
+    "white": 0.32
    },
    "11": {
     "color": 1.0,
     "lights": 25,
-    "rate": 0.33,
+    "rate": 0.315,
     "mirror": 16,
-    "white": 0.41
+    "white": 0.42
    },
    "12": {
     "color": 1.0,
     "lights": 25,
     "rate": 0.311,
     "mirror": 17,
-    "white": 0.39
+    "white": 0.4
    },
    "13": {
     "color": 1.0,
     "lights": 25,
-    "rate": 0.351,
+    "rate": 0.321,
     "mirror": 18,
-    "white": 0.44
+    "white": 0.45
    },
    "14": {
     "color": 1.0,
     "lights": 25,
-    "rate": 0.325,
-    "white": 0.34
+    "rate": 0.295,
+    "mirror": 19,
+    "white": 0.35
    },
    "15": {
     "color": 1.0,
     "lights": 5,
-    "rate": 0.286,
-    "white": 0.31
+    "rate": 0.27,
+    "mirror": 10,
+    "white": 0.33
    },
    "16": {
     "color": 1.0,
     "lights": 25,
-    "rate": 0.335,
+    "rate": 0.319,
     "mirror": 11,
-    "white": 0.4
+    "white": 0.41
    },
    "17": {
     "color": 1.0,
     "lights": 25,
     "rate": 0.293,
     "mirror": 12,
-    "white": 0.39
+    "white": 0.4
    },
    "18": {
     "color": 1.0,
     "lights": 25,
-    "rate": 0.351,
+    "rate": 0.325,
     "mirror": 13,
-    "white": 0.44
+    "white": 0.45
    },
    "19": {
     "color": 1.0,
     "lights": 25,
-    "rate": 0.327,
-    "white": 0.33
+    "rate": 0.296,
+    "mirror": 14,
+    "white": 0.34
    },
    "20": {
     "translation": 1.0,
@@ -3932,13 +3939,16 @@
      "1": [
       -4,
       0,
-      1.8
+      2
      ],
      "0": [
-      -1,
-      0,
+      -1.05,
+      0.0,
       0.65
      ]
+    },
+    "translationIntro": {
+     "1": -8.12
     },
     "mirror": 21,
     "white": 0.0
@@ -3956,42 +3966,33 @@
      "1": [
       -4,
       0,
-      1.8
+      2
      ],
      "0": [
-      -1,
+      -1.05,
       0,
       0.65
      ]
+    },
+    "translationIntro": {
+     "1": -8.12
     },
     "mirror": 20,
     "white": 0.0
    },
    "22": {
     "color": 1.0,
-    "translation": 0.21,
     "lights": 8,
-    "rate": 0.155,
-    "translationAxes": [
-     1
-    ],
-    "translationRange": 8,
-    "translationValues": {
-     "1": [
-      -0.4,
-      0.0,
-      0.0
-     ]
-    },
+    "rate": 0.206,
     "mirror": 23,
-    "white": 0.32
+    "white": 0.26
    },
    "23": {
     "color": 1.0,
     "lights": 8,
-    "rate": 0.158,
+    "rate": 0.212,
     "mirror": 22,
-    "white": 0.34
+    "white": 0.27
    },
    "29": {
     "color": 1.0,
@@ -4012,7 +4013,7 @@
      15,
      30
     ],
-    "homeShare": 0.7,
+    "homeShare": 0.71,
     "axisPoses": {
      "2": [
       0,
@@ -4034,7 +4035,7 @@
      ]
     },
     "mirror": 33,
-    "white": 0.29
+    "white": 0.31
    },
    "30": {
     "color": 1.0,
@@ -4056,15 +4057,14 @@
      15,
      120
     ],
-    "homeShare": 0.71,
+    "homeShare": 0.72,
     "axisPoses": {
      "2": [
       0,
       -120,
       -90,
       60,
-      180,
-      90
+      180
      ]
     },
     "translationAxes": [
@@ -4073,13 +4073,13 @@
     "translationRange": 3.1,
     "translationValues": {
      "1": [
-      -2.0,
+      -2.65,
       0,
       1.5
      ]
     },
     "mirror": 34,
-    "white": 0.28
+    "white": 0.3
    },
    "31": {
     "color": 1.0,
@@ -4100,7 +4100,7 @@
      15,
      30
     ],
-    "homeShare": 0.7,
+    "homeShare": 0.71,
     "axisPoses": {
      "2": [
       0,
@@ -4117,12 +4117,12 @@
     "translationValues": {
      "1": [
       -1.95,
-      0,
-      1.5
+      0.0,
+      1.8
      ]
     },
     "mirror": 35,
-    "white": 0.29
+    "white": 0.31
    },
    "32": {
     "color": 1.0,
@@ -4144,13 +4144,13 @@
      30,
      120
     ],
-    "homeShare": 0.71,
+    "homeShare": 0.72,
     "axisPoses": {
      "2": [
       0,
       -120,
-      90,
       60,
+      90,
       180
      ]
     },
@@ -4161,12 +4161,12 @@
     "translationValues": {
      "1": [
       -1.95,
-      0,
+      0.0,
       1.5
      ]
     },
     "mirror": 36,
-    "white": 0.28
+    "white": 0.29
    },
    "33": {
     "color": 1.0,
@@ -4203,13 +4203,13 @@
     "translationRange": 3.2,
     "translationValues": {
      "1": [
-      -1.95,
-      0,
+      -2.0,
+      0.0,
       1.8
      ]
     },
     "mirror": 29,
-    "white": 0.29
+    "white": 0.31
    },
    "34": {
     "color": 1.0,
@@ -4231,30 +4231,29 @@
      15,
      120
     ],
-    "homeShare": 0.71,
+    "homeShare": 0.72,
     "axisPoses": {
      "2": [
       0,
       -120,
       -90,
       60,
-      180,
-      90
+      180
      ]
     },
     "translationAxes": [
      1
     ],
-    "translationRange": 3.1,
+    "translationRange": 3.2,
     "translationValues": {
      "1": [
-      -2.0,
+      -2.65,
       0,
-      1.45
+      1.5
      ]
     },
     "mirror": 30,
-    "white": 0.29
+    "white": 0.31
    },
    "35": {
     "color": 1.0,
@@ -4273,10 +4272,9 @@
      -15,
      15,
      180,
-     30,
-     60
+     30
     ],
-    "homeShare": 0.71,
+    "homeShare": 0.72,
     "axisPoses": {
      "2": [
       0,
@@ -4292,13 +4290,13 @@
     "translationRange": 3.2,
     "translationValues": {
      "1": [
-      -1.95,
-      0,
-      1.55
+      -2.0,
+      0.0,
+      1.8
      ]
     },
     "mirror": 31,
-    "white": 0.29
+    "white": 0.31
    },
    "36": {
     "color": 1.0,
@@ -4310,7 +4308,7 @@
      0,
      2
     ],
-    "rotationRange": 140,
+    "rotationRange": 135,
     "rotationRate": 0.225,
     "rotationPoses": [
      0,
@@ -4320,7 +4318,7 @@
      30,
      120
     ],
-    "homeShare": 0.72,
+    "homeShare": 0.73,
     "axisPoses": {
      "2": [
       0,
@@ -4337,26 +4335,26 @@
     "translationValues": {
      "1": [
       -1.95,
-      0,
-      1.5
+      0.0,
+      1.55
      ]
     },
     "mirror": 32,
-    "white": 0.29
+    "white": 0.3
    },
    "37": {
     "color": 1.0,
     "lights": 6,
     "rate": 0.239,
     "mirror": 38,
-    "white": 0.32
+    "white": 0.33
    },
    "38": {
     "color": 1.0,
     "lights": 6,
     "rate": 0.239,
     "mirror": 37,
-    "white": 0.32
+    "white": 0.33
    },
    "40": {
     "color": 0.29,
@@ -4379,6 +4377,9 @@
       -1.25,
       1.05
      ]
+    },
+    "translationIntro": {
+     "1": -9.5
     },
     "white": 0.08
    }
@@ -4882,6 +4883,9 @@
       0.3
      ]
     },
+    "translationIntro": {
+     "1": -3.1
+    },
     "mirror": 27,
     "white": 0.56
    },
@@ -4932,6 +4936,9 @@
       0.3
      ]
     },
+    "translationIntro": {
+     "1": -1.2
+    },
     "mirror": 25
    },
    "28": {
@@ -4954,6 +4961,9 @@
       0.05,
       0.4
      ]
+    },
+    "translationIntro": {
+     "1": -4
     },
     "white": 0.5
    },
@@ -5971,6 +5981,9 @@
       0,
       1.75
      ]
+    },
+    "translationIntro": {
+     "2": -8.95
     }
    },
    "9": {
@@ -6346,6 +6359,9 @@
       0.5
      ]
     },
+    "translationIntro": {
+     "1": -2.5
+    },
     "mirror": 5,
     "white": 0.32
    },
@@ -6470,6 +6486,9 @@
       0,
       0.5
      ]
+    },
+    "translationIntro": {
+     "1": -2.5
     },
     "mirror": 0,
     "white": 0.32
@@ -6604,6 +6623,9 @@
       -1,
       0
      ]
+    },
+    "translationIntro": {
+     "1": 7.25
     },
     "white": 0.41
    },
@@ -6999,6 +7021,9 @@
       0,
       0.15
      ]
+    },
+    "translationIntro": {
+     "2": -2.08
     },
     "white": 0.19
    },
@@ -8606,6 +8631,9 @@
       0,
       0.85
      ]
+    },
+    "translationIntro": {
+     "1": -10.6
     }
    },
    "30": {
@@ -8859,6 +8887,9 @@
       3,
       10.45
      ]
+    },
+    "translationIntro": {
+     "1": 3.6
     },
     "mirror": 7
    },
@@ -9183,6 +9214,9 @@
       12
      ]
     },
+    "translationIntro": {
+     "1": 1.6
+    },
     "mirror": 21
    },
    "15": {
@@ -9340,6 +9374,9 @@
       0,
       1.4
      ]
+    },
+    "translationIntro": {
+     "1": 1.9
     },
     "mirror": 14
    },
@@ -10230,6 +10267,9 @@
       0.1
      ]
     },
+    "translationIntro": {
+     "1": -103.65
+    },
     "white": 0.34
    },
    "19": {
@@ -10304,6 +10344,9 @@
       5.5
      ]
     },
+    "translationIntro": {
+     "1": -25
+    },
     "white": 0.24
    },
    "24": {
@@ -10369,6 +10412,9 @@
       9.15
      ]
     },
+    "translationIntro": {
+     "1": -22.52
+    },
     "white": 0.34
    },
    "25": {
@@ -10392,6 +10438,9 @@
       -0.1,
       4.6
      ]
+    },
+    "translationIntro": {
+     "1": -85.2
     },
     "mirror": 26,
     "white": 0.45
@@ -10417,6 +10466,9 @@
       0,
       4.6
      ]
+    },
+    "translationIntro": {
+     "1": -85.2
     },
     "mirror": 25,
     "white": 0.45
@@ -11241,6 +11293,9 @@
       0.7
      ]
     },
+    "translationIntro": {
+     "1": -3.0
+    },
     "white": 0.41
    },
    "21": {
@@ -11330,6 +11385,9 @@
       0.01
      ]
     },
+    "translationIntro": {
+     "1": -4
+    },
     "mirror": 28,
     "white": 0.48
    },
@@ -11385,6 +11443,9 @@
       0,
       0.9
      ]
+    },
+    "translationIntro": {
+     "1": -3.0
     },
     "mirror": 29,
     "white": 0.44
@@ -11483,6 +11544,9 @@
       0.01
      ]
     },
+    "translationIntro": {
+     "1": -3.0
+    },
     "white": 0.43
    },
    "26": {
@@ -11535,6 +11599,9 @@
       0,
       0.2
      ]
+    },
+    "translationIntro": {
+     "1": -3.0
     },
     "white": 0.44
    },
@@ -11628,6 +11695,9 @@
       0.01
      ]
     },
+    "translationIntro": {
+     "1": -3.0
+    },
     "mirror": 22,
     "white": 0.52
    },
@@ -11681,6 +11751,9 @@
       0,
       0.45
      ]
+    },
+    "translationIntro": {
+     "1": -3.0
     },
     "mirror": 23,
     "white": 0.45
@@ -11770,6 +11843,9 @@
       0,
       0.01
      ]
+    },
+    "translationIntro": {
+     "1": -4
     },
     "white": 0.35
    },
@@ -12315,6 +12391,9 @@
       2,
       5
      ]
+    },
+    "translationIntro": {
+     "1": -11.6
     },
     "white": 0.39
    },
@@ -13428,6 +13507,9 @@
       4.5
      ]
     },
+    "translationIntro": {
+     "1": -35.08
+    },
     "mirror": 3
    },
    "2": {
@@ -13540,6 +13622,9 @@
       4.5
      ]
     },
+    "translationIntro": {
+     "1": -40
+    },
     "mirror": 1
    },
    "5": {
@@ -13600,6 +13685,9 @@
       0,
       1.05
      ]
+    },
+    "translationIntro": {
+     "1": -30.0
     },
     "white": 0.3
    },
@@ -14280,6 +14368,9 @@
       0,
       5.25
      ]
+    },
+    "translationIntro": {
+     "1": -6.45
     },
     "white": 0.1
    },
@@ -15226,6 +15317,9 @@
       1.8
      ]
     },
+    "translationIntro": {
+     "1": -10
+    },
     "mirror": 22
    },
    "26": {
@@ -15343,6 +15437,9 @@
       0
      ]
     },
+    "translationIntro": {
+     "1": -10
+    },
     "mirror": 31
    },
    "29": {
@@ -15459,6 +15556,9 @@
       0,
       0.4
      ]
+    },
+    "translationIntro": {
+     "1": -10
     },
     "mirror": 28
    },
@@ -16273,9 +16373,7 @@
      ]
     },
     "translationAxes": [
-     1,
-     0,
-     2
+     1
     ],
     "translationRange": 4.55,
     "translationValues": {
@@ -16283,16 +16381,6 @@
       0,
       3.1,
       4.55
-     ],
-     "0": [
-      0,
-      0,
-      0
-     ],
-     "2": [
-      0,
-      0,
-      0
      ]
     },
     "mirror": 13,
@@ -16321,9 +16409,7 @@
      ]
     },
     "translationAxes": [
-     1,
-     0,
-     2
+     1
     ],
     "translationRange": 6.3,
     "translationValues": {
@@ -16331,16 +16417,6 @@
       0,
       3.1,
       4.55
-     ],
-     "0": [
-      0,
-      0,
-      0
-     ],
-     "2": [
-      0,
-      0,
-      0
      ]
     },
     "mirror": 12,
@@ -16418,6 +16494,9 @@
       2.3,
       5.25
      ]
+    },
+    "translationIntro": {
+     "2": 0.0
     },
     "white": 0.51
    },
@@ -17522,6 +17601,9 @@
       1.8
      ]
     },
+    "translationIntro": {
+     "1": 0.0
+    },
     "mirror": 2,
     "white": 0.24
    },
@@ -18515,6 +18597,9 @@
       5.45
      ]
     },
+    "translationIntro": {
+     "1": -8.0
+    },
     "white": 0.41
    },
    "35": {
@@ -18724,6 +18809,9 @@
       1.2,
       5.4
      ]
+    },
+    "translationIntro": {
+     "1": -6.0
     },
     "white": 0.54
    },
@@ -19184,8 +19272,7 @@
     "rate": 0.006,
     "translationAxes": [
      2,
-     1,
-     0
+     1
     ],
     "translationRange": 3,
     "translationValues": {
@@ -19198,11 +19285,6 @@
       -3,
       -0.55,
       1.35
-     ],
-     "0": [
-      0,
-      0,
-      0
      ]
     },
     "white": 0.0
@@ -19298,6 +19380,9 @@
       24.95
      ]
     },
+    "translationIntro": {
+     "1": -20.02
+    },
     "white": 0.2
    },
    "8": {
@@ -19368,6 +19453,9 @@
       0,
       1.9
      ]
+    },
+    "translationIntro": {
+     "1": -20.05
     },
     "white": 0.34
    },
@@ -20798,7 +20886,6 @@
     },
     "translationAxes": [
      1,
-     0,
      2
     ],
     "translationRange": 3.45,
@@ -20807,11 +20894,6 @@
       -0.35,
       0,
       3.45
-     ],
-     "0": [
-      0,
-      0,
-      0
      ],
      "2": [
       0,
@@ -21325,9 +21407,7 @@
     "translation": 1.0,
     "lights": 0,
     "translationAxes": [
-     1,
-     0,
-     2
+     1
     ],
     "translationRange": 0.7,
     "translationValues": {
@@ -21335,16 +21415,6 @@
       0.1,
       0.1,
       0.25
-     ],
-     "0": [
-      0,
-      0,
-      0
-     ],
-     "2": [
-      0,
-      0,
-      0
      ]
     }
    },
@@ -21352,9 +21422,7 @@
     "translation": 1.0,
     "lights": 0,
     "translationAxes": [
-     1,
-     0,
-     2
+     1
     ],
     "translationRange": 0.7,
     "translationValues": {
@@ -21362,16 +21430,6 @@
       0.1,
       0.1,
       0.25
-     ],
-     "0": [
-      0,
-      0,
-      0
-     ],
-     "2": [
-      0,
-      0,
-      0
      ]
     }
    },

@@ -17,11 +17,14 @@ public enum LightingSystem { Classic, Groups }
 /// <param name="TranslationValues">Per translation axis: 10th percentile, median and 90th percentile of the
 /// distances mappers move it to.</param>
 /// <param name="Rate">Median share of song beats on which maps switch it on (Pyro's fire: 0.03).</param>
+/// <param name="TranslationIntro">Per translation axis: where curated maps start it when they start it away
+/// from home (The Weeknd's ring sets start lowered and rise on the first big moment).</param>
 /// <param name="RotationRate">Median share of song beats on which maps that turn it turn it to a pose.</param>
 public sealed record LightGroupInfo(int Id, double Color, double Rotation, double Translation, int Lights,
     int[] RotationAxes, double RotationRange, int[] TranslationAxes, double TranslationRange,
     int? Mirror = null, int[]? RotationPoses = null, IReadOnlyDictionary<int, double[]>? TranslationValues = null,
-    IReadOnlyDictionary<int, int[]>? AxisPoses = null, double? Rate = null, double HomeShare = 0, double? RotationRate = null)
+    IReadOnlyDictionary<int, int[]>? AxisPoses = null, double? Rate = null, double HomeShare = 0, double? RotationRate = null,
+    IReadOnlyDictionary<int, double>? TranslationIntro = null)
 {
     /// <summary>The poses mappers turn it to about <paramref name="axis"/> (null when unknown).</summary>
     public int[]? PosesOn(int axis) =>
@@ -152,7 +155,8 @@ public static class EnvironmentCatalog
                     kv.Value.Translation, kv.Value.Lights, kv.Value.RotationAxes ?? [], kv.Value.RotationRange,
                     kv.Value.TranslationAxes ?? [], kv.Value.TranslationRange, kv.Value.Mirror, kv.Value.RotationPoses,
                     kv.Value.TranslationValues?.ToDictionary(t => int.Parse(t.Key), t => t.Value),
-                    kv.Value.AxisPoses?.ToDictionary(t => int.Parse(t.Key), t => t.Value), kv.Value.Rate, kv.Value.HomeShare ?? 0, kv.Value.RotationRate))
+                    kv.Value.AxisPoses?.ToDictionary(t => int.Parse(t.Key), t => t.Value), kv.Value.Rate, kv.Value.HomeShare ?? 0, kv.Value.RotationRate,
+                    kv.Value.TranslationIntro?.ToDictionary(t => int.Parse(t.Key), t => t.Value)))
                 .OrderBy(g => g.Id).ToList();
             // a group environment nobody has mapped yet cannot be lit safely; fall back to classic events
             var sys = system == LightingSystem.Groups && groups.Count(g => g.Color > 0) == 0 ? LightingSystem.Classic : system;
@@ -174,7 +178,7 @@ public static class EnvironmentCatalog
     sealed record PriorGroup(double Color, double Rotation, double Translation, int Lights, int[]? RotationAxes,
         double RotationRange, int[]? TranslationAxes, double TranslationRange, int? Mirror, int[]? RotationPoses,
         Dictionary<string, double[]>? TranslationValues, Dictionary<string, int[]>? AxisPoses, double? Rate, double? HomeShare,
-        double? RotationRate);
+        double? RotationRate, Dictionary<string, double>? TranslationIntro);
     sealed record PriorBasicLight(double Share, double Rate, double On, double Transition, double White, int? Mirror);
     sealed record PriorStep(double Share, double Rate, int Low, int High);
     sealed record PriorEntry(int Maps, Dictionary<string, double>? Basic, Dictionary<string, int[]>? BasicValues, Dictionary<string, PriorGroup>? Groups,

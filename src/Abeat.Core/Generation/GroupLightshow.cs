@@ -417,6 +417,9 @@ public static class GroupLightshow
             Extra(end - 2, q => q.Home, 2);
         }
 
+        // the song first opens up: its first loud section or drop
+        double reveal = a.Sections.Where(s => (maxEnergy > 0 ? s.Energy / maxEnergy : 0.5) >= 0.45)
+            .Select(s => Math.Round(a.SecondsToBeat(s.Start))).Concat(drops).DefaultIfEmpty(end).Min();
         foreach (var u in moving)
         {
             var g = u.Groups[0];
@@ -433,16 +436,26 @@ public static class GroupLightshow
                     double far = Math.Abs(hi - home) >= Math.Abs(lo - home) ? hi : lo;
                     return (x.axis, home, far, near: far == hi ? lo : hi);
                 }).ToList();
-            void Move(double beat, Func<(int axis, double home, double far, double near), int, double> to, double spread, double dur, double wave = 0)
+            // rails curated maps start away from home (The Weeknd's lamp poles and buildings start lowered) hold
+            // that intro pose until the song opens up and rise home over two beats
+            var intro = g.TranslationIntro is { Count: > 0 } ti && axes.Any(x => ti.ContainsKey(x.axis)) ? ti : null;
+            double rise = Math.Max(start, reveal);
+            void Move(double beat, Func<(int axis, double home, double far, double near), int, double> to, double spread, double dur,
+                double wave = 0, bool force = false)
             {
-                if (beat >= end) return;
+                if (beat >= end || intro != null && beat < rise + 2 && !force) return;
                 foreach (var (ax, i) in axes.Select((x, i) => (x, i)))
                 {
                     double d = to(ax, i), sp = spread * (ax.far - ax.home) * (i == 0 ? 1 : 0.5);
                     foreach (var x in u.Groups) map.GroupTranslations.Add(new LightTranslation(beat, x.Id, ax.axis, d, sp, dur, wave));
                 }
             }
-            Move(start, (x, _) => x.home, 0, 0);
+            if (intro != null)
+            {
+                Move(0, (x, _) => intro.GetValueOrDefault(x.axis, x.home), 0, 0, force: true);
+                Move(rise, (x, _) => x.home, 0, 2, force: true);
+            }
+            else Move(start, (x, _) => x.home, 0, 0);
             foreach (var sec in a.Sections)
             {
                 double b0 = Math.Round(a.SecondsToBeat(sec.Start)), b1 = a.SecondsToBeat(sec.End);

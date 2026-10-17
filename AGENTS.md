@@ -241,7 +241,7 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    moddable Beat Saber (up to 1.40; GlassDesert stays the 90/360 one), each with a display name, a
    lighting system and a character (drive: band backbeat .. four-on-the-floor, intensity, darkness,
    typical BPM), plus the light layout learned by `scripts/environment_prior.py` into the embedded
-   `environment-prior.json`: for 14 well-rated (curated first) maps per environment, read through
+   `environment-prior.json`: for 14 well-rated (curated first; maps picked as style references, `PINNED`, before them, e.g. The Weeknd: 37114) maps per environment, read through
    HTTP range requests (only the .dat files; cached in `work/env-survey`), the basic event types used
    by >= 15 % of maps with value ranges of the special ones, and per light group the share of maps
    lighting / rotating / translating it, the axes, 90th-percentile magnitudes (angles normalized to
@@ -252,7 +252,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    longest, per-map share of held time, e.g. EDM's circle rotations rest at 0° while mappers flick them to
    ±90°; `homeShare` = that share), then most used, `rotationPoses`
    for the main axis and `axisPoses` for the others; translation: 10th /
-   50th / 90th percentile per axis) and its mirror partner (the group that gets identical events at the
+   50th / 90th percentile per axis; axes mappers only ever set to one value dropped; `translationIntro`: where >= 40 % of
+the maps start the rail in the first two bars beyond that 10th-90th band, the median start, e.g. The Weeknd's ring sets and
+buildings start lowered) and its mirror partner (the group that gets identical events at the
    same beat >= 70 % of the time, mutual; the game mirrors the other side, so partners are sent the same
    values: Lattice n <-> n+7, Weave 2k <-> 2k+1), plus per environment the median length of eased
    turns / moves (`RotationEase` / `TranslationEase`, e.g. Lattice 0.75 / 0.75 beats, Weave 0.5, Coldplay 3.75), each
@@ -293,7 +295,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    pumping on downbeats towards the far percentile over `TranslationEase` (other axes at half size); over a
    build-up rotations gather home and rails pull towards the near side, while the chases speed up and the ambient
    strobes to white, and on the drop everything flashes white and bursts out to the widest pose;
-   after the last note every moving group settles home. With two or more rotating
+   after the last note every moving group settles home. Rails with a learned intro pose start there and hold it until the
+   song first opens up (its first section at >= 0.45 of the peak energy, or the first drop), then rise home over two beats. With two or more rotating
    groups the most often turned one traces the melody, no more often than half a beat / `RotationRate` (onset brightness within the song's 10th-90th percentile -> turn from home towards the
    furthest pose on that side). Special events 40-43 fire on
    drops with their most common value. Standard/One Saber difficulties of group environments replace the
