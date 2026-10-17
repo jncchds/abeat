@@ -9,7 +9,7 @@ const SONG = 'application/x-abeat-song'
 const FOLDER = 'application/x-abeat-folder'
 
 /** Songs by folder: the open folder's sub-folders first, then its songs, the most recently generated first.
- * The filter searches every folder. Songs (and folders) can be dragged onto a folder or a breadcrumb. */
+ * The filter searches every folder, listing matching folders and songs. Songs (and folders) can be dragged onto a folder or a breadcrumb. */
 export default function SongsPage() {
   const navigate = useNavigate()
   const { songs, folders, refresh } = useSongs()
@@ -35,7 +35,7 @@ export default function SongsPage() {
   const shown = byActivity(songs).filter(s => q
     ? [s.title, s.artist, s.fileName, s.sourceUrl].some(v => v?.toLowerCase().includes(q))
     : inFolder(s.folderId))
-  const subfolders = q ? [] : folders.filter(f => inFolder(f.parentId))
+  const subfolders = q ? folders.filter(f => f.name.toLowerCase().includes(q)) : folders.filter(f => inFolder(f.parentId))
 
   const count = (f: Folder) => {
     const ids = new Set([f.id, ...folders.filter(x => x.parentId === f.id).map(x => x.id)])
@@ -94,7 +94,7 @@ export default function SongsPage() {
         </h2>
         <span className="muted">{current ? count(current) : songs.length}</span>
         <span className="spacer" />
-        <input className="songs-filter" type="search" placeholder="Filter all songs" value={query} onChange={e => setQuery(e.target.value)} aria-label="Filter songs" />
+        <input className="songs-filter" type="search" placeholder="Filter songs and folders" value={query} onChange={e => setQuery(e.target.value)} aria-label="Filter songs" />
         {depth < 2 && <button className="btn-secondary" onClick={newFolder} title={current ? 'New folder inside this one' : 'New folder'}>📁 New folder</button>}
         {current && <button className="btn-secondary" onClick={rename}>Rename</button>}
         {current && (
@@ -121,14 +121,14 @@ export default function SongsPage() {
             <div className="cover-placeholder">📁</div>
             <span className="song-row-text">
               <span className="song-row-title">{f.name}</span>
-              <span className="muted">{count(f)}</span>
+              <span className="muted">{[count(f), q && f.parentId && byId.has(f.parentId) ? `📁 ${byId.get(f.parentId)!.name}` : ''].filter(Boolean).join(' · ')}</span>
             </span>
           </button>
         ))}
         {shown.map(s => <SongRow key={s.id} s={s} path={q ? folderPath(folders, s.folderId) : ''} onOpen={() => navigate(`/songs/${s.id}`)} />)}
         {songs.length === 0 && folders.length === 0 && <p className="muted">No songs yet.</p>}
         {!q && current && subfolders.length === 0 && shown.length === 0 && <p className="muted">This folder is empty: drag songs here, or pick it on a song's page.</p>}
-        {q && shown.length === 0 && <p className="muted">No song matches “{query}”.</p>}
+        {q && shown.length === 0 && subfolders.length === 0 && <p className="muted">Nothing matches “{query}”.</p>}
       </div>
     </div>
   )

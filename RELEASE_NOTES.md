@@ -2,7 +2,7 @@
 
 ## v0.2.21 — 2026-10-17
 
-- Song folders: the Songs page lists folders first, then the songs in no folder; folders nest up to two levels, songs sit in at most one. Create, rename, move and delete folders from the page (deleting moves the contents up a level); drag songs or folders onto a folder or breadcrumb, or pick a song's folder on its page. The filter still searches every folder and shows each match's folder.
+- Song folders: the Songs page lists folders first, then the songs in no folder; folders nest up to two levels, songs sit in at most one. Create, rename, move and delete folders from the page (deleting moves the contents up a level); drag songs or folders onto a folder or breadcrumb, or pick a song's folder on its page. The filter searches every folder and lists matching folders as well as matching songs, each with the folder it is in.
 
 ## v0.2.20 — 2026-10-17
 
