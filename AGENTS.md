@@ -256,8 +256,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    same beat >= 70 % of the time, mutual; the game mirrors the other side, so partners are sent the same
    values: Lattice n <-> n+7, Weave 2k <-> 2k+1), plus per environment the median length of eased
    turns / moves (`RotationEase` / `TranslationEase`, e.g. Lattice 0.75 / 0.75 beats, Weave 0.5, Coldplay 3.75), each
-   group's `Rate` (median share of song beats it is switched on) and, for group environments, `BasicLights`: the
-   basic light types 0-7 lit by >= 30 % of maps (events per beat, on / transition / white shares, the type
+   group's `Rate` (median share of song beats it is switched on), `RotationRate` (median share of song beats a map
+   turning it turns it to a pose: Lizzo's rainbow 0.05, its top lasers 0.2) and, for group environments, `BasicLights`: the
+   basic light types 0-7, plus 8-12 where they switch lights (values within 0-12, >= 3 kinds, >= 80 % off / on /
+   transition; ring and laser-speed steps spread over every value: Lizzo's peaches 7 <-> 8, Britney / Metallica /
+   Coldplay / Monstercat 2's 8), lit by >= 30 % of maps (events per beat, on / transition / white shares, the type
    getting identical events in >= 60 % of the maps firing both, mutual; Pyro: 4 runway 0.39/beat, 2 <-> 3
    projectors 0.2, 0 <-> 1 logo, 6), and `Steps`: basic types whose value is a position step (`STEP_TYPES` in the script,
    from the game: The Second's ring spacing 9, 0..9) with their rate and the low / high step mappers pulse between
@@ -282,7 +285,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    between their own poses, and follow the builds and drops), mirror partners together (identical events)
    and neighbouring units in opposite phase: each starts at its home pose (most used angle / median
    distance), quiet sections drift to the nearest pose and back over 16 beats, louder ones swing on
-   downbeats between the pose ~(0.3 + 0.7 x energy) of the way to the furthest one (within 135° of home)
+   downbeats (as often as curated maps turn the group: a power of two of bars near 1 / (`RotationRate` x bar), doubled
+   below 0.8 energy; every bar / other bar when unknown) between the pose ~(0.3 + 0.7 x energy) of the way to the furthest one (within 135° of home)
    and the pose mirroring it about home (or home; groups resting at home >= half the time go home between
    swings), eased over the environment's `RotationEase`; rails
    move on every axis mappers use (Lattice's cube clusters sit out, down and forward: home on all axes),
@@ -290,7 +294,7 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    build-up rotations gather home and rails pull towards the near side, while the chases speed up and the ambient
    strobes to white, and on the drop everything flashes white and bursts out to the widest pose;
    after the last note every moving group settles home. With two or more rotating
-   groups the most used one traces the melody (onset brightness within the song's 10th-90th percentile -> turn from home towards the
+   groups the most often turned one traces the melody, no more often than half a beat / `RotationRate` (onset brightness within the song's 10th-90th percentile -> turn from home towards the
    furthest pose on that side). Special events 40-43 fire on
    drops with their most common value. Standard/One Saber difficulties of group environments replace the
    classic events with the environment's own basic lights (those types mean other things there); 90/360 keep them for GlassDesert. Rotation /
