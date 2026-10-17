@@ -181,18 +181,20 @@ public static class MapWriter
                 }).ToArray()),
             }).ToArray()),
         }).ToArray()),
-        ["lightRotationEventBoxGroups"] = new JsonArray(d.GroupRotations.OrderBy(g => g.Beat).ThenBy(g => g.Group).Select(r => (JsonNode)new JsonObject
-        {
-            ["b"] = B(r.Beat), ["g"] = r.Group,
-            ["e"] = new JsonArray(new JsonObject
+        // one box group per beat and group, one box per axis and filter
+        ["lightRotationEventBoxGroups"] = new JsonArray(d.GroupRotations.GroupBy(r => (B(r.Beat), r.Group)).OrderBy(g => g.Key.Item1).ThenBy(g => g.Key.Group)
+            .Select(g => (JsonNode)new JsonObject
             {
-                ["f"] = new JsonObject { ["f"] = 1, ["p"] = r.Sections, ["t"] = r.Part, ["r"] = 0 },
-                ["w"] = B(r.BeatSpread), ["d"] = 1, ["s"] = Math.Round(r.Spread, 2), ["t"] = 1, ["b"] = 1, ["a"] = r.Axis, ["r"] = 0,
-                // rotation boxes list their events under "l" (colour boxes use "e"); the first event holds
-                // the previous angle so the eased turn starts at this beat, not at the previous event
-                ["l"] = Motion(r.Duration, Math.Round(r.Degrees, 1), "r"),
-            }),
-        }).ToArray()),
+                ["b"] = g.Key.Item1, ["g"] = g.Key.Group,
+                ["e"] = new JsonArray(g.OrderBy(r => r.Axis).Select(r => (JsonNode)new JsonObject
+                {
+                    ["f"] = new JsonObject { ["f"] = 1, ["p"] = r.Sections, ["t"] = r.Part, ["r"] = 0 },
+                    ["w"] = B(r.BeatSpread), ["d"] = 1, ["s"] = Math.Round(r.Spread, 2), ["t"] = 1, ["b"] = 1, ["a"] = r.Axis, ["r"] = 0,
+                    // rotation boxes list their events under "l" (colour boxes use "e"); the first event holds
+                    // the previous angle so the eased turn starts at this beat, not at the previous event
+                    ["l"] = Motion(r.Duration, Math.Round(r.Degrees, 1), "r"),
+                }).ToArray()),
+            }).ToArray()),
         // one box group per beat and group, one box per axis (as mappers write moves on several axes)
         ["lightTranslationEventBoxGroups"] = new JsonArray(d.GroupTranslations.GroupBy(t => (B(t.Beat), t.Group)).OrderBy(g => g.Key.Item1).ThenBy(g => g.Key.Group)
             .Select(g => (JsonNode)new JsonObject

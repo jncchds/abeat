@@ -943,9 +943,10 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
-    "rotationRange": 130.0,
+    "rotationRange": 135.0,
     "rotationPoses": [
      0,
      -90,
@@ -956,6 +957,16 @@
      -30,
      45
     ],
+    "axisPoses": {
+     "1": [
+      -90,
+      0,
+      90,
+      180,
+      75,
+      150
+     ]
+    },
     "mirror": 1,
     "white": 0.18
    },
@@ -964,12 +975,13 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
-    ],
-    "rotationRange": 115.0,
-    "rotationPoses": [
      0,
+     1
+    ],
+    "rotationRange": 115,
+    "rotationPoses": [
      -90,
+     0,
      15,
      -15,
      -45,
@@ -977,6 +989,16 @@
      45,
      90
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      0,
+      -45,
+      -90,
+      180,
+      -120
+     ]
+    },
     "mirror": 0,
     "white": 0.09
    },
@@ -988,15 +1010,27 @@
      0,
      1
     ],
-    "rotationRange": 135,
+    "rotationRange": 145.0,
     "rotationPoses": [
      0,
      -90,
      -45,
      45,
      90,
-     -60
+     -60,
+     180,
+     -135
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      90,
+      -90,
+      180,
+      -120,
+      -45
+     ]
+    },
     "mirror": 3,
     "white": 0.19
    },
@@ -1008,14 +1042,27 @@
      0,
      1
     ],
-    "rotationRange": 150,
+    "rotationRange": 150.0,
     "rotationPoses": [
      0,
      -90,
      -45,
      45,
-     90
+     90,
+     180,
+     -60,
+     60
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -90,
+      90,
+      180,
+      75,
+      150
+     ]
+    },
     "mirror": 2,
     "white": 0.3
    },
@@ -1024,16 +1071,25 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
     "rotationRange": 95.0,
     "rotationPoses": [
      90,
-     0,
      75,
+     0,
      180,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      60,
+      180,
+      90
+     ]
+    },
     "mirror": 5,
     "white": 0.17
    },
@@ -1042,7 +1098,8 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
     "rotationRange": 95.0,
     "rotationPoses": [
@@ -1052,6 +1109,14 @@
      180,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      60,
+      180,
+      90
+     ]
+    },
     "mirror": 4,
     "white": 0.21
    },
@@ -1063,15 +1128,23 @@
      0,
      1
     ],
-    "rotationRange": 135.0,
+    "rotationRange": 150.0,
     "rotationPoses": [
-     0,
      90,
+     0,
      -90,
      -45,
      180,
      105
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      60,
+      -45,
+      45
+     ]
+    },
     "mirror": 7,
     "white": 0.27
    },
@@ -1083,15 +1156,23 @@
      0,
      1
     ],
-    "rotationRange": 135.0,
+    "rotationRange": 150.0,
     "rotationPoses": [
-     0,
      90,
+     0,
      -90,
      -45,
      180,
      105
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      60,
+      45,
+      -45
+     ]
+    },
     "mirror": 6,
     "white": 0.19
    },
@@ -1100,19 +1181,33 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
     "rotationRange": 145.0,
     "rotationPoses": [
      45,
-     0,
      -90,
      -45,
      150,
      -135,
      90,
-     180
+     0,
+     180,
+     120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      180,
+      150,
+      -60,
+      105,
+      90,
+      45
+     ]
+    },
     "mirror": 9,
     "white": 0.39
    },
@@ -1121,19 +1216,33 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
-    "rotationRange": 145.0,
+    "rotationRange": 150,
     "rotationPoses": [
      45,
      -90,
-     0,
      -45,
      150,
      -135,
      90,
-     180
+     180,
+     0,
+     120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      180,
+      150,
+      -60,
+      105,
+      90,
+      45
+     ]
+    },
     "mirror": 8,
     "white": 0.41
    },
@@ -1142,21 +1251,33 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
-    "rotationRange": 145.0,
+    "rotationRange": 150.0,
     "rotationPoses": [
      45,
      -90,
-     0,
      90,
      150,
      -45,
+     0,
      135,
      180,
      -135,
      120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      180,
+      150,
+      90,
+      105,
+      -105
+     ]
+    },
     "mirror": 11,
     "white": 0.33
    },
@@ -1165,21 +1286,33 @@
     "rotation": 0.93,
     "lights": 8,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
-    "rotationRange": 145.0,
+    "rotationRange": 150.0,
     "rotationPoses": [
      45,
      -90,
-     0,
      90,
      150,
+     0,
      -45,
      -135,
      135,
      180,
      120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      180,
+      150,
+      90,
+      105,
+      -105
+     ]
+    },
     "mirror": 10,
     "white": 0.31
    },
@@ -1188,7 +1321,8 @@
     "rotation": 0.93,
     "lights": 12,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
     "rotationRange": 135.0,
     "rotationPoses": [
@@ -1197,6 +1331,18 @@
      0,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -60,
+      45,
+      -45,
+      30,
+      60,
+      90,
+      -30
+     ]
+    },
     "mirror": 13,
     "white": 0.42
    },
@@ -1205,7 +1351,8 @@
     "rotation": 0.93,
     "lights": 12,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
     "rotationRange": 135.0,
     "rotationPoses": [
@@ -1214,46 +1361,84 @@
      0,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -60,
+      45,
+      30,
+      -45,
+      -30
+     ]
+    },
     "mirror": 12,
     "white": 0.44
    },
    "14": {
     "color": 0.93,
     "rotation": 0.93,
-    "lights": 12,
+    "lights": 8,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 135.0,
+    "rotationRange": 135,
     "rotationPoses": [
      0,
      90,
      -90,
      15,
      135,
-     180
+     180,
+     -45
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      180,
+      30,
+      45,
+      -45,
+      -15,
+      -90,
+      90
+     ]
+    },
     "mirror": 15,
     "white": 0.3
    },
    "15": {
     "color": 0.93,
     "rotation": 0.93,
-    "lights": 12,
+    "lights": 8,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 135.0,
+    "rotationRange": 135,
     "rotationPoses": [
      0,
      90,
      -90,
      15,
      135,
-     180
+     180,
+     -45
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      30,
+      -30,
+      180,
+      -45,
+      45,
+      -90,
+      -15,
+      90
+     ]
+    },
     "mirror": 14,
     "white": 0.32
    }
@@ -1286,10 +1471,16 @@
      0,
      2
     ],
-    "rotationRange": 0,
+    "rotationRange": 0.0,
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "0": [
+      0
+     ],
+     "2": []
+    },
     "mirror": 0,
     "white": 0.33
    },
@@ -1310,6 +1501,17 @@
      -30,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      60,
+      180,
+      -60,
+      15,
+      30,
+      -30
+     ]
+    },
     "mirror": 3,
     "white": 0.17
    },
@@ -1330,54 +1532,82 @@
      -30,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      60,
+      -60,
+      15,
+      30,
+      -30
+     ]
+    },
     "mirror": 2,
     "white": 0.18
    },
    "4": {
     "color": 0.79,
     "rotation": 0.57,
-    "lights": 4,
+    "lights": 3,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 135,
+    "rotationRange": 155.0,
     "rotationPoses": [
-     0,
      -30,
      -45,
      -60,
-     -15
+     -15,
+     0,
+     -75,
+     15
     ],
+    "axisPoses": {
+     "1": [
+      15,
+      -15,
+      0,
+      30,
+      -30
+     ]
+    },
     "mirror": 5,
     "white": 0.24
    },
    "5": {
     "color": 0.79,
     "rotation": 0.21,
-    "lights": 4,
+    "lights": 3,
     "rotationAxes": [
      0,
      1
     ],
     "rotationRange": 160.0,
     "rotationPoses": [
-     0,
      -165,
+     0,
      -120
     ],
+    "axisPoses": {
+     "1": [
+      -30,
+      0
+     ]
+    },
     "mirror": 4,
     "white": 0.42
    },
    "6": {
     "color": 1.0,
-    "lights": 48,
+    "lights": 8,
     "mirror": 7,
     "white": 0.45
    },
    "7": {
     "color": 1.0,
-    "lights": 48,
+    "lights": 8,
     "mirror": 6,
     "white": 0.45
    },
@@ -1397,8 +1627,21 @@
      -75,
      -30,
      75,
-     60
+     60,
+     -15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      75,
+      90,
+      15,
+      -15,
+      45,
+      -75,
+      -60
+     ]
+    },
     "mirror": 9,
     "white": 0.22
    },
@@ -1410,7 +1653,7 @@
      0,
      1
     ],
-    "rotationRange": 85.0,
+    "rotationRange": 90.0,
     "rotationPoses": [
      0,
      -45,
@@ -1418,8 +1661,21 @@
      -75,
      -30,
      75,
-     60
+     60,
+     -15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      75,
+      90,
+      -15,
+      15,
+      -60,
+      45,
+      -75
+     ]
+    },
     "mirror": 8,
     "white": 0.22
    },
@@ -1443,6 +1699,17 @@
      -15,
      -120
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      -45,
+      45,
+      -165,
+      0,
+      -15,
+      -60
+     ]
+    },
     "mirror": 11,
     "white": 0.06
    },
@@ -1465,18 +1732,29 @@
      -45,
      -120
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      -45,
+      45,
+      -165,
+      0,
+      -15,
+      -60
+     ]
+    },
     "mirror": 10,
     "white": 0.06
    },
    "12": {
     "color": 0.93,
-    "lights": 10,
+    "lights": 2,
     "mirror": 13,
     "white": 0.02
    },
    "13": {
     "color": 0.93,
-    "lights": 10,
+    "lights": 2,
     "mirror": 12,
     "white": 0.02
    }
@@ -1499,33 +1777,52 @@
      0,
      1
     ],
-    "rotationRange": 180.0,
+    "rotationRange": 180,
     "rotationPoses": [
      90,
-     0,
      180,
      30,
      75,
      60,
      -165,
-     45
+     45,
+     0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      180,
+      -45,
+      75,
+      -75
+     ]
+    },
     "white": 0.42
    },
    "1": {
     "color": 0.86,
     "rotation": 0.71,
-    "lights": 6,
+    "lights": 3,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
     "rotationRange": 45.0,
     "rotationPoses": [
      -15,
      -45,
-     0,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      90,
+      60,
+      75,
+      150
+     ]
+    },
     "white": 0.24
    },
    "2": {
@@ -1534,16 +1831,32 @@
     "lights": 24,
     "rotationAxes": [
      0,
-     1
+     1,
+     2
     ],
-    "rotationRange": 150,
+    "rotationRange": 160.0,
     "rotationPoses": [
-     0,
      15,
+     0,
      90,
      180,
      45
     ],
+    "axisPoses": {
+     "1": [
+      -150,
+      0,
+      45,
+      135,
+      30,
+      15,
+      -90,
+      120
+     ],
+     "2": [
+      0
+     ]
+    },
     "white": 0.25
    },
    "3": {
@@ -1552,28 +1865,47 @@
     "lights": 24,
     "rotationAxes": [
      0,
-     1
+     1,
+     2
     ],
-    "rotationRange": 165.0,
+    "rotationRange": 175.0,
     "rotationPoses": [
      0,
      180,
      15,
      90,
      -165,
-     60
+     60,
+     45,
+     30,
+     -30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      135,
+      30,
+      -120,
+      45,
+      120,
+      15,
+      -150
+     ],
+     "2": [
+      0
+     ]
+    },
     "white": 0.28
    },
    "4": {
     "color": 1.0,
     "rotation": 1.0,
-    "lights": 24,
+    "lights": 8,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 150,
+    "rotationRange": 180,
     "rotationPoses": [
      0,
      15,
@@ -1582,18 +1914,28 @@
      90,
      45
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      180,
+      30,
+      120,
+      60
+     ]
+    },
     "mirror": 5,
     "white": 0.34
    },
    "5": {
     "color": 1.0,
     "rotation": 1.0,
-    "lights": 24,
+    "lights": 8,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 150,
+    "rotationRange": 180,
     "rotationPoses": [
      0,
      15,
@@ -1601,6 +1943,16 @@
      45,
      30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      -30,
+      30,
+      120,
+      60
+     ]
+    },
     "mirror": 4,
     "white": 0.33
    },
@@ -1610,9 +1962,10 @@
     "lights": 10,
     "rotationAxes": [
      1,
-     0
+     0,
+     2
     ],
-    "rotationRange": 125.0,
+    "rotationRange": 145.0,
     "rotationPoses": [
      0,
      -15,
@@ -1621,8 +1974,21 @@
      -30,
      -45,
      -60,
-     150
+     150,
+     -75
     ],
+    "axisPoses": {
+     "0": [
+      90,
+      0,
+      15,
+      45,
+      -15
+     ],
+     "2": [
+      0
+     ]
+    },
     "mirror": 8,
     "white": 0.27
    },
@@ -1632,9 +1998,10 @@
     "lights": 10,
     "rotationAxes": [
      0,
-     1
+     1,
+     2
     ],
-    "rotationRange": 105,
+    "rotationRange": 120,
     "rotationPoses": [
      90,
      0,
@@ -1642,6 +2009,21 @@
      45,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      30,
+      105,
+      60,
+      -45,
+      90,
+      135,
+      45
+     ],
+     "2": [
+      0
+     ]
+    },
     "mirror": 9,
     "white": 0.56
    },
@@ -1651,17 +2033,32 @@
     "lights": 10,
     "rotationAxes": [
      1,
-     0
+     0,
+     2
     ],
-    "rotationRange": 120,
+    "rotationRange": 145.0,
     "rotationPoses": [
      0,
      -30,
      45,
      -90,
      -45,
-     -15
+     -15,
+     105,
+     -60
     ],
+    "axisPoses": {
+     "0": [
+      90,
+      15,
+      0,
+      45,
+      -15
+     ],
+     "2": [
+      0
+     ]
+    },
     "mirror": 6,
     "white": 0.27
    },
@@ -1671,16 +2068,36 @@
     "lights": 10,
     "rotationAxes": [
      0,
-     1
+     1,
+     2
     ],
-    "rotationRange": 135.0,
+    "rotationRange": 165,
     "rotationPoses": [
-     0,
      90,
+     0,
      45,
      -15,
-     -165
+     -165,
+     -90,
+     165
     ],
+    "axisPoses": {
+     "1": [
+      30,
+      0,
+      105,
+      -165,
+      -45,
+      120,
+      135,
+      90,
+      -90,
+      -60
+     ],
+     "2": [
+      0
+     ]
+    },
     "mirror": 7,
     "white": 0.57
    },
@@ -1690,16 +2107,34 @@
     "lights": 10,
     "rotationAxes": [
      0,
-     1
+     1,
+     2
     ],
-    "rotationRange": 135,
+    "rotationRange": 160.0,
     "rotationPoses": [
      0,
      90,
      -165,
      -15,
-     15
+     15,
+     -90
     ],
+    "axisPoses": {
+     "1": [
+      135,
+      0,
+      -90,
+      -135,
+      -15,
+      75,
+      -30,
+      -45,
+      45
+     ],
+     "2": [
+      0
+     ]
+    },
     "mirror": 11,
     "white": 0.18
    },
@@ -1709,15 +2144,34 @@
     "lights": 10,
     "rotationAxes": [
      0,
-     1
+     1,
+     2
     ],
     "rotationRange": 135,
     "rotationPoses": [
      0,
      90,
      -15,
-     15
+     15,
+     -165,
+     -90
     ],
+    "axisPoses": {
+     "1": [
+      135,
+      -90,
+      0,
+      -30,
+      -135,
+      45,
+      -15,
+      -105,
+      -45
+     ],
+     "2": [
+      0
+     ]
+    },
     "mirror": 10,
     "white": 0.18
    },
@@ -1734,6 +2188,12 @@
      120,
      -120
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15
+     ]
+    },
     "white": 0.0
    },
    "13": {
@@ -1743,13 +2203,30 @@
      1,
      0
     ],
-    "rotationRange": 150,
+    "rotationRange": 165,
     "rotationPoses": [
-     0,
      -90,
+     0,
      180,
-     -150
+     -150,
+     90,
+     45,
+     60
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30,
+      -105,
+      -90,
+      -150,
+      75,
+      30,
+      15,
+      -60,
+      165
+     ]
+    },
     "white": 0.0
    },
    "14": {
@@ -1757,13 +2234,30 @@
     "lights": 0,
     "rotationAxes": [
      1,
-     0
+     0,
+     2
     ],
     "rotationRange": 135.0,
     "rotationPoses": [
      0,
-     135
+     135,
+     -45,
+     -30,
+     45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      90,
+      180,
+      -90
+     ],
+     "2": [
+      90,
+      0
+     ]
+    },
     "white": 0.0
    },
    "15": {
@@ -1771,13 +2265,29 @@
     "lights": 0,
     "rotationAxes": [
      1,
-     0
+     0,
+     2
     ],
     "rotationRange": 135.0,
     "rotationPoses": [
      0,
-     -135
+     -135,
+     -60,
+     15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      -15,
+      45,
+      165
+     ],
+     "2": [
+      90,
+      0
+     ]
+    },
     "white": 0.0
    },
    "16": {
@@ -1787,7 +2297,7 @@
      0,
      1
     ],
-    "rotationRange": 120,
+    "rotationRange": 135,
     "rotationPoses": [
      0,
      -90,
@@ -1795,8 +2305,23 @@
      -45,
      60,
      90,
-     45
+     45,
+     120,
+     -75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      15,
+      -15,
+      -30,
+      -135,
+      90,
+      -60,
+      150,
+      -90
+     ]
+    },
     "mirror": 17
    },
    "17": {
@@ -1806,7 +2331,7 @@
      0,
      1
     ],
-    "rotationRange": 125.0,
+    "rotationRange": 135,
     "rotationPoses": [
      0,
      75,
@@ -1815,8 +2340,22 @@
      45,
      -105,
      -75,
-     60
+     60,
+     180,
+     90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      15,
+      -60,
+      -15,
+      -135,
+      -90,
+      90
+     ]
+    },
     "mirror": 16,
     "white": 0.0
    }
@@ -1844,7 +2383,7 @@
    "0": {
     "color": 1.0,
     "rotation": 0.86,
-    "lights": 15,
+    "lights": 4,
     "rotationAxes": [
      0
     ],
@@ -1859,7 +2398,7 @@
    "1": {
     "color": 1.0,
     "rotation": 1.0,
-    "lights": 24,
+    "lights": 23,
     "rotationAxes": [
      0
     ],
@@ -1874,13 +2413,13 @@
    },
    "2": {
     "color": 1.0,
-    "lights": 12,
+    "lights": 5,
     "mirror": 3,
     "white": 0.37
    },
    "3": {
     "color": 1.0,
-    "lights": 12,
+    "lights": 5,
     "mirror": 2,
     "white": 0.37
    },
@@ -1900,6 +2439,14 @@
      -90,
      135
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      -75,
+      -45
+     ]
+    },
     "mirror": 5,
     "white": 0.29
    },
@@ -1919,6 +2466,14 @@
      -90,
      135
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      -75,
+      -45
+     ]
+    },
     "mirror": 4,
     "white": 0.29
    },
@@ -1938,6 +2493,12 @@
      45,
      0
     ],
+    "axisPoses": {
+     "1": [
+      -75,
+      0
+     ]
+    },
     "mirror": 7,
     "white": 0.4
    },
@@ -1957,6 +2518,12 @@
      45,
      0
     ],
+    "axisPoses": {
+     "1": [
+      -75,
+      0
+     ]
+    },
     "mirror": 6,
     "white": 0.38
    },
@@ -1970,15 +2537,29 @@
     ],
     "rotationRange": 135.0,
     "rotationPoses": [
-     0,
      45,
+     0,
      75,
      105,
      90,
      135,
      -120,
-     180
+     180,
+     -90,
+     -135
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45,
+      -75,
+      -30,
+      75,
+      -105,
+      -90,
+      180
+     ]
+    },
     "mirror": 9,
     "white": 0.14
    },
@@ -1992,15 +2573,27 @@
     ],
     "rotationRange": 135.0,
     "rotationPoses": [
-     0,
      45,
+     0,
      75,
      105,
      90,
      135,
      -120,
-     180
+     180,
+     -135
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -75,
+      -45,
+      -30,
+      75,
+      -105,
+      -90
+     ]
+    },
     "mirror": 8,
     "white": 0.14
    },
@@ -2016,13 +2609,28 @@
     "rotationPoses": [
      90,
      45,
-     0,
      75,
      135,
+     0,
      105,
      150,
-     -120
+     -120,
+     -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -75,
+      -45,
+      -30,
+      -15,
+      -90,
+      -60,
+      75,
+      180,
+      -105
+     ]
+    },
     "mirror": 11,
     "white": 0.19
    },
@@ -2038,49 +2646,82 @@
     "rotationPoses": [
      90,
      45,
-     0,
      75,
+     0,
      135,
      105,
      150,
      -120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -75,
+      -45,
+      -30,
+      -15,
+      -90,
+      -60,
+      75,
+      -105,
+      180
+     ]
+    },
     "mirror": 10,
     "white": 0.19
    },
    "12": {
     "color": 0.93,
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 2,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 100,
+    "rotationRange": 110.0,
     "rotationPoses": [
      45,
      90,
-     75,
-     0
+     75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -75,
+      -15,
+      -105,
+      -90,
+      75
+     ]
+    },
     "mirror": 13,
     "white": 0.3
    },
    "13": {
     "color": 0.93,
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 2,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 100,
+    "rotationRange": 110.0,
     "rotationPoses": [
      45,
      90,
-     75,
-     0
+     75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -75,
+      -15,
+      -105,
+      -90,
+      -45,
+      75
+     ]
+    },
     "mirror": 12,
     "white": 0.32
    }
@@ -2135,34 +2776,34 @@
   "groups": {
    "0": {
     "color": 1.0,
-    "lights": 40,
+    "lights": 10,
     "white": 0.06
    },
    "1": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 11,
     "white": 0.1
    },
    "2": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 9,
     "white": 0.12
    },
    "3": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 11,
     "mirror": 4,
     "white": 0.11
    },
    "4": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 11,
     "mirror": 3,
     "white": 0.11
    },
    "5": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 11,
     "white": 0.11
    },
    "6": {
@@ -2196,7 +2837,7 @@
    "8": {
     "color": 0.86,
     "rotation": 0.86,
-    "lights": 2,
+    "lights": 1,
     "rotationAxes": [
      0
     ],
@@ -2215,7 +2856,7 @@
    "9": {
     "color": 0.86,
     "rotation": 0.86,
-    "lights": 2,
+    "lights": 1,
     "rotationAxes": [
      0
     ],
@@ -2234,18 +2875,28 @@
    "10": {
     "color": 0.86,
     "rotation": 0.64,
-    "lights": 12,
+    "lights": 4,
     "rotationAxes": [
      0,
      1
     ],
-    "rotationRange": 80,
+    "rotationRange": 90.0,
     "rotationPoses": [
      0,
      -45,
      45,
      30
     ],
+    "axisPoses": {
+     "1": [
+      45,
+      -45,
+      90,
+      -90,
+      -60,
+      60
+     ]
+    },
     "white": 0.23
    },
    "11": {
@@ -2290,8 +2941,25 @@
      -30,
      45,
      -60,
-     -90
+     -90,
+     30
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      0,
+      -45,
+      135,
+      45,
+      120,
+      150,
+      -30,
+      -15,
+      75,
+      15,
+      105
+     ]
+    },
     "mirror": 16,
     "white": 0.63
    },
@@ -2303,7 +2971,7 @@
      0,
      1
     ],
-    "rotationRange": 90,
+    "rotationRange": 90.0,
     "rotationPoses": [
      0,
      15,
@@ -2313,15 +2981,32 @@
      -30,
      45,
      -60,
-     -90
+     -90,
+     30
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      0,
+      -45,
+      135,
+      45,
+      120,
+      150,
+      -30,
+      -15,
+      75,
+      15,
+      105
+     ]
+    },
     "mirror": 15,
     "white": 0.63
    },
    "17": {
     "color": 0.71,
     "rotation": 0.64,
-    "lights": 3,
+    "lights": 0,
     "rotationAxes": [
      0,
      1
@@ -2334,13 +3019,19 @@
      15,
      0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45
+     ]
+    },
     "mirror": 18,
     "white": 0.27
    },
    "18": {
     "color": 0.71,
     "rotation": 0.64,
-    "lights": 3,
+    "lights": 0,
     "rotationAxes": [
      0,
      1
@@ -2353,13 +3044,19 @@
      15,
      0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45
+     ]
+    },
     "mirror": 17,
     "white": 0.26
    },
    "19": {
     "color": 0.93,
     "rotation": 0.43,
-    "lights": 14,
+    "lights": 2,
     "rotationAxes": [
      0,
      1
@@ -2373,6 +3070,17 @@
      45,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      60,
+      -60,
+      30,
+      -75,
+      75
+     ]
+    },
     "white": 0.06
    }
   }
@@ -2394,12 +3102,12 @@
     "translationAxes": [
      1
     ],
-    "translationRange": 2.9,
+    "translationRange": 3.15,
     "translationValues": {
      "1": [
-      -2.0,
-      -0.5,
-      0.3
+      -2.1,
+      -1,
+      0.5
      ]
     },
     "mirror": 1,
@@ -2412,12 +3120,12 @@
     "translationAxes": [
      1
     ],
-    "translationRange": 2.9,
+    "translationRange": 3.7,
     "translationValues": {
      "1": [
-      -2.0,
-      -0.5,
-      0.3
+      -2.1,
+      -1,
+      0.5
      ]
     },
     "mirror": 0,
@@ -2432,8 +3140,8 @@
     "translationRange": 2.05,
     "translationValues": {
      "1": [
-      -1.3,
-      -0.75,
+      -1.7,
+      -0.85,
       0.0
      ]
     },
@@ -2449,8 +3157,8 @@
     "translationRange": 2.05,
     "translationValues": {
      "1": [
-      -1.3,
-      -0.75,
+      -1.6,
+      -0.85,
       0.0
      ]
     },
@@ -2459,7 +3167,7 @@
    "4": {
     "color": 0.93,
     "translation": 0.71,
-    "lights": 8,
+    "lights": 2,
     "translationAxes": [
      2
     ],
@@ -2478,7 +3186,7 @@
     "color": 1.0,
     "rotation": 0.79,
     "translation": 0.93,
-    "lights": 6,
+    "lights": 4,
     "rotationAxes": [
      0
     ],
@@ -2494,13 +3202,13 @@
     "translationRange": 1.5,
     "translationValues": {
      "1": [
-      -1,
-      0,
+      -1.1,
+      -0.1,
       0.15
      ],
      "0": [
       -1.35,
-      0.15,
+      0.3,
       1.3
      ]
     },
@@ -2511,7 +3219,7 @@
     "color": 1.0,
     "rotation": 0.79,
     "translation": 0.93,
-    "lights": 6,
+    "lights": 4,
     "rotationAxes": [
      0
     ],
@@ -2527,13 +3235,13 @@
     "translationRange": 1.5,
     "translationValues": {
      "1": [
-      -1,
-      0,
+      -1.1,
+      -0.1,
       0.15
      ],
      "0": [
       -1.35,
-      0.15,
+      0.3,
       1.3
      ]
     },
@@ -2542,7 +3250,7 @@
    },
    "7": {
     "color": 1.0,
-    "lights": 9,
+    "lights": 2,
     "mirror": 4,
     "white": 0.22
    },
@@ -2550,7 +3258,7 @@
     "color": 0.93,
     "rotation": 0.86,
     "translation": 1.0,
-    "lights": 3,
+    "lights": 0,
     "rotationAxes": [
      1
     ],
@@ -2565,17 +3273,17 @@
      1,
      0
     ],
-    "translationRange": 2.55,
+    "translationRange": 3,
     "translationValues": {
      "1": [
       -0.9,
       0,
-      2
+      2.15
      ],
      "0": [
       -1,
       -1,
-      0
+      -1
      ]
     },
     "white": 0.48
@@ -2585,22 +3293,32 @@
     "rotation": 0.93,
     "lights": 6,
     "rotationAxes": [
-     0
+     0,
+     1
     ],
     "rotationRange": 90,
     "rotationPoses": [
-     0,
      30,
      15,
+     0,
      -90,
      -75,
-     -60
+     -60,
+     90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      90,
+      45,
+      -15
+     ]
+    },
     "white": 0.28
    },
    "10": {
     "color": 1.0,
-    "lights": 25,
+    "lights": 5,
     "white": 0.31
    },
    "11": {
@@ -2628,7 +3346,7 @@
    },
    "15": {
     "color": 1.0,
-    "lights": 25,
+    "lights": 5,
     "white": 0.31
    },
    "16": {
@@ -2664,13 +3382,13 @@
     "translationRange": 3.15,
     "translationValues": {
      "1": [
-      -3.45,
+      -4,
       0,
-      1.75
+      1.8
      ],
      "0": [
       -1,
-      0.0,
+      0,
       0.65
      ]
     },
@@ -2687,13 +3405,13 @@
     "translationRange": 3.15,
     "translationValues": {
      "1": [
-      -3.25,
+      -4,
       0,
-      1.75
+      1.8
      ],
      "0": [
       -1,
-      0.0,
+      0,
       0.65
      ]
     },
@@ -2741,6 +3459,15 @@
      15,
      30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      180,
+      90,
+      60
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -2749,7 +3476,7 @@
      "1": [
       -1.95,
       0,
-      1.55
+      1.8
      ]
     },
     "mirror": 33,
@@ -2773,6 +3500,16 @@
      15,
      120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      -90,
+      60,
+      180,
+      90
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -2781,7 +3518,7 @@
      "1": [
       -2.0,
       0,
-      1.45
+      1.5
      ]
     },
     "mirror": 34,
@@ -2804,10 +3541,19 @@
      15,
      30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      180,
+      90,
+      60
+     ]
+    },
     "translationAxes": [
      1
     ],
-    "translationRange": 3.1,
+    "translationRange": 3.2,
     "translationValues": {
      "1": [
       -1.95,
@@ -2827,7 +3573,7 @@
      0,
      2
     ],
-    "rotationRange": 160.0,
+    "rotationRange": 180,
     "rotationPoses": [
      0,
      -15,
@@ -2836,6 +3582,15 @@
      30,
      120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      90,
+      60,
+      180
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -2867,6 +3622,15 @@
      180,
      30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      180,
+      90,
+      60
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -2875,7 +3639,7 @@
      "1": [
       -1.95,
       0,
-      1.55
+      1.8
      ]
     },
     "mirror": 29,
@@ -2890,7 +3654,7 @@
      0,
      2
     ],
-    "rotationRange": 180,
+    "rotationRange": 180.0,
     "rotationPoses": [
      0,
      -15,
@@ -2899,6 +3663,16 @@
      15,
      120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      -90,
+      60,
+      180,
+      90
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -2907,7 +3681,7 @@
      "1": [
       -2.0,
       0,
-      1.05
+      1.45
      ]
     },
     "mirror": 30,
@@ -2928,17 +3702,27 @@
      -15,
      15,
      180,
-     30
+     30,
+     60
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      180,
+      90,
+      60
+     ]
+    },
     "translationAxes": [
      1
     ],
-    "translationRange": 3.1,
+    "translationRange": 3.2,
     "translationValues": {
      "1": [
       -1.95,
       0,
-      1.5
+      1.55
      ]
     },
     "mirror": 31,
@@ -2953,7 +3737,7 @@
      0,
      2
     ],
-    "rotationRange": 135,
+    "rotationRange": 140,
     "rotationPoses": [
      0,
      -15,
@@ -2962,15 +3746,24 @@
      30,
      120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -120,
+      60,
+      90,
+      180
+     ]
+    },
     "translationAxes": [
      1
     ],
     "translationRange": 3.1,
     "translationValues": {
      "1": [
-      -1.65,
+      -1.95,
       0,
-      1.45
+      1.5
      ]
     },
     "mirror": 32,
@@ -2991,7 +3784,7 @@
    "40": {
     "color": 0.29,
     "translation": 0.36,
-    "lights": 3,
+    "lights": 0,
     "translationAxes": [
      1,
      0
@@ -3032,7 +3825,7 @@
      0,
      1
     ],
-    "rotationRange": 180,
+    "rotationRange": 180.0,
     "rotationPoses": [
      -45,
      -75,
@@ -3044,6 +3837,16 @@
      30,
      90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      -45,
+      15,
+      90,
+      -90
+     ]
+    },
     "translationAxes": [
      0,
      2
@@ -3051,13 +3854,13 @@
     "translationRange": 3.65,
     "translationValues": {
      "0": [
-      -0.9,
-      -0.15,
+      -0.95,
+      -0.2,
       0.0
      ],
      "2": [
-      -4.15,
-      0,
+      -4.25,
+      0.0,
       0.35
      ]
     },
@@ -3085,20 +3888,31 @@
      90,
      30
     ],
+    "axisPoses": {
+     "1": [
+      180,
+      0,
+      -45,
+      15,
+      -75,
+      -90,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      2
     ],
-    "translationRange": 3.7,
+    "translationRange": 3.8,
     "translationValues": {
      "0": [
       -1.65,
-      -0.2,
-      0
+      -0.25,
+      0.0
      ],
      "2": [
-      -4.15,
-      0,
+      -4.25,
+      0.0,
       0.35
      ]
     },
@@ -3107,96 +3921,96 @@
    },
    "2": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 13,
     "white": 0.17
    },
    "3": {
     "color": 1.0,
-    "lights": 6,
+    "lights": 2,
     "mirror": 12,
     "white": 0.22
    },
    "4": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 11,
     "white": 0.18
    },
    "5": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 10,
     "white": 0.27
    },
    "6": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 9,
     "white": 0.29
    },
    "7": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 8,
     "white": 0.26
    },
    "8": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 7,
     "white": 0.26
    },
    "9": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 6,
     "white": 0.29
    },
    "10": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 5,
     "white": 0.27
    },
    "11": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 4,
     "white": 0.18
    },
    "12": {
     "color": 1.0,
-    "lights": 6,
+    "lights": 2,
     "mirror": 3,
     "white": 0.22
    },
    "13": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 2,
     "mirror": 2,
     "white": 0.17
    },
    "14": {
     "color": 0.93,
     "translation": 0.93,
-    "lights": 3,
+    "lights": 2,
     "translationAxes": [
      1
     ],
-    "translationRange": 0.58,
+    "translationRange": 0.9,
     "translationValues": {
      "1": [
-      -0.3,
-      0.0,
-      0.45
+      -0.35,
+      0,
+      0.5
      ]
     },
     "white": 0.23
    },
    "15": {
     "color": 1.0,
-    "lights": 10,
+    "lights": 3,
     "white": 0.32
    },
    "16": {
@@ -3223,50 +4037,74 @@
    },
    "18": {
     "color": 0.93,
-    "lights": 24,
+    "lights": 5,
     "mirror": 19,
     "white": 0.22
    },
    "19": {
     "color": 0.86,
-    "lights": 24,
+    "lights": 5,
     "mirror": 18,
     "white": 0.22
    },
    "20": {
     "color": 0.29,
     "rotation": 0.86,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      2,
      0,
      1
     ],
-    "rotationRange": 90,
+    "rotationRange": 90.0,
     "rotationPoses": [
      0,
      45,
      15,
      -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      45,
+      -45,
+      -30
+     ],
+     "1": [
+      0
+     ]
+    },
     "mirror": 21,
     "white": 0.01
    },
    "21": {
     "rotation": 0.86,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      2,
      0,
      1
     ],
-    "rotationRange": 90,
+    "rotationRange": 90.0,
     "rotationPoses": [
      0,
      45,
      15,
      -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      45,
+      -45,
+      -30
+     ],
+     "1": [
+      0
+     ]
+    },
     "mirror": 20,
     "white": 0.0
    },
@@ -3277,7 +4115,8 @@
     "lights": 8,
     "rotationAxes": [
      2,
-     1
+     1,
+     0
     ],
     "rotationRange": 20.0,
     "rotationPoses": [
@@ -3285,15 +4124,25 @@
      0,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      15
+     ],
+     "0": [
+      0
+     ]
+    },
     "translationAxes": [
      0
     ],
-    "translationRange": 1.6,
+    "translationRange": 2.35,
     "translationValues": {
      "0": [
       -0.05,
       0.6,
-      0.94
+      0.95
      ]
     },
     "mirror": 23,
@@ -3306,7 +4155,8 @@
     "lights": 8,
     "rotationAxes": [
      2,
-     1
+     1,
+     0
     ],
     "rotationRange": 20,
     "rotationPoses": [
@@ -3314,15 +4164,25 @@
      0,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      15
+     ],
+     "0": [
+      0
+     ]
+    },
     "translationAxes": [
      0
     ],
-    "translationRange": 1.6,
+    "translationRange": 2.25,
     "translationValues": {
      "0": [
-      -0.05,
+      -0.1,
       0.6,
-      0.94
+      0.95
      ]
     },
     "mirror": 22,
@@ -3330,7 +4190,7 @@
    },
    "24": {
     "color": 1.0,
-    "lights": 36,
+    "lights": 6,
     "mirror": 26,
     "white": 0.14
    },
@@ -3339,24 +4199,31 @@
     "translation": 1.0,
     "lights": 3,
     "rotationAxes": [
-     2
-    ],
-    "rotationRange": 35.0,
-    "rotationPoses": [
+     2,
      0,
+     1
+    ],
+    "rotationRange": 40.0,
+    "rotationPoses": [
      15,
      -15,
-     -30
+     0,
+     -30,
+     30
     ],
+    "axisPoses": {
+     "0": [],
+     "1": []
+    },
     "translationAxes": [
      1,
      0
     ],
-    "translationRange": 0.45,
+    "translationRange": 0.5,
     "translationValues": {
      "1": [
-      -0.45,
-      0,
+      -0.5,
+      -0.1,
       0.15
      ],
      "0": [
@@ -3370,7 +4237,7 @@
    },
    "26": {
     "color": 1.0,
-    "lights": 36,
+    "lights": 6,
     "mirror": 24,
     "white": 0.17
    },
@@ -3379,50 +4246,57 @@
     "translation": 1.0,
     "lights": 3,
     "rotationAxes": [
-     2
-    ],
-    "rotationRange": 35.0,
-    "rotationPoses": [
+     2,
      0,
+     1
+    ],
+    "rotationRange": 40,
+    "rotationPoses": [
      15,
      -15,
-     -30
+     0,
+     -30,
+     30
     ],
+    "axisPoses": {
+     "0": [],
+     "1": []
+    },
     "translationAxes": [
      1,
      0
     ],
-    "translationRange": 0.4,
+    "translationRange": 0.45,
     "translationValues": {
      "1": [
       -0.45,
-      0,
+      -0.1,
       0.15
      ],
      "0": [
       -0.3,
       0,
-      0.25
+      0.3
      ]
     },
     "mirror": 25
    },
    "28": {
     "color": 0.79,
-    "lights": 5,
+    "lights": 2,
     "white": 0.16
    },
    "29": {
     "translation": 0.93,
-    "lights": 2,
+    "lights": 1,
     "translationAxes": [
      1
     ],
-    "translationRange": 0.9,
+    "translationRange": 2.05,
     "translationValues": {
      "1": [
       -0.2,
-      0,
+      0.05,
       0.4
      ]
     },
@@ -3445,13 +4319,21 @@
     ],
     "rotationRange": 70,
     "rotationPoses": [
-     0,
      45,
+     0,
      60,
      15,
      75,
      30
     ],
+    "axisPoses": {
+     "0": [
+      45
+     ],
+     "2": [
+      45
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -3460,7 +4342,7 @@
      "1": [
       0,
       0.0,
-      0.25
+      0.3
      ]
     },
     "mirror": 33,
@@ -3470,13 +4352,13 @@
     "color": 0.86,
     "rotation": 0.79,
     "translation": 1.0,
-    "lights": 6,
+    "lights": 4,
     "rotationAxes": [
      1,
      0,
      2
     ],
-    "rotationRange": 60,
+    "rotationRange": 70,
     "rotationPoses": [
      0,
      45,
@@ -3485,15 +4367,23 @@
      15,
      75
     ],
+    "axisPoses": {
+     "0": [
+      45
+     ],
+     "2": [
+      45
+     ]
+    },
     "translationAxes": [
      1
     ],
-    "translationRange": 1.7,
+    "translationRange": 2.3,
     "translationValues": {
      "1": [
       -0.05,
-      0.0,
-      0.85
+      0.05,
+      1.1
      ]
     },
     "mirror": 34,
@@ -3511,46 +4401,21 @@
     ],
     "rotationRange": 70,
     "rotationPoses": [
-     0,
      45,
+     0,
      60,
      15,
      75,
      30
     ],
-    "translationAxes": [
-     1
-    ],
-    "translationRange": 1.45,
-    "translationValues": {
-     "1": [
-      0,
-      0.0,
-      0.25
+    "axisPoses": {
+     "0": [
+      45
+     ],
+     "2": [
+      45
      ]
     },
-    "mirror": 31,
-    "white": 0.34
-   },
-   "34": {
-    "color": 0.86,
-    "rotation": 0.86,
-    "translation": 1.0,
-    "lights": 6,
-    "rotationAxes": [
-     1,
-     0,
-     2
-    ],
-    "rotationRange": 60,
-    "rotationPoses": [
-     0,
-     45,
-     60,
-     30,
-     15,
-     75
-    ],
     "translationAxes": [
      1
     ],
@@ -3562,6 +4427,47 @@
       0.3
      ]
     },
+    "mirror": 31,
+    "white": 0.34
+   },
+   "34": {
+    "color": 0.86,
+    "rotation": 0.86,
+    "translation": 1.0,
+    "lights": 4,
+    "rotationAxes": [
+     1,
+     0,
+     2
+    ],
+    "rotationRange": 75,
+    "rotationPoses": [
+     0,
+     45,
+     60,
+     30,
+     15,
+     75
+    ],
+    "axisPoses": {
+     "0": [
+      45
+     ],
+     "2": [
+      45
+     ]
+    },
+    "translationAxes": [
+     1
+    ],
+    "translationRange": 3.8,
+    "translationValues": {
+     "1": [
+      -0.05,
+      0.0,
+      0.4
+     ]
+    },
     "mirror": 32,
     "white": 0.33
    },
@@ -3571,36 +4477,50 @@
     "lights": 2,
     "rotationAxes": [
      2,
-     0
+     0,
+     1
     ],
-    "rotationRange": 60,
+    "rotationRange": 65.0,
     "rotationPoses": [
      45,
      0,
      15,
-     30
+     30,
+     105
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -45,
+      -60,
+      180
+     ],
+     "1": [
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 1.7,
+    "translationRange": 1.8,
     "translationValues": {
      "1": [
-      -0.85,
-      0,
-      0.7
+      -1.2,
+      0.0,
+      0.85
      ],
      "0": [
-      -0.35,
-      0,
-      0.4
+      -0.5,
+      0.0,
+      0.63
      ],
      "2": [
-      -0.9,
+      -1,
       0,
-      1.7
+      1.85
      ]
     },
     "mirror": 36
@@ -3611,43 +4531,60 @@
     "lights": 2,
     "rotationAxes": [
      2,
-     0
+     0,
+     1
     ],
     "rotationRange": 90.0,
     "rotationPoses": [
      45,
      0,
      15,
-     30
+     30,
+     120
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -45,
+      -60,
+      -30,
+      15,
+      90,
+      -165,
+      -90
+     ],
+     "1": [
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 1.8,
+    "translationRange": 2.0,
     "translationValues": {
      "1": [
-      -0.85,
-      0,
-      1.05
+      -1.2,
+      0.15,
+      2.0
      ],
      "0": [
-      -0.6,
+      -0.7,
       0,
       0.4
      ],
      "2": [
-      -0.9,
+      -1,
       0,
-      2
+      2.75
      ]
     },
     "mirror": 35
    },
    "37": {
     "translation": 0.86,
-    "lights": 2,
+    "lights": 0,
     "translationAxes": [
      2
     ],
@@ -3656,7 +4593,7 @@
      "2": [
       -0.25,
       0,
-      0.5
+      0.55
      ]
     }
    }
@@ -3678,19 +4615,25 @@
    "0": {
     "rotation": 1.0,
     "translation": 0.93,
-    "lights": 24,
+    "lights": 3,
     "rotationAxes": [
-     2
+     2,
+     0,
+     1
     ],
-    "rotationRange": 135,
+    "rotationRange": 150,
     "rotationPoses": [
      -90,
-     0,
      90,
+     0,
      45,
      -105,
      180
     ],
+    "axisPoses": {
+     "0": [],
+     "1": []
+    },
     "translationAxes": [
      2
     ],
@@ -3698,19 +4641,19 @@
     "translationValues": {
      "2": [
       -3.55,
-      -0.35,
+      -0.5,
       7
      ]
     }
    },
    "1": {
     "color": 1.0,
-    "lights": 96,
+    "lights": 12,
     "white": 0.23
    },
    "2": {
     "translation": 0.86,
-    "lights": 35,
+    "lights": 5,
     "translationAxes": [
      1
     ],
@@ -3718,7 +4661,7 @@
     "translationValues": {
      "1": [
       0,
-      0.9,
+      1.0,
       69.2
      ]
     }
@@ -3729,7 +4672,9 @@
     "translation": 0.79,
     "lights": 15,
     "rotationAxes": [
-     2
+     2,
+     0,
+     1
     ],
     "rotationRange": 90,
     "rotationPoses": [
@@ -3737,17 +4682,24 @@
      15,
      90,
      -90,
-     180
+     180,
+     45
     ],
+    "axisPoses": {
+     "0": [],
+     "1": [
+      -90
+     ]
+    },
     "translationAxes": [
      2
     ],
     "translationRange": 8.4,
     "translationValues": {
      "2": [
-      -6.0,
-      0,
-      1.0
+      -7.2,
+      -0.9,
+      1
      ]
     },
     "white": 0.14
@@ -3760,23 +4712,33 @@
      0,
      1
     ],
-    "rotationRange": 90.0,
+    "rotationRange": 90,
     "rotationPoses": [
      90,
      -90,
      45
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      -90,
+      -60,
+      -120,
+      0,
+      -165
+     ]
+    },
     "white": 0.21
    },
    "5": {
     "color": 1.0,
-    "lights": 12,
+    "lights": 6,
     "mirror": 6,
     "white": 0.36
    },
    "6": {
     "color": 1.0,
-    "lights": 12,
+    "lights": 6,
     "mirror": 5,
     "white": 0.35
    },
@@ -3800,15 +4762,23 @@
      0,
      1
     ],
-    "rotationRange": 135,
+    "rotationRange": 135.0,
     "rotationPoses": [
      -90,
      90,
      -75,
      75,
-     105,
-     0
+     105
     ],
+    "axisPoses": {
+     "1": [
+      -90,
+      90,
+      -75,
+      -105,
+      -45
+     ]
+    },
     "mirror": 12,
     "white": 0.34
    },
@@ -3825,12 +4795,20 @@
      -90,
      -75,
      90,
-     0,
      75,
      -60,
      45,
-     -135
+     -135,
+     -45
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      -90,
+      120,
+      -45
+     ]
+    },
     "mirror": 11,
     "white": 0.28
    },
@@ -3847,12 +4825,21 @@
      -90,
      -75,
      90,
-     0,
      45,
      75,
      -135,
      -60
     ],
+    "axisPoses": {
+     "1": [
+      90,
+      -90,
+      -45,
+      120,
+      30,
+      -105
+     ]
+    },
     "mirror": 10,
     "white": 0.28
    },
@@ -3871,9 +4858,17 @@
      -75,
      75,
      105,
-     -135,
-     0
+     -135
     ],
+    "axisPoses": {
+     "1": [
+      -90,
+      90,
+      -75,
+      -105,
+      -45
+     ]
+    },
     "mirror": 9,
     "white": 0.34
    }
@@ -3905,15 +4900,22 @@
      90,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      60
+     ]
+    },
     "translationAxes": [
      1
     ],
-    "translationRange": 8.4,
+    "translationRange": 8.45,
     "translationValues": {
      "1": [
       -8.4,
-      -0.2,
-      0.55
+      -0.4,
+      0.75
      ]
     },
     "mirror": 1,
@@ -3928,13 +4930,20 @@
      2,
      1
     ],
-    "rotationRange": 60,
+    "rotationRange": 75,
     "rotationPoses": [
      0,
      -45,
      45,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      60
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -3942,8 +4951,8 @@
     "translationValues": {
      "1": [
       -8.4,
-      -0.1,
-      0.25
+      -0.15,
+      0.3
      ]
     },
     "mirror": 0,
@@ -3952,7 +4961,7 @@
    "2": {
     "rotation": 0.93,
     "translation": 0.79,
-    "lights": 7,
+    "lights": 2,
     "rotationAxes": [
      2
     ],
@@ -3973,7 +4982,7 @@
     "translationValues": {
      "2": [
       0.0,
-      0,
+      0.55,
       5
      ]
     },
@@ -3982,9 +4991,10 @@
    "3": {
     "rotation": 0.93,
     "translation": 0.79,
-    "lights": 7,
+    "lights": 2,
     "rotationAxes": [
-     2
+     2,
+     1
     ],
     "rotationRange": 180.0,
     "rotationPoses": [
@@ -3992,15 +5002,21 @@
      0,
      -105,
      60,
-     30
+     30,
+     75
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      2
     ],
     "translationRange": 5,
     "translationValues": {
      "2": [
-      0,
+      0.0,
       0.0,
       5
      ]
@@ -4024,6 +5040,14 @@
      90,
      30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      -135,
+      15
+     ]
+    },
     "translationAxes": [
      1
     ],
@@ -4031,8 +5055,8 @@
     "translationValues": {
      "1": [
       -5,
-      -0.1,
-      0.75
+      -0.2,
+      2.7
      ]
     },
     "white": 0.17
@@ -4040,9 +5064,11 @@
    "5": {
     "rotation": 0.86,
     "translation": 0.79,
-    "lights": 8,
+    "lights": 4,
     "rotationAxes": [
-     2
+     2,
+     0,
+     1
     ],
     "rotationRange": 140.0,
     "rotationPoses": [
@@ -4053,10 +5079,14 @@
      -90,
      60
     ],
+    "axisPoses": {
+     "0": [],
+     "1": []
+    },
     "translationAxes": [
      2
     ],
-    "translationRange": 6,
+    "translationRange": 6.2,
     "translationValues": {
      "2": [
       -4.3,
@@ -4068,24 +5098,7 @@
    "6": {
     "color": 1.0,
     "rotation": 0.93,
-    "lights": 24,
-    "rotationAxes": [
-     2,
-     1
-    ],
-    "rotationRange": 180.0,
-    "rotationPoses": [
-     0,
-     180,
-     90
-    ],
-    "mirror": 7,
-    "white": 0.49
-   },
-   "7": {
-    "color": 1.0,
-    "rotation": 0.93,
-    "lights": 24,
+    "lights": 7,
     "rotationAxes": [
      2,
      1
@@ -4097,6 +5110,42 @@
      90,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      180,
+      -135,
+      -150,
+      0,
+      90
+     ]
+    },
+    "mirror": 7,
+    "white": 0.49
+   },
+   "7": {
+    "color": 1.0,
+    "rotation": 0.93,
+    "lights": 7,
+    "rotationAxes": [
+     2,
+     1
+    ],
+    "rotationRange": 180.0,
+    "rotationPoses": [
+     0,
+     180,
+     90,
+     -90
+    ],
+    "axisPoses": {
+     "1": [
+      180,
+      -135,
+      -150,
+      0,
+      90
+     ]
+    },
     "mirror": 6,
     "white": 0.48
    },
@@ -4107,19 +5156,20 @@
     "rotationAxes": [
      2
     ],
-    "rotationRange": 140.0,
+    "rotationRange": 145,
     "rotationPoses": [
      0,
      45,
-     -90
+     -90,
+     -45
     ],
     "translationAxes": [
      2
     ],
-    "translationRange": 8,
+    "translationRange": 8.45,
     "translationValues": {
      "2": [
-      -3,
+      -3.0,
       0,
       1.75
      ]
@@ -4134,7 +5184,7 @@
      2,
      1
     ],
-    "rotationRange": 120.0,
+    "rotationRange": 135.0,
     "rotationPoses": [
      0,
      90,
@@ -4145,6 +5195,14 @@
      30,
      -45
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      -75,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      1
@@ -4174,15 +5232,26 @@
      2,
      1
     ],
-    "rotationRange": 135.0,
+    "rotationRange": 135,
     "rotationPoses": [
-     0,
      90,
+     0,
      -75,
      -105,
      30,
-     15
+     15,
+     165
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      -75,
+      30,
+      90,
+      -45
+     ]
+    },
     "translationAxes": [
      0,
      1
@@ -4190,13 +5259,13 @@
     "translationRange": 2.8,
     "translationValues": {
      "0": [
-      -2.65,
+      -2.8,
       0,
-      1.25
+      1.3
      ],
      "1": [
       -2.25,
-      -0.4,
+      -0.5,
       0.55
      ]
     },
@@ -4212,7 +5281,7 @@
      2,
      1
     ],
-    "rotationRange": 165,
+    "rotationRange": 170.0,
     "rotationPoses": [
      0,
      120,
@@ -4225,11 +5294,20 @@
      -15,
      180
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45,
+      45,
+      15,
+      -120
+     ]
+    },
     "translationAxes": [
      0,
      1
     ],
-    "translationRange": 3.0,
+    "translationRange": 3.4,
     "translationValues": {
      "0": [
       -2.0,
@@ -4267,6 +5345,14 @@
      -15,
      75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45,
+      45,
+      15
+     ]
+    },
     "translationAxes": [
      1,
      0
@@ -4275,7 +5361,7 @@
     "translationValues": {
      "1": [
       -2.5,
-      -1.85,
+      -1.9,
       1.0
      ],
      "0": [
@@ -4289,13 +5375,13 @@
    },
    "13": {
     "color": 0.93,
-    "lights": 14,
+    "lights": 0,
     "mirror": 14,
     "white": 0.53
    },
    "14": {
     "color": 0.93,
-    "lights": 14,
+    "lights": 0,
     "mirror": 13,
     "white": 0.56
    },
@@ -4326,7 +5412,7 @@
     "translationValues": {
      "2": [
       -0.4,
-      -0.1,
+      -0.15,
       0.1
      ]
     },
@@ -4342,7 +5428,7 @@
     "translationValues": {
      "2": [
       -0.4,
-      -0.05,
+      -0.15,
       0.1
      ]
     },
@@ -4404,8 +5490,10 @@
      90,
      45,
      180,
+     135,
      -90,
-     135
+     30,
+     -30
     ],
     "translationAxes": [
      1,
@@ -4414,7 +5502,7 @@
     "translationRange": 2,
     "translationValues": {
      "1": [
-      -0.6,
+      -0.85,
       0,
       0.6
      ],
@@ -4429,7 +5517,7 @@
    },
    "1": {
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4441,13 +5529,14 @@
      15,
      135,
      -15,
-     30
+     30,
+     45
     ],
     "mirror": 6
    },
    "2": {
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4459,13 +5548,14 @@
      135,
      15,
      45,
-     180
+     180,
+     -15
     ],
     "mirror": 7
    },
    "3": {
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4476,13 +5566,14 @@
      15,
      -45,
      -15,
-     135
+     135,
+     45
     ],
     "mirror": 8
    },
    "4": {
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4494,7 +5585,8 @@
      135,
      -90,
      15,
-     45
+     45,
+     180
     ],
     "mirror": 9
    },
@@ -4512,8 +5604,10 @@
      90,
      45,
      180,
+     135,
      -90,
-     135
+     30,
+     -30
     ],
     "translationAxes": [
      1,
@@ -4522,7 +5616,7 @@
     "translationRange": 2,
     "translationValues": {
      "1": [
-      -0.6,
+      -0.75,
       0,
       0.6
      ],
@@ -4537,7 +5631,7 @@
    },
    "6": {
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4549,13 +5643,15 @@
      135,
      30,
      15,
-     45
+     45,
+     180,
+     -15
     ],
     "mirror": 1
    },
    "7": {
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4566,17 +5662,18 @@
      90,
      15,
      135,
-     -15
+     -15,
+     45
     ],
     "mirror": 2
    },
    "8": {
     "rotation": 0.93,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
-    "rotationRange": 135.0,
+    "rotationRange": 135,
     "rotationPoses": [
      0,
      90,
@@ -4584,13 +5681,14 @@
      135,
      15,
      180,
-     45
+     45,
+     -15
     ],
     "mirror": 3
    },
    "9": {
     "rotation": 0.86,
-    "lights": 4,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4602,7 +5700,8 @@
      90,
      135,
      -90,
-     -15
+     -15,
+     45
     ],
     "mirror": 4
    },
@@ -4610,9 +5709,11 @@
     "color": 1.0,
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 51,
+    "lights": 15,
     "rotationAxes": [
-     2
+     2,
+     0,
+     1
     ],
     "rotationRange": 180,
     "rotationPoses": [
@@ -4622,22 +5723,29 @@
      -120,
      -75,
      90,
-     60
+     60,
+     150,
+     120,
+     -60
     ],
+    "axisPoses": {
+     "0": [],
+     "1": []
+    },
     "translationAxes": [
      2,
      1
     ],
-    "translationRange": 7.3,
+    "translationRange": 7.5,
     "translationValues": {
      "2": [
       -3,
-      1,
-      4.25
+      1.2,
+      4.5
      ],
      "1": [
-      -8,
-      -0.75,
+      -8.0,
+      -1,
       0
      ]
     },
@@ -4646,7 +5754,7 @@
    "11": {
     "rotation": 0.93,
     "translation": 0.86,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -4663,12 +5771,12 @@
     "translationAxes": [
      2
     ],
-    "translationRange": 7.95,
+    "translationRange": 8.8,
     "translationValues": {
      "2": [
       -5,
       -1,
-      0.0
+      0
      ]
     }
    },
@@ -4678,7 +5786,8 @@
     "lights": 20,
     "rotationAxes": [
      0,
-     1
+     1,
+     2
     ],
     "rotationRange": 165.0,
     "rotationPoses": [
@@ -4688,6 +5797,21 @@
      -165,
      45
     ],
+    "axisPoses": {
+     "1": [
+      -45,
+      0,
+      -30,
+      90,
+      45,
+      165,
+      -90,
+      30
+     ],
+     "2": [
+      0
+     ]
+    },
     "mirror": 14,
     "white": 0.32
    },
@@ -4712,7 +5836,7 @@
    "14": {
     "color": 1.0,
     "rotation": 1.0,
-    "lights": 12,
+    "lights": 20,
     "rotationAxes": [
      0
     ],
@@ -4778,7 +5902,7 @@
       0.3
      ],
      "2": [
-      -0.5,
+      -0.65,
       1.4,
       6.95
      ]
@@ -4816,7 +5940,7 @@
     "rotationAxes": [
      2
     ],
-    "rotationRange": 90,
+    "rotationRange": 95,
     "rotationPoses": [
      0,
      -90,
@@ -4855,6 +5979,14 @@
      -120,
      60
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      -15,
+      -120
+     ]
+    },
     "translationAxes": [
      2
     ],
@@ -4862,7 +5994,7 @@
     "translationValues": {
      "2": [
       -3.45,
-      2.7,
+      4.45,
       7.9
      ]
     },
@@ -4889,7 +6021,7 @@
     "translationAxes": [
      2
     ],
-    "translationRange": 5.3,
+    "translationRange": 5.75,
     "translationValues": {
      "2": [
       -4.0,
@@ -4915,15 +6047,21 @@
      -90,
      75
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180
+     ]
+    },
     "translationAxes": [
      2
     ],
     "translationRange": 10.0,
     "translationValues": {
      "2": [
-      -9.5,
-      -0.15,
-      0.85
+      -10.0,
+      -0.6,
+      1
      ]
     },
     "white": 0.26
@@ -4936,7 +6074,7 @@
     "rotationAxes": [
      2
     ],
-    "rotationRange": 165,
+    "rotationRange": 180.0,
     "rotationPoses": [
      0,
      90,
@@ -4950,12 +6088,12 @@
      1,
      0
     ],
-    "translationRange": 2.6,
+    "translationRange": 2.65,
     "translationValues": {
      "2": [
       -1,
       0,
-      4
+      4.6
      ],
      "1": [
       -0.15,
@@ -4963,7 +6101,7 @@
       0.25
      ],
      "0": [
-      -0.15,
+      -0.2,
       0,
       0.15
      ]
@@ -4981,14 +6119,14 @@
     "translationRange": 2.5,
     "translationValues": {
      "1": [
-      -1.6,
+      -1.7,
       -0.4,
       -0.32
      ],
      "2": [
       -0.3,
       0.6,
-      1.8
+      1.9
      ]
     },
     "white": 0.13
@@ -5013,6 +6151,25 @@
      -60,
      45
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      30,
+      -30,
+      45,
+      -150,
+      -15
+     ],
+     "2": [
+      0,
+      15,
+      -60,
+      -45,
+      -30,
+      30,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -5022,7 +6179,7 @@
     "translationValues": {
      "1": [
       -0.2,
-      0.1,
+      0.12,
       2.09
      ],
      "0": [
@@ -5058,6 +6215,24 @@
      135,
      75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      30,
+      45,
+      -45,
+      15,
+      150
+     ],
+     "2": [
+      0,
+      45,
+      15,
+      -15,
+      30
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -5067,13 +6242,13 @@
     "translationValues": {
      "1": [
       -0.2,
-      0.12,
-      2.25
+      0.15,
+      2.3
      ],
      "0": [
       -1,
       -0.33,
-      1.2
+      1.25
      ],
      "2": [
       -0.01,
@@ -5086,31 +6261,31 @@
    },
    "8": {
     "color": 0.93,
-    "lights": 2,
+    "lights": 0,
     "mirror": 9,
     "white": 0.29
    },
    "9": {
     "color": 0.93,
-    "lights": 2,
+    "lights": 0,
     "mirror": 8,
     "white": 0.3
    },
    "10": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 4,
     "white": 0.33
    },
    "11": {
     "color": 0.79,
     "translation": 0.64,
-    "lights": 2,
+    "lights": 0,
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 5,
+    "translationRange": 5.75,
     "translationValues": {
      "1": [
       -0.05,
@@ -5136,7 +6311,7 @@
     "rotationAxes": [
      2
     ],
-    "rotationRange": 100,
+    "rotationRange": 105,
     "rotationPoses": [
      -90,
      90,
@@ -5148,35 +6323,35 @@
    },
    "13": {
     "color": 1.0,
-    "lights": 28,
+    "lights": 4,
     "mirror": 14,
     "white": 0.05
    },
    "14": {
     "color": 1.0,
-    "lights": 28,
+    "lights": 4,
     "mirror": 13,
     "white": 0.05
    },
    "15": {
     "color": 1.0,
-    "lights": 4,
+    "lights": 0,
     "mirror": 16,
     "white": 0.19
    },
    "16": {
     "color": 1.0,
-    "lights": 4,
+    "lights": 0,
     "mirror": 15,
     "white": 0.19
    },
    "17": {
     "rotation": 0.36,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
-    "rotationRange": 160,
+    "rotationRange": 175,
     "rotationPoses": [
      0,
      30,
@@ -5192,11 +6367,11 @@
    },
    "18": {
     "rotation": 0.36,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
-    "rotationRange": 160,
+    "rotationRange": 175,
     "rotationPoses": [
      0,
      30,
@@ -5232,7 +6407,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "fx": 1.0,
-    "lights": 15,
+    "lights": 0,
     "rotationAxes": [
      1,
      0
@@ -5242,6 +6417,12 @@
      0,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90
+     ]
+    },
     "translationAxes": [
      2
     ],
@@ -5261,7 +6442,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "fx": 1.0,
-    "lights": 15,
+    "lights": 0,
     "rotationAxes": [
      1,
      0
@@ -5271,6 +6452,12 @@
      0,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90
+     ]
+    },
     "translationAxes": [
      2
     ],
@@ -5305,12 +6492,12 @@
      0,
      2
     ],
-    "translationRange": 3.9,
+    "translationRange": 4,
     "translationValues": {
      "1": [
       -1.2,
       0,
-      2.35
+      2.65
      ],
      "0": [
       -2.5,
@@ -5320,7 +6507,7 @@
      "2": [
       0,
       0,
-      5
+      6.15
      ]
     },
     "mirror": 6,
@@ -5346,22 +6533,22 @@
      0,
      2
     ],
-    "translationRange": 3.4,
+    "translationRange": 3.55,
     "translationValues": {
      "1": [
-      -0.85,
+      -0.95,
       0,
-      2.05
+      2.55
      ],
      "0": [
       -2,
       0,
-      0.05
+      0.1
      ],
      "2": [
       0,
       0,
-      3.2
+      3.8
      ]
     },
     "mirror": 7,
@@ -5387,12 +6574,12 @@
      0,
      2
     ],
-    "translationRange": 3.8,
+    "translationRange": 4,
     "translationValues": {
      "1": [
-      -0.85,
+      -0.95,
       0,
-      2.35
+      2.8
      ],
      "0": [
       -1.5,
@@ -5402,7 +6589,7 @@
      "2": [
       0,
       0,
-      3.6
+      5.5
      ]
     },
     "mirror": 8,
@@ -5428,12 +6615,12 @@
      0,
      2
     ],
-    "translationRange": 4,
+    "translationRange": 4.4,
     "translationValues": {
      "1": [
-      -0.75,
-      0.15,
-      2.8
+      -0.85,
+      0.45,
+      3
      ],
      "0": [
       -1,
@@ -5443,7 +6630,7 @@
      "2": [
       0,
       0,
-      5
+      7.5
      ]
     },
     "mirror": 9,
@@ -5469,12 +6656,12 @@
      0,
      2
     ],
-    "translationRange": 3.4,
+    "translationRange": 3.75,
     "translationValues": {
      "1": [
       -1.2,
       0,
-      2.05
+      2.65
      ],
      "0": [
       -2.5,
@@ -5484,7 +6671,7 @@
      "2": [
       0,
       0,
-      3.4
+      4
      ]
     },
     "mirror": 2,
@@ -5510,22 +6697,22 @@
      0,
      2
     ],
-    "translationRange": 3.5,
+    "translationRange": 3.55,
     "translationValues": {
      "1": [
-      -0.85,
+      -1.05,
       0,
-      2.55
+      2.8
      ],
      "0": [
       -2,
       0,
-      0.05
+      0.1
      ],
      "2": [
       0,
       0,
-      3.5
+      4
      ]
     },
     "mirror": 3,
@@ -5555,7 +6742,7 @@
     "translationValues": {
      "1": [
       -0.85,
-      0,
+      0.1,
       2.8
      ],
      "0": [
@@ -5566,7 +6753,7 @@
      "2": [
       0,
       0,
-      3.6
+      5.5
      ]
     },
     "mirror": 4,
@@ -5592,12 +6779,12 @@
      0,
      2
     ],
-    "translationRange": 4,
+    "translationRange": 4.45,
     "translationValues": {
      "1": [
-      -0.75,
-      0.15,
-      2.8
+      -0.85,
+      0.45,
+      3
      ],
      "0": [
       -1,
@@ -5607,7 +6794,7 @@
      "2": [
       0,
       0,
-      4
+      7.5
      ]
     },
     "mirror": 5,
@@ -5616,7 +6803,7 @@
    "10": {
     "color": 1.0,
     "translation": 0.93,
-    "lights": 16,
+    "lights": 4,
     "translationAxes": [
      1,
      0
@@ -5624,9 +6811,9 @@
     "translationRange": 0.6,
     "translationValues": {
      "1": [
-      -0.1,
+      -0.25,
       0,
-      0.4
+      0.55
      ],
      "0": [
       0,
@@ -5640,7 +6827,7 @@
    "11": {
     "color": 1.0,
     "translation": 0.93,
-    "lights": 16,
+    "lights": 4,
     "translationAxes": [
      1,
      0
@@ -5648,9 +6835,9 @@
     "translationRange": 0.6,
     "translationValues": {
      "1": [
-      -0.1,
+      -0.25,
       0,
-      0.4
+      0.55
      ],
      "0": [
       0,
@@ -5666,7 +6853,7 @@
     "rotation": 0.79,
     "translation": 0.86,
     "fx": 0.93,
-    "lights": 6,
+    "lights": 1,
     "rotationAxes": [
      0,
      1
@@ -5676,6 +6863,12 @@
      0,
      180
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180
+     ]
+    },
     "translationAxes": [
      2
     ],
@@ -5695,7 +6888,7 @@
     "rotation": 0.79,
     "translation": 0.86,
     "fx": 0.93,
-    "lights": 6,
+    "lights": 1,
     "rotationAxes": [
      0,
      1
@@ -5705,6 +6898,12 @@
      0,
      180
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180
+     ]
+    },
     "translationAxes": [
      2
     ],
@@ -5728,7 +6927,7 @@
      2,
      0
     ],
-    "rotationRange": 105.0,
+    "rotationRange": 105,
     "rotationPoses": [
      0,
      15,
@@ -5739,20 +6938,31 @@
      -45,
      -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      45,
+      90,
+      -45
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 15,
+    "translationRange": 15.75,
     "translationValues": {
      "1": [
       -3.25,
       -1.5,
-      0.3
+      0.35
      ],
      "0": [
-      -1.9,
+      -2.1,
       0,
       2.09
      ],
@@ -5785,12 +6995,22 @@
      -15,
      135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      45,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 10,
+    "translationRange": 10.0,
     "translationValues": {
      "1": [
       -3.25,
@@ -5831,12 +7051,23 @@
      -30,
      135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      45,
+      -75,
+      75
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 16.4,
+    "translationRange": 17.5,
     "translationValues": {
      "1": [
       -3.25,
@@ -5844,13 +7075,13 @@
       0.3
      ],
      "0": [
-      -1.1,
+      -1.25,
       0,
       20
      ],
      "2": [
       -2.1,
-      0.25,
+      1,
       20
      ]
     },
@@ -5875,6 +7106,15 @@
      45,
      -45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -5910,7 +7150,7 @@
      2,
      0
     ],
-    "rotationRange": 120.0,
+    "rotationRange": 120,
     "rotationPoses": [
      0,
      15,
@@ -5920,17 +7160,28 @@
      135,
      -45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      90,
+      45,
+      -45
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 18,
+    "translationRange": 20,
     "translationValues": {
      "1": [
       -3.25,
       -1.5,
-      0.3
+      0.35
      ],
      "0": [
       -1.9,
@@ -5966,20 +7217,30 @@
      -45,
      135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      90,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 10.0,
+    "translationRange": 10,
     "translationValues": {
      "1": [
-      -3.2,
+      -3.25,
       -1.5,
       0.3
      ],
      "0": [
-      -3,
+      -3.2,
       0,
       10
      ],
@@ -6012,6 +7273,17 @@
      -30,
      135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      45,
+      -75,
+      75
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -6056,6 +7328,15 @@
      45,
      -45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -6071,7 +7352,7 @@
      "0": [
       -15,
       0.45,
-      2.05
+      2.09
      ],
      "2": [
       -2.1,
@@ -6084,13 +7365,13 @@
    },
    "22": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 4,
     "mirror": 23,
     "white": 0.27
    },
    "23": {
     "color": 1.0,
-    "lights": 16,
+    "lights": 4,
     "mirror": 22,
     "white": 0.26
    },
@@ -6113,17 +7394,17 @@
      1,
      0
     ],
-    "translationRange": 5.93,
+    "translationRange": 6.14,
     "translationValues": {
      "1": [
-      -1.5,
-      -0.8,
-      0
+      -1.55,
+      -0.85,
+      0.05
      ],
      "0": [
       -0.5,
       0.5,
-      1.5
+      1.75
      ]
     },
     "mirror": 25,
@@ -6149,11 +7430,11 @@
      0,
      2
     ],
-    "translationRange": 5.45,
+    "translationRange": 5.64,
     "translationValues": {
      "1": [
-      -1.5,
-      -0.8,
+      -1.55,
+      -0.9,
       0
      ],
      "0": [
@@ -6164,7 +7445,7 @@
      "2": [
       -8,
       0.4,
-      3.75
+      4.65
      ]
     },
     "mirror": 24,
@@ -6173,7 +7454,7 @@
    "26": {
     "rotation": 0.71,
     "translation": 0.79,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      1
     ],
@@ -6186,11 +7467,11 @@
      2,
      0
     ],
-    "translationRange": 10,
+    "translationRange": 10.4,
     "translationValues": {
      "1": [
-      -9.3,
-      -0.3,
+      -10,
+      -0.65,
       0
      ],
      "2": [
@@ -6208,7 +7489,7 @@
    "27": {
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      1,
      2
@@ -6218,27 +7499,35 @@
      0,
      30,
      -30,
-     180
+     180,
+     15
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      -15
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 5.4,
+    "translationRange": 6,
     "translationValues": {
      "2": [
       0,
-      2.6,
+      3,
       4
      ],
      "1": [
-      -0.95,
+      -1.0,
       0,
       0.6
      ],
      "0": [
-      -0.9,
+      -1,
       0,
       0.9
      ]
@@ -6248,21 +7537,28 @@
     "color": 0.86,
     "rotation": 0.57,
     "fx": 0.79,
-    "lights": 6,
+    "lights": 0,
     "rotationAxes": [
-     1
+     1,
+     0
     ],
     "rotationRange": 180,
     "rotationPoses": [
      0,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      135
+     ]
+    },
     "white": 0.52
    },
    "29": {
     "rotation": 0.71,
     "translation": 1.0,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      1,
      2
@@ -6270,29 +7566,38 @@
     "rotationRange": 180,
     "rotationPoses": [
      0,
-     180
+     180,
+     -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      -15,
+      -30
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 6.2,
+    "translationRange": 6.6,
     "translationValues": {
      "2": [
       -1.85,
-      1,
+      3,
       5
      ],
      "1": [
       -3.35,
-      -1.15,
-      0
+      -1.2,
+      -0.3
      ],
      "0": [
-      -2.2,
+      -2.65,
       0,
-      0
+      0.85
      ]
     }
    },
@@ -6313,11 +7618,18 @@
      -75,
      -15
     ],
+    "axisPoses": {
+     "1": [
+      -90,
+      90,
+      0
+     ]
+    },
     "translationAxes": [
      1,
      2
     ],
-    "translationRange": 1.15,
+    "translationRange": 1.5,
     "translationValues": {
      "1": [
       0,
@@ -6326,7 +7638,7 @@
      ],
      "2": [
       0,
-      0,
+      0.5,
       0.5
      ]
     },
@@ -6358,7 +7670,7 @@
    },
    "33": {
     "rotation": 0.71,
-    "lights": 6,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -6372,7 +7684,7 @@
    },
    "34": {
     "rotation": 0.71,
-    "lights": 6,
+    "lights": 0,
     "rotationAxes": [
      2
     ],
@@ -6403,7 +7715,7 @@
    },
    "38": {
     "translation": 0.86,
-    "lights": 6,
+    "lights": 2,
     "translationAxes": [
      0,
      1,
@@ -6412,14 +7724,14 @@
     "translationRange": 2.25,
     "translationValues": {
      "0": [
-      -0.7,
-      0.05,
+      -0.74,
+      0.2,
       0.75
      ],
      "1": [
-      0,
-      0.75,
-      1.76
+      0.17,
+      0.8,
+      1.85
      ],
      "2": [
       -2,
@@ -6438,20 +7750,20 @@
     "translationValues": {
      "1": [
       -9,
-      -0.3,
+      -0.4,
       0
      ]
     }
    },
    "40": {
     "color": 1.0,
-    "lights": 6,
+    "lights": 0,
     "mirror": 41,
     "white": 0.33
    },
    "41": {
     "color": 1.0,
-    "lights": 6,
+    "lights": 0,
     "mirror": 40,
     "white": 0.33
    },
@@ -6498,16 +7810,16 @@
      "1": [
       -3,
       -1,
-      0.65
+      0.75
      ],
      "0": [
-      -3.05,
+      -3.15,
       -1,
-      0.6
+      0.9
      ],
      "2": [
       0,
-      2.2,
+      3,
       10.45
      ]
     },
@@ -6530,13 +7842,19 @@
      180,
      -30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90
+     ]
+    },
     "mirror": 8,
     "white": 0.65
    },
    "2": {
     "rotation": 0.93,
     "translation": 0.93,
-    "lights": 8,
+    "lights": 2,
     "rotationAxes": [
      2,
      0
@@ -6552,14 +7870,22 @@
      -45,
      45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      45,
+      30
+     ]
+    },
     "translationAxes": [
      1
     ],
-    "translationRange": 4.2,
+    "translationRange": 4.55,
     "translationValues": {
      "1": [
-      -1.75,
-      1,
+      -2.15,
+      1.75,
       5
      ]
     },
@@ -6578,7 +7904,7 @@
     "rotationAxes": [
      2
     ],
-    "rotationRange": 150,
+    "rotationRange": 180,
     "rotationPoses": [
      90,
      0,
@@ -6608,9 +7934,9 @@
     ],
     "rotationRange": 180,
     "rotationPoses": [
-     0,
      150,
      135,
+     0,
      180,
      -90,
      165,
@@ -6631,17 +7957,17 @@
     "translationValues": {
      "1": [
       -3,
-      -0.9,
+      -1.25,
       0.5
      ],
      "2": [
       0,
       0.8,
-      8.2
+      9.8
      ],
      "0": [
       -3.5,
-      -0.8,
+      -1.25,
       1.3
      ]
     },
@@ -6668,18 +7994,26 @@
      -45,
      -90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      60,
+      -90
+     ]
+    },
     "mirror": 1,
     "white": 0.66
    },
    "9": {
     "rotation": 0.93,
     "translation": 0.93,
-    "lights": 8,
+    "lights": 2,
     "rotationAxes": [
      2,
      0
     ],
-    "rotationRange": 135,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      180,
@@ -6688,14 +8022,22 @@
      30,
      90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      45,
+      30
+     ]
+    },
     "translationAxes": [
      1
     ],
-    "translationRange": 3,
+    "translationRange": 3.15,
     "translationValues": {
      "1": [
       0,
-      0.5,
+      0.7,
       2.6
      ]
     },
@@ -6742,18 +8084,19 @@
     "rotationAxes": [
      2
     ],
-    "rotationRange": 165,
+    "rotationRange": 180,
     "rotationPoses": [
      0,
      150,
-     135
+     135,
+     180
     ],
     "mirror": 6,
     "white": 0.27
    },
    "14": {
     "translation": 1.0,
-    "lights": 8,
+    "lights": 5,
     "translationAxes": [
      0,
      1,
@@ -6763,18 +8106,18 @@
     "translationValues": {
      "0": [
       -5,
-      -0.05,
+      -0.45,
       5
      ],
      "1": [
-      -2.05,
-      0,
+      -2.25,
+      -0.45,
       0.8
      ],
      "2": [
-      -0.55,
-      2.5,
-      11.9
+      -2,
+      3,
+      12
      ]
     },
     "mirror": 21
@@ -6799,13 +8142,22 @@
      -90,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      180,
+      60,
+      -90
+     ]
+    },
     "mirror": 22,
     "white": 0.45
    },
    "16": {
     "rotation": 0.93,
     "translation": 0.93,
-    "lights": 8,
+    "lights": 5,
     "rotationAxes": [
      2,
      0
@@ -6821,14 +8173,19 @@
      45,
      -45
     ],
+    "axisPoses": {
+     "0": [
+      0
+     ]
+    },
     "translationAxes": [
      1
     ],
-    "translationRange": 2.5,
+    "translationRange": 2.7,
     "translationValues": {
      "1": [
       -1.5,
-      1,
+      1.25,
       2.5
      ]
     },
@@ -6884,28 +8241,28 @@
    },
    "21": {
     "translation": 1.0,
-    "lights": 8,
+    "lights": 5,
     "translationAxes": [
      0,
      2,
      1
     ],
-    "translationRange": 7,
+    "translationRange": 8.3,
     "translationValues": {
      "0": [
       -4,
-      -0.5,
-      1.25
+      -0.95,
+      1.3
      ],
      "2": [
-      -5,
-      1.25,
+      -5.6,
+      2,
       20
      ],
      "1": [
-      -2.05,
+      -2.25,
       0,
-      1.3
+      1.4
      ]
     },
     "mirror": 14
@@ -6919,21 +8276,32 @@
      2,
      0
     ],
-    "rotationRange": 135,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      15,
      -15,
      180,
-     -135
+     -135,
+     30,
+     90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      60,
+      180,
+      -90
+     ]
+    },
     "mirror": 15,
     "white": 0.49
    },
    "23": {
     "rotation": 0.93,
     "translation": 0.93,
-    "lights": 8,
+    "lights": 5,
     "rotationAxes": [
      2,
      0
@@ -6943,16 +8311,25 @@
      0,
      180,
      45,
-     30
+     30,
+     135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      60,
+      120
+     ]
+    },
     "translationAxes": [
      1
     ],
     "translationRange": 3,
     "translationValues": {
      "1": [
-      -1.25,
-      0,
+      -1.5,
+      0.9,
       4
      ]
     },
@@ -7016,7 +8393,7 @@
     "rotationAxes": [
      1
     ],
-    "rotationRange": 105,
+    "rotationRange": 120,
     "rotationPoses": [
      -30,
      30,
@@ -7024,7 +8401,8 @@
      15,
      -15,
      60,
-     -60
+     -60,
+     -90
     ],
     "translationAxes": [
      0,
@@ -7038,7 +8416,7 @@
       0.8
      ],
      "2": [
-      -5.5,
+      -6,
       -3,
       0
      ]
@@ -7053,17 +8431,17 @@
    "30": {
     "color": 0.93,
     "translation": 0.86,
-    "lights": 1,
+    "lights": 0,
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 1.5,
+    "translationRange": 1.8,
     "translationValues": {
      "1": [
-      -0.2,
-      0.05,
+      -0.25,
+      0.1,
       1
      ],
      "0": [
@@ -7156,8 +8534,21 @@
      90,
      120,
      -75,
-     -60
+     -60,
+     -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      30,
+      45,
+      180,
+      60,
+      -150,
+      -30
+     ]
+    },
     "mirror": 4,
     "white": 0.52
    },
@@ -7169,7 +8560,7 @@
      2,
      0
     ],
-    "rotationRange": 90.0,
+    "rotationRange": 90,
     "rotationPoses": [
      0,
      75,
@@ -7181,6 +8572,18 @@
      45,
      105
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30,
+      -60,
+      30,
+      -45,
+      -90,
+      60,
+      90
+     ]
+    },
     "mirror": 5,
     "white": 0.15
    },
@@ -7201,8 +8604,21 @@
      90,
      120,
      -75,
-     -60
+     -60,
+     -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      30,
+      45,
+      180,
+      60,
+      -150,
+      -30
+     ]
+    },
     "mirror": 2,
     "white": 0.52
    },
@@ -7214,7 +8630,7 @@
      2,
      0
     ],
-    "rotationRange": 90.0,
+    "rotationRange": 90,
     "rotationPoses": [
      0,
      -30,
@@ -7226,6 +8642,18 @@
      45,
      105
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30,
+      -60,
+      30,
+      -45,
+      -90,
+      60,
+      90
+     ]
+    },
     "mirror": 3,
     "white": 0.19
    },
@@ -7237,7 +8665,7 @@
      0,
      2
     ],
-    "rotationRange": 105,
+    "rotationRange": 120.0,
     "rotationPoses": [
      0,
      30,
@@ -7248,13 +8676,25 @@
      120,
      -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      30,
+      -15,
+      45,
+      180,
+      60,
+      -150
+     ]
+    },
     "mirror": 8,
     "white": 0.54
    },
    "7": {
     "color": 0.93,
     "rotation": 0.93,
-    "lights": 12,
+    "lights": 3,
     "rotationAxes": [
      2,
      0
@@ -7270,6 +8710,17 @@
      60,
      45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30,
+      -60,
+      30,
+      -90,
+      60,
+      90
+     ]
+    },
     "white": 0.14
    },
    "8": {
@@ -7280,7 +8731,7 @@
      0,
      2
     ],
-    "rotationRange": 100.0,
+    "rotationRange": 120,
     "rotationPoses": [
      0,
      30,
@@ -7291,13 +8742,25 @@
      120,
      -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      30,
+      45,
+      180,
+      60,
+      -15,
+      -150
+     ]
+    },
     "mirror": 6,
     "white": 0.54
    },
    "9": {
     "color": 0.93,
     "rotation": 0.93,
-    "lights": 12,
+    "lights": 2,
     "rotationAxes": [
      2,
      0
@@ -7313,6 +8776,17 @@
      60,
      45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30,
+      -60,
+      30,
+      -90,
+      60,
+      90
+     ]
+    },
     "white": 0.17
    },
    "10": {
@@ -7343,13 +8817,13 @@
     "color": 0.93,
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      0,
      2,
      1
     ],
-    "rotationRange": 150.0,
+    "rotationRange": 155,
     "rotationPoses": [
      0,
      -75,
@@ -7357,6 +8831,24 @@
      180,
      90
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      75,
+      -75,
+      -90,
+      -60,
+      120,
+      90
+     ],
+     "1": [
+      0,
+      90,
+      -90,
+      30,
+      15
+     ]
+    },
     "translationAxes": [
      2,
      0,
@@ -7366,16 +8858,16 @@
     "translationValues": {
      "2": [
       0,
-      4.3,
-      11.8
+      5,
+      12.5
      ],
      "0": [
-      -1.85,
+      -1.95,
       0,
       0
      ],
      "1": [
-      -0.9,
+      -1,
       0,
       1
      ]
@@ -7386,40 +8878,58 @@
     "color": 1.0,
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      1,
      0,
      2
     ],
-    "rotationRange": 150,
+    "rotationRange": 150.0,
     "rotationPoses": [
      0,
      90,
      60,
      -90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      -75,
+      75,
+      90
+     ],
+     "2": [
+      0,
+      -75,
+      75,
+      -90,
+      120,
+      90,
+      -60
+     ]
+    },
     "translationAxes": [
      0,
      2,
      1
     ],
-    "translationRange": 8.62,
+    "translationRange": 9.2,
     "translationValues": {
      "0": [
       -1.72,
       0,
-      0.2
+      0.5
      ],
      "2": [
       0,
-      4,
-      11.05
+      4.5,
+      11.5
      ],
      "1": [
       -0.9,
       0,
-      0.8
+      0.9
      ]
     },
     "white": 0.28
@@ -7428,7 +8938,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      2,
      1,
@@ -7441,6 +8951,24 @@
      180,
      75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      90,
+      60,
+      -90,
+      180,
+      150
+     ],
+     "0": [
+      0,
+      90,
+      120,
+      15,
+      180,
+      -90
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -7451,17 +8979,17 @@
      "0": [
       -1.72,
       0,
-      0.3
+      0.5
      ],
      "2": [
       0,
-      5.95,
+      7.5,
       11.7
      ],
      "1": [
       -0.9,
       0,
-      1.3
+      1.4
      ]
     },
     "white": 0.29
@@ -7470,7 +8998,7 @@
     "color": 0.79,
     "rotation": 0.86,
     "translation": 0.86,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      2,
      0,
@@ -7487,6 +9015,26 @@
      -90,
      165
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      15,
+      180,
+      -90,
+      120,
+      -120
+     ],
+     "1": [
+      0,
+      180,
+      90,
+      -90,
+      15,
+      135,
+      60
+     ]
+    },
     "translationAxes": [
      2,
      0,
@@ -7496,13 +9044,13 @@
     "translationValues": {
      "2": [
       0,
-      5.5,
-      11.7
+      7.5,
+      11.8
      ],
      "0": [
       -1.5,
       0,
-      1.3
+      1.5
      ],
      "1": [
       -0.9,
@@ -7515,7 +9063,7 @@
    "18": {
     "color": 0.93,
     "translation": 0.86,
-    "lights": 32,
+    "lights": 2,
     "translationAxes": [
      0,
      1
@@ -7523,26 +9071,26 @@
     "translationRange": 2.4,
     "translationValues": {
      "0": [
-      -1.4,
+      -1.8,
       0,
-      1.1
+      1.4
      ],
      "1": [
-      -1.2,
-      0,
-      0
+      -1.5,
+      -0.5,
+      0.1
      ]
     },
     "white": 0.34
    },
    "19": {
     "color": 0.64,
-    "lights": 17,
+    "lights": 0,
     "white": 0.24
    },
    "20": {
     "color": 0.64,
-    "lights": 17,
+    "lights": 0,
     "white": 0.34
    },
    "23": {
@@ -7550,7 +9098,7 @@
     "rotation": 0.64,
     "translation": 0.93,
     "fx": 0.79,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      1,
      0,
@@ -7564,6 +9112,21 @@
      30,
      -75
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      30,
+      -30
+     ],
+     "2": [
+      0,
+      -15,
+      15,
+      -30,
+      30
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -7572,19 +9135,19 @@
     "translationRange": 43.25,
     "translationValues": {
      "0": [
-      -3.45,
+      -4.75,
       0.5,
-      2.9
+      3.05
      ],
      "1": [
-      -3.4,
+      -3.45,
       0,
       1.2
      ],
      "2": [
       -30,
       0,
-      5.1
+      5.5
      ]
     },
     "white": 0.24
@@ -7594,13 +9157,13 @@
     "rotation": 0.64,
     "translation": 0.93,
     "fx": 0.79,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      1,
      0,
      2
     ],
-    "rotationRange": 150.0,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      -30,
@@ -7610,6 +9173,22 @@
      15,
      -75
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      15,
+      -30,
+      30
+     ],
+     "2": [
+      0,
+      -30,
+      15,
+      30,
+      -15
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -7618,7 +9197,7 @@
     "translationRange": 30,
     "translationValues": {
      "0": [
-      -3.2,
+      -3.4,
       0.5,
       2.4
      ],
@@ -7630,7 +9209,7 @@
      "2": [
       -30,
       0,
-      8.25
+      9.15
      ]
     },
     "white": 0.34
@@ -7638,7 +9217,7 @@
    "25": {
     "color": 0.93,
     "translation": 0.86,
-    "lights": 16,
+    "lights": 2,
     "translationAxes": [
      0,
      1
@@ -7647,13 +9226,13 @@
     "translationValues": {
      "0": [
       0,
-      3,
-      6.95
+      4.5,
+      7.7
      ],
      "1": [
       -0.95,
-      0,
-      4
+      -0.1,
+      4.6
      ]
     },
     "mirror": 26,
@@ -7662,7 +9241,7 @@
    "26": {
     "color": 0.93,
     "translation": 0.86,
-    "lights": 16,
+    "lights": 2,
     "translationAxes": [
      0,
      1
@@ -7671,13 +9250,13 @@
     "translationValues": {
      "0": [
       0,
-      3,
-      6.95
+      4.5,
+      8.4
      ],
      "1": [
       -0.95,
       0,
-      4.1
+      4.6
      ]
     },
     "mirror": 25,
@@ -7717,18 +9296,18 @@
    },
    "33": {
     "color": 0.79,
-    "lights": 4,
+    "lights": 0,
     "mirror": 35,
     "white": 0.25
    },
    "34": {
     "color": 0.64,
-    "lights": 4,
+    "lights": 0,
     "white": 0.24
    },
    "35": {
     "color": 0.71,
-    "lights": 4,
+    "lights": 0,
     "mirror": 33,
     "white": 0.26
    },
@@ -7746,13 +9325,13 @@
    },
    "38": {
     "color": 0.71,
-    "lights": 4,
+    "lights": 0,
     "mirror": 39,
     "white": 0.3
    },
    "39": {
     "color": 0.71,
-    "lights": 4,
+    "lights": 0,
     "mirror": 38,
     "white": 0.31
    },
@@ -7763,18 +9342,18 @@
    },
    "41": {
     "color": 0.64,
-    "lights": 4,
+    "lights": 0,
     "white": 0.3
    },
    "42": {
     "color": 0.64,
-    "lights": 4,
+    "lights": 0,
     "mirror": 43,
     "white": 0.32
    },
    "43": {
     "color": 0.64,
-    "lights": 4,
+    "lights": 0,
     "mirror": 42,
     "white": 0.32
    },
@@ -7785,13 +9364,25 @@
      1,
      2
     ],
-    "rotationRange": 145.0,
+    "rotationRange": 150.0,
     "rotationPoses": [
      0,
      45,
      -90,
-     180
+     180,
+     -105
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -75,
+      -30,
+      -45,
+      -60,
+      90,
+      -105
+     ]
+    },
     "mirror": 45
    },
    "45": {
@@ -7801,35 +9392,56 @@
      2,
      1
     ],
-    "rotationRange": 135,
+    "rotationRange": 145.0,
     "rotationPoses": [
      0,
      -30,
      -90,
      -75,
      90,
-     -45
+     -45,
+     180
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      -90,
+      -105,
+      -150
+     ]
+    },
     "mirror": 44
    },
    "46": {
     "rotation": 0.86,
-    "lights": 4,
+    "lights": 2,
     "rotationAxes": [
      2,
      1
     ],
-    "rotationRange": 145,
+    "rotationRange": 150.0,
     "rotationPoses": [
      0,
      90,
      180,
-     -90
-    ]
+     -90,
+     -150
+    ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      -105,
+      15,
+      -90,
+      30
+     ]
+    }
    },
    "47": {
     "rotation": 0.79,
-    "lights": 4,
+    "lights": 2,
     "rotationAxes": [
      1,
      2
@@ -7838,8 +9450,18 @@
     "rotationPoses": [
      0,
      45,
-     -105
-    ]
+     -105,
+     30
+    ],
+    "axisPoses": {
+     "2": [
+      0,
+      180,
+      -30,
+      60,
+      -90
+     ]
+    }
    }
   }
  },
@@ -7863,11 +9485,11 @@
     "translationValues": {
      "1": [
       -0.1,
-      0.1,
+      0.29,
       1
      ],
      "0": [
-      -0.62,
+      -0.7,
       0.97,
       1.25
      ]
@@ -7887,11 +9509,11 @@
     "translationValues": {
      "1": [
       -0.1,
-      0.1,
+      0.29,
       1
      ],
      "0": [
-      -0.62,
+      -0.7,
       0.97,
       1.25
      ]
@@ -7909,7 +9531,7 @@
      2,
      0
     ],
-    "rotationRange": 105,
+    "rotationRange": 109,
     "rotationPoses": [
      0,
      90,
@@ -7919,26 +9541,38 @@
      180,
      -105
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -45,
+      -90,
+      90
+     ],
+     "0": [
+      90,
+      0
+     ]
+    },
     "translationAxes": [
      2,
      0,
      1
     ],
-    "translationRange": 3,
+    "translationRange": 3.88,
     "translationValues": {
      "2": [
       -0.35,
-      0,
-      4.53
+      0.1,
+      5
      ],
      "0": [
-      -0.25,
-      0,
-      0.65
+      -0.29,
+      0.1,
+      0.75
      ],
      "1": [
-      -0.9,
-      -0.1,
+      -1.2,
+      -0.15,
       0.5
      ]
     },
@@ -7964,26 +9598,41 @@
      -45,
      180
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -45,
+      -90,
+      90,
+      60
+     ],
+     "0": [
+      90,
+      0,
+      120,
+      30
+     ]
+    },
     "translationAxes": [
      2,
      0,
      1
     ],
-    "translationRange": 3,
+    "translationRange": 3.95,
     "translationValues": {
      "2": [
       -0.35,
       0,
-      4.5
+      5
      ],
      "0": [
-      -0.29,
+      -0.4,
       0,
-      0.35
+      0.41
      ],
      "1": [
-      -0.7,
-      -0.1,
+      -0.9,
+      -0.2,
       0.5
      ]
     },
@@ -8002,30 +9651,37 @@
     "rotationRange": 90,
     "rotationPoses": [
      -90,
-     0,
      90,
+     0,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -60
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 8,
+    "translationRange": 10,
     "translationValues": {
      "0": [
-      -9.9,
-      -0.25,
-      10
+      -10,
+      -0.35,
+      11
      ],
      "1": [
       -0.47,
-      0,
+      -0.3,
       0.45
      ],
      "2": [
       -0.5,
-      0.1,
+      0.4,
       1.25
      ]
     },
@@ -8033,7 +9689,7 @@
    },
    "7": {
     "color": 0.93,
-    "lights": 25,
+    "lights": 2,
     "mirror": 9,
     "white": 0.12
    },
@@ -8049,31 +9705,38 @@
     "rotationRange": 90,
     "rotationPoses": [
      -90,
-     0,
      90,
+     0,
      180,
      -105
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      45,
+      -90
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 9.9,
+    "translationRange": 10,
     "translationValues": {
      "0": [
-      -9.9,
-      -0.25,
-      10.5
+      -10,
+      -0.35,
+      11
      ],
      "1": [
       -0.47,
       -0.35,
-      0.1
+      0.35
      ],
      "2": [
       -1.5,
-      -0.3,
+      -0.4,
       0.5
      ]
     },
@@ -8081,7 +9744,7 @@
    },
    "9": {
     "color": 0.93,
-    "lights": 8,
+    "lights": 2,
     "mirror": 7,
     "white": 0.12
    },
@@ -8089,7 +9752,7 @@
     "rotation": 0.64,
     "translation": 0.86,
     "fx": 0.64,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      1,
      2
@@ -8100,53 +9763,13 @@
      -90,
      90
     ],
-    "translationAxes": [
-     2,
-     0,
-     1
-    ],
-    "translationRange": 5.35,
-    "translationValues": {
+    "axisPoses": {
      "2": [
-      -3.38,
       0,
-      8.3
-     ],
-     "0": [
-      -0.65,
-      0,
-      0.04
-     ],
-     "1": [
-      -0.47,
-      -0.09,
-      0.1
+      -45,
+      -15
      ]
     },
-    "mirror": 12,
-    "white": 0.0
-   },
-   "11": {
-    "color": 0.93,
-    "lights": 12,
-    "mirror": 13,
-    "white": 0.24
-   },
-   "12": {
-    "rotation": 0.64,
-    "translation": 0.86,
-    "fx": 0.57,
-    "lights": 1,
-    "rotationAxes": [
-     1,
-     2
-    ],
-    "rotationRange": 90,
-    "rotationPoses": [
-     0,
-     -90,
-     90
-    ],
     "translationAxes": [
      2,
      0,
@@ -8160,14 +9783,67 @@
       8.3
      ],
      "0": [
-      -0.5,
-      0,
+      -0.65,
+      -0.1,
       0.1
      ],
      "1": [
       -0.47,
-      -0.09,
+      -0.3,
       0.1
+     ]
+    },
+    "mirror": 12,
+    "white": 0.0
+   },
+   "11": {
+    "color": 0.93,
+    "lights": 0,
+    "mirror": 13,
+    "white": 0.24
+   },
+   "12": {
+    "rotation": 0.64,
+    "translation": 0.86,
+    "fx": 0.57,
+    "lights": 0,
+    "rotationAxes": [
+     1,
+     2
+    ],
+    "rotationRange": 90,
+    "rotationPoses": [
+     0,
+     -90,
+     90
+    ],
+    "axisPoses": {
+     "2": [
+      0,
+      -45
+     ]
+    },
+    "translationAxes": [
+     2,
+     0,
+     1
+    ],
+    "translationRange": 8.3,
+    "translationValues": {
+     "2": [
+      -3.38,
+      0,
+      8.3
+     ],
+     "0": [
+      -0.6,
+      -0.1,
+      0.15
+     ],
+     "1": [
+      -0.47,
+      -0.2,
+      0.2
      ]
     },
     "mirror": 10,
@@ -8175,7 +9851,7 @@
    },
    "13": {
     "color": 0.93,
-    "lights": 12,
+    "lights": 0,
     "mirror": 11,
     "white": 0.24
    },
@@ -8185,12 +9861,12 @@
     "translationAxes": [
      1
     ],
-    "translationRange": 10,
+    "translationRange": 20,
     "translationValues": {
      "1": [
-      -5.4,
-      0,
-      1.35
+      -9.7,
+      -0.25,
+      6.25
      ]
     },
     "white": 0.0
@@ -8205,24 +9881,24 @@
     "translationValues": {
      "1": [
       -3.5,
-      0,
-      3
+      -0.48,
+      3.65
      ]
     },
     "white": 0.0
    },
    "16": {
     "translation": 0.86,
-    "lights": 2,
+    "lights": 0,
     "translationAxes": [
      1
     ],
     "translationRange": 10,
     "translationValues": {
      "1": [
-      -1.25,
-      0,
-      5.5
+      -2,
+      0.05,
+      10
      ]
     },
     "white": 0.0
@@ -8240,16 +9916,16 @@
     "translationValues": {
      "0": [
       -1.0,
-      -0.15,
+      -0.2,
       0
      ],
      "1": [
       -0.6,
-      0,
-      0
+      -0.2,
+      0.15
      ],
      "2": [
-      -3.5,
+      -4.83,
       0,
       0
      ]
@@ -8270,16 +9946,16 @@
     "translationValues": {
      "0": [
       -1.0,
-      -0.15,
+      -0.2,
       0
      ],
      "1": [
       -0.6,
-      0,
-      0
+      -0.1,
+      0.15
      ],
      "2": [
-      -3.5,
+      -4.83,
       0,
       0
      ]
@@ -8289,7 +9965,7 @@
    },
    "19": {
     "color": 1.0,
-    "lights": 0,
+    "lights": 2,
     "mirror": 40,
     "white": 0.48
    },
@@ -8302,7 +9978,7 @@
      2,
      0
     ],
-    "rotationRange": 120,
+    "rotationRange": 153,
     "rotationPoses": [
      0,
      90,
@@ -8310,16 +9986,26 @@
      -90,
      -30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      45,
+      -75,
+      -135,
+      180,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 1.15,
+    "translationRange": 1.3,
     "translationValues": {
      "1": [
-      -0.45,
-      -0.2,
+      -0.5,
+      -0.3,
       0
      ],
      "2": [
@@ -8330,7 +10016,7 @@
      "0": [
       -0.2,
       0,
-      0.45
+      0.7
      ]
     },
     "white": 0.41
@@ -8338,7 +10024,7 @@
    "21": {
     "rotation": 0.71,
     "translation": 0.86,
-    "lights": 12,
+    "lights": 0,
     "rotationAxes": [
      0
     ],
@@ -8356,7 +10042,7 @@
     "translationRange": 1,
     "translationValues": {
      "2": [
-      -0.3,
+      -0.45,
       0,
       0
      ]
@@ -8366,7 +10052,7 @@
     "color": 0.86,
     "rotation": 0.86,
     "translation": 0.93,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      0,
      2,
@@ -8380,6 +10066,20 @@
      -165,
      75
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -45,
+      90,
+      180,
+      -120
+     ],
+     "1": [
+      0,
+      -165,
+      105
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -8388,9 +10088,9 @@
     "translationRange": 1.25,
     "translationValues": {
      "1": [
-      -0.5,
+      -0.6,
       0,
-      0.35
+      0.4
      ],
      "0": [
       -0.01,
@@ -8415,23 +10115,34 @@
      0,
      2
     ],
-    "rotationRange": 120,
+    "rotationRange": 164,
     "rotationPoses": [
      0,
      -90,
      180,
-     -60
+     -60,
+     45,
+     -120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -30,
+      -60,
+      -15,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 2,
+    "translationRange": 2.12,
     "translationValues": {
      "1": [
-      -0.45,
-      -0.15,
+      -0.5,
+      -0.23,
       0.05
      ],
      "2": [
@@ -8442,7 +10153,7 @@
      "0": [
       -0.2,
       0,
-      0.25
+      0.9
      ]
     },
     "mirror": 29,
@@ -8451,7 +10162,7 @@
    "24": {
     "rotation": 0.71,
     "translation": 0.86,
-    "lights": 12,
+    "lights": 3,
     "rotationAxes": [
      0
     ],
@@ -8468,7 +10179,7 @@
     "translationRange": 2.5,
     "translationValues": {
      "2": [
-      -0.3,
+      -0.45,
       0,
       0
      ]
@@ -8480,7 +10191,7 @@
     "color": 0.86,
     "rotation": 0.86,
     "translation": 0.93,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      0,
      2,
@@ -8493,14 +10204,33 @@
      -165,
      75,
      60,
-     135
+     135,
+     -45
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      90,
+      -45,
+      180,
+      -60,
+      -120,
+      -105
+     ],
+     "1": [
+      0,
+      -165,
+      105,
+      -75,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 3.4,
+    "translationRange": 5,
     "translationValues": {
      "1": [
       -0.6,
@@ -8529,34 +10259,43 @@
      0,
      2
     ],
-    "rotationRange": 120,
+    "rotationRange": 153,
     "rotationPoses": [
      0,
      75,
      45,
-     180
+     180,
+     90
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -30,
+      -60,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 1.26,
+    "translationRange": 1.35,
     "translationValues": {
      "1": [
-      -0.45,
-      -0.15,
+      -0.5,
+      -0.3,
       0.05
      ],
      "2": [
       -0.1,
       0,
-      2.13
+      2.15
      ],
      "0": [
       -0.2,
       0,
-      0.1
+      0.2
      ]
     },
     "white": 0.44
@@ -8564,16 +10303,17 @@
    "27": {
     "rotation": 0.71,
     "translation": 0.86,
-    "lights": 12,
+    "lights": 3,
     "rotationAxes": [
      0
     ],
-    "rotationRange": 60,
+    "rotationRange": 90,
     "rotationPoses": [
      0,
      30,
      -30,
-     90
+     90,
+     -90
     ],
     "translationAxes": [
      2
@@ -8592,7 +10332,7 @@
     "color": 0.86,
     "rotation": 0.86,
     "translation": 0.93,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      0,
      2,
@@ -8603,8 +10343,25 @@
      0,
      -90,
      -165,
-     75
+     75,
+     135
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -45,
+      90,
+      180,
+      -120,
+      -165
+     ],
+     "1": [
+      0,
+      -165,
+      105,
+      -75
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -8613,7 +10370,7 @@
     "translationRange": 1.25,
     "translationValues": {
      "1": [
-      -0.4,
+      -0.45,
       0,
       0.3
      ],
@@ -8640,23 +10397,32 @@
      2,
      0
     ],
-    "rotationRange": 120,
+    "rotationRange": 153,
     "rotationPoses": [
      0,
      -60,
      -30,
      -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      180,
+      45,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 0.9,
+    "translationRange": 1.5,
     "translationValues": {
      "1": [
-      -0.45,
-      -0.2,
+      -0.5,
+      -0.3,
       0
      ],
      "2": [
@@ -8667,7 +10433,7 @@
      "0": [
       -0.2,
       0,
-      0.25
+      0.45
      ]
     },
     "mirror": 23,
@@ -8676,11 +10442,11 @@
    "30": {
     "rotation": 0.71,
     "translation": 0.86,
-    "lights": 12,
+    "lights": 3,
     "rotationAxes": [
      0
     ],
-    "rotationRange": 45,
+    "rotationRange": 90,
     "rotationPoses": [
      0,
      -30,
@@ -8692,9 +10458,9 @@
     "translationRange": 1.85,
     "translationValues": {
      "2": [
-      -0.3,
+      -0.4,
       0,
-      0
+      0.15
      ]
     },
     "mirror": 24,
@@ -8704,7 +10470,7 @@
     "color": 0.86,
     "rotation": 0.93,
     "translation": 0.93,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      0,
      2,
@@ -8714,19 +10480,34 @@
     "rotationPoses": [
      0,
      180,
-     -90
+     -90,
+     75
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      90,
+      -45,
+      180,
+      120
+     ],
+     "1": [
+      0,
+      -165,
+      105
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 1.34,
+    "translationRange": 2.14,
     "translationValues": {
      "1": [
-      -0.5,
-      -0.05,
-      0.35
+      -0.6,
+      -0.1,
+      0.4
      ],
      "0": [
       -0.01,
@@ -8756,7 +10537,7 @@
    "34": {
     "color": 0.93,
     "translation": 0.71,
-    "lights": 1,
+    "lights": 6,
     "translationAxes": [
      1,
      2,
@@ -8775,9 +10556,9 @@
       0
      ],
      "0": [
-      -3.2,
+      -3.35,
       0,
-      2.75
+      2.95
      ]
     },
     "mirror": 35,
@@ -8794,8 +10575,8 @@
     "translationValues": {
      "0": [
       -0.35,
-      0,
-      0.5
+      0.05,
+      0.6
      ]
     },
     "mirror": 34,
@@ -8803,13 +10584,13 @@
    },
    "36": {
     "color": 0.93,
-    "lights": 16,
+    "lights": 0,
     "mirror": 37,
     "white": 0.49
    },
    "37": {
     "color": 0.93,
-    "lights": 16,
+    "lights": 0,
     "mirror": 36,
     "white": 0.47
    },
@@ -8873,6 +10654,21 @@
      180,
      -90
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      90,
+      -45
+     ],
+     "0": [
+      0,
+      90,
+      180,
+      -90,
+      -45,
+      15
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -8901,7 +10697,7 @@
    "1": {
     "rotation": 1.0,
     "translation": 0.93,
-    "lights": 17,
+    "lights": 12,
     "rotationAxes": [
      2,
      0,
@@ -8912,6 +10708,14 @@
      0,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      2,
      1,
@@ -8921,16 +10725,16 @@
     "translationValues": {
      "2": [
       -3.5,
-      0,
+      1,
       13.1
      ],
      "1": [
-      -5,
+      -15,
       0,
       2
      ],
      "0": [
-      -1.75,
+      -2.8,
       0,
       1.6
      ]
@@ -8954,6 +10758,20 @@
      -45,
      45
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -15,
+      15,
+      30,
+      -30,
+      -90
+     ],
+     "1": [
+      0,
+      -15
+     ]
+    },
     "translationAxes": [
      2,
      0,
@@ -8983,7 +10801,7 @@
     "color": 0.93,
     "rotation": 0.86,
     "translation": 0.86,
-    "lights": 40,
+    "lights": 24,
     "rotationAxes": [
      0,
      2,
@@ -8998,6 +10816,19 @@
      30,
      60
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -45,
+      30,
+      45,
+      -30,
+      -90
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -9027,7 +10858,7 @@
     "color": 0.93,
     "rotation": 0.86,
     "translation": 0.93,
-    "lights": 40,
+    "lights": 32,
     "rotationAxes": [
      2,
      0,
@@ -9041,6 +10872,18 @@
      -15,
      15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      30,
+      -60
+     ],
+     "1": [
+      0,
+      -120
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -9059,7 +10902,7 @@
       1
      ],
      "1": [
-      -1.65,
+      -9.75,
       0,
       5.5
      ]
@@ -9071,20 +10914,33 @@
     "color": 0.86,
     "rotation": 0.79,
     "translation": 0.86,
-    "lights": 40,
+    "lights": 32,
     "rotationAxes": [
      0,
      2,
      1
     ],
-    "rotationRange": 174,
+    "rotationRange": 179,
     "rotationPoses": [
      0,
      -90,
      -15,
      180,
-     15
+     15,
+     -105
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      180,
+      60,
+      -165
+     ],
+     "1": [
+      0,
+      -15
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9105,7 +10961,7 @@
      "2": [
       0,
       0,
-      1
+      1.5
      ]
     },
     "mirror": 4,
@@ -9127,6 +10983,23 @@
      90,
      -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      90,
+      -15,
+      -90
+     ],
+     "1": [
+      0,
+      180,
+      135,
+      60,
+      165,
+      30,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -9135,13 +11008,13 @@
     "translationRange": 5,
     "translationValues": {
      "1": [
-      -1,
+      -1.3,
       0.8,
       3.5
      ],
      "0": [
       -3,
-      -1.6,
+      -1.85,
       2
      ],
      "2": [
@@ -9163,27 +11036,39 @@
      1,
      0
     ],
-    "rotationRange": 90.0,
+    "rotationRange": 90,
     "rotationPoses": [
      0,
      -90,
      90,
      45
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      90,
+      -90,
+      135
+     ],
+     "0": [
+      0,
+      90
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 3.55,
+    "translationRange": 3.75,
     "translationValues": {
      "2": [
       -0.5,
       0,
-      3.9
+      4.3
      ],
      "1": [
-      -5,
+      -7.0,
       0,
       0.8
      ],
@@ -9216,17 +11101,29 @@
      -60,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90
+     ],
+     "1": [
+      0,
+      90,
+      -90,
+      135
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 2.05,
+    "translationRange": 2.4,
     "translationValues": {
      "2": [
-      -0.15,
+      -0.5,
       0,
-      1.1
+      1.3
      ],
      "1": [
       -3,
@@ -9251,7 +11148,7 @@
      0,
      1
     ],
-    "rotationRange": 130,
+    "rotationRange": 135,
     "rotationPoses": [
      0,
      -90,
@@ -9262,6 +11159,19 @@
      -15,
      90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      -60,
+      -90,
+      180
+     ],
+     "1": [
+      0,
+      -60
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -9270,18 +11180,18 @@
     "translationRange": 18.7,
     "translationValues": {
      "1": [
-      -4.45,
-      0,
-      0.35
+      -10,
+      -0.1,
+      0.5
      ],
      "0": [
-      -1,
-      0,
-      4.3
+      -1.3,
+      0.9,
+      4.5
      ],
      "2": [
-      -3.5,
-      0.7,
+      -6,
+      0.8,
       8
      ]
     },
@@ -9304,8 +11214,25 @@
      -120,
      -75,
      90,
-     -105
+     -105,
+     -45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      180,
+      -60,
+      75
+     ],
+     "1": [
+      0,
+      -60,
+      -135,
+      150,
+      -90
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -9314,19 +11241,19 @@
     "translationRange": 17,
     "translationValues": {
      "1": [
-      -4.15,
-      0,
+      -9.3,
+      -0.3,
       0.35
      ],
      "0": [
       -1,
-      0.9,
-      4.5
+      1,
+      4.9
      ],
      "2": [
       -8.1,
-      0.45,
-      8
+      1.6,
+      9
      ]
     },
     "mirror": 9,
@@ -9350,6 +11277,18 @@
      15,
      60
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      15,
+      45
+     ],
+     "1": [
+      0,
+      15
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -9358,9 +11297,9 @@
     "translationRange": 0.75,
     "translationValues": {
      "0": [
-      -0.75,
+      -0.8,
       0,
-      0.35
+      0.5
      ],
      "2": [
       0,
@@ -9386,7 +11325,7 @@
      0,
      1
     ],
-    "rotationRange": 53,
+    "rotationRange": 60,
     "rotationPoses": [
      0,
      45,
@@ -9394,6 +11333,15 @@
      15,
      60
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      45
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -9402,9 +11350,9 @@
     "translationRange": 0.6,
     "translationValues": {
      "0": [
-      -0.75,
+      -0.8,
       0,
-      0.35
+      0.5
      ],
      "2": [
       0,
@@ -9436,8 +11384,29 @@
      -15,
      -45,
      30,
-     90
+     90,
+     -30,
+     15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -15,
+      15,
+      -30,
+      -45,
+      30,
+      135,
+      -60
+     ],
+     "1": [
+      0,
+      30,
+      60,
+      45
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9474,12 +11443,23 @@
      0,
      1
     ],
-    "rotationRange": 75,
+    "rotationRange": 80,
     "rotationPoses": [
      0,
      -45,
      45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      15,
+      -30
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9510,7 +11490,7 @@
     "color": 0.86,
     "rotation": 0.79,
     "translation": 0.79,
-    "lights": 10,
+    "lights": 9,
     "rotationAxes": [
      2,
      0,
@@ -9522,8 +11502,26 @@
      -45,
      -15,
      30,
-     -60
+     -60,
+     75
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      60,
+      -15,
+      -30,
+      75,
+      105,
+      -60
+     ],
+     "1": [
+      0,
+      -135,
+      -120,
+      135
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9554,7 +11552,7 @@
     "color": 0.79,
     "rotation": 0.79,
     "translation": 0.79,
-    "lights": 10,
+    "lights": 9,
     "rotationAxes": [
      2,
      0,
@@ -9566,6 +11564,16 @@
      30,
      75
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      -30
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9574,12 +11582,12 @@
     "translationRange": 0.1,
     "translationValues": {
      "0": [
-      -0.25,
+      -0.5,
       0,
       0
      ],
      "1": [
-      0,
+      -0.05,
       0,
       0
      ],
@@ -9609,8 +11617,27 @@
      -15,
      90,
      165,
-     180
+     180,
+     -60
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -105,
+      30,
+      60,
+      90,
+      150,
+      -45
+     ],
+     "1": [
+      0,
+      15,
+      45,
+      135,
+      -15
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9653,6 +11680,18 @@
      -15,
      -90
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      30,
+      75,
+      60
+     ],
+     "1": [
+      0,
+      -15
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9705,32 +11744,42 @@
     ],
     "rotationRange": 90,
     "rotationPoses": [
-     0,
      45,
      -45,
+     0,
      180,
      -30
     ],
+    "axisPoses": {
+     "2": [
+      90,
+      0
+     ],
+     "0": [
+      90,
+      0
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 4.0,
+    "translationRange": 4,
     "translationValues": {
      "1": [
-      -2.6,
-      -0.9,
-      0.65
+      -3.2,
+      -1.1,
+      1.15
      ],
      "2": [
       -0.7,
       1.5,
-      4.0
+      5
      ],
      "0": [
       -2.75,
-      2.15,
+      2.5,
       3.95
      ]
     },
@@ -9747,7 +11796,7 @@
      2,
      0
     ],
-    "rotationRange": 90,
+    "rotationRange": 120,
     "rotationPoses": [
      0,
      180,
@@ -9755,22 +11804,36 @@
      30,
      -120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -15,
+      -90,
+      90
+     ],
+     "0": [
+      0,
+      90,
+      -30,
+      30
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 8.0,
+    "translationRange": 9.2,
     "translationValues": {
      "1": [
-      -8.75,
-      -0.9,
+      -10.05,
+      -1.3,
       3.0
      ],
      "2": [
-      -1.7,
-      0,
-      8.2
+      -2.8,
+      0.8,
+      9.15
      ],
      "0": [
       -2.75,
@@ -9786,7 +11849,7 @@
     "rotation": 0.86,
     "translation": 0.93,
     "fx": 0.86,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      2,
      1,
@@ -9798,8 +11861,25 @@
      -15,
      15,
      180,
-     45
+     45,
+     -45,
+     30,
+     -30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      120,
+      60
+     ],
+     "0": [
+      0,
+      180,
+      -15,
+      -165
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -9818,7 +11898,7 @@
       0.5
      ],
      "2": [
-      -2.55,
+      -2.75,
       0,
       0
      ]
@@ -9883,11 +11963,24 @@
      0,
      2
     ],
-    "rotationRange": 60,
+    "rotationRange": 65,
     "rotationPoses": [
      0,
      -30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30,
+      30,
+      -45,
+      60
+     ],
+     "2": [
+      0,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -9896,12 +11989,12 @@
     "translationRange": 2,
     "translationValues": {
      "1": [
-      -0.78,
+      -1,
       0,
       0.6
      ],
      "2": [
-      0,
+      -0.2,
       0,
       0.07
      ],
@@ -9922,15 +12015,28 @@
      2,
      0
     ],
-    "rotationRange": 70,
+    "rotationRange": 75,
     "rotationPoses": [
      0,
      15,
      -165,
      -30,
      105,
-     -90
+     -90,
+     45,
+     -135
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      -15
+     ],
+     "0": [
+      0,
+      15
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -9944,9 +12050,9 @@
       0
      ],
      "1": [
-      -2,
+      -2.5,
       0,
-      0.25
+      0.3
      ],
      "2": [
       -0.5,
@@ -9966,27 +12072,41 @@
      0,
      2
     ],
-    "rotationRange": 65,
+    "rotationRange": 75,
     "rotationPoses": [
      0,
      -30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30,
+      30,
+      -45,
+      60
+     ],
+     "2": [
+      0,
+      -30,
+      30
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 2.35,
+    "translationRange": 2.5,
     "translationValues": {
      "1": [
       -1,
       0,
-      0.1
+      0.2
      ],
      "2": [
+      -0.2,
       0,
-      0,
-      0.07
+      0.15
      ],
      "0": [
       -0.1,
@@ -10010,22 +12130,35 @@
      0,
      15,
      75,
-     -165
+     -165,
+     -15,
+     -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -15,
+      15
+     ],
+     "0": [
+      0,
+      15
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 5,
+    "translationRange": 6,
     "translationValues": {
      "0": [
       -3.05,
-      0,
+      -0.13,
       0
      ],
      "1": [
-      -2.5,
+      -3,
       0,
       0.3
      ],
@@ -10042,13 +12175,13 @@
     "rotation": 0.93,
     "translation": 1.0,
     "fx": 0.86,
-    "lights": 2,
+    "lights": 1,
     "rotationAxes": [
      0,
      1,
      2
     ],
-    "rotationRange": 90,
+    "rotationRange": 120,
     "rotationPoses": [
      0,
      -15,
@@ -10056,27 +12189,41 @@
      30,
      -30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      180,
+      45
+     ],
+     "2": [
+      0,
+      15,
+      -15,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 20,
+    "translationRange": 22.25,
     "translationValues": {
      "1": [
       -0.7,
       0,
-      0.4
+      0.5
      ],
      "0": [
-      -4,
+      -7.5,
       0,
-      2
+      2.6
      ],
      "2": [
-      -4.5,
+      -9.35,
       0,
-      0.35
+      1.05
      ]
     },
     "white": 0.3
@@ -10084,7 +12231,7 @@
    "6": {
     "rotation": 0.93,
     "translation": 0.86,
-    "lights": 18,
+    "lights": 13,
     "rotationAxes": [
      2,
      1,
@@ -10098,6 +12245,21 @@
      -30,
      -150
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      45,
+      180,
+      -45,
+      -90,
+      60,
+      135
+     ],
+     "0": [
+      0,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -10107,12 +12269,12 @@
     "translationValues": {
      "1": [
       -50,
-      -7.5,
+      -8,
       6
      ],
      "2": [
       -50,
-      -7.9,
+      -9,
       0
      ],
      "0": [
@@ -10143,12 +12305,23 @@
      75,
      30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      30,
+      60,
+      90
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 11,
+    "translationRange": 11.35,
     "translationValues": {
      "1": [
       -60,
@@ -10163,7 +12336,7 @@
      "2": [
       0,
       0,
-      0.5
+      1.2
      ]
     },
     "mirror": 9,
@@ -10184,6 +12357,19 @@
      180,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      45,
+      60,
+      -90
+     ],
+     "0": [
+      0,
+      180
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -10193,17 +12379,17 @@
     "translationValues": {
      "1": [
       -50,
-      -10,
+      -10.3,
       10
      ],
      "0": [
       -15,
       0,
-      2.2
+      3.5
      ],
      "2": [
       -42.4,
-      -4,
+      -8,
       0
      ]
     }
@@ -10223,14 +12409,32 @@
     "rotationPoses": [
      0,
      120,
-     -120
+     -120,
+     -150,
+     -105,
+     -30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      165,
+      30
+     ],
+     "1": [
+      0,
+      -15,
+      15,
+      45,
+      30
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 40,
+    "translationRange": 48.35,
     "translationValues": {
      "0": [
       -50,
@@ -10240,12 +12444,12 @@
      "1": [
       -30,
       0,
-      1.35
+      2
      ],
      "2": [
-      -0.5,
+      -3,
       0,
-      2.5
+      3
      ]
     },
     "mirror": 7,
@@ -10256,7 +12460,7 @@
     "rotation": 0.93,
     "translation": 0.93,
     "fx": 0.71,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      0,
      1,
@@ -10265,8 +12469,26 @@
     "rotationRange": 165,
     "rotationPoses": [
      0,
-     -60
+     -60,
+     180,
+     30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      180,
+      30,
+      -45
+     ],
+     "2": [
+      0,
+      15,
+      -30,
+      30,
+      -15
+     ]
+    },
     "translationAxes": [
      2,
      0,
@@ -10275,19 +12497,19 @@
     "translationRange": 2,
     "translationValues": {
      "2": [
-      -2.25,
-      0,
-      0.35
+      -2.3,
+      -0.4,
+      0.55
      ],
      "0": [
       -0.6,
       0,
-      0.5
+      0.6
      ],
      "1": [
-      -0.3,
-      0,
-      0.2
+      -0.35,
+      -0.05,
+      0.25
      ]
     },
     "white": 0.34
@@ -10311,12 +12533,25 @@
      75,
      60
     ],
+    "axisPoses": {
+     "2": [
+      -15,
+      15,
+      0,
+      -45,
+      45,
+      30
+     ],
+     "1": [
+      0
+     ]
+    },
     "white": 0.23
    },
    "12": {
     "color": 1.0,
     "fx": 0.86,
-    "lights": 2,
+    "lights": 0,
     "white": 0.66
    },
    "13": {
@@ -10337,8 +12572,27 @@
     "rotationRange": 90,
     "rotationPoses": [
      0,
-     -90
+     -90,
+     15,
+     180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      90
+     ],
+     "2": [
+      0,
+      15,
+      30,
+      -15,
+      -30,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -10347,9 +12601,9 @@
     "translationRange": 50,
     "translationValues": {
      "1": [
-      -10,
+      -20,
       0,
-      0.8
+      0.9
      ],
      "0": [
       -50,
@@ -10359,7 +12613,7 @@
      "2": [
       -50,
       0,
-      8.8
+      9
      ]
     },
     "white": 0.3
@@ -10375,15 +12629,36 @@
      1,
      2
     ],
-    "rotationRange": 135,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      90,
      -30,
      15,
      120,
-     75
+     75,
+     45
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -90,
+      180,
+      15,
+      -75,
+      105,
+      -15,
+      90
+     ],
+     "2": [
+      0,
+      30,
+      60,
+      45,
+      -15,
+      -150
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -10394,16 +12669,16 @@
      "0": [
       -50,
       0,
-      3
+      3.3
      ],
      "1": [
       -50,
-      0,
-      0.6
+      -0.6,
+      1
      ],
      "2": [
       -50,
-      1.4,
+      2.8,
       17.9
      ]
     },
@@ -10446,7 +12721,7 @@
     "translationValues": {
      "2": [
       0,
-      0,
+      0.05,
       0.3
      ]
     },
@@ -10476,7 +12751,7 @@
     "translationValues": {
      "2": [
       0,
-      0,
+      0.05,
       0.3
      ]
     },
@@ -10520,7 +12795,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "fx": 0.79,
-    "lights": 2,
+    "lights": 0,
     "rotationAxes": [
      0,
      1,
@@ -10534,27 +12809,43 @@
      15,
      30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      15,
+      -30,
+      30
+     ],
+     "2": [
+      0,
+      15,
+      -15,
+      30,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 6.8,
+    "translationRange": 7.45,
     "translationValues": {
      "1": [
       -0.8,
-      0,
-      1.5
+      0.1,
+      1.75
      ],
      "0": [
-      -1.5,
+      -2,
       0,
-      1.6
+      2.1
      ],
      "2": [
-      -5.4,
+      -7.2,
       0,
-      4
+      5.25
      ]
     },
     "white": 0.1
@@ -10567,7 +12858,8 @@
     "lights": 32,
     "rotationAxes": [
      2,
-     1
+     1,
+     0
     ],
     "rotationRange": 90,
     "rotationPoses": [
@@ -10575,6 +12867,15 @@
      90,
      -15
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "0": [
+      0,
+      30
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -10589,8 +12890,8 @@
      ],
      "0": [
       -3.5,
-      -0.3,
-      2.3
+      -0.35,
+      2.35
      ],
      "2": [
       0,
@@ -10616,27 +12917,37 @@
      0,
      90
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -90,
+      15
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 12,
+    "translationRange": 13,
     "translationValues": {
      "1": [
       -5,
-      0,
-      1.95
+      0.3,
+      2.25
      ],
      "0": [
-      -2.8,
-      0,
-      4.2
+      -3,
+      0.2,
+      4.85
      ],
      "2": [
       -1.5,
-      2,
-      10.1
+      2.6,
+      11.1
      ]
     },
     "mirror": 4
@@ -10649,7 +12960,8 @@
     "lights": 32,
     "rotationAxes": [
      2,
-     1
+     1,
+     0
     ],
     "rotationRange": 90,
     "rotationPoses": [
@@ -10657,6 +12969,15 @@
      -90,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "0": [
+      0,
+      30
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -10667,11 +12988,11 @@
      "1": [
       -1.9,
       -0.3,
-      0.97
+      1.02
      ],
      "0": [
-      -4.3,
-      -0.48,
+      -4.55,
+      -0.5,
       2.1
      ],
      "2": [
@@ -10699,27 +13020,37 @@
      90,
      30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -90,
+      30
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 14.05,
+    "translationRange": 15,
     "translationValues": {
      "1": [
-      -5,
-      0.2,
-      2
+      -9.45,
+      0.3,
+      2.35
      ],
      "0": [
-      -2.6,
-      0,
-      2.85
+      -2.85,
+      0.05,
+      3
      ],
      "2": [
       -1.5,
-      2,
-      10.7
+      2.5,
+      12
      ]
     },
     "mirror": 2
@@ -10736,31 +13067,56 @@
     ],
     "rotationRange": 90,
     "rotationPoses": [
-     0,
      -90,
+     0,
      90,
      15
     ],
+    "axisPoses": {
+     "2": [
+      90,
+      0,
+      30,
+      -60,
+      15,
+      -90,
+      -45,
+      -30
+     ],
+     "1": [
+      90,
+      -135,
+      0,
+      15,
+      30,
+      -30,
+      60,
+      45,
+      -165,
+      -60,
+      180
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 8,
+    "translationRange": 9.7,
     "translationValues": {
      "1": [
-      -20,
-      0,
-      1.3
+      -50,
+      -0.05,
+      1.45
      ],
      "0": [
       -3.55,
-      0,
-      2.5
+      0.8,
+      3.25
      ],
      "2": [
       -2.5,
-      0.3,
+      2,
       7.5
      ]
     },
@@ -10784,31 +13140,56 @@
     ],
     "rotationRange": 90,
     "rotationPoses": [
-     0,
      -90,
+     0,
      90,
      15
     ],
+    "axisPoses": {
+     "2": [
+      90,
+      0,
+      30,
+      -60,
+      15,
+      -45,
+      -30,
+      -90
+     ],
+     "1": [
+      90,
+      -135,
+      15,
+      0,
+      30,
+      -30,
+      60,
+      45,
+      -165,
+      -60,
+      180
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 8.1,
+    "translationRange": 9.7,
     "translationValues": {
      "1": [
-      -20,
-      0,
-      1.3
+      -50,
+      -0.05,
+      1.45
      ],
      "0": [
       -3.55,
-      0,
-      2.5
+      0.8,
+      3.25
      ],
      "2": [
       -2.5,
-      0.3,
+      2,
       7.5
      ]
     },
@@ -10836,17 +13217,30 @@
      90,
      -90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      180,
+      -90
+     ],
+     "1": [
+      0,
+      180,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 7.25,
+    "translationRange": 8,
     "translationValues": {
      "0": [
       -0.8,
       0,
-      0.7
+      0.75
      ],
      "1": [
       -1.15,
@@ -10864,7 +13258,7 @@
     "color": 1.0,
     "rotation": 1.0,
     "translation": 0.93,
-    "lights": 20,
+    "lights": 4,
     "rotationAxes": [
      1,
      0
@@ -10875,8 +13269,21 @@
      -60,
      30,
      180,
-     90
+     90,
+     -90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      90,
+      180,
+      -45,
+      150,
+      45,
+      30
+     ]
+    },
     "translationAxes": [
      2
     ],
@@ -10884,27 +13291,27 @@
     "translationValues": {
      "2": [
       -3.75,
-      0,
-      2
+      0.85,
+      2.15
      ]
     },
     "white": 0.17
    },
    "11": {
     "color": 1.0,
-    "lights": 3,
+    "lights": 0,
     "mirror": 12,
     "white": 0.2
    },
    "12": {
     "color": 1.0,
-    "lights": 3,
+    "lights": 0,
     "mirror": 11,
     "white": 0.2
    },
    "13": {
     "color": 1.0,
-    "lights": 2,
+    "lights": 0,
     "white": 0.37
    },
    "14": {
@@ -10917,13 +13324,30 @@
      2,
      1
     ],
-    "rotationRange": 150,
+    "rotationRange": 165,
     "rotationPoses": [
      0,
      -30,
      -90,
      -105
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      60,
+      90,
+      30,
+      -75,
+      180
+     ],
+     "1": [
+      0,
+      180,
+      -150,
+      -30,
+      -120
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -10932,12 +13356,12 @@
     "translationRange": 7.65,
     "translationValues": {
      "0": [
-      -5.4,
-      -0.05,
+      -6.3,
+      -0.2,
       0.45
      ],
      "1": [
-      -3.05,
+      -19.6,
       0,
       5
      ],
@@ -10965,8 +13389,25 @@
      0,
      -30,
      -90,
-     180
+     180,
+     -105
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      -150,
+      105,
+      -30,
+      -120
+     ],
+     "2": [
+      0,
+      60,
+      30,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -10975,18 +13416,18 @@
     "translationRange": 7.65,
     "translationValues": {
      "0": [
-      -5.4,
-      -0.1,
-      0.44
+      -6.3,
+      -0.27,
+      0.45
      ],
      "1": [
-      -3.05,
+      -19.6,
       0,
       5
      ],
      "2": [
       -20.95,
-      -0.65,
+      -1.15,
       19.7
      ]
     },
@@ -11026,28 +13467,48 @@
      -30,
      30,
      -150,
-     15
+     15,
+     -75,
+     45,
+     135
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -150,
+      60,
+      180,
+      45,
+      30
+     ],
+     "0": [
+      0,
+      -30,
+      90,
+      -90,
+      -45
+     ]
+    },
     "translationAxes": [
      2,
      0,
      1
     ],
-    "translationRange": 12.35,
+    "translationRange": 13.45,
     "translationValues": {
      "2": [
       -20.95,
-      0.72,
-      20.3
+      1.6,
+      25.3
      ],
      "0": [
-      -2.25,
+      -3.6,
       0,
-      0.65
+      0.8
      ],
      "1": [
-      -0.05,
-      0.4,
+      -0.25,
+      0.45,
       0.75
      ]
     },
@@ -11072,29 +13533,48 @@
      30,
      15,
      -150,
-     -75
+     -75,
+     45,
+     -105,
+     135
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      60,
+      -150,
+      45,
+      30
+     ],
+     "0": [
+      0,
+      -30,
+      90,
+      -90
+     ]
+    },
     "translationAxes": [
      2,
      0,
      1
     ],
-    "translationRange": 12.5,
+    "translationRange": 13.45,
     "translationValues": {
      "2": [
       -20,
-      0.72,
-      25.3
+      1.6,
+      50
      ],
      "0": [
-      -2.65,
+      -3.6,
       0,
-      0.65
+      0.8
      ],
      "1": [
       0,
-      0.4,
-      0.75
+      0.46,
+      0.9
      ]
     },
     "mirror": 19,
@@ -11102,7 +13582,7 @@
    },
    "21": {
     "color": 1.0,
-    "lights": 32,
+    "lights": 31,
     "mirror": 24,
     "white": 0.65
    },
@@ -11110,16 +13590,26 @@
     "rotation": 1.0,
     "translation": 1.0,
     "fx": 0.57,
-    "lights": 26,
+    "lights": 16,
     "rotationAxes": [
      2,
      0,
      1
     ],
-    "rotationRange": 60,
+    "rotationRange": 75,
     "rotationPoses": [
-     0
+     0,
+     90
     ],
+    "axisPoses": {
+     "0": [
+      0
+     ],
+     "1": [
+      0,
+      -90
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -11128,19 +13618,19 @@
     "translationRange": 1.7,
     "translationValues": {
      "1": [
-      -1.25,
-      0.2,
+      -1.3,
+      0.3,
       1.2
      ],
      "0": [
       -0.2,
-      0.4,
+      0.5,
       1.3
      ],
      "2": [
       0,
       0,
-      0.15
+      0.3
      ]
     },
     "mirror": 25
@@ -11148,7 +13638,7 @@
    "23": {
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 16,
+    "lights": 3,
     "rotationAxes": [
      2,
      0,
@@ -11161,16 +13651,31 @@
      15,
      120
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -30
+     ],
+     "1": [
+      0,
+      -90,
+      -75,
+      -30,
+      180,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      2,
      1
     ],
-    "translationRange": 10,
+    "translationRange": 10.85,
     "translationValues": {
      "0": [
-      -1.4,
-      0.7,
+      -1.5,
+      0.8,
       1.3
      ],
      "2": [
@@ -11179,16 +13684,16 @@
       6
      ],
      "1": [
-      -10.85,
-      0,
-      1.7
+      -16.15,
+      0.4,
+      1.8
      ]
     },
     "mirror": 26
    },
    "24": {
     "color": 1.0,
-    "lights": 32,
+    "lights": 31,
     "mirror": 21,
     "white": 0.46
    },
@@ -11206,6 +13711,19 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      75,
+      30
+     ],
+     "1": [
+      0,
+      -90,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -11214,9 +13732,9 @@
     "translationRange": 2,
     "translationValues": {
      "1": [
-      -0.52,
+      -1.5,
       0,
-      1.2
+      1.25
      ],
      "2": [
       0,
@@ -11234,6 +13752,71 @@
    "26": {
     "rotation": 1.0,
     "translation": 1.0,
+    "lights": 3,
+    "rotationAxes": [
+     2,
+     0,
+     1
+    ],
+    "rotationRange": 105,
+    "rotationPoses": [
+     0,
+     -90,
+     15,
+     120,
+     -120,
+     180
+    ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -30
+     ],
+     "1": [
+      0,
+      -90,
+      -75,
+      -30,
+      180,
+      90
+     ]
+    },
+    "translationAxes": [
+     0,
+     2,
+     1
+    ],
+    "translationRange": 7.05,
+    "translationValues": {
+     "0": [
+      -1,
+      0.8,
+      1.3
+     ],
+     "2": [
+      -5,
+      0.4,
+      15
+     ],
+     "1": [
+      -16.15,
+      0.4,
+      1.7
+     ]
+    },
+    "mirror": 23
+   },
+   "27": {
+    "color": 1.0,
+    "lights": 31,
+    "mirror": 30,
+    "white": 0.48
+   },
+   "28": {
+    "rotation": 1.0,
+    "translation": 1.0,
+    "fx": 0.57,
     "lights": 16,
     "rotationAxes": [
      2,
@@ -11243,57 +13826,16 @@
     "rotationRange": 90,
     "rotationPoses": [
      0,
-     -90,
-     15,
-     120,
-     -120
-    ],
-    "translationAxes": [
-     0,
-     2,
-     1
-    ],
-    "translationRange": 6,
-    "translationValues": {
-     "0": [
-      -0.8,
-      0.8,
-      1.3
-     ],
-     "2": [
-      -2.95,
-      0,
-      15
-     ],
-     "1": [
-      -10.85,
-      0.1,
-      1.65
-     ]
-    },
-    "mirror": 23
-   },
-   "27": {
-    "color": 1.0,
-    "lights": 32,
-    "mirror": 30,
-    "white": 0.48
-   },
-   "28": {
-    "rotation": 1.0,
-    "translation": 1.0,
-    "fx": 0.57,
-    "lights": 26,
-    "rotationAxes": [
-     2,
-     0,
-     1
-    ],
-    "rotationRange": 75,
-    "rotationPoses": [
-     0,
      90
     ],
+    "axisPoses": {
+     "0": [
+      0
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -11322,7 +13864,7 @@
    "29": {
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 16,
+    "lights": 2,
     "rotationAxes": [
      2,
      0,
@@ -11334,36 +13876,52 @@
      -90,
      15,
      120,
-     -120
+     -120,
+     180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -30
+     ],
+     "1": [
+      0,
+      -90,
+      -75,
+      -30,
+      180,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      2,
      1
     ],
-    "translationRange": 6,
+    "translationRange": 7.5,
     "translationValues": {
      "0": [
-      -1.7,
+      -1.95,
       0.8,
       1.3
      ],
      "2": [
-      -2,
-      0.15,
+      -8.1,
+      0.65,
       15
      ],
      "1": [
-      -13,
-      0,
-      0.5
+      -20,
+      -0.45,
+      0.6
      ]
     },
     "mirror": 32
    },
    "30": {
     "color": 1.0,
-    "lights": 32,
+    "lights": 31,
     "mirror": 27,
     "white": 0.49
    },
@@ -11377,11 +13935,19 @@
      0,
      1
     ],
-    "rotationRange": 60,
+    "rotationRange": 75,
     "rotationPoses": [
      0,
      90
     ],
+    "axisPoses": {
+     "0": [
+      0
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -11410,7 +13976,7 @@
    "32": {
     "rotation": 1.0,
     "translation": 1.0,
-    "lights": 16,
+    "lights": 2,
     "rotationAxes": [
      2,
      0,
@@ -11424,27 +13990,42 @@
      -120,
      120
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -30
+     ],
+     "1": [
+      0,
+      -90,
+      -75,
+      -30,
+      90,
+      180
+     ]
+    },
     "translationAxes": [
      0,
      2,
      1
     ],
-    "translationRange": 6,
+    "translationRange": 6.25,
     "translationValues": {
      "0": [
-      -1.5,
+      -1.55,
       0.8,
       0.85
      ],
      "2": [
-      -1.8,
-      0.15,
+      -12.5,
+      0.65,
       15
      ],
      "1": [
-      -10.35,
-      0,
-      0.6
+      -16.15,
+      -0.45,
+      0.85
      ]
     },
     "mirror": 29
@@ -11478,7 +14059,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "fx": 0.79,
-    "lights": 1,
+    "lights": 0,
     "rotationAxes": [
      2,
      1,
@@ -11492,26 +14073,42 @@
      -15,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180,
+      -30,
+      45,
+      -135
+     ],
+     "0": [
+      0,
+      180,
+      -15,
+      15,
+      45
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 6.35,
+    "translationRange": 6.85,
     "translationValues": {
      "0": [
-      -1,
+      -1.1,
       0,
-      0.85
+      1
      ],
      "1": [
       -0.45,
       0,
-      0.5
+      0.6
      ],
      "2": [
-      -6.2,
-      0,
+      -7.2,
+      -0.5,
       0
      ]
     },
@@ -11530,19 +14127,34 @@
     "rotationPoses": [
      0,
      15,
-     -15
+     -15,
+     60
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      15,
+      180,
+      -15
+     ],
+     "0": [
+      0,
+      -15,
+      90,
+      15
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 8.5,
+    "translationRange": 8.75,
     "translationValues": {
      "1": [
-      -6,
-      0,
-      0.65
+      -8.75,
+      -1.75,
+      1.1
      ],
      "0": [
       -2.1,
@@ -11567,26 +14179,41 @@
      1,
      0
     ],
-    "rotationRange": 45,
+    "rotationRange": 60,
     "rotationPoses": [
      0,
      15,
-     -15
+     -15,
+     60
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      15,
+      180,
+      -15
+     ],
+     "0": [
+      0,
+      -15,
+      15,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 8.5,
+    "translationRange": 8.75,
     "translationValues": {
      "1": [
-      -6,
-      0,
-      0.65
+      -8.75,
+      -1.75,
+      1.1
      ],
      "0": [
-      -2.1,
+      -2.5,
       0,
       1.8
      ],
@@ -11609,32 +14236,48 @@
      1,
      2
     ],
-    "rotationRange": 33,
+    "rotationRange": 45,
     "rotationPoses": [
      0,
      -15,
-     -30
+     -30,
+     15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      15,
+      -15,
+      -30,
+      60
+     ],
+     "2": [
+      0,
+      -15,
+      15,
+      -30
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 3.5,
+    "translationRange": 3.7,
     "translationValues": {
      "2": [
-      -1.2,
+      -1.4,
       0,
-      2.05
+      2.5
      ],
      "1": [
-      -3.7,
+      -5,
       0,
       0.15
      ],
      "0": [
-      -1.6,
-      0,
+      -2.6,
+      -0.05,
       0
      ]
     },
@@ -11652,32 +14295,48 @@
      1,
      2
     ],
-    "rotationRange": 33,
+    "rotationRange": 45,
     "rotationPoses": [
      0,
      -15,
-     -30
+     -30,
+     15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      15,
+      -15,
+      -30,
+      60
+     ],
+     "2": [
+      0,
+      -15,
+      15,
+      -30
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 3.5,
+    "translationRange": 3.7,
     "translationValues": {
      "2": [
-      -1.2,
+      -1.4,
       0,
-      2.05
+      2.5
      ],
      "1": [
-      -3.7,
+      -5,
       0,
       0.15
      ],
      "0": [
-      -1.6,
-      0,
+      -2.6,
+      -0.05,
       0
      ]
     },
@@ -11689,7 +14348,7 @@
     "rotation": 0.79,
     "translation": 1.0,
     "fx": 0.71,
-    "lights": 7,
+    "lights": 0,
     "rotationAxes": [
      0,
      1,
@@ -11702,20 +14361,29 @@
      -75,
      -60
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 5,
+    "translationRange": 5.8,
     "translationValues": {
      "1": [
       -10,
       0,
-      0
+      0.05
      ],
      "2": [
-      -0.35,
+      -0.6,
       0,
       4
      ],
@@ -11744,7 +14412,7 @@
      0,
      1
     ],
-    "rotationRange": 105,
+    "rotationRange": 110,
     "rotationPoses": [
      0,
      -30,
@@ -11756,12 +14424,25 @@
      -75,
      45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -45
+     ],
+     "1": [
+      0,
+      -75,
+      90,
+      -90,
+      15
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 30,
+    "translationRange": 30.95,
     "translationValues": {
      "1": [
       -28.05,
@@ -11776,7 +14457,7 @@
      "2": [
       -37.2,
       0,
-      3
+      5
      ]
     },
     "mirror": 8,
@@ -11805,22 +14486,36 @@
      -75,
      45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -45
+     ],
+     "1": [
+      0,
+      -75,
+      90,
+      -90,
+      15,
+      180
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 30.95,
+    "translationRange": 34.05,
     "translationValues": {
      "1": [
       -29,
-      -19,
+      -19.6,
       0
      ],
      "0": [
       -6.6,
       0,
-      1.61
+      3
      ],
      "2": [
       -37.2,
@@ -11852,12 +14547,25 @@
      -75,
      -120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      75,
+      -90,
+      90
+     ],
+     "0": [
+      0,
+      90,
+      -90
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 15.1,
+    "translationRange": 17,
     "translationValues": {
      "1": [
       -28.15,
@@ -11866,7 +14574,7 @@
      ],
      "0": [
       -6,
-      0,
+      0.1,
       1.9
      ],
      "2": [
@@ -11899,12 +14607,25 @@
      -75,
      -120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      75,
+      -90,
+      90
+     ],
+     "0": [
+      0,
+      90,
+      -90
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 16.4,
+    "translationRange": 17,
     "translationValues": {
      "1": [
       -28.15,
@@ -11913,7 +14634,7 @@
      ],
      "0": [
       -6,
-      0,
+      0.6,
       1.9
      ],
      "2": [
@@ -11945,6 +14666,19 @@
      30,
      -45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      15,
+      -90,
+      -15,
+      45
+     ],
+     "2": [
+      0,
+      75
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -11954,18 +14688,18 @@
     "translationValues": {
      "1": [
       -20,
-      -4.5,
+      -5.5,
       2.55
      ],
      "0": [
-      -5.6,
+      -5.95,
       0,
       4
      ],
      "2": [
       -19,
       0,
-      7.55
+      9.15
      ]
     },
     "white": 0.2
@@ -11975,7 +14709,7 @@
     "rotation": 0.71,
     "translation": 0.71,
     "fx": 0.71,
-    "lights": 6,
+    "lights": 0,
     "rotationAxes": [
      0,
      1
@@ -11984,6 +14718,11 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -12015,7 +14754,7 @@
     "rotation": 0.71,
     "translation": 0.71,
     "fx": 0.71,
-    "lights": 6,
+    "lights": 0,
     "rotationAxes": [
      0,
      1
@@ -12024,12 +14763,17 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 4.55,
+    "translationRange": 6.3,
     "translationValues": {
      "1": [
       0,
@@ -12052,13 +14796,13 @@
    },
    "14": {
     "color": 0.86,
-    "lights": 6,
+    "lights": 4,
     "mirror": 15,
     "white": 0.25
    },
    "15": {
     "color": 0.86,
-    "lights": 6,
+    "lights": 4,
     "mirror": 14,
     "white": 0.25
    },
@@ -12102,16 +14846,16 @@
     "translationValues": {
      "0": [
       -1.55,
-      -0.05,
+      -0.1,
       0.75
      ],
      "1": [
-      0,
+      0.3,
       1.4,
-      3.5
+      3.9
      ],
      "2": [
-      0.55,
+      1.2,
       2.3,
       5.25
      ]
@@ -12131,7 +14875,7 @@
      "0": [
       -1,
       0,
-      0.5
+      0.55
      ],
      "1": [
       -0.25,
@@ -12141,7 +14885,7 @@
      "2": [
       0,
       0.8,
-      4.15
+      4.2
      ]
     }
    },
@@ -12156,12 +14900,25 @@
      2,
      1
     ],
-    "rotationRange": 60,
+    "rotationRange": 90,
     "rotationPoses": [
      0,
      60,
      120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -30,
+      15,
+      -90
+     ],
+     "1": [
+      0,
+      -30,
+      15
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -12170,19 +14927,19 @@
     "translationRange": 2.35,
     "translationValues": {
      "1": [
-      -1,
+      -2,
       0,
-      0.5
+      0.65
      ],
      "0": [
-      -1.3,
+      -1.75,
       0,
       0.2
      ],
      "2": [
-      -0.4,
+      -0.45,
       0,
-      0.5
+      0.75
      ]
     },
     "mirror": 23,
@@ -12199,33 +14956,46 @@
      2,
      1
     ],
-    "rotationRange": 60,
+    "rotationRange": 75,
     "rotationPoses": [
      0,
      60,
      120
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -30,
+      -90,
+      -15
+     ],
+     "1": [
+      0,
+      15,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 2.8,
+    "translationRange": 3,
     "translationValues": {
      "1": [
-      -1.05,
+      -2.15,
       0,
-      0.5
+      0.75
      ],
      "0": [
       -2.35,
       0,
-      0.25
+      0.3
      ],
      "2": [
-      -0.5,
+      -1,
       0,
-      1
+      1.1
      ]
     },
     "mirror": 22,
@@ -12242,7 +15012,7 @@
      0,
      1
     ],
-    "rotationRange": 100,
+    "rotationRange": 105,
     "rotationPoses": [
      0,
      -45,
@@ -12254,25 +15024,37 @@
      180,
      -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      45
+     ],
+     "1": [
+      -90,
+      90,
+      0
+     ]
+    },
     "translationAxes": [
      0,
      2,
      1
     ],
-    "translationRange": 4.4,
+    "translationRange": 5,
     "translationValues": {
      "0": [
       -1.65,
       -0.3,
-      0.15
+      0.25
      ],
      "2": [
       -0.5,
-      0.9,
-      8.3
+      1.55,
+      8.4
      ],
      "1": [
-      -0.6,
+      -0.65,
       0,
       2.3
      ]
@@ -12291,7 +15073,7 @@
      0,
      1
     ],
-    "rotationRange": 90,
+    "rotationRange": 105,
     "rotationPoses": [
      0,
      -60,
@@ -12302,25 +15084,37 @@
      180,
      -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      45
+     ],
+     "1": [
+      -90,
+      90,
+      0
+     ]
+    },
     "translationAxes": [
      2,
      0,
      1
     ],
-    "translationRange": 4,
+    "translationRange": 4.85,
     "translationValues": {
      "2": [
       -0.5,
-      1.05,
-      8.05
+      1.55,
+      8.4
      ],
      "0": [
       -1.65,
-      -0.3,
-      0.15
+      -0.35,
+      0.2
      ],
      "1": [
-      -0.6,
+      -0.65,
       0,
       2.3
      ]
@@ -12343,21 +15137,32 @@
      -30,
      30
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -15,
+      15
+     ],
+     "2": [
+      0,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 5,
+    "translationRange": 5.4,
     "translationValues": {
      "1": [
-      -6.9,
-      0,
+      -7.4,
+      -2.35,
       2.15
      ],
      "0": [
       -1.75,
-      -0.05,
+      -0.1,
       0.05
      ],
      "2": [
@@ -12399,27 +15204,46 @@
      -30,
      90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      90,
+      180,
+      -90,
+      75,
+      45,
+      -45
+     ],
+     "0": [
+      0,
+      90,
+      30,
+      180,
+      -90,
+      -165
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 5.5,
+    "translationRange": 5.7,
     "translationValues": {
      "0": [
       -2.5,
-      0.45,
-      2.3
+      0.5,
+      2.45
      ],
      "1": [
       -3,
-      -0.2,
-      1.25
+      -0.35,
+      1.4
      ],
      "2": [
       -1.5,
       3.05,
-      9
+      9.2
      ]
     },
     "mirror": 30,
@@ -12435,7 +15259,7 @@
      0,
      1
     ],
-    "rotationRange": 135,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      180,
@@ -12444,17 +15268,31 @@
      -30,
      90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      30,
+      180,
+      -90,
+      -165
+     ],
+     "1": [
+      0,
+      75
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 6,
+    "translationRange": 6.25,
     "translationValues": {
      "0": [
       -2.5,
       0.5,
-      2.1
+      2.15
      ],
      "1": [
       -3,
@@ -12463,7 +15301,7 @@
      ],
      "2": [
       -1.5,
-      3.05,
+      3.2,
       10
      ]
     },
@@ -12472,18 +15310,18 @@
    },
    "31": {
     "translation": 1.0,
-    "lights": 1,
+    "lights": 0,
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 5,
+    "translationRange": 7.7,
     "translationValues": {
      "1": [
       -10,
       0,
-      3.4
+      3.7
      ],
      "2": [
       -30,
@@ -12505,7 +15343,7 @@
    },
    "33": {
     "color": 0.71,
-    "lights": 16,
+    "lights": 4,
     "white": 0.24
    },
    "34": {
@@ -12523,7 +15361,7 @@
    "36": {
     "rotation": 0.79,
     "translation": 1.0,
-    "lights": 3,
+    "lights": 1,
     "rotationAxes": [
      0,
      1,
@@ -12535,17 +15373,27 @@
      90,
      30
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0,
+      15,
+      -15
+     ]
+    },
     "translationAxes": [
      2,
      0,
      1
     ],
-    "translationRange": 8.75,
+    "translationRange": 9.65,
     "translationValues": {
      "2": [
-      -5.1,
+      -5.7,
       0,
-      0
+      0.4
      ],
      "0": [
       -0.9,
@@ -12553,8 +15401,8 @@
       0
      ],
      "1": [
-      -10.1,
-      0,
+      -11.5,
+      -1.5,
       0.95
      ]
     },
@@ -12563,7 +15411,7 @@
    "37": {
     "rotation": 0.79,
     "translation": 1.0,
-    "lights": 3,
+    "lights": 1,
     "rotationAxes": [
      0,
      1,
@@ -12575,25 +15423,35 @@
      90,
      30
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0,
+      15,
+      -15
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 8.75,
+    "translationRange": 10,
     "translationValues": {
      "2": [
-      -5.1,
+      -5.7,
       0,
-      0
+      0.4
      ],
      "1": [
-      -10.1,
-      0,
+      -11.5,
+      -1.5,
       0.95
      ],
      "0": [
-      -0.9,
+      -1,
       0,
       0
      ]
@@ -12602,13 +15460,13 @@
    },
    "38": {
     "color": 1.0,
-    "lights": 4,
+    "lights": 1,
     "mirror": 39,
     "white": 0.2
    },
    "39": {
     "color": 1.0,
-    "lights": 4,
+    "lights": 1,
     "mirror": 38,
     "white": 0.21
    },
@@ -12624,8 +15482,23 @@
     "rotationRange": 90,
     "rotationPoses": [
      0,
-     90
+     90,
+     30,
+     -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      180
+     ],
+     "1": [
+      0,
+      15,
+      90,
+      -15
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -12635,16 +15508,16 @@
     "translationValues": {
      "1": [
       0,
-      0,
+      0.1,
       2.25
      ],
      "0": [
-      -1.1,
+      -1.2,
       0,
       0
      ],
      "2": [
-      -0.7,
+      -1.1,
       0,
       0.9
      ]
@@ -12668,6 +15541,19 @@
      30,
      -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      180
+     ],
+     "1": [
+      0,
+      15,
+      90,
+      -15
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -12677,7 +15563,7 @@
     "translationValues": {
      "1": [
       0,
-      0,
+      0.1,
       2.25
      ],
      "0": [
@@ -12686,7 +15572,7 @@
       0
      ],
      "2": [
-      -0.9,
+      -1.1,
       0,
       0
      ]
@@ -12728,8 +15614,30 @@
     ],
     "rotationRange": 75.0,
     "rotationPoses": [
-     0
+     0,
+     -45,
+     -75,
+     180
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      60,
+      45,
+      -45,
+      -60,
+      15
+     ],
+     "2": [
+      0,
+      15,
+      -15,
+      -45,
+      30,
+      45
+     ]
+    },
     "translationAxes": [
      2,
      0,
@@ -12739,7 +15647,7 @@
     "translationValues": {
      "2": [
       -1.5,
-      0,
+      -0.35,
       0
      ],
      "0": [
@@ -12777,17 +15685,32 @@
      150,
      -150
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -135,
+      180,
+      -60,
+      -75
+     ],
+     "1": [
+      0,
+      -165,
+      -45
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 3.1,
+    "translationRange": 4.5,
     "translationValues": {
      "1": [
       -0.8,
-      0,
-      2
+      0.2,
+      2.3
      ],
      "0": [
       -3.0,
@@ -12808,7 +15731,7 @@
     "rotation": 0.64,
     "translation": 0.93,
     "fx": 0.71,
-    "lights": 36,
+    "lights": 9,
     "rotationAxes": [
      2,
      0,
@@ -12820,17 +15743,30 @@
      -90,
      15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -60
+     ],
+     "1": [
+      0,
+      30,
+      -30,
+      90
+     ]
+    },
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 7.1,
+    "translationRange": 7.4,
     "translationValues": {
      "2": [
-      -1.2,
-      0.8,
-      7.1
+      -2.0,
+      1.85,
+      7.7
      ],
      "1": [
       -4.1,
@@ -12867,6 +15803,19 @@
      -60,
      135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      180,
+      -135
+     ],
+     "1": [
+      0,
+      -165,
+      -45
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -12875,7 +15824,7 @@
     "translationRange": 4.5,
     "translationValues": {
      "1": [
-      -1,
+      -1.4,
       0,
       2
      ],
@@ -12898,7 +15847,7 @@
     "rotation": 0.64,
     "translation": 0.79,
     "fx": 0.64,
-    "lights": 36,
+    "lights": 9,
     "rotationAxes": [
      2,
      0,
@@ -12906,26 +15855,42 @@
     ],
     "rotationRange": 90,
     "rotationPoses": [
-     0,
      -90,
-     15
+     0,
+     15,
+     -15
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      -60,
+      180
+     ],
+     "1": [
+      0,
+      30,
+      -30,
+      180,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 6.3,
+    "translationRange": 6.8,
     "translationValues": {
      "1": [
       -4.1,
       -1.5,
-      0
+      -0.1
      ],
      "2": [
       -2.0,
-      0.5,
-      7.4
+      1,
+      8.3
      ],
      "0": [
       -8.0,
@@ -12953,17 +15918,33 @@
      -90,
      180,
      90,
-     -120
+     -120,
+     -30,
+     -150,
+     75,
+     -165
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45,
+      90
+     ],
+     "0": [
+      0,
+      -90,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 3,
+    "translationRange": 3.2,
     "translationValues": {
      "0": [
-      -0.6,
+      -0.8,
       0,
       0.2
      ],
@@ -12985,7 +15966,7 @@
     "rotation": 0.64,
     "translation": 0.93,
     "fx": 0.64,
-    "lights": 36,
+    "lights": 8,
     "rotationAxes": [
      2,
      1,
@@ -12996,6 +15977,15 @@
      0,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "0": [
+      0,
+      -90
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13011,7 +16001,7 @@
      "1": [
       -1.05,
       -0.35,
-      2.1
+      2.4
      ],
      "2": [
       -1.6,
@@ -13027,7 +16017,7 @@
     "rotation": 0.43,
     "translation": 0.36,
     "fx": 1.0,
-    "lights": 36,
+    "lights": 8,
     "rotationAxes": [
      0,
      1,
@@ -13037,6 +16027,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13078,6 +16076,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13126,6 +16132,23 @@
      45,
      -105
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      90,
+      30,
+      -75
+     ],
+     "1": [
+      0,
+      165,
+      90,
+      15,
+      -120,
+      -30
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -13170,6 +16193,22 @@
      45,
      -45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -135,
+      -90,
+      90
+     ],
+     "1": [
+      0,
+      90,
+      15,
+      150,
+      -90,
+      -120
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -13207,7 +16246,7 @@
      0,
      1
     ],
-    "rotationRange": 135,
+    "rotationRange": 145,
     "rotationPoses": [
      0,
      15,
@@ -13219,6 +16258,18 @@
      45,
      -60
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      135
+     ],
+     "1": [
+      0,
+      60,
+      180
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -13263,6 +16314,22 @@
      150,
      -150
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -15,
+      60,
+      -45,
+      15,
+      -90,
+      -30,
+      30
+     ],
+     "1": [
+      0,
+      90
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13272,18 +16339,18 @@
     "translationValues": {
      "0": [
       -9.65,
-      0,
+      0.3,
       1.5
      ],
      "1": [
       -10,
-      -0.1,
+      -0.15,
       1.8
      ],
      "2": [
       -10,
-      0,
-      10.3
+      0.55,
+      12
      ]
     },
     "mirror": 15,
@@ -13300,12 +16367,30 @@
      2,
      1
     ],
-    "rotationRange": 150,
+    "rotationRange": 150.0,
     "rotationPoses": [
      0,
      180,
      135
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      15,
+      180,
+      30,
+      -120,
+      -165,
+      -135,
+      45,
+      -90
+     ],
+     "1": [
+      0,
+      60,
+      180
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -13316,16 +16401,16 @@
      "1": [
       -10,
       0,
-      1.8
+      2.0
      ],
      "0": [
       -10,
       0,
-      1.2
+      1.3
      ],
      "2": [
       -10,
-      0.95,
+      1.0,
       12
      ]
     },
@@ -13343,7 +16428,7 @@
      0,
      1
     ],
-    "rotationRange": 145,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      -15,
@@ -13355,6 +16440,18 @@
      -30,
      30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      150,
+      -150
+     ],
+     "1": [
+      0,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -13364,8 +16461,8 @@
     "translationValues": {
      "1": [
       -10,
-      -0.45,
-      1.8
+      -0.7,
+      2
      ],
      "0": [
       -10,
@@ -13374,7 +16471,7 @@
      ],
      "2": [
       -10,
-      0,
+      1.0,
       12
      ]
     },
@@ -13402,6 +16499,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13476,14 +16581,14 @@
    "28": {
     "color": 0.93,
     "fx": 0.36,
-    "lights": 8,
+    "lights": 2,
     "mirror": 29,
     "white": 0.24
    },
    "29": {
     "color": 0.93,
     "fx": 0.36,
-    "lights": 8,
+    "lights": 2,
     "mirror": 28,
     "white": 0.24
    },
@@ -13501,6 +16606,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13539,6 +16652,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13578,19 +16699,28 @@
     "rotationPoses": [
      0,
      -90,
-     90
+     90,
+     150
     ],
+    "axisPoses": {
+     "0": [
+      0
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      2,
      1
     ],
-    "translationRange": 0.76,
+    "translationRange": 0.8,
     "translationValues": {
      "0": [
       0,
       0,
-      0.7
+      0.8
      ],
      "2": [
       -0.3,
@@ -13600,7 +16730,7 @@
      "1": [
       0,
       0,
-      0.76
+      0.9
      ]
     },
     "mirror": 33,
@@ -13623,6 +16753,18 @@
      -15,
      -30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -90,
+      90,
+      150
+     ],
+     "0": [
+      0,
+      30
+     ]
+    },
     "translationAxes": [
      0,
      2,
@@ -13633,17 +16775,17 @@
      "0": [
       0,
       0,
-      0.7
+      0.8
      ],
      "2": [
       -0.3,
       0,
-      0.1
+      0.6
      ],
      "1": [
       0,
       0,
-      0.95
+      1.05
      ]
     },
     "mirror": 32,
@@ -13664,17 +16806,29 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45,
+      45,
+      -90,
+      90
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 5.55,
+    "translationRange": 6.55,
     "translationValues": {
      "1": [
-      -4.0,
-      0,
-      0.35
+      -5,
+      -0.2,
+      0.65
      ],
      "0": [
       -0.6,
@@ -13683,7 +16837,7 @@
      ],
      "2": [
       0,
-      1.4,
+      1.5,
       5.45
      ]
     },
@@ -13720,7 +16874,7 @@
     "rotation": 0.64,
     "translation": 0.79,
     "fx": 0.79,
-    "lights": 12,
+    "lights": 2,
     "rotationAxes": [
      2,
      0,
@@ -13737,6 +16891,19 @@
      90,
      -135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      -15,
+      180
+     ],
+     "1": [
+      0,
+      30,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -13745,9 +16912,9 @@
     "translationRange": 2.2,
     "translationValues": {
      "1": [
-      -0.2,
+      -0.3,
       0,
-      0.1
+      0.15
      ],
      "0": [
       0,
@@ -13768,13 +16935,13 @@
     "rotation": 0.64,
     "translation": 0.79,
     "fx": 0.79,
-    "lights": 12,
+    "lights": 2,
     "rotationAxes": [
      2,
      1,
      0
     ],
-    "rotationRange": 105,
+    "rotationRange": 105.0,
     "rotationPoses": [
      0,
      -90,
@@ -13783,6 +16950,17 @@
      -105,
      -120
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      30
+     ],
+     "0": [
+      0,
+      -15
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -13791,9 +16969,9 @@
     "translationRange": 1.6,
     "translationValues": {
      "1": [
-      -0.15,
+      -0.2,
       0,
-      0
+      0.2
      ],
      "2": [
       -2.55,
@@ -13831,6 +17009,15 @@
      -165,
      -90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -13844,13 +17031,13 @@
       4
      ],
      "0": [
-      -3,
+      -4.0,
       0,
       1.25
      ],
      "2": [
-      -2,
-      0,
+      -5,
+      1.2,
       5.4
      ]
     },
@@ -13871,6 +17058,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -13900,7 +17095,7 @@
     "color": 0.36,
     "rotation": 0.93,
     "translation": 1.0,
-    "lights": 6,
+    "lights": 2,
     "rotationAxes": [
      2,
      0,
@@ -13912,6 +17107,20 @@
      -90,
      180
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      -60,
+      -90,
+      -105
+     ],
+     "1": [
+      0,
+      90,
+      -90
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -13931,7 +17140,7 @@
      ],
      "2": [
       -6.0,
-      0.5,
+      2.25,
       13.1
      ]
     },
@@ -13941,7 +17150,7 @@
    "47": {
     "rotation": 0.93,
     "translation": 1.0,
-    "lights": 6,
+    "lights": 2,
     "rotationAxes": [
      2,
      0,
@@ -13952,6 +17161,20 @@
      0,
      90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      -90,
+      -60,
+      -105
+     ],
+     "1": [
+      0,
+      -90,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -13971,8 +17194,8 @@
      ],
      "2": [
       -6.0,
-      0,
-      13.1
+      1.8,
+      16
      ]
     },
     "mirror": 46
@@ -13990,6 +17213,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -14029,6 +17260,14 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -14104,6 +17343,18 @@
      75,
      105
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      -15,
+      15
+     ],
+     "2": [
+      0,
+      -90
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -14124,7 +17375,7 @@
      "0": [
       -0.5,
       0,
-      0.02
+      0.05
      ]
     },
     "white": 0.28
@@ -14139,12 +17390,12 @@
      1,
      2
     ],
-    "translationRange": 3.05,
+    "translationRange": 4,
     "translationValues": {
      "0": [
       -0.75,
       0,
-      0.6
+      0.7
      ],
      "1": [
       -0.4,
@@ -14152,7 +17403,7 @@
       0.8
      ],
      "2": [
-      0,
+      -0.5,
       0,
       2.55
      ]
@@ -14170,22 +17421,22 @@
      0,
      2
     ],
-    "translationRange": 4,
+    "translationRange": 5,
     "translationValues": {
      "1": [
       -0.4,
       0,
-      1.2
+      1.3
      ],
      "0": [
       -0.65,
       0,
-      0.6
+      0.65
      ],
      "2": [
       0,
       0,
-      5
+      7
      ]
     },
     "mirror": 1,
@@ -14203,22 +17454,22 @@
    "5": {
     "translation": 0.93,
     "fx": 0.93,
-    "lights": 4,
+    "lights": 0,
     "translationAxes": [
      2,
      1,
      0
     ],
-    "translationRange": 2.95,
+    "translationRange": 3,
     "translationValues": {
      "2": [
       -3,
       0,
-      0.95
+      1.8
      ],
      "1": [
       -3,
-      0,
+      -0.55,
       1.35
      ],
      "0": [
@@ -14247,12 +17498,12 @@
      ],
      "2": [
       0,
-      11.4,
+      11.5,
       36.1
      ],
      "1": [
       0,
-      2.2,
+      2.5,
       5.2
      ]
     },
@@ -14269,13 +17520,30 @@
      0,
      1
     ],
-    "rotationRange": 90,
+    "rotationRange": 105,
     "rotationPoses": [
      0,
      90,
      180,
      -90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      90,
+      -45,
+      -75,
+      -120
+     ],
+     "1": [
+      0,
+      30,
+      -30,
+      -90,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -14289,14 +17557,14 @@
       0.35
      ],
      "0": [
-      -1.35,
+      -1.5,
       0,
-      0
+      0.3
      ],
      "2": [
       0,
-      7.7,
-      23.0
+      10,
+      24.95
      ]
     },
     "white": 0.2
@@ -14320,6 +17588,30 @@
      180,
      30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      180,
+      90,
+      -90,
+      30,
+      -150,
+      150,
+      -75
+     ],
+     "0": [
+      0,
+      -120,
+      15,
+      30,
+      -90,
+      90,
+      -45,
+      180,
+      -60,
+      -150
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -14328,14 +17620,14 @@
     "translationRange": 23.0,
     "translationValues": {
      "1": [
-      -6.3,
+      -7.7,
       0,
       0.14
      ],
      "2": [
-      -6.3,
-      10.15,
-      23.0
+      -8.4,
+      11.3,
+      30
      ],
      "0": [
       -11.11,
@@ -14384,15 +17676,32 @@
      15,
      -150
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      180,
+      90,
+      -60,
+      60,
+      -90
+     ],
+     "1": [
+      0,
+      120,
+      -60,
+      -30
+     ]
+    },
     "translationAxes": [
      1,
      2,
      0
     ],
-    "translationRange": 7.5,
+    "translationRange": 7.8,
     "translationValues": {
      "1": [
-      -0.3,
+      -0.35,
       0.35,
       4.8
      ],
@@ -14428,8 +17737,26 @@
      15,
      -30,
      -90,
-     180
+     180,
+     75
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      90,
+      -60,
+      60,
+      180
+     ],
+     "1": [
+      0,
+      120,
+      -60,
+      180,
+      30
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -14440,7 +17767,7 @@
      "1": [
       -0.75,
       0,
-      1.0
+      1.1
      ],
      "2": [
       0,
@@ -14450,7 +17777,7 @@
      "0": [
       -3.05,
       0,
-      2.25
+      2.6
      ]
     },
     "mirror": 13,
@@ -14458,13 +17785,13 @@
    },
    "15": {
     "color": 0.93,
-    "lights": 2,
+    "lights": 0,
     "mirror": 16,
     "white": 0.15
    },
    "16": {
     "color": 1.0,
-    "lights": 2,
+    "lights": 0,
     "mirror": 15,
     "white": 0.53
    },
@@ -14478,13 +17805,24 @@
      0,
      1
     ],
-    "rotationRange": 45,
+    "rotationRange": 45.0,
     "rotationPoses": [
      0,
      -15,
      15,
      -30
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -15,
+      90,
+      -90
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      2,
      0,
@@ -14565,7 +17903,7 @@
      2,
      0
     ],
-    "rotationRange": 120,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      -90,
@@ -14573,26 +17911,39 @@
      -150,
      180
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      180,
+      -150,
+      -60
+     ],
+     "0": [
+      0,
+      120,
+      -120
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 16.0,
+    "translationRange": 16.3,
     "translationValues": {
      "1": [
       -2.5,
-      -1.25,
+      -1.45,
       22.5
      ],
      "0": [
       -4.2,
-      1.3,
+      1.95,
       4.2
      ],
      "2": [
       0,
-      8.95,
+      9,
       17.4
      ]
     },
@@ -14608,31 +17959,43 @@
      2,
      0
     ],
-    "rotationRange": 96,
+    "rotationRange": 135.0,
     "rotationPoses": [
      0,
      -90
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      90,
+      -60,
+      -150
+     ],
+     "0": [
+      0,
+      60
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 17,
+    "translationRange": 17.3,
     "translationValues": {
      "1": [
       -2.5,
-      -1.25,
+      -1.45,
       22.5
      ],
      "0": [
       -5.3,
-      0.6,
-      4.4
+      1.25,
+      5.05
      ],
      "2": [
       0,
-      9,
+      10.0,
       19
      ]
     },
@@ -14642,7 +18005,7 @@
     "rotation": 1.0,
     "translation": 1.0,
     "fx": 0.86,
-    "lights": 16,
+    "lights": 4,
     "rotationAxes": [
      1,
      2,
@@ -14653,6 +18016,18 @@
      0,
      30
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -15,
+      -30
+     ],
+     "0": [
+      0,
+      -75,
+      -90
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -14662,13 +18037,13 @@
     "translationValues": {
      "1": [
       -1.95,
-      0.15,
-      2.5
+      0.2,
+      2.55
      ],
      "0": [
-      -0.95,
-      1.55,
-      2.88
+      -1.35,
+      1.75,
+      3
      ],
      "2": [
       -2.5,
@@ -14682,19 +18057,32 @@
     "rotation": 1.0,
     "translation": 1.0,
     "fx": 0.86,
-    "lights": 16,
+    "lights": 4,
     "rotationAxes": [
      1,
      2,
      0
     ],
-    "rotationRange": 105,
+    "rotationRange": 120,
     "rotationPoses": [
      0,
      30,
      -90,
      180
     ],
+    "axisPoses": {
+     "2": [
+      0,
+      -30,
+      -15
+     ],
+     "0": [
+      0,
+      -90,
+      -75,
+      90
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -14708,13 +18096,13 @@
       2.5
      ],
      "0": [
-      -0.5,
-      1.0,
+      -1.35,
+      1.25,
       2.6
      ],
      "2": [
       -2.5,
-      5.25,
+      5.5,
       15
      ]
     },
@@ -14751,12 +18139,12 @@
    },
    "41": {
     "color": 1.0,
-    "lights": 2,
+    "lights": 0,
     "white": 0.4
    },
    "42": {
     "color": 0.93,
-    "lights": 2,
+    "lights": 0,
     "white": 0.44
    },
    "43": {
@@ -14777,7 +18165,7 @@
      0,
      1
     ],
-    "rotationRange": 150,
+    "rotationRange": 155,
     "rotationPoses": [
      0,
      150,
@@ -14787,12 +18175,22 @@
      15,
      135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      180
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 3.03,
+    "translationRange": 3.05,
     "translationValues": {
      "0": [
       -0.6,
@@ -14802,12 +18200,12 @@
      "1": [
       -0.3,
       0,
-      0.4
+      0.8
      ],
      "2": [
       0,
       0,
-      0.4
+      0.75
      ]
     },
     "mirror": 46,
@@ -14823,7 +18221,7 @@
      0,
      1
     ],
-    "rotationRange": 150.0,
+    "rotationRange": 150,
     "rotationPoses": [
      0,
      150,
@@ -14833,6 +18231,16 @@
      15,
      135
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      180,
+      90
+     ],
+     "1": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -14875,16 +18283,29 @@
      120,
      90
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90,
+      15,
+      60,
+      -90
+     ],
+     "1": [
+      0,
+      -105
+     ]
+    },
     "translationAxes": [
      1,
      0,
      2
     ],
-    "translationRange": 39.9,
+    "translationRange": 40,
     "translationValues": {
      "1": [
       -1.75,
-      -0.2,
+      -0.25,
       1.5
      ],
      "0": [
@@ -14894,8 +18315,8 @@
      ],
      "2": [
       -2.5,
-      9.4,
-      25.9
+      10,
+      31.1
      ]
     },
     "mirror": 48
@@ -14916,6 +18337,19 @@
      -90,
      120
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -90,
+      15,
+      90,
+      60
+     ],
+     "1": [
+      0,
+      -105
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -14925,7 +18359,7 @@
     "translationValues": {
      "1": [
       -2.5,
-      0,
+      -0.25,
       7.52
      ],
      "0": [
@@ -14935,8 +18369,8 @@
      ],
      "2": [
       -2.5,
-      12.7,
-      26.8
+      13.4,
+      27
      ]
     },
     "mirror": 47
@@ -14946,34 +18380,45 @@
     "rotation": 0.86,
     "translation": 1.0,
     "fx": 0.79,
-    "lights": 16,
+    "lights": 4,
     "rotationAxes": [
      2,
      0,
      1
     ],
-    "rotationRange": 120,
+    "rotationRange": 120.0,
     "rotationPoses": [
      0,
      -120,
      -105
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      -30
+     ],
+     "1": [
+      0,
+      180,
+      30
+     ]
+    },
     "translationAxes": [
      0,
      1,
      2
     ],
-    "translationRange": 5.35,
+    "translationRange": 5.4,
     "translationValues": {
      "0": [
-      -1.9,
+      -1.95,
       0,
       1.25
      ],
      "1": [
       -1,
       -0.25,
-      0.8
+      1.1
      ],
      "2": [
       -1,
@@ -15054,6 +18499,14 @@
      -60,
      30
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15101,6 +18554,16 @@
      90,
      -75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      75
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15115,11 +18578,11 @@
      ],
      "1": [
       -0.01,
-      1.2,
+      1.34,
       1.5
      ],
      "2": [
-      0,
+      1.2,
       3.9,
       4.6
      ]
@@ -15142,6 +18605,18 @@
      -75,
      -105
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      30
+     ],
+     "2": [
+      -15,
+      0,
+      15,
+      105
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -15184,6 +18659,16 @@
      90,
      -75
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30,
+      75
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15198,11 +18683,11 @@
      ],
      "1": [
       -0.01,
-      1.2,
+      1.34,
       1.5
      ],
      "2": [
-      0,
+      1.2,
       3.9,
       4.6
      ]
@@ -15225,6 +18710,18 @@
      -75,
      -105
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      30
+     ],
+     "2": [
+      -15,
+      0,
+      15,
+      105
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -15265,6 +18762,16 @@
      -105,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0,
+      -45,
+      -15
+     ]
+    },
     "white": 0.22
    },
    "7": {
@@ -15283,6 +18790,16 @@
      -105,
      15
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0,
+      -45,
+      -15
+     ]
+    },
     "white": 0.22
    },
    "8": {
@@ -15296,10 +18813,22 @@
     ],
     "rotationRange": 90,
     "rotationPoses": [
-     0,
      45,
+     0,
      -15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -90
+     ],
+     "2": [
+      0,
+      -45,
+      -15,
+      -75
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15309,18 +18838,18 @@
     "translationValues": {
      "0": [
       -2.45,
-      0,
+      0.2,
       0.25
      ],
      "1": [
       -0.55,
-      0,
+      0.25,
       0.25
      ],
      "2": [
       0,
-      0,
-      2.4
+      0.25,
+      3.1
      ]
     }
    },
@@ -15335,10 +18864,22 @@
     ],
     "rotationRange": 90,
     "rotationPoses": [
-     0,
      45,
+     0,
      -15
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -90
+     ],
+     "2": [
+      0,
+      -45,
+      -15,
+      -75
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15348,18 +18889,18 @@
     "translationValues": {
      "0": [
       -2.45,
-      0,
+      0.2,
       0.25
      ],
      "1": [
       -0.55,
-      0,
+      0.25,
       0.25
      ],
      "2": [
       0,
-      0,
-      2.4
+      0.25,
+      3.1
      ]
     }
    },
@@ -15376,6 +18917,15 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15415,6 +18965,16 @@
      75,
      0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45,
+      180
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -15453,6 +19013,12 @@
      0,
      180
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      180
+     ]
+    },
     "white": 0.03
    },
    "13": {
@@ -15470,6 +19036,14 @@
      0,
      -30
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -15510,6 +19084,14 @@
      0,
      -30
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      1,
      0,
@@ -15550,6 +19132,16 @@
      0,
      90
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -45
+     ],
+     "2": [
+      0,
+      45
+     ]
+    },
     "translationAxes": [
      1,
      2,
@@ -15589,6 +19181,17 @@
      -30,
      0
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      -30,
+      30,
+      0,
+      -15
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15628,6 +19231,16 @@
      0,
      45
     ],
+    "axisPoses": {
+     "0": [
+      0,
+      90
+     ],
+     "1": [
+      0,
+      -45
+     ]
+    },
     "translationAxes": [
      2,
      1,
@@ -15669,6 +19282,15 @@
      -45,
      -90
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0,
+      -15
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15706,6 +19328,14 @@
     "rotationPoses": [
      90
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15743,6 +19373,14 @@
     "rotationPoses": [
      90
     ],
+    "axisPoses": {
+     "1": [
+      0
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15845,6 +19483,15 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
@@ -15884,6 +19531,15 @@
     "rotationPoses": [
      0
     ],
+    "axisPoses": {
+     "1": [
+      0,
+      -30
+     ],
+     "2": [
+      0
+     ]
+    },
     "translationAxes": [
      0,
      1,
