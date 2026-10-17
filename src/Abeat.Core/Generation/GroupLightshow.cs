@@ -308,10 +308,11 @@ public static class GroupLightshow
     /// <summary>Rotation and translation choreography for every group curated maps move, between the poses
     /// mappers use for that group (turns and rails on every axis mappers use) (<see cref="LightGroupInfo.RotationPoses"/>, <see cref="LightGroupInfo.TranslationValues"/>):
     /// every moving group starts at its home pose (the most used one), quiet sections drift to a nearby
-    /// pose and back, louder ones swing between learned poses on downbeats (further from home with energy),
+    /// pose and back, louder ones swing between learned poses on downbeats (further from home with energy, as
+    /// often as curated maps turn the group),
     /// over a build-up the lights return home and they burst out to their widest pose on the drop. Mirror
     /// partners get identical events (the game mirrors the other side). With two or more rotating units the
-    /// most-used one traces the melody instead: higher sounds turn it further from home.</summary>
+    /// most often turned one traces the melody instead: higher sounds turn it further from home.</summary>
     static void Motion(SongAnalysis a, DifficultyMap map, EnvironmentInfo env, double end, double maxEnergy,
         List<double> downbeats, List<double> drops, List<BuildUp> builds, List<RhythmEvent> melody)
     {
@@ -319,7 +320,9 @@ public static class GroupLightshow
             .OrderByDescending(u => u.Groups[0].Rotation).ThenBy(u => u.Groups[0].Id).ToList();
         var moving = MotionUnits(env.Groups.Where(g => g.Translation >= 0.3 && g.TranslationAxes.Length > 0))
             .OrderByDescending(u => u.Groups[0].Translation).ThenBy(u => u.Groups[0].Id).ToList();
-        var tracer = rotating.Count >= 2 && melody.Count >= 16 ? rotating[0] : null;
+        // the tracer is the unit curated maps turn most often (Lizzo's top lasers, not its rarely lit end lasers)
+        var tracer = rotating.Count >= 2 && melody.Count >= 16 ? rotating.MaxBy(u => u.Groups[0].RotationRate ?? 0) : null;
+        double barBeats = downbeats.Count >= 2 ? downbeats.Zip(downbeats.Skip(1), (x, y) => y - x).Order().ElementAt((downbeats.Count - 1) / 2) : 4;
         var pitch = SongShape.RelativePitch(melody);
         bool InBuild(double b) => builds.Any(x => b >= x.Start && b < x.Drop + 0.01);
         // swings and pumps take as long as curated maps' eased moves in this environment
@@ -353,7 +356,9 @@ public static class GroupLightshow
             if (u == tracer)
             {
                 double last = double.NegativeInfinity;
-                foreach (var e in melody.Where(e => e.Beat - last >= 0.5 && !InBuild(e.Beat)))
+                // no more often than about twice the rate curated maps turn it
+                double gap = g.RotationRate > 0 ? Math.Clamp(0.5 / g.RotationRate.Value, 0.5, 4) : 0.5;
+                foreach (var e in melody.Where(e => e.Beat - last >= gap && !InBuild(e.Beat)))
                 {
                     last = e.Beat;
                     Rot(e.Beat, p.Toward(pitch(e)), p.Reach * 0.15, 0.5);
@@ -375,9 +380,11 @@ public static class GroupLightshow
                     }
                     else
                     {
-                        // swings on downbeats (every bar when loud, every other bar otherwise) between a learned
-                        // pose and its counterpart, further from home and fanned wider with energy
-                        int every = rel >= 0.8 ? 1 : 2;
+                        // swings on downbeats (as often as curated maps turn the group when loud, half as often
+                        // otherwise; every bar / every other bar when unknown) between a learned pose and its
+                        // counterpart, further from home and fanned wider with energy
+                        int every = (g.RotationRate > 0 ? (int)Math.Pow(2, Math.Clamp(Math.Round(Math.Log2(1 / (g.RotationRate.Value * barBeats))), 0, 3)) : 1)
+                            * (rel >= 0.8 ? 1 : 2);
                         var (out1, out2) = p.Swing(0.3 + 0.7 * rel);
                         // groups curated maps mostly leave at home (EDM's circle rotations) come back home between swings
                         double[] seq = g.HomeShare >= 0.5 ? [out1, p.Home, out2, p.Home] : [out1, out2];

@@ -11,9 +11,10 @@ work/env-survey) and writes src/Abeat.Core/Generation/environment-prior.json:
   translating it, how often it is switched on, the axes and magnitudes used, a lower bound on its
   light count from filters, the poses mappers move it to (angles per rotation axis, home first: the one
   it rests at longest, with the share of time it rests there; distance percentiles per axis) and its
-  mirror partner; per environment the median length of eased rotations / translations,
-  and how the basic light types (0-7, e.g. Pyro's runway and projectors) are used next to the groups,
-  plus the step types (STEP_TYPES: The Second's ring spacing) as mappers pulse them.
+  mirror partner and how often it turns; per environment the median length of eased rotations / translations,
+  and how the basic light types (0-7, plus 8-12 where the environment switches lights with them, e.g. Lizzo's
+  peaches and letters) are used next to the groups (e.g. Pyro's runway and projectors), plus the step types
+  (STEP_TYPES: The Second's ring spacing) as mappers pulse them.
 
     python3 scripts/environment_prior.py [maps per environment, default 14]
 """
@@ -214,9 +215,11 @@ class Stats:
         self.ease = {"rotation": [], "translation": []}  # beats each eased move takes
         self.pair_maps = collections.defaultdict(set)
         self.on_rates = collections.defaultdict(list)    # group -> per map: beats it is switched on / song beats
+        self.turn_rates = collections.defaultdict(list)  # group -> per map turning it: beats it turns to a pose / song beats
         # basic light type -> per map events / song beats; value classes; identical-event partners
         self.basic_rates = collections.defaultdict(list)
         self.basic_kinds = collections.defaultdict(collections.Counter)
+        self.basic_all = collections.defaultdict(collections.Counter)  # type 8-12 -> every value it takes
         self.basic_pairs = collections.defaultdict(list)  # (type, other) -> per map [same-beat events, identical]
         self.steps = collections.defaultdict(list)       # type 8-13 -> per map (events / song beats, low, high)
 
@@ -264,6 +267,11 @@ class Stats:
                     s["rot_max" if kind == "rotation" else "tr_max"].append(max(abs(m) for m in mags))
                     s["rot_vals" if kind == "rotation" else "tr_vals"][axis].extend(mags)
         self.add_held(rotation, span)
+        turns = collections.defaultdict(set)
+        for g, _, _, mags, b, keys in rotation:
+            turns[g].update(round(b + kb, 3) for kb, _, prev in keys if not prev)
+        for g, beats in turns.items():
+            self.turn_rates[g].append(len(beats) / span)
         self.add_pairs(color, rotation, translation)
         self.add_eases(rotation, translation)
         for g, h in hints.items():
@@ -279,9 +287,13 @@ class Stats:
 
 
     def add_basic_lights(self, basic, span):
-        """Basic light types (0-7): how often each fires, which values (off / on / flash / fade / transition,
-        colour) and which other type gets the same events (mirrored sides)."""
-        lights = [(t, v, fl, b) for t, v, fl, b in basic if 0 <= t <= 7 and 0 <= v <= 12]
+        """Basic light types (0-12; 8-12 only count as lights in summarize when their values say so): how often
+        each fires, which values (off / on / flash / fade / transition, colour) and which other type gets the
+        same events (mirrored sides)."""
+        for t, v, _, _ in basic:
+            if 8 <= t <= 12:
+                self.basic_all[t][v] += 1
+        lights = [(t, v, fl, b) for t, v, fl, b in basic if 0 <= t <= 12 and 0 <= v <= 12]
         per = collections.Counter(t for t, *_ in lights)
         for t, n in per.items():
             if n >= 0.9 * sum(1 for x in basic if x[0] == t):
@@ -370,6 +382,16 @@ class Stats:
             if n >= 30 and same >= 0.7 * n and len(self.pair_maps[(g, h)]) >= 3 and same > best.get(g, (None, 0))[1]:
                 best[g] = (h, same)
         return {g: h for g, (h, _) in best.items() if best.get(h, (None,))[0] == g}
+
+
+def light_values(values):
+    """Whether a basic type 8-12 switches lights (Lizzo's peaches and letters, Britney's 8/9) rather than spinning
+    rings or setting laser speeds: its values stay within the light values 0-12, take at least three different
+    colours / kinds and are mostly off / on / transition (speed and ring steps spread over every number)."""
+    tot = sum(values.values())
+    return tot > 0 and sum(n for v, n in values.items() if 0 <= v <= 12) >= 0.95 * tot \
+        and sum(1 for v in values if 1 <= v <= 12) >= 3 \
+        and sum(n for v, n in values.items() if v in (0, 1, 4, 5, 8, 9, 12)) >= 0.8 * tot
 
 
 def step15(a):
@@ -485,6 +507,8 @@ def summarize(env, st):
         # only next to light groups (classic environments light with these types anyway)
         if len(rates) < 0.3 * st.maps or not any(g["color"] for g in st.groups.values()):
             continue
+        if t >= 8 and not light_values(st.basic_all[t]):
+            continue
         k = st.basic_kinds[t]
         tot, lit = sum(k[c] for c in ("off", "on", "flash", "fade", "transition")), k["white"] + k["color"]
         row = {"share": round(len(rates) / st.maps, 2), "rate": round(statistics.median(rates), 3)}
@@ -528,6 +552,9 @@ def summarize(env, st):
                                    or s["rot_axis_maps"][a] >= 0.5 * s["rotation"]]
             row["rotationRange"] = round(pct(s["rot_max"], 0.9), 1)
             main = row["rotationAxes"][0]
+            if st.turn_rates[g]:
+                # how often it turns (Lizzo's rainbow and its end lasers: every few bars; its top lasers: every bar)
+                row["rotationRate"] = round(statistics.median(st.turn_rates[g]), 3)
             row["rotationPoses"] = poses(s["rot_vals"][main], s["rot_held"][main])
             if row["rotationPoses"] and s["rot_held_maps"][main]:
                 # the share of the time it rests at home (EDM's circle rotations: most of it, flicking out and back)

@@ -1002,6 +1002,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.432,
     "rotationPoses": [
      0,
      -90,
@@ -1036,6 +1037,7 @@
      1
     ],
     "rotationRange": 115,
+    "rotationRate": 0.398,
     "rotationPoses": [
      0,
      -90,
@@ -1070,6 +1072,7 @@
      1
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.335,
     "rotationPoses": [
      0,
      -90,
@@ -1104,6 +1107,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.344,
     "rotationPoses": [
      0,
      -90,
@@ -1138,6 +1142,7 @@
      1
     ],
     "rotationRange": 95.0,
+    "rotationRate": 0.392,
     "rotationPoses": [
      90,
      75,
@@ -1167,6 +1172,7 @@
      1
     ],
     "rotationRange": 95.0,
+    "rotationRate": 0.394,
     "rotationPoses": [
      90,
      75,
@@ -1196,6 +1202,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.318,
     "rotationPoses": [
      -45,
      90,
@@ -1226,6 +1233,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.32,
     "rotationPoses": [
      -45,
      90,
@@ -1256,6 +1264,7 @@
      1
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.243,
     "rotationPoses": [
      45,
      -90,
@@ -1293,6 +1302,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.253,
     "rotationPoses": [
      45,
      -90,
@@ -1330,6 +1340,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.242,
     "rotationPoses": [
      45,
      -90,
@@ -1367,6 +1378,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.243,
     "rotationPoses": [
      45,
      -90,
@@ -1404,6 +1416,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.28,
     "rotationPoses": [
      0,
      135,
@@ -1436,6 +1449,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.262,
     "rotationPoses": [
      0,
      135,
@@ -1466,6 +1480,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.287,
     "rotationPoses": [
      0,
      90,
@@ -1502,6 +1517,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.287,
     "rotationPoses": [
      0,
      90,
@@ -1626,6 +1642,7 @@
      2
     ],
     "rotationRange": 0.0,
+    "rotationRate": 0.0,
     "rotationPoses": [
      0
     ],
@@ -1649,6 +1666,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.166,
     "rotationPoses": [
      0,
      15,
@@ -1682,6 +1700,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.166,
     "rotationPoses": [
      0,
      15,
@@ -1715,6 +1734,7 @@
      1
     ],
     "rotationRange": 155.0,
+    "rotationRate": 0.089,
     "rotationPoses": [
      0,
      -30,
@@ -1747,6 +1767,7 @@
      1
     ],
     "rotationRange": 160.0,
+    "rotationRate": 0.002,
     "rotationPoses": [
      0,
      -165,
@@ -1786,6 +1807,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.089,
     "rotationPoses": [
      0,
      -45,
@@ -1822,6 +1844,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.089,
     "rotationPoses": [
      0,
      -45,
@@ -1858,6 +1881,7 @@
      1
     ],
     "rotationRange": 115,
+    "rotationRate": 0.071,
     "rotationPoses": [
      -45,
      0,
@@ -1894,6 +1918,7 @@
      1
     ],
     "rotationRange": 115,
+    "rotationRate": 0.071,
     "rotationPoses": [
      -45,
      0,
@@ -1988,6 +2013,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.175,
     "rotationPoses": [
      0,
      90,
@@ -2021,6 +2047,7 @@
      1
     ],
     "rotationRange": 45.0,
+    "rotationRate": 0.004,
     "rotationPoses": [
      -15,
      -45,
@@ -2049,6 +2076,7 @@
      2
     ],
     "rotationRange": 160.0,
+    "rotationRate": 0.156,
     "rotationPoses": [
      0,
      15,
@@ -2085,6 +2113,7 @@
      2
     ],
     "rotationRange": 175.0,
+    "rotationRate": 0.123,
     "rotationPoses": [
      0,
      180,
@@ -2124,6 +2153,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.162,
     "rotationPoses": [
      0,
      15,
@@ -2156,6 +2186,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.162,
     "rotationPoses": [
      0,
      15,
@@ -2188,6 +2219,7 @@
      2
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.134,
     "rotationPoses": [
      0,
      -15,
@@ -2226,6 +2258,7 @@
      2
     ],
     "rotationRange": 120,
+    "rotationRate": 0.119,
     "rotationPoses": [
      90,
      0,
@@ -2263,6 +2296,7 @@
      2
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.134,
     "rotationPoses": [
      0,
      -30,
@@ -2300,6 +2334,7 @@
      2
     ],
     "rotationRange": 165,
+    "rotationRate": 0.113,
     "rotationPoses": [
      90,
      0,
@@ -2341,6 +2376,7 @@
      2
     ],
     "rotationRange": 160.0,
+    "rotationRate": 0.083,
     "rotationPoses": [
      0,
      90,
@@ -2380,6 +2416,7 @@
      2
     ],
     "rotationRange": 135,
+    "rotationRate": 0.083,
     "rotationPoses": [
      0,
      90,
@@ -2416,6 +2453,7 @@
      0
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.009,
     "rotationPoses": [
      0,
      120,
@@ -2438,6 +2476,7 @@
      0
     ],
     "rotationRange": 165,
+    "rotationRate": 0.078,
     "rotationPoses": [
      0,
      -90,
@@ -2473,6 +2512,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.137,
     "rotationPoses": [
      0,
      135,
@@ -2505,6 +2545,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.069,
     "rotationPoses": [
      0,
      -135,
@@ -2535,6 +2576,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.071,
     "rotationPoses": [
      0,
      -90,
@@ -2570,6 +2612,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.071,
     "rotationPoses": [
      0,
      75,
@@ -2668,6 +2711,7 @@
      0
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.109,
     "rotationPoses": [
      0,
      180,
@@ -2685,6 +2729,7 @@
      0
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.382,
     "rotationPoses": [
      0,
      -45,
@@ -2718,6 +2763,7 @@
      1
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.127,
     "rotationPoses": [
      0,
      90,
@@ -2747,6 +2793,7 @@
      1
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.154,
     "rotationPoses": [
      0,
      90,
@@ -2776,6 +2823,7 @@
      1
     ],
     "rotationRange": 115.0,
+    "rotationRate": 0.2,
     "rotationPoses": [
      45,
      75,
@@ -2803,6 +2851,7 @@
      1
     ],
     "rotationRange": 115.0,
+    "rotationRate": 0.2,
     "rotationPoses": [
      45,
      75,
@@ -2830,6 +2879,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.053,
     "rotationPoses": [
      90,
      45,
@@ -2868,6 +2918,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.053,
     "rotationPoses": [
      90,
      45,
@@ -2904,6 +2955,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.065,
     "rotationPoses": [
      105,
      90,
@@ -2943,6 +2995,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.065,
     "rotationPoses": [
      105,
      90,
@@ -2981,6 +3034,7 @@
      1
     ],
     "rotationRange": 110.0,
+    "rotationRate": 0.054,
     "rotationPoses": [
      45,
      90,
@@ -3010,6 +3064,7 @@
      1
     ],
     "rotationRange": 110.0,
+    "rotationRate": 0.054,
     "rotationPoses": [
      45,
      90,
@@ -3131,8 +3186,7 @@
     "flash": 0.0,
     "fade": 0.0,
     "transition": 0.4,
-    "white": 0.12,
-    "mirror": 7
+    "white": 0.12
    },
    "6": {
     "share": 0.86,
@@ -3153,7 +3207,18 @@
     "fade": 0.0,
     "transition": 0.36,
     "white": 0.08,
-    "mirror": 4
+    "mirror": 8
+   },
+   "8": {
+    "share": 0.43,
+    "rate": 0.086,
+    "off": 0.08,
+    "on": 0.56,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.36,
+    "white": 0.08,
+    "mirror": 7
    }
   },
   "groups": {
@@ -3202,6 +3267,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.047,
     "rotationPoses": [
      0,
      180,
@@ -3217,6 +3283,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.047,
     "rotationPoses": [
      0,
      180,
@@ -3234,6 +3301,7 @@
      0
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.041,
     "rotationPoses": [
      -45,
      0,
@@ -3255,6 +3323,7 @@
      0
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.041,
     "rotationPoses": [
      -45,
      0,
@@ -3277,6 +3346,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.198,
     "rotationPoses": [
      0,
      -45,
@@ -3334,6 +3404,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.113,
     "rotationPoses": [
      0,
      15,
@@ -3376,6 +3447,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.126,
     "rotationPoses": [
      0,
      15,
@@ -3418,6 +3490,7 @@
      1
     ],
     "rotationRange": 80,
+    "rotationRate": 0.04,
     "rotationPoses": [
      75,
      30,
@@ -3445,6 +3518,7 @@
      1
     ],
     "rotationRange": 80,
+    "rotationRate": 0.03,
     "rotationPoses": [
      75,
      30,
@@ -3472,6 +3546,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.112,
     "rotationPoses": [
      45,
      0,
@@ -3641,6 +3716,7 @@
      0
     ],
     "rotationRange": 20,
+    "rotationRate": 0.022,
     "rotationPoses": [
      0,
      -15
@@ -3676,6 +3752,7 @@
      0
     ],
     "rotationRange": 20,
+    "rotationRate": 0.022,
     "rotationPoses": [
      0,
      -15
@@ -3718,6 +3795,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.051,
     "rotationPoses": [
      0,
      45,
@@ -3754,6 +3832,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.042,
     "rotationPoses": [
      0,
      30,
@@ -3925,6 +4004,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.253,
     "rotationPoses": [
      0,
      -15,
@@ -3967,6 +4047,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.257,
     "rotationPoses": [
      0,
      -15,
@@ -4011,6 +4092,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.248,
     "rotationPoses": [
      0,
      -15,
@@ -4053,6 +4135,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.229,
     "rotationPoses": [
      0,
      -15,
@@ -4096,6 +4179,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.236,
     "rotationPoses": [
      0,
      -15,
@@ -4138,6 +4222,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.243,
     "rotationPoses": [
      0,
      -15,
@@ -4182,6 +4267,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.234,
     "rotationPoses": [
      0,
      -15,
@@ -4225,6 +4311,7 @@
      2
     ],
     "rotationRange": 140,
+    "rotationRate": 0.225,
     "rotationPoses": [
      0,
      -15,
@@ -4350,6 +4437,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.089,
     "rotationPoses": [
      0,
      -45,
@@ -4403,6 +4491,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.083,
     "rotationPoses": [
      0,
      -45,
@@ -4603,6 +4692,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.059,
     "rotationPoses": [
      0,
      45,
@@ -4635,6 +4725,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.059,
     "rotationPoses": [
      0,
      45,
@@ -4669,6 +4760,7 @@
      0
     ],
     "rotationRange": 20.0,
+    "rotationRate": 0.148,
     "rotationPoses": [
      0,
      -15,
@@ -4711,6 +4803,7 @@
      0
     ],
     "rotationRange": 20,
+    "rotationRate": 0.148,
     "rotationPoses": [
      0,
      -15,
@@ -4759,6 +4852,7 @@
      1
     ],
     "rotationRange": 40.0,
+    "rotationRate": 0.246,
     "rotationPoses": [
      0,
      15,
@@ -4808,6 +4902,7 @@
      1
     ],
     "rotationRange": 40,
+    "rotationRate": 0.246,
     "rotationPoses": [
      0,
      15,
@@ -4880,6 +4975,7 @@
      2
     ],
     "rotationRange": 70,
+    "rotationRate": 0.033,
     "rotationPoses": [
      0,
      45,
@@ -4923,6 +5019,7 @@
      2
     ],
     "rotationRange": 70,
+    "rotationRate": 0.041,
     "rotationPoses": [
      0,
      45,
@@ -4966,6 +5063,7 @@
      2
     ],
     "rotationRange": 70,
+    "rotationRate": 0.034,
     "rotationPoses": [
      0,
      45,
@@ -5009,6 +5107,7 @@
      2
     ],
     "rotationRange": 75,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0,
      45,
@@ -5050,6 +5149,7 @@
      1
     ],
     "rotationRange": 65.0,
+    "rotationRate": 0.053,
     "rotationPoses": [
      0,
      45,
@@ -5105,6 +5205,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.056,
     "rotationPoses": [
      0,
      45,
@@ -5259,6 +5360,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.188,
     "rotationPoses": [
      90,
      -90,
@@ -5317,6 +5419,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.184,
     "rotationPoses": [
      0,
      15,
@@ -5355,6 +5458,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.136,
     "rotationPoses": [
      90,
      -90,
@@ -5411,6 +5515,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.25,
     "rotationPoses": [
      90,
      -90,
@@ -5441,6 +5546,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.214,
     "rotationPoses": [
      -135,
      -90,
@@ -5473,6 +5579,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.207,
     "rotationPoses": [
      -90,
      -75,
@@ -5506,6 +5613,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.25,
     "rotationPoses": [
      90,
      -90,
@@ -5560,6 +5668,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.019,
     "rotationPoses": [
      0,
      -45,
@@ -5601,6 +5710,7 @@
      1
     ],
     "rotationRange": 75,
+    "rotationRate": 0.018,
     "rotationPoses": [
      0,
      -45,
@@ -5637,6 +5747,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.04,
     "rotationPoses": [
      180,
      0,
@@ -5669,6 +5780,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.04,
     "rotationPoses": [
      180,
      0,
@@ -5707,6 +5819,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.058,
     "rotationPoses": [
      0,
      -15,
@@ -5746,6 +5859,7 @@
      1
     ],
     "rotationRange": 140.0,
+    "rotationRate": 0.06,
     "rotationPoses": [
      0,
      -75,
@@ -5781,6 +5895,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.16,
     "rotationPoses": [
      0,
      180,
@@ -5810,6 +5925,7 @@
      1
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.16,
     "rotationPoses": [
      0,
      180,
@@ -5837,6 +5953,7 @@
      2
     ],
     "rotationRange": 145,
+    "rotationRate": 0.232,
     "rotationPoses": [
      0,
      45,
@@ -5867,6 +5984,7 @@
      1
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.066,
     "rotationPoses": [
      0,
      90,
@@ -5917,6 +6035,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.064,
     "rotationPoses": [
      0,
      90,
@@ -5968,6 +6087,7 @@
      1
     ],
     "rotationRange": 170.0,
+    "rotationRate": 0.086,
     "rotationPoses": [
      0,
      120,
@@ -6021,6 +6141,7 @@
      1
     ],
     "rotationRange": 165,
+    "rotationRate": 0.081,
     "rotationPoses": [
      0,
      -30,
@@ -6196,6 +6317,7 @@
      0
     ],
     "rotationRange": 135,
+    "rotationRate": 0.155,
     "rotationPoses": [
      0,
      90,
@@ -6234,6 +6356,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.125,
     "rotationPoses": [
      0,
      -45,
@@ -6254,6 +6377,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.147,
     "rotationPoses": [
      0,
      90,
@@ -6274,6 +6398,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.139,
     "rotationPoses": [
      0,
      90,
@@ -6293,6 +6418,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.112,
     "rotationPoses": [
      0,
      -45,
@@ -6316,6 +6442,7 @@
      0
     ],
     "rotationRange": 135,
+    "rotationRate": 0.155,
     "rotationPoses": [
      0,
      90,
@@ -6354,6 +6481,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.125,
     "rotationPoses": [
      0,
      -45,
@@ -6375,6 +6503,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.147,
     "rotationPoses": [
      0,
      -45,
@@ -6394,6 +6523,7 @@
      2
     ],
     "rotationRange": 135,
+    "rotationRate": 0.139,
     "rotationPoses": [
      0,
      90,
@@ -6414,6 +6544,7 @@
      2
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.119,
     "rotationPoses": [
      0,
      -45,
@@ -6439,6 +6570,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.311,
     "rotationPoses": [
      0,
      180,
@@ -6483,6 +6615,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.084,
     "rotationPoses": [
      0,
      90,
@@ -6516,6 +6649,7 @@
      2
     ],
     "rotationRange": 165.0,
+    "rotationRate": 0.158,
     "rotationPoses": [
      0,
      90,
@@ -6549,6 +6683,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.053,
     "rotationPoses": [
      0,
      15,
@@ -6570,6 +6705,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.035,
     "rotationPoses": [
      15,
      0,
@@ -6686,6 +6822,7 @@
      2
     ],
     "rotationRange": 95,
+    "rotationRate": 0.013,
     "rotationPoses": [
      0,
      -90,
@@ -6717,6 +6854,7 @@
      0
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.036,
     "rotationPoses": [
      -90,
      0,
@@ -6756,6 +6894,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.014,
     "rotationPoses": [
      0,
      -90,
@@ -6790,6 +6929,7 @@
      0
     ],
     "rotationRange": 100.0,
+    "rotationRate": 0.02,
     "rotationPoses": [
      0,
      -105,
@@ -6827,6 +6967,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.098,
     "rotationPoses": [
      0,
      90,
@@ -6897,6 +7038,7 @@
      2
     ],
     "rotationRange": 135,
+    "rotationRate": 0.05,
     "rotationPoses": [
      0,
      90,
@@ -6964,6 +7106,7 @@
      2
     ],
     "rotationRange": 135,
+    "rotationRate": 0.05,
     "rotationPoses": [
      0,
      90,
@@ -7074,6 +7217,7 @@
      2
     ],
     "rotationRange": 105,
+    "rotationRate": 0.039,
     "rotationPoses": [
      90,
      -90,
@@ -7120,6 +7264,7 @@
      2
     ],
     "rotationRange": 175,
+    "rotationRate": 0.051,
     "rotationPoses": [
      0,
      30,
@@ -7141,6 +7286,7 @@
      2
     ],
     "rotationRange": 175,
+    "rotationRate": 0.051,
     "rotationPoses": [
      0,
      30,
@@ -7196,6 +7342,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.038,
     "rotationPoses": [
      0,
      180
@@ -7233,6 +7380,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.039,
     "rotationPoses": [
      0,
      180
@@ -7268,6 +7416,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.045,
     "rotationPoses": [
      0,
      90,
@@ -7311,6 +7460,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.047,
     "rotationPoses": [
      0,
      90,
@@ -7354,6 +7504,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.046,
     "rotationPoses": [
      0,
      90,
@@ -7397,6 +7548,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.045,
     "rotationPoses": [
      0,
      90,
@@ -7440,6 +7592,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.045,
     "rotationPoses": [
      0,
      90,
@@ -7483,6 +7636,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.047,
     "rotationPoses": [
      0,
      90,
@@ -7526,6 +7680,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.046,
     "rotationPoses": [
      0,
      90,
@@ -7569,6 +7724,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.045,
     "rotationPoses": [
      0,
      90,
@@ -7664,6 +7820,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.019,
     "rotationPoses": [
      0,
      180
@@ -7701,6 +7858,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.019,
     "rotationPoses": [
      0,
      180
@@ -7737,6 +7895,7 @@
      0
     ],
     "rotationRange": 105,
+    "rotationRate": 0.122,
     "rotationPoses": [
      0,
      15,
@@ -7796,6 +7955,7 @@
      0
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.119,
     "rotationPoses": [
      0,
      30,
@@ -7854,6 +8014,7 @@
      0
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.113,
     "rotationPoses": [
      0,
      15,
@@ -7913,6 +8074,7 @@
      0
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.094,
     "rotationPoses": [
      0,
      30,
@@ -7968,6 +8130,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.116,
     "rotationPoses": [
      0,
      15,
@@ -8026,6 +8189,7 @@
      0
     ],
     "rotationRange": 135,
+    "rotationRate": 0.112,
     "rotationPoses": [
      0,
      45,
@@ -8084,6 +8248,7 @@
      0
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.111,
     "rotationPoses": [
      0,
      15,
@@ -8143,6 +8308,7 @@
      0
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.094,
     "rotationPoses": [
      0,
      30,
@@ -8212,6 +8378,7 @@
      0
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.027,
     "rotationPoses": [
      0,
      90,
@@ -8249,6 +8416,7 @@
      0
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.027,
     "rotationPoses": [
      0,
      90,
@@ -8289,6 +8457,7 @@
      1
     ],
     "rotationRange": 0,
+    "rotationRate": 0.002,
     "rotationPoses": [
      0
     ],
@@ -8326,6 +8495,7 @@
      2
     ],
     "rotationRange": 180.0,
+    "rotationRate": 0.077,
     "rotationPoses": [
      0,
      30,
@@ -8376,6 +8546,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.002,
     "rotationPoses": [
      0,
      180
@@ -8398,6 +8569,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.034,
     "rotationPoses": [
      0,
      180,
@@ -8448,6 +8620,7 @@
      1
     ],
     "rotationRange": 120,
+    "rotationRate": 0.072,
     "rotationPoses": [
      0,
      -30,
@@ -8488,6 +8661,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.013,
     "rotationPoses": [
      0
     ],
@@ -8501,6 +8675,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.018,
     "rotationPoses": [
      0
     ],
@@ -8514,6 +8689,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.017,
     "rotationPoses": [
      0,
      15,
@@ -8529,6 +8705,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.016,
     "rotationPoses": [
      0,
      15,
@@ -8696,6 +8873,7 @@
      0
     ],
     "rotationRange": 135,
+    "rotationRate": 0.205,
     "rotationPoses": [
      0,
      -90,
@@ -8722,6 +8900,7 @@
      0
     ],
     "rotationRange": 135,
+    "rotationRate": 0.165,
     "rotationPoses": [
      0,
      90,
@@ -8770,6 +8949,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.057,
     "rotationPoses": [
      0,
      90,
@@ -8801,6 +8981,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.069,
     "rotationPoses": [
      0,
      150,
@@ -8853,6 +9034,7 @@
      0
     ],
     "rotationRange": 135,
+    "rotationRate": 0.188,
     "rotationPoses": [
      0,
      -30,
@@ -8885,6 +9067,7 @@
      0
     ],
     "rotationRange": 150,
+    "rotationRate": 0.101,
     "rotationPoses": [
      0,
      180,
@@ -8931,6 +9114,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.06,
     "rotationPoses": [
      0,
      135,
@@ -8962,6 +9146,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.073,
     "rotationPoses": [
      0,
      150,
@@ -9011,6 +9196,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.177,
     "rotationPoses": [
      0,
      45,
@@ -9043,6 +9229,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.145,
     "rotationPoses": [
      0,
      90,
@@ -9087,6 +9274,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.059,
     "rotationPoses": [
      0,
      180,
@@ -9113,6 +9301,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.071,
     "rotationPoses": [
      180,
      0,
@@ -9165,6 +9354,7 @@
      0
     ],
     "rotationRange": 150,
+    "rotationRate": 0.194,
     "rotationPoses": [
      0,
      15,
@@ -9196,6 +9386,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.124,
     "rotationPoses": [
      0,
      180,
@@ -9240,6 +9431,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.046,
     "rotationPoses": [
      0,
      180,
@@ -9269,6 +9461,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.043,
     "rotationPoses": [
      180,
      0,
@@ -9291,6 +9484,7 @@
      1
     ],
     "rotationRange": 120,
+    "rotationRate": 0.101,
     "rotationPoses": [
      0,
      -30,
@@ -9441,6 +9635,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.12,
     "rotationPoses": [
      0,
      30,
@@ -9478,6 +9673,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.142,
     "rotationPoses": [
      0,
      75,
@@ -9515,6 +9711,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.12,
     "rotationPoses": [
      0,
      30,
@@ -9552,6 +9749,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.141,
     "rotationPoses": [
      0,
      -30,
@@ -9589,6 +9787,7 @@
      2
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.152,
     "rotationPoses": [
      0,
      30,
@@ -9625,6 +9824,7 @@
      0
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.118,
     "rotationPoses": [
      0,
      75,
@@ -9659,6 +9859,7 @@
      2
     ],
     "rotationRange": 120,
+    "rotationRate": 0.124,
     "rotationPoses": [
      0,
      30,
@@ -9695,6 +9896,7 @@
      0
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.118,
     "rotationPoses": [
      0,
      75,
@@ -9759,6 +9961,7 @@
      1
     ],
     "rotationRange": 155,
+    "rotationRate": 0.087,
     "rotationPoses": [
      0,
      -75,
@@ -9822,6 +10025,7 @@
      2
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.095,
     "rotationPoses": [
      0,
      90,
@@ -9884,6 +10088,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.087,
     "rotationPoses": [
      0,
      -75,
@@ -9946,6 +10151,7 @@
      1
     ],
     "rotationRange": 165,
+    "rotationRate": 0.042,
     "rotationPoses": [
      0,
      -75,
@@ -10051,6 +10257,7 @@
      2
     ],
     "rotationRange": 165.0,
+    "rotationRate": 0.239,
     "rotationPoses": [
      0,
      60,
@@ -10112,6 +10319,7 @@
      2
     ],
     "rotationRange": 150,
+    "rotationRate": 0.255,
     "rotationPoses": [
      0,
      -30,
@@ -10333,6 +10541,7 @@
      2
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.069,
     "rotationPoses": [
      0,
      45,
@@ -10362,6 +10571,7 @@
      1
     ],
     "rotationRange": 145.0,
+    "rotationRate": 0.049,
     "rotationPoses": [
      0,
      -30,
@@ -10391,6 +10601,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.035,
     "rotationPoses": [
      0,
      90,
@@ -10418,6 +10629,7 @@
      2
     ],
     "rotationRange": 120,
+    "rotationRate": 0.032,
     "rotationPoses": [
      0,
      45,
@@ -10519,6 +10731,7 @@
      0
     ],
     "rotationRange": 109,
+    "rotationRate": 0.059,
     "rotationPoses": [
      0,
      90,
@@ -10579,6 +10792,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.055,
     "rotationPoses": [
      0,
      90,
@@ -10639,6 +10853,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.012,
     "rotationPoses": [
      -90,
      90,
@@ -10695,6 +10910,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.01,
     "rotationPoses": [
      -90,
      90,
@@ -10752,6 +10968,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.008,
     "rotationPoses": [
      0,
      -90,
@@ -10808,6 +11025,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.008,
     "rotationPoses": [
      0,
      -90,
@@ -10981,6 +11199,7 @@
      0
     ],
     "rotationRange": 153,
+    "rotationRate": 0.044,
     "rotationPoses": [
      0,
      90,
@@ -11032,6 +11251,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.061,
     "rotationPoses": [
      0,
      30,
@@ -11064,6 +11284,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.057,
     "rotationPoses": [
      0,
      180,
@@ -11123,6 +11344,7 @@
      2
     ],
     "rotationRange": 164,
+    "rotationRate": 0.036,
     "rotationPoses": [
      0,
      -90,
@@ -11175,6 +11397,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.02,
     "rotationPoses": [
      0,
      -30,
@@ -11208,6 +11431,7 @@
      1
     ],
     "rotationRange": 165,
+    "rotationRate": 0.024,
     "rotationPoses": [
      0,
      -90,
@@ -11272,6 +11496,7 @@
      2
     ],
     "rotationRange": 153,
+    "rotationRate": 0.036,
     "rotationPoses": [
      0,
      75,
@@ -11321,6 +11546,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.032,
     "rotationPoses": [
      0,
      30,
@@ -11354,6 +11580,7 @@
      1
     ],
     "rotationRange": 165,
+    "rotationRate": 0.034,
     "rotationPoses": [
      0,
      -90,
@@ -11415,6 +11642,7 @@
      0
     ],
     "rotationRange": 153,
+    "rotationRate": 0.034,
     "rotationPoses": [
      0,
      -60,
@@ -11465,6 +11693,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.018,
     "rotationPoses": [
      0,
      -30,
@@ -11497,6 +11726,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.054,
     "rotationPoses": [
      0,
      180,
@@ -11691,6 +11921,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.068,
     "rotationPoses": [
      0,
      90,
@@ -11749,6 +11980,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.06,
     "rotationPoses": [
      0,
      180
@@ -11799,6 +12031,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.048,
     "rotationPoses": [
      0,
      90,
@@ -11857,6 +12090,7 @@
      1
     ],
     "rotationRange": 75,
+    "rotationRate": 0.027,
     "rotationPoses": [
      0,
      45,
@@ -11916,6 +12150,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.024,
     "rotationPoses": [
      0,
      -90,
@@ -11974,6 +12209,7 @@
      1
     ],
     "rotationRange": 179,
+    "rotationRate": 0.015,
     "rotationPoses": [
      0,
      -90,
@@ -12033,6 +12269,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.027,
     "rotationPoses": [
      0,
      90,
@@ -12094,6 +12331,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.067,
     "rotationPoses": [
      0,
      -90,
@@ -12152,6 +12390,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.058,
     "rotationPoses": [
      0,
      -90,
@@ -12210,6 +12449,7 @@
      1
     ],
     "rotationRange": 135,
+    "rotationRate": 0.12,
     "rotationPoses": [
      0,
      -90,
@@ -12271,6 +12511,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.074,
     "rotationPoses": [
      0,
      -90,
@@ -12335,6 +12576,7 @@
      1
     ],
     "rotationRange": 60,
+    "rotationRate": 0.023,
     "rotationPoses": [
      0,
      45,
@@ -12393,6 +12635,7 @@
      1
     ],
     "rotationRange": 60,
+    "rotationRate": 0.026,
     "rotationPoses": [
      0,
      45,
@@ -12448,6 +12691,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.025,
     "rotationPoses": [
      0,
      -15,
@@ -12515,6 +12759,7 @@
      1
     ],
     "rotationRange": 80,
+    "rotationRate": 0.024,
     "rotationPoses": [
      0,
      -45,
@@ -12570,6 +12815,7 @@
      1
     ],
     "rotationRange": 75,
+    "rotationRate": 0.014,
     "rotationPoses": [
      0,
      -45,
@@ -12634,6 +12880,7 @@
      1
     ],
     "rotationRange": 30,
+    "rotationRate": 0.008,
     "rotationPoses": [
      0,
      30,
@@ -12688,6 +12935,7 @@
      1
     ],
     "rotationRange": 141,
+    "rotationRate": 0.013,
     "rotationPoses": [
      0,
      45,
@@ -12754,6 +13002,7 @@
      1
     ],
     "rotationRange": 30,
+    "rotationRate": 0.008,
     "rotationPoses": [
      0,
      -15,
@@ -12826,6 +13075,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.022,
     "rotationPoses": [
      0,
      45,
@@ -12882,6 +13132,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.018,
     "rotationPoses": [
      0,
      180,
@@ -12943,6 +13194,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.126,
     "rotationPoses": [
      0,
      -15,
@@ -13052,6 +13304,16 @@
     "fade": 0.0,
     "transition": 0.52,
     "white": 0.19
+   },
+   "8": {
+    "share": 0.36,
+    "rate": 0.006,
+    "off": 0.09,
+    "on": 0.59,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.32,
+    "white": 0.35
    }
   },
   "groups": {
@@ -13066,6 +13328,7 @@
      2
     ],
     "rotationRange": 65,
+    "rotationRate": 0.062,
     "rotationPoses": [
      0,
      -30
@@ -13119,6 +13382,7 @@
      0
     ],
     "rotationRange": 75,
+    "rotationRate": 0.036,
     "rotationPoses": [
      0,
      15,
@@ -13177,6 +13441,7 @@
      2
     ],
     "rotationRange": 75,
+    "rotationRate": 0.07,
     "rotationPoses": [
      0,
      -30
@@ -13231,6 +13496,7 @@
      0
     ],
     "rotationRange": 75,
+    "rotationRate": 0.037,
     "rotationPoses": [
      0,
      15,
@@ -13289,6 +13555,7 @@
      2
     ],
     "rotationRange": 120,
+    "rotationRate": 0.101,
     "rotationPoses": [
      0,
      -15,
@@ -13346,6 +13613,7 @@
      0
     ],
     "rotationRange": 150,
+    "rotationRate": 0.042,
     "rotationPoses": [
      0,
      150,
@@ -13406,6 +13674,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.066,
     "rotationPoses": [
      0,
      45,
@@ -13463,6 +13732,7 @@
      0
     ],
     "rotationRange": 165,
+    "rotationRate": 0.048,
     "rotationPoses": [
      0,
      180,
@@ -13519,6 +13789,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.064,
     "rotationPoses": [
      0,
      120,
@@ -13582,6 +13853,7 @@
      2
     ],
     "rotationRange": 165,
+    "rotationRate": 0.127,
     "rotationPoses": [
      0,
      -60,
@@ -13641,6 +13913,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.072,
     "rotationPoses": [
      0,
      45,
@@ -13690,6 +13963,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.066,
     "rotationPoses": [
      0,
      -90,
@@ -13752,6 +14026,7 @@
      2
     ],
     "rotationRange": 150,
+    "rotationRate": 0.04,
     "rotationPoses": [
      90,
      0,
@@ -13834,6 +14109,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.026,
     "rotationPoses": [
      0,
      45,
@@ -13866,6 +14142,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.026,
     "rotationPoses": [
      0,
      45,
@@ -13930,6 +14207,16 @@
     "fade": 0.0,
     "transition": 0.53,
     "white": 0.08
+   },
+   "8": {
+    "share": 0.36,
+    "rate": 0.22,
+    "off": 0.0,
+    "on": 0.42,
+    "flash": 0.0,
+    "fade": 0.03,
+    "transition": 0.54,
+    "white": 0.34
    }
   },
   "groups": {
@@ -13946,6 +14233,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.397,
     "rotationPoses": [
      0,
      -15,
@@ -14008,6 +14296,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.197,
     "rotationPoses": [
      0,
      90,
@@ -14060,6 +14349,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.045,
     "rotationPoses": [
      0,
      90
@@ -14113,6 +14403,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.161,
     "rotationPoses": [
      0,
      -90,
@@ -14165,6 +14456,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.045,
     "rotationPoses": [
      0,
      90,
@@ -14217,6 +14509,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.077,
     "rotationPoses": [
      0,
      -90,
@@ -14292,6 +14585,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.077,
     "rotationPoses": [
      0,
      -90,
@@ -14366,6 +14660,7 @@
      1
     ],
     "rotationRange": 180,
+    "rotationRate": 0.061,
     "rotationPoses": [
      0,
      180,
@@ -14421,6 +14716,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.038,
     "rotationPoses": [
      0,
      -60,
@@ -14487,6 +14783,7 @@
      1
     ],
     "rotationRange": 165,
+    "rotationRate": 0.035,
     "rotationPoses": [
      0,
      -30,
@@ -14549,6 +14846,7 @@
      2
     ],
     "rotationRange": 165,
+    "rotationRate": 0.035,
     "rotationPoses": [
      0,
      -30,
@@ -14629,6 +14927,7 @@
      0
     ],
     "rotationRange": 150,
+    "rotationRate": 0.04,
     "rotationPoses": [
      0,
      90,
@@ -14696,6 +14995,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.039,
     "rotationPoses": [
      0,
      90,
@@ -14769,6 +15069,7 @@
      1
     ],
     "rotationRange": 75,
+    "rotationRate": 0.025,
     "rotationPoses": [
      0,
      90
@@ -14818,6 +15119,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.059,
     "rotationPoses": [
      0,
      -90,
@@ -14883,6 +15185,7 @@
      1
     ],
     "rotationRange": 75,
+    "rotationRate": 0.026,
     "rotationPoses": [
      0
     ],
@@ -14935,6 +15238,7 @@
      1
     ],
     "rotationRange": 105,
+    "rotationRate": 0.05,
     "rotationPoses": [
      0,
      -90,
@@ -15002,6 +15306,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.023,
     "rotationPoses": [
      0,
      90
@@ -15050,6 +15355,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.039,
     "rotationPoses": [
      0,
      -90,
@@ -15117,6 +15423,7 @@
      1
     ],
     "rotationRange": 75,
+    "rotationRate": 0.025,
     "rotationPoses": [
      0,
      90
@@ -15165,6 +15472,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.04,
     "rotationPoses": [
      0,
      -90,
@@ -15246,6 +15554,16 @@
     "fade": 0.0,
     "transition": 0.49,
     "white": 0.28
+   },
+   "8": {
+    "share": 0.5,
+    "rate": 0.005,
+    "off": 0.03,
+    "on": 0.5,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.48,
+    "white": 0.33
    }
   },
   "groups": {
@@ -15262,6 +15580,7 @@
      0
     ],
     "rotationRange": 180,
+    "rotationRate": 0.15,
     "rotationPoses": [
      0,
      -30,
@@ -15322,6 +15641,7 @@
      0
     ],
     "rotationRange": 60,
+    "rotationRate": 0.027,
     "rotationPoses": [
      0,
      15,
@@ -15379,6 +15699,7 @@
      0
     ],
     "rotationRange": 60,
+    "rotationRate": 0.027,
     "rotationPoses": [
      0,
      15,
@@ -15438,6 +15759,7 @@
      2
     ],
     "rotationRange": 45,
+    "rotationRate": 0.011,
     "rotationPoses": [
      0,
      -15,
@@ -15499,6 +15821,7 @@
      2
     ],
     "rotationRange": 45,
+    "rotationRate": 0.011,
     "rotationPoses": [
      0,
      -15,
@@ -15560,6 +15883,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.002,
     "rotationPoses": [
      0,
      -15,
@@ -15621,6 +15945,7 @@
      1
     ],
     "rotationRange": 110,
+    "rotationRate": 0.036,
     "rotationPoses": [
      0,
      -30,
@@ -15685,6 +16010,7 @@
      1
     ],
     "rotationRange": 110,
+    "rotationRate": 0.037,
     "rotationPoses": [
      0,
      -30,
@@ -15750,6 +16076,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.033,
     "rotationPoses": [
      0,
      -90,
@@ -15812,6 +16139,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.033,
     "rotationPoses": [
      0,
      -90,
@@ -15874,6 +16202,7 @@
      2
     ],
     "rotationRange": 120,
+    "rotationRate": 0.054,
     "rotationPoses": [
      0,
      15,
@@ -15933,6 +16262,7 @@
      1
     ],
     "rotationRange": 0,
+    "rotationRate": 0.002,
     "rotationPoses": [
      0
     ],
@@ -15980,6 +16310,7 @@
      1
     ],
     "rotationRange": 0,
+    "rotationRate": 0.002,
     "rotationPoses": [
      0
     ],
@@ -16130,6 +16461,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.031,
     "rotationPoses": [
      0,
      60,
@@ -16188,6 +16520,7 @@
      1
     ],
     "rotationRange": 75,
+    "rotationRate": 0.031,
     "rotationPoses": [
      0,
      60,
@@ -16246,6 +16579,7 @@
      1
     ],
     "rotationRange": 105,
+    "rotationRate": 0.042,
     "rotationPoses": [
      0,
      -45,
@@ -16309,6 +16643,7 @@
      1
     ],
     "rotationRange": 105,
+    "rotationRate": 0.04,
     "rotationPoses": [
      0,
      -60,
@@ -16369,6 +16704,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.005,
     "rotationPoses": [
      0,
      -30,
@@ -16437,6 +16773,7 @@
      0
     ],
     "rotationRange": 135,
+    "rotationRate": 0.068,
     "rotationPoses": [
      0,
      180,
@@ -16503,6 +16840,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.065,
     "rotationPoses": [
      0,
      180,
@@ -16617,6 +16955,7 @@
      2
     ],
     "rotationRange": 15,
+    "rotationRate": 0.005,
     "rotationPoses": [
      0,
      90,
@@ -16668,6 +17007,7 @@
      2
     ],
     "rotationRange": 15,
+    "rotationRate": 0.005,
     "rotationPoses": [
      0,
      90,
@@ -16733,6 +17073,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.015,
     "rotationPoses": [
      0,
      90,
@@ -16788,6 +17129,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.012,
     "rotationPoses": [
      0,
      90,
@@ -16881,6 +17223,7 @@
      2
     ],
     "rotationRange": 75.0,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0,
      -45,
@@ -16945,6 +17288,7 @@
      1
     ],
     "rotationRange": 165.0,
+    "rotationRate": 0.091,
     "rotationPoses": [
      0,
      -90,
@@ -17010,6 +17354,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.067,
     "rotationPoses": [
      0,
      -90,
@@ -17068,6 +17413,7 @@
      1
     ],
     "rotationRange": 165.0,
+    "rotationRate": 0.071,
     "rotationPoses": [
      0,
      -90,
@@ -17130,6 +17476,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.067,
     "rotationPoses": [
      0,
      -90,
@@ -17191,6 +17538,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.06,
     "rotationPoses": [
      0,
      -90,
@@ -17253,6 +17601,7 @@
      0
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.112,
     "rotationPoses": [
      0,
      -90
@@ -17306,6 +17655,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.022,
     "rotationPoses": [
      0
     ],
@@ -17357,6 +17707,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.022,
     "rotationPoses": [
      0
     ],
@@ -17414,6 +17765,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.026,
     "rotationPoses": [
      0,
      45,
@@ -17476,6 +17828,7 @@
      1
     ],
     "rotationRange": 105.0,
+    "rotationRate": 0.019,
     "rotationPoses": [
      0,
      -105,
@@ -17538,6 +17891,7 @@
      1
     ],
     "rotationRange": 145,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0,
      15,
@@ -17601,6 +17955,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0,
      180,
@@ -17663,6 +18018,7 @@
      1
     ],
     "rotationRange": 150.0,
+    "rotationRate": 0.048,
     "rotationPoses": [
      0,
      180,
@@ -17726,6 +18082,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.026,
     "rotationPoses": [
      0,
      -15,
@@ -17796,6 +18153,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.022,
     "rotationPoses": [
      0
     ],
@@ -17906,6 +18264,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0
     ],
@@ -17953,6 +18312,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0
     ],
@@ -18002,6 +18362,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.026,
     "rotationPoses": [
      0,
      -90,
@@ -18056,6 +18417,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.031,
     "rotationPoses": [
      0,
      -15,
@@ -18113,6 +18475,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.036,
     "rotationPoses": [
      0
     ],
@@ -18194,6 +18557,7 @@
      1
     ],
     "rotationRange": 105,
+    "rotationRate": 0.029,
     "rotationPoses": [
      0,
      -90,
@@ -18257,6 +18621,7 @@
      0
     ],
     "rotationRange": 105.0,
+    "rotationRate": 0.031,
     "rotationPoses": [
      -90,
      0,
@@ -18320,6 +18685,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.009,
     "rotationPoses": [
      0,
      90,
@@ -18374,6 +18740,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0
     ],
@@ -18423,6 +18790,7 @@
      1
     ],
     "rotationRange": 90.0,
+    "rotationRate": 0.058,
     "rotationPoses": [
      0,
      -90,
@@ -18479,6 +18847,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.047,
     "rotationPoses": [
      0,
      90
@@ -18533,6 +18902,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0
     ],
@@ -18582,6 +18952,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0
     ],
@@ -18661,6 +19032,16 @@
     "fade": 0.0,
     "transition": 0.46,
     "white": 0.25
+   },
+   "8": {
+    "share": 0.36,
+    "rate": 0.009,
+    "off": 0.1,
+    "on": 0.77,
+    "flash": 0.0,
+    "fade": 0.0,
+    "transition": 0.13,
+    "white": 0.37
    }
   },
   "groups": {
@@ -18677,6 +19058,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.023,
     "rotationPoses": [
      0,
      60,
@@ -18868,6 +19250,7 @@
      1
     ],
     "rotationRange": 105,
+    "rotationRate": 0.036,
     "rotationPoses": [
      0,
      90,
@@ -18930,6 +19313,7 @@
      0
     ],
     "rotationRange": 170,
+    "rotationRate": 0.014,
     "rotationPoses": [
      0,
      -30,
@@ -19020,6 +19404,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.052,
     "rotationPoses": [
      0,
      -30,
@@ -19086,6 +19471,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.057,
     "rotationPoses": [
      0,
      90,
@@ -19165,6 +19551,7 @@
      1
     ],
     "rotationRange": 45.0,
+    "rotationRate": 0.015,
     "rotationPoses": [
      0,
      -15,
@@ -19269,6 +19656,7 @@
      0
     ],
     "rotationRange": 150,
+    "rotationRate": 0.055,
     "rotationPoses": [
      0,
      -90,
@@ -19326,6 +19714,7 @@
      0
     ],
     "rotationRange": 135.0,
+    "rotationRate": 0.044,
     "rotationPoses": [
      0,
      -90
@@ -19379,6 +19768,7 @@
      0
     ],
     "rotationRange": 90,
+    "rotationRate": 0.058,
     "rotationPoses": [
      0,
      30
@@ -19432,6 +19822,7 @@
      0
     ],
     "rotationRange": 120,
+    "rotationRate": 0.055,
     "rotationPoses": [
      0,
      30,
@@ -19539,6 +19930,7 @@
      1
     ],
     "rotationRange": 155,
+    "rotationRate": 0.05,
     "rotationPoses": [
      0,
      150,
@@ -19597,6 +19989,7 @@
      1
     ],
     "rotationRange": 150,
+    "rotationRate": 0.034,
     "rotationPoses": [
      0,
      150,
@@ -19653,6 +20046,7 @@
      1
     ],
     "rotationRange": 105,
+    "rotationRate": 0.045,
     "rotationPoses": [
      0,
      -90,
@@ -19708,6 +20102,7 @@
      1
     ],
     "rotationRange": 120,
+    "rotationRate": 0.038,
     "rotationPoses": [
      0,
      90,
@@ -19766,6 +20161,7 @@
      1
     ],
     "rotationRange": 120.0,
+    "rotationRate": 0.021,
     "rotationPoses": [
      0,
      -120,
@@ -19939,6 +20335,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.532,
     "rotationPoses": [
      0,
      -60,
@@ -19997,6 +20394,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.059,
     "rotationPoses": [
      0,
      180,
@@ -20049,6 +20447,7 @@
      2
     ],
     "rotationRange": 105,
+    "rotationRate": 0.056,
     "rotationPoses": [
      0,
      -90,
@@ -20104,6 +20503,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.056,
     "rotationPoses": [
      0,
      180,
@@ -20156,6 +20556,7 @@
      2
     ],
     "rotationRange": 105,
+    "rotationRate": 0.054,
     "rotationPoses": [
      0,
      -90,
@@ -20210,6 +20611,7 @@
      2
     ],
     "rotationRange": 51,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0,
      -60,
@@ -20240,6 +20642,7 @@
      2
     ],
     "rotationRange": 51,
+    "rotationRate": 0.043,
     "rotationPoses": [
      0,
      -60,
@@ -20269,6 +20672,7 @@
      2
     ],
     "rotationRange": 150,
+    "rotationRate": 0.052,
     "rotationPoses": [
      0,
      -150,
@@ -20322,6 +20726,7 @@
      2
     ],
     "rotationRange": 150,
+    "rotationRate": 0.052,
     "rotationPoses": [
      0,
      -150,
@@ -20375,6 +20780,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.144,
     "rotationPoses": [
      0,
      180
@@ -20426,6 +20832,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.116,
     "rotationPoses": [
      75,
      0,
@@ -20480,6 +20887,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.32,
     "rotationPoses": [
      180,
      165,
@@ -20509,6 +20917,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.048,
     "rotationPoses": [
      0,
      -30
@@ -20559,6 +20968,7 @@
      2
     ],
     "rotationRange": 0,
+    "rotationRate": 0.048,
     "rotationPoses": [
      0,
      -30
@@ -20609,6 +21019,7 @@
      2
     ],
     "rotationRange": 60,
+    "rotationRate": 0.126,
     "rotationPoses": [
      0,
      60,
@@ -20660,6 +21071,7 @@
      1
     ],
     "rotationRange": 30,
+    "rotationRate": 0.062,
     "rotationPoses": [
      0,
      45,
@@ -20714,6 +21126,7 @@
      1
     ],
     "rotationRange": 60,
+    "rotationRate": 0.136,
     "rotationPoses": [
      0,
      45
@@ -20765,6 +21178,7 @@
      1
     ],
     "rotationRange": 90,
+    "rotationRate": 0.066,
     "rotationPoses": [
      0,
      -135,
@@ -20819,6 +21233,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.005,
     "rotationPoses": [
      90
     ],
@@ -20868,6 +21283,7 @@
      2
     ],
     "rotationRange": 90,
+    "rotationRate": 0.004,
     "rotationPoses": [
      90
     ],
@@ -20969,6 +21385,7 @@
      2
     ],
     "rotationRange": 180,
+    "rotationRate": 0.002,
     "rotationPoses": [
      180,
      0
@@ -21030,6 +21447,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.038,
     "rotationPoses": [
      0
     ],
@@ -21080,6 +21498,7 @@
      2
     ],
     "rotationRange": 30,
+    "rotationRate": 0.038,
     "rotationPoses": [
      0
     ],
