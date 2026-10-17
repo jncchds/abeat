@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.25 — 2026-10-17
+
+- Rock Mixtape review: a light group's rotation axes come from real turns only (mapping tools write hold-only keyframes on every axis, which listed axes the game doesn't have: Rock Mixtape, EDM, Pyro, Dragons 2, Panic 2, Queen and others stop turning lights on axes the game ignores; Lizzo's rainbow ends gain their real y turns); rails move as often as curated maps move them instead of every bar, and groups beyond the roles join the downbeat chases at their own learned rate, taking turns, instead of all flashing every bar (Rock Mixtape's eyes and equalizer 0.28 -> 0.08 switch-ons per beat, curated 0.06).
+
 ## v0.2.24 — 2026-10-17
 
 - The Weeknd review: rails that curated maps start away from home (The Weeknd's buildings and lamp rings sit sunk below the stage until the song opens up) start in that intro pose and rise home on the first loud section or drop; translation axes mappers only ever set to one value are dropped (they did nothing in game); the survey can pin style-reference maps (The Weeknd: map 37114), which makes its rarely lit arrows and ring lasers set pieces as in curated maps.
