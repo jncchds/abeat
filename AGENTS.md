@@ -245,8 +245,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    HTTP range requests (only the .dat files; cached in `work/env-survey`), the basic event types used
    by >= 15 % of maps with value ranges of the special ones, and per light group the share of maps
    lighting / rotating / translating it, the axes, 90th-percentile magnitudes (angles normalized to
-   ±180°) and a light-count lower bound from filters; the poses mappers move each group to (rotation:
-   angles on its main axis in 15° steps used by >= 4 % of keyframes, most used first; translation: 10th /
+   ±180°; a rotation axis counts when it carries 15 % of the turns or half the maps turning the group use
+   it, e.g. Weave's y) and a light count from filters (the largest one >= 3 maps imply, shared by mirror
+   partners); the poses mappers move each group to (keyframes that only hold the previous value skipped;
+   rotation: angles per axis in 15° steps used by >= 4 % of keyframes, most used first, `rotationPoses`
+   for the main axis and `axisPoses` for the others; translation: 10th /
    50th / 90th percentile per axis) and its mirror partner (the group that gets identical events at the
    same beat >= 70 % of the time, mutual; the game mirrors the other side, so partners are sent the same
    values: Lattice n <-> n+7, Weave 2k <-> 2k+1), plus per environment the median length of eased
@@ -258,7 +261,8 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    paired as left/right units, roles by prominence (kicks, ambient section wash that breathes in quiet parts, note flashes
    per hand, white snares, melody holds, downbeat chases, hat flickers; fallbacks share units when an
    environment has few, extra units join the chases). Groups rotated / translated by >= 30 % of maps
-   move along their main axis between their learned poses, mirror partners together (identical events)
+   move along their main axis between their learned poses (further rotation axes join every other swing
+   between their own poses, and follow the builds and drops), mirror partners together (identical events)
    and neighbouring units in opposite phase: each starts at its home pose (most used angle / median
    distance), quiet sections drift to the nearest pose and back over 16 beats, louder ones swing on
    downbeats between the pose ~(0.3 + 0.7 x energy) of the way to the furthest one (within 135° of home)

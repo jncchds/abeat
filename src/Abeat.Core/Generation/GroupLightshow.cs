@@ -171,7 +171,7 @@ public static class GroupLightshow
     }
 
     /// <summary>Rotation and translation choreography for every group curated maps move, between the poses
-    /// mappers use for that group (rails on every axis mappers move them on) (<see cref="LightGroupInfo.RotationPoses"/>, <see cref="LightGroupInfo.TranslationValues"/>):
+    /// mappers use for that group (turns and rails on every axis mappers use) (<see cref="LightGroupInfo.RotationPoses"/>, <see cref="LightGroupInfo.TranslationValues"/>):
     /// every moving group starts at its home pose (the most used one), quiet sections drift to a nearby
     /// pose and back, louder ones swing between learned poses on downbeats (further from home with energy),
     /// over a build-up the lights return home and they burst out to their widest pose on the drop. Mirror
@@ -195,16 +195,26 @@ public static class GroupLightshow
         {
             var g = u.Groups[0];
             int axis = g.RotationAxes[0];
-            var p = RotationPoses.Of(g);
+            var p = RotationPoses.Of(g.RotationPoses, g.RotationRange);
+            // further axes mappers turn the group about (Weave's lights also turn about y), between their own
+            // learned poses: they join every other swing and follow the builds and drops
+            var extra = g.RotationAxes.Skip(1).Where(ax => g.PosesOn(ax) is { Length: > 0 })
+                .Select(ax => (ax, p: RotationPoses.Of(g.PosesOn(ax), g.RotationRange))).ToList();
             // neighbouring units swing in opposite phase so their beams cross
             bool flip = ui % 2 == 1;
-            void Rot(double beat, double deg, double spread, double dur, double wave = 0)
+            void Turn(double beat, int ax, double deg, double spread, double dur, double wave)
             {
                 if (beat >= end) return;
                 double norm = ((deg % 360) + 360) % 360;
-                foreach (var x in u.Groups) map.GroupRotations.Add(new LightRotation(beat, x.Id, axis, norm, spread, dur, BeatSpread: wave));
+                foreach (var x in u.Groups) map.GroupRotations.Add(new LightRotation(beat, x.Id, ax, norm, spread, dur, BeatSpread: wave));
+            }
+            void Rot(double beat, double deg, double spread, double dur, double wave = 0) => Turn(beat, axis, deg, spread, dur, wave);
+            void Extra(double beat, Func<RotationPoses, double> to, double dur, double wave = 0)
+            {
+                foreach (var (ax, q) in extra) Turn(beat, ax, to(q), 0, dur, wave);
             }
             Rot(start, p.Home, 0, 0);
+            Extra(start, q => q.Home, 0);
             if (u == tracer)
             {
                 double last = double.NegativeInfinity;
@@ -226,6 +236,7 @@ public static class GroupLightshow
                         // slow drift: a long eased turn to the nearest pose and back, every four bars
                         for (int i = 0; i < bars.Count; i += 4)
                             Rot(bars[i], (i / 4 % 2 == 0) != flip ? p.Near : p.Home, 0, 16);
+                        Extra(b0, q => q.Home, 4);
                     }
                     else
                     {
@@ -235,14 +246,26 @@ public static class GroupLightshow
                         var (out1, out2) = p.Swing(0.3 + 0.7 * rel);
                         double fan = Math.Abs(Angle(out1 - p.Home)) * 0.3 * rel;
                         for (int i = 0; i < bars.Count; i += every)
-                            Rot(bars[i], (i / every % 2 == 0) != flip ? out1 : out2, fan, turn, 0.5);
+                        {
+                            int k = i / every;
+                            Rot(bars[i], (k % 2 == 0) != flip ? out1 : out2, fan, turn, 0.5);
+                            if (k % 2 == 0)
+                                Extra(bars[i], q => q.Swing(0.3 + 0.7 * rel) switch { var (x1, x2) => (k / 2 % 2 == 0) != flip ? x1 : x2 }, turn, 0.5);
+                        }
                     }
                 }
             foreach (var bu in builds)
+            {
                 Rot(bu.Start, p.Home, 0, bu.Drop - bu.Start - 0.25); // gather at home over the build
+                Extra(bu.Start, q => q.Home, bu.Drop - bu.Start - 0.25);
+            }
             foreach (var d in drops)
+            {
                 Rot(d, p.Wide, p.Reach * 0.5, 0.5, 0.25); // burst out to the widest pose on the drop
+                Extra(d, q => q.Wide, 0.5, 0.25);
+            }
             Rot(end - 2, p.Home, 0, 2); // settle home after the last note
+            Extra(end - 2, q => q.Home, 2);
         }
 
         foreach (var u in moving)
@@ -293,7 +316,7 @@ public static class GroupLightshow
         }
 
         // one motion per group and beat (later rules win)
-        var rot = map.GroupRotations.GroupBy(r => (Math.Round(r.Beat, 4), r.Group)).Select(x => x.Last()).OrderBy(r => r.Beat).ToList();
+        var rot = map.GroupRotations.GroupBy(r => (Math.Round(r.Beat, 4), r.Group, r.Axis)).Select(x => x.Last()).OrderBy(r => r.Beat).ToList();
         map.GroupRotations.Clear();
         map.GroupRotations.AddRange(rot);
         var tr = map.GroupTranslations.GroupBy(t => (Math.Round(t.Beat, 4), t.Group, t.Axis)).Select(x => x.Last()).OrderBy(t => t.Beat).ToList();
@@ -307,12 +330,12 @@ public static class GroupLightshow
     /// <summary>The angles a group turns between, from the poses mappers use (fallback: ±range/2 about 0).</summary>
     sealed record RotationPoses(double Home, double[] Others)
     {
-        public static RotationPoses Of(LightGroupInfo g)
+        public static RotationPoses Of(int[]? learned, double range)
         {
-            var poses = g.RotationPoses is { Length: > 0 } rp ? rp.Select(x => (double)x).ToArray() : [];
+            var poses = learned is { Length: > 0 } rp ? rp.Select(x => (double)x).ToArray() : [];
             if (poses.Length == 0)
             {
-                double r = g.RotationRange >= 5 ? Math.Min(g.RotationRange, 90) : 30;
+                double r = range >= 5 ? Math.Min(range, 90) : 30;
                 return new(0, [r / 2, -r / 2]);
             }
             double home = poses[0];

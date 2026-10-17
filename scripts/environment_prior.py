@@ -9,7 +9,7 @@ work/env-survey) and writes src/Abeat.Core/Generation/environment-prior.json:
   ring / laser-speed types;
 - group environments (v3/v4 lightshows): per light group, the share of maps lighting / rotating /
   translating it, the axes and magnitudes used, a lower bound on its light count from filters, the
-  poses mappers move it to (angles, distance percentiles per axis) and its mirror partner; per
+  poses mappers move it to (angles per rotation axis, distance percentiles per axis) and its mirror partner; per
   environment the median length of eased rotations / translations.
 
     python3 scripts/environment_prior.py [maps per environment, default 14]
@@ -197,8 +197,9 @@ class Stats:
         self.groups = collections.defaultdict(lambda: {
             "color": 0, "rotation": 0, "translation": 0, "fx": 0,
             "rot_axes": collections.Counter(), "tr_axes": collections.Counter(),
-            "rot_max": [], "tr_max": [], "lights": 0, "colors": collections.Counter(), "events": 0,
+            "rot_max": [], "tr_max": [], "lights": collections.Counter(), "colors": collections.Counter(), "events": 0,
             "rot_vals": collections.defaultdict(list), "tr_vals": collections.defaultdict(list),
+            "rot_axis_maps": collections.Counter(),
         })
         # (group, other group) -> [events of the group with an event of the other at the same beat, identical ones]
         self.pairs = collections.defaultdict(lambda: [0, 0])
@@ -215,19 +216,25 @@ class Stats:
             if t in (8, 9, 12, 13) or t >= 14:
                 self.basic_values[t][v] += 1
         used = collections.defaultdict(set)
+        hints = collections.defaultdict(int)
+        rot_axes = collections.defaultdict(set)
         for g, filt, colors, _ in color:
             s = self.groups[g]
             used[g].add("color")
             s["events"] += 1
-            s["lights"] = max(s["lights"], lights_hint(filt))
+            hints[g] = max(hints[g], lights_hint(filt))
             for c in colors:
                 s["colors"][c] += 1
         for kind, rows in (("rotation", rotation), ("translation", translation)):
-            for g, filt, axis, mags, _, _ in rows:
+            for g, filt, axis, mags, _, keys in rows:
                 s = self.groups[g]
                 used[g].add(kind)
-                s["lights"] = max(s["lights"], lights_hint(filt))
+                hints[g] = max(hints[g], lights_hint(filt))
                 s["rot_axes" if kind == "rotation" else "tr_axes"][axis] += 1
+                if kind == "rotation":
+                    rot_axes[g].add(axis)
+                # keyframes that only hold the previous value carry no pose
+                mags = [m for m, (_, _, prev) in zip(mags, keys) if not prev]
                 if mags:
                     if kind == "rotation":  # angles are 0..360; 330 is -30
                         mags = [(m + 180) % 360 - 180 for m in mags]
@@ -235,6 +242,11 @@ class Stats:
                     s["rot_vals" if kind == "rotation" else "tr_vals"][axis].extend(mags)
         self.add_pairs(color, rotation, translation)
         self.add_eases(rotation, translation)
+        for g, h in hints.items():
+            self.groups[g]["lights"][h] += 1
+        for g, axes in rot_axes.items():
+            for a in axes:
+                self.groups[g]["rot_axis_maps"][a] += 1
         for g in fx:
             used[g].add("fx")
         for g, kinds in used.items():
@@ -386,11 +398,17 @@ def summarize(env, st):
         if max(share.values()) < 0.2:
             continue
         row = {k: v for k, v in share.items() if v >= 0.2}
-        row["lights"] = s["lights"]
+        # the largest light count at least three maps' filters imply (a map or two copy filters between groups)
+        lights = s["lights"]
+        row["lights"] = max((h for h in lights if sum(n for k, n in lights.items() if k >= h) >= min(3, sum(lights.values()))), default=0)
         if s["rot_axes"] and share["rotation"] >= 0.2:
-            row["rotationAxes"] = [a for a, n in s["rot_axes"].most_common() if n >= 0.15 * sum(s["rot_axes"].values())]
+            # an axis counts when it carries 15 % of the turns or half the maps that turn the group use it
+            row["rotationAxes"] = [a for a, n in s["rot_axes"].most_common() if n >= 0.15 * sum(s["rot_axes"].values())
+                                   or s["rot_axis_maps"][a] >= 0.5 * s["rotation"]]
             row["rotationRange"] = round(pct(s["rot_max"], 0.9), 1)
             row["rotationPoses"] = poses(s["rot_vals"][row["rotationAxes"][0]])
+            if len(row["rotationAxes"]) > 1:
+                row["axisPoses"] = {str(a): poses(s["rot_vals"][a]) for a in row["rotationAxes"][1:]}
         if s["tr_axes"] and share["translation"] >= 0.2:
             row["translationAxes"] = [a for a, n in s["tr_axes"].most_common() if n >= 0.15 * sum(s["tr_axes"].values())]
             row["translationRange"] = round(pct(s["tr_max"], 0.9), 2)
@@ -402,6 +420,10 @@ def summarize(env, st):
             tot = sum(s["colors"].values())
             row["white"] = round(s["colors"][2] / tot, 2)
         groups[str(g)] = row
+    # mirror partners hold the same lights; a map's filters may only reveal part of one side
+    for g, row in groups.items():
+        if str(row.get("mirror")) in groups:
+            row["lights"] = max(row["lights"], groups[str(row["mirror"])]["lights"])
     if groups:
         out["groups"] = groups
     return out

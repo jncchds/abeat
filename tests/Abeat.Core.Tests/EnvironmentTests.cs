@@ -74,6 +74,22 @@ public class EnvironmentTests
     }
 
     [Fact]
+    public void WeaveTurnsAboutBothAxes()
+    {
+        // Weave's lights turn about x and y; mappers set both in one event group
+        var env = EnvironmentCatalog.Find("Weave")!;
+        Assert.All(env.Groups.Where(g => g.Id < 16), g => Assert.Equal([0, 1], g.RotationAxes));
+        // light counts from filters at least three maps agree on (the game has 8 per group, 12 on 12/13)
+        Assert.All(env.Groups.Where(g => g.Id < 16), g => Assert.Equal(g.Id is 12 or 13 ? 12 : 8, g.Lights));
+        var d = Gen(Drummed(), "Weave").Difficulties[0].Map;
+        Assert.Equal([0, 1], d.GroupRotations.Select(r => r.Axis).Distinct().Order());
+        var json = MapWriter.DifficultyJson(d);
+        var groups = json["lightRotationEventBoxGroups"]!.AsArray();
+        Assert.Equal(groups.Count, groups.Select(g => (g!["b"]!.GetValue<double>(), g["g"]!.GetValue<int>())).Distinct().Count());
+        Assert.Contains(groups, g => g!["e"]!.AsArray().Count == 2);
+    }
+
+    [Fact]
     public void LatticeMirrorsAreLearned()
     {
         // Lattice's cube clusters are moved on all three axes: every one gets its home pose
@@ -98,14 +114,15 @@ public class EnvironmentTests
             static double Signed(double x) => ((x % 360) + 540) % 360 - 180;
 
             // partners get identical events (no sign flip: the game mirrors the other side itself)
-            var rot = d.GroupRotations.ToLookup(r => (Math.Round(r.Beat, 4), r.Group));
-            foreach (var r in d.GroupRotations.Where(r => byId[r.Group].Mirror is int m && rot[(Math.Round(r.Beat, 4), m)].Any()))
-                Assert.Equal(r.Degrees, rot[(Math.Round(r.Beat, 4), byId[r.Group].Mirror!.Value)].Single().Degrees);
+            var rot = d.GroupRotations.ToLookup(r => (Math.Round(r.Beat, 4), r.Group, r.Axis));
+            foreach (var r in d.GroupRotations.Where(r => byId[r.Group].Mirror is int m && rot[(Math.Round(r.Beat, 4), m, r.Axis)].Any()))
+                Assert.Equal(r.Degrees, rot[(Math.Round(r.Beat, 4), byId[r.Group].Mirror!.Value, r.Axis)].Single().Degrees);
 
-            // turns stay within the furthest learned pose from home (within 135°)
+            // turns about each axis stay within the furthest pose learned on it from home (within 135°)
             foreach (var r in d.GroupRotations)
             {
-                var poses = Lead(r.Group).RotationPoses;
+                Assert.Contains(r.Axis, Lead(r.Group).RotationAxes);
+                var poses = Lead(r.Group).PosesOn(r.Axis);
                 if (poses is not { Length: > 1 }) continue;
                 double reach = poses.Skip(1).Take(5).Select(p => Math.Abs(Signed(p - poses[0]))).Where(x => x <= 135).DefaultIfEmpty(45).Max();
                 Assert.True(Math.Abs(Signed(r.Degrees - poses[0])) <= reach + 1e-6, $"{env.Id} group {r.Group} turns to {r.Degrees}");
