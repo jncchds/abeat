@@ -218,7 +218,7 @@ class Stats:
             "rot_axes": collections.Counter(), "tr_axes": collections.Counter(),
             "rot_max": [], "tr_max": [], "lights": collections.Counter(), "colors": collections.Counter(), "events": 0,
             "rot_vals": collections.defaultdict(list), "tr_vals": collections.defaultdict(list),
-            "rot_axis_maps": collections.Counter(),
+            "rot_axis_maps": collections.Counter(), "rot_turn_axes": collections.Counter(),
             "rot_held": collections.defaultdict(collections.Counter), "rot_held_maps": collections.Counter(),
             "tr_first": collections.defaultdict(list),
         })
@@ -228,6 +228,7 @@ class Stats:
         self.pair_maps = collections.defaultdict(set)
         self.on_rates = collections.defaultdict(list)    # group -> per map: beats it is switched on / song beats
         self.turn_rates = collections.defaultdict(list)  # group -> per map turning it: beats it turns to a pose / song beats
+        self.move_rates = collections.defaultdict(list)  # group -> per map moving it: beats it moves to a position / song beats
         # basic light type -> per map events / song beats; value classes; identical-event partners
         self.basic_rates = collections.defaultdict(list)
         self.basic_kinds = collections.defaultdict(collections.Counter)
@@ -269,13 +270,14 @@ class Stats:
                 used[g].add(kind)
                 hints[g] = max(hints[g], lights_hint(filt))
                 s["rot_axes" if kind == "rotation" else "tr_axes"][axis] += 1
-                if kind == "rotation":
-                    rot_axes[g].add(axis)
                 # keyframes that only hold the previous value carry no pose
                 mags = [m for m, (_, _, prev) in zip(mags, keys) if not prev]
                 if mags:
                     if kind == "rotation":  # angles are 0..360; 330 is -30
                         mags = [(m + 180) % 360 - 180 for m in mags]
+                        # only real turns: mappers' tools hold axes the group lacks
+                        rot_axes[g].add(axis)
+                        s["rot_turn_axes"][axis] += 1
                     s["rot_max" if kind == "rotation" else "tr_max"].append(max(abs(m) for m in mags))
                     s["rot_vals" if kind == "rotation" else "tr_vals"][axis].extend(mags)
         self.add_held(rotation, span)
@@ -285,6 +287,11 @@ class Stats:
         for g, beats in turns.items():
             self.turn_rates[g].append(len(beats) / span)
         self.add_first(translation)
+        moves = collections.defaultdict(set)
+        for g, _, _, mags, b, keys in translation:
+            moves[g].update(round(b + kb, 3) for kb, _, prev in keys if not prev)
+        for g, beats in moves.items():
+            self.move_rates[g].append(len(beats) / span)
         self.add_pairs(color, rotation, translation)
         self.add_eases(rotation, translation)
         for g, h in hints.items():
@@ -572,9 +579,15 @@ def summarize(env, st):
         if st.on_rates[g]:
             row["rate"] = round(statistics.median(st.on_rates[g]), 3)
         if s["rot_axes"] and share["rotation"] >= 0.2:
-            # an axis counts when it carries 15 % of the turns or half the maps that turn the group use it
-            row["rotationAxes"] = [a for a, n in s["rot_axes"].most_common() if n >= 0.15 * sum(s["rot_axes"].values())
-                                   or s["rot_axis_maps"][a] >= 0.5 * s["rotation"]]
+            # an axis counts when it carries 15 % of the real turns (from two maps or more), or a third of the maps
+            # that turn the group really turn it about that axis with 5 % of the turns (Weave's y, Lizzo's rainbow
+            # ends' y); turns about axes a group lacks are rare or one map's (Rock Mixtape's screens about x / z,
+            # Hip Hop's hoops about z), and keyframes that only hold a value, as mappers' tools send them, don't count
+            turned, total = s["rot_turn_axes"], sum(s["rot_turn_axes"].values())
+            row["rotationAxes"] = [a for a, _ in s["rot_axes"].most_common()
+                                   if turned[a] >= 0.15 * total and s["rot_axis_maps"][a] >= 2
+                                   or turned[a] >= 0.05 * total and s["rot_axis_maps"][a] >= s["rotation"] / 3] \
+                or [s["rot_axes"].most_common(1)[0][0]]
             row["rotationRange"] = round(pct(s["rot_max"], 0.9), 1)
             main = row["rotationAxes"][0]
             if st.turn_rates[g]:
@@ -589,6 +602,9 @@ def summarize(env, st):
         if s["tr_axes"] and share["translation"] >= 0.2:
             row["translationAxes"] = [a for a, n in s["tr_axes"].most_common() if n >= 0.15 * sum(s["tr_axes"].values())]
             row["translationRange"] = round(pct(s["tr_max"], 0.9), 2)
+            if st.move_rates[g]:
+                # how often it moves (Rock Mixtape's eyes: every few beats; its back lasers: every few bars)
+                row["translationRate"] = round(statistics.median(st.move_rates[g]), 3)
             row["translationValues"] = {str(a): [round(pct(s["tr_vals"][a], q), 2) for q in (0.1, 0.5, 0.9)]
                                         for a in row["translationAxes"] if s["tr_vals"][a]}
             # an axis mappers only ever set to one value carries no motion (a stray x on The Weeknd's ring)

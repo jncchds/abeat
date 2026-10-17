@@ -245,8 +245,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    HTTP range requests (only the .dat files; cached in `work/env-survey`), the basic event types used
    by >= 15 % of maps with value ranges of the special ones, and per light group the share of maps
    lighting / rotating / translating it, the axes, 90th-percentile magnitudes (angles normalized to
-   ±180°; a rotation axis counts when it carries 15 % of the turns or half the maps turning the group use
-   it, e.g. Weave's y) and a light count from filters (the largest one >= 3 maps imply, shared by mirror
+   ±180°; a rotation axis counts when it carries 15 % of the real turns (from >= 2 maps), or 5 % of them from a third of the
+   maps turning the group, e.g. Weave's y; keyframes that only hold a value don't count, and axes the group lacks, which
+   only one map or a few stray turns use, drop out: Rock Mixtape's screens about x / z, Hip Hop's hoops about z) and a light count from filters (the largest one >= 3 maps imply, shared by mirror
    partners); the poses mappers move each group to (keyframes that only hold the previous value skipped;
    rotation: angles per axis in 15° steps used by >= 4 % of keyframes, home first (the angle it rests at
    longest, per-map share of held time, e.g. EDM's circle rotations rest at 0° while mappers flick them to
@@ -259,7 +260,8 @@ buildings start lowered) and its mirror partner (the group that gets identical e
    values: Lattice n <-> n+7, Weave 2k <-> 2k+1), plus per environment the median length of eased
    turns / moves (`RotationEase` / `TranslationEase`, e.g. Lattice 0.75 / 0.75 beats, Weave 0.5, Coldplay 3.75), each
    group's `Rate` (median share of song beats it is switched on), `RotationRate` (median share of song beats a map
-   turning it turns it to a pose: Lizzo's rainbow 0.05, its top lasers 0.2) and, for group environments, `BasicLights`: the
+   turning it turns it to a pose: Lizzo's rainbow 0.05, its top lasers 0.2), `TranslationRate` (the same for moves: Rock
+   Mixtape's back lasers 0.05, its eyes 0.35) and, for group environments, `BasicLights`: the
    basic light types 0-7, plus 8-12 where they switch lights (values within 0-12, >= 3 kinds, >= 80 % off / on /
    transition; ring and laser-speed steps spread over every value: Lizzo's peaches 7 <-> 8, Britney / Metallica /
    Coldplay / Monstercat 2's 8), lit by >= 30 % of maps (events per beat, on / transition / white shares, the type
@@ -273,7 +275,8 @@ buildings start lowered) and its mirror partner (the group that gets identical e
    `GroupLightshow`: groups lit by >= 30 % of maps, mirror partners (else consecutive ids used alike)
    paired as left/right units; the most prominent units take the roles (kicks, ambient section wash that breathes in quiet
    parts, note flashes per hand, white snares, melody holds, downbeat chases, hat flickers; fallbacks share units when an
-   environment has few, extra units join the chases), the busier roles (notes, kicks, melody, snares, chases, hats, then
+   environment has few; extra units join the downbeat chases every power of two of bars near the median lit group's
+   rate / theirs, taking turns, e.g. Rock Mixtape's eyes every fourth bar; likewise in build-up chase steps), the busier roles (notes, kicks, melody, snares, chases, hats, then
    the ambient wash) going to the groups curated maps switch on more often (The Second: notes on the runway 2/3). Groups switched on under a quarter as often as the median lit group
    (Pyro's fire 12/13: 0.034 vs 0.23) take no role: they burst (on, off a beat later) as often as curated maps fire
    them, on drops first, then loud section starts and the loudest sections' downbeats, a bar apart. The basic light
@@ -292,7 +295,8 @@ buildings start lowered) and its mirror partner (the group that gets identical e
    and the pose mirroring it about home (or home; groups resting at home >= half the time go home between
    swings), eased over the environment's `RotationEase`; rails
    move on every axis mappers use (Lattice's cube clusters sit out, down and forward: home on all axes),
-   pumping on downbeats towards the far percentile over `TranslationEase` (other axes at half size); over a
+   pumping on downbeats (a power of two of bars near 1 / (`TranslationRate` x bar), doubled below 0.8 energy; every bar
+   when unknown) towards the far percentile over `TranslationEase` (other axes at half size); over a
    build-up rotations gather home and rails pull towards the near side, while the chases speed up and the ambient
    strobes to white, and on the drop everything flashes white and bursts out to the widest pose;
    after the last note every moving group settles home. Rails with a learned intro pose start there and hold it until the
