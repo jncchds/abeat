@@ -259,19 +259,24 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    group's `Rate` (median share of song beats it is switched on) and, for group environments, `BasicLights`: the
    basic light types 0-7 lit by >= 30 % of maps (events per beat, on / transition / white shares, the type
    getting identical events in >= 60 % of the maps firing both, mutual; Pyro: 4 runway 0.39/beat, 2 <-> 3
-   projectors 0.2, 0 <-> 1 logo, 6). Classic environments use `LightingGenerator`
+   projectors 0.2, 0 <-> 1 logo, 6), and `Steps`: basic types whose value is a position step (`STEP_TYPES` in the script,
+   from the game: The Second's ring spacing 9, 0..9) with their rate and the low / high step mappers pulse between
+   (median of each map's most common pair; The Second 1 / 8 at 0.31 per beat). Classic environments use `LightingGenerator`
    plus their extra channels: 6/7 flicker with the hats, 10/11 hold the melody, set pieces 16-19 go up
    on loud sections and drops and down in quiet ones (value ranges <= 3 are selectors, e.g.
    Interscope's cars: odd type on loud, even on quiet). Group environments (Weave and later) use
    `GroupLightshow`: groups lit by >= 30 % of maps, mirror partners (else consecutive ids used alike)
-   paired as left/right units, roles by prominence (kicks, ambient section wash that breathes in quiet parts, note flashes
-   per hand, white snares, melody holds, downbeat chases, hat flickers; fallbacks share units when an
-   environment has few, extra units join the chases). Groups switched on under a quarter as often as the median lit group
+   paired as left/right units; the most prominent units take the roles (kicks, ambient section wash that breathes in quiet
+   parts, note flashes per hand, white snares, melody holds, downbeat chases, hat flickers; fallbacks share units when an
+   environment has few, extra units join the chases), the busier roles (notes, kicks, melody, snares, chases, hats, then
+   the ambient wash) going to the groups curated maps switch on more often (The Second: notes on the runway 2/3). Groups switched on under a quarter as often as the median lit group
    (Pyro's fire 12/13: 0.034 vs 0.23) take no role: they burst (on, off a beat later) as often as curated maps fire
    them, on drops first, then loud section starts and the loudest sections' downbeats, a bar apart. The basic light
    types get `DifficultyMap.EnvironmentLights` (replacing the classic events outside 90/360): one event per power-of-two
    step near 1 / rate (doubled in quiet sections), "on" in the section colour at its start, then on / transition values
    to the other colour or white in the learned shares, mirrored types identical, white on drops, off at the end.
+   Step types rest low in quiet sections, alternate high / low from the downbeats about as often as the maps change them
+   (twice as often in the loudest sections), step down from high to low over a build-up and jump high on the drop.
    Groups rotated / translated by >= 30 % of maps
    move along their main axis between their learned poses (further rotation axes join every other swing
    between their own poses, and follow the builds and drops), mirror partners together (identical events)

@@ -12,7 +12,8 @@ work/env-survey) and writes src/Abeat.Core/Generation/environment-prior.json:
   light count from filters, the poses mappers move it to (angles per rotation axis, home first: the one
   it rests at longest, with the share of time it rests there; distance percentiles per axis) and its
   mirror partner; per environment the median length of eased rotations / translations,
-  and how the basic light types (0-7, e.g. Pyro's runway and projectors) are used next to the groups.
+  and how the basic light types (0-7, e.g. Pyro's runway and projectors) are used next to the groups,
+  plus the step types (STEP_TYPES: The Second's ring spacing) as mappers pulse them.
 
     python3 scripts/environment_prior.py [maps per environment, default 14]
 """
@@ -45,6 +46,10 @@ ENVIRONMENTS = [
     "HipHopEnvironment", "ColliderEnvironment", "BritneyEnvironment", "Monstercat2Environment",
     "MetallicaEnvironment", "GridEnvironment", "ColdplayEnvironment", "ProdigyEnvironment",
 ]
+
+# basic event types whose value is a position step rather than a light, a speed or a trigger (game
+# facts: The Second's small rings sit value x 0.5 m apart, values clamped to 0..9)
+STEP_TYPES = {"TheSecondEnvironment": {9: (0, 9)}}
 
 
 def get_json(url):
@@ -213,6 +218,7 @@ class Stats:
         self.basic_rates = collections.defaultdict(list)
         self.basic_kinds = collections.defaultdict(collections.Counter)
         self.basic_pairs = collections.defaultdict(list)  # (type, other) -> per map [same-beat events, identical]
+        self.steps = collections.defaultdict(list)       # type 8-13 -> per map (events / song beats, low, high)
 
     def add(self, basic, color, rotation, translation, fx):
         """basic: [(type, value, float, beat)]; color: [(group, filter, [color], beat, switched on)];
@@ -231,6 +237,7 @@ class Stats:
         for g, beats in on.items():
             self.on_rates[g].append(len(beats) / span)
         self.add_basic_lights(basic, span)
+        self.add_steps(basic, span)
         used = collections.defaultdict(set)
         hints = collections.defaultdict(int)
         rot_axes = collections.defaultdict(set)
@@ -294,6 +301,18 @@ class Stats:
                         pairs[(t, u)][1] += e == e2
         for k, p in pairs.items():
             self.basic_pairs[k].append(p)
+
+    def add_steps(self, basic, span):
+        """Types 8-13 read as steps: how often they change and the two values mappers pulse between (the
+        most common pair of consecutive different values; else the 10th / 90th percentile)."""
+        for t in range(8, 14):
+            ev = sorted((b, v) for x, v, _, b in basic if x == t and 0 <= v <= 20)
+            if len(ev) < 5:
+                continue
+            moves = collections.Counter(tuple(sorted((v1, v2))) for (_, v1), (_, v2) in zip(ev, ev[1:]) if v1 != v2)
+            vals = [v for _, v in ev]
+            low, high = moves.most_common(1)[0][0] if moves else (pct(vals, 0.1), pct(vals, 0.9))
+            self.steps[t].append((len(ev) / span, low, high))
 
     def add_pairs(self, color, rotation, translation):
         """Mirror partners: groups that get the same event at the same beat (the game mirrors the right
@@ -482,6 +501,15 @@ def summarize(env, st):
             del row["mirror"]
     if lights:
         out["basicLights"] = lights
+    steps = {}
+    for t, (lo, hi) in STEP_TYPES.get(env, {}).items():
+        rows = st.steps[t]
+        if len(rows) >= 0.3 * st.maps:
+            steps[str(t)] = {"share": round(len(rows) / st.maps, 2), "rate": round(statistics.median(r[0] for r in rows), 3),
+                             "low": min(hi, max(lo, int(statistics.median(r[1] for r in rows)))),
+                             "high": min(hi, max(lo, int(statistics.median(r[2] for r in rows))))}
+    if steps:
+        out["steps"] = steps
     groups = {}
     mirrors = st.mirrors()
     for g, s in sorted(st.groups.items()):

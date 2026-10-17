@@ -22,6 +22,7 @@ public static class GroupLightshow
     {
         public double Color => Groups.Max(g => g.Color);
         public int Lights => Groups.Max(g => g.Lights);
+        public double? Rate => Groups.All(g => g.Rate > 0) ? Groups.Max(g => g.Rate!.Value) : null;
     }
 
     public static void Generate(SongAnalysis a, DifficultyMap map, IReadOnlyList<RhythmEvent> events, EnvironmentInfo env)
@@ -160,6 +161,7 @@ public static class GroupLightshow
 
         Motion(a, map, env, end, maxEnergy, downbeats, drops, builds, melody);
         Accents(a, map, Pair(accents), end, maxEnergy, downbeats, drops);
+        Steps(a, map, env, end, maxEnergy, downbeats, drops, builds);
         BasicLights(a, map, env, end, maxEnergy, drops, labelColor);
 
         // environment special events (40-43: set-piece animations) go off on the drops, with the value
@@ -209,6 +211,43 @@ public static class GroupLightshow
         foreach (var b in chosen.Order())
             foreach (var g in units.SelectMany(u => u.Groups))
                 map.GroupLights.Add(new LightGroupEvent(b, g.Id, [new LightBox(1, 0, false, 0, 0, [new(0, Red, 1), new(1, Red, 0)])]));
+    }
+
+    /// <summary>Step types (<see cref="EnvironmentInfo.Steps"/>, The Second's ring spacing) as curated maps pulse
+    /// them: quiet sections rest at the low step, louder ones alternate high and low from the downbeats about as
+    /// often as the maps change the type (twice as often in the loudest sections), build-ups step down from
+    /// high to low on the beats and the drops jump to high; low after the last note.</summary>
+    static void Steps(SongAnalysis a, DifficultyMap map, EnvironmentInfo env, double end, double maxEnergy,
+        List<double> downbeats, List<double> drops, List<BuildUp> builds)
+    {
+        foreach (var t in env.Steps ?? [])
+        {
+            void Add(double beat, int value) { if (beat <= end) map.EnvironmentLights.Add(new LightEvent(beat, t.Type, value)); }
+            bool InBuild(double b) => builds.Any(x => b >= x.Start && b < x.Drop);
+            double step = Math.Pow(2, Math.Clamp(Math.Round(Math.Log2(1 / Math.Max(t.Rate, 1e-3))), -1, 4));
+            Add(0, t.Low);
+            foreach (var sec in a.Sections)
+            {
+                double b0 = Math.Round(a.SecondsToBeat(sec.Start)), b1 = Math.Min(a.SecondsToBeat(sec.End), end);
+                if (b0 >= end) break;
+                double rel = maxEnergy > 0 ? sec.Energy / maxEnergy : 0.5;
+                if (rel < 0.45) { Add(b0, t.Low); continue; }
+                double s = rel >= 0.8 ? step / 2 : step;
+                double first = downbeats.FirstOrDefault(b => b >= b0 - 0.01 && b < b1, b0);
+                int k = 0;
+                for (double b = first; b < b1 - 0.01; b += s)
+                    if (!InBuild(b)) Add(b, k++ % 2 == 0 ? t.High : t.Low);
+            }
+            foreach (var bu in builds)
+            {
+                // from high down to low by the drop, one step at a time (at most one per beat)
+                int n = Math.Max(1, Math.Min((int)Math.Floor(bu.Drop - bu.Start), Math.Abs(t.High - t.Low) + 1));
+                for (int i = 0; i < n; i++)
+                    Add(bu.Start + i * (bu.Drop - bu.Start) / n, (int)Math.Round(t.High + (t.Low - t.High) * (double)i / Math.Max(1, n - 1)));
+            }
+            foreach (var d in drops) Add(d, t.High);
+            Add(end, t.Low);
+        }
     }
 
     /// <summary>The environment's basic light types (<see cref="EnvironmentInfo.BasicLights"/>) as curated maps
@@ -523,13 +562,24 @@ public static class GroupLightshow
         && (g.Translation >= 0.3) == (h.Translation >= 0.3)
         && (g.Lights == 0 || h.Lights == 0 || Math.Max(g.Lights, h.Lights) <= 2 * Math.Min(g.Lights, h.Lights));
 
-    /// <summary>Roles go to units in order of prominence. With fewer units than roles the later roles
-    /// share a unit: snares flash the kick unit, melody the ambient one, hats the chase (or notes) one.</summary>
+    /// <summary>The most prominent units take the roles; among them the busier roles (notes, kicks, melody,
+    /// snares, chases, hats, then the ambient wash) go to the groups curated maps switch on more often (when
+    /// every rate is known; else in order of prominence). With fewer units than roles the later roles share a
+    /// unit: snares flash the kick unit, melody the ambient one, hats the chase (or notes) one.</summary>
     static Dictionary<Role, Unit> AssignRoles(List<Unit> units)
     {
         var order = new[] { Role.Kick, Role.Ambient, Role.Notes, Role.Snare, Role.Melody, Role.Chase, Role.Hats };
+        var busy = new[] { Role.Notes, Role.Kick, Role.Melody, Role.Snare, Role.Chase, Role.Hats, Role.Ambient };
         var roles = new Dictionary<Role, Unit>();
-        for (int i = 0; i < order.Length && i < units.Count; i++) roles[order[i]] = units[i];
+        int n = Math.Min(order.Length, units.Count);
+        if (units.Take(n).All(u => u.Rate != null))
+        {
+            var present = busy.Where(r => Array.IndexOf(order, r) < n).ToList();
+            var byRate = units.Take(n).OrderByDescending(u => u.Rate).ToList();
+            for (int i = 0; i < n; i++) roles[present[i]] = byRate[i];
+        }
+        else
+            for (int i = 0; i < n; i++) roles[order[i]] = units[i];
         // more units than roles: the rest join in as extra chases (cycling) so no group stays dark
         var fallback = new (Role Role, Role[] From)[]
         {
