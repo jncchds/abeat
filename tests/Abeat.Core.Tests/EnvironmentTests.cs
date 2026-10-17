@@ -48,7 +48,7 @@ public class EnvironmentTests
             Assert.All(d.GroupTranslations, x => Assert.True(env.Groups.Single(g => g.Id == x.Group).Translation >= 0.3, $"{env.Id} moves group {x.Group}"));
             // classic event types mean other things here: only the environment's own basic lights and
             // special events (40+) are written
-            var basic = (env.BasicLights ?? []).Select(b => b.Type).ToHashSet();
+            var basic = (env.BasicLights ?? []).Select(b => b.Type).Concat((env.Steps ?? []).Select(x => x.Type)).ToHashSet();
             Assert.All(d.Lights, l => Assert.True(l.Type >= 40 || basic.Contains(l.Type), $"{env.Id} writes type {l.Type}"));
         }
     }
@@ -71,6 +71,32 @@ public class EnvironmentTests
         var left = d.Lights.Where(l => l.Type == 2).Select(l => (l.Beat, l.Value, l.Brightness)).ToList();
         Assert.NotEmpty(left);
         Assert.Equal(left, d.Lights.Where(l => l.Type == 3).Select(l => (l.Beat, l.Value, l.Brightness)).ToList());
+    }
+
+    [Fact]
+    public void TheSecondPulsesItsRingSpacing()
+    {
+        var env = EnvironmentCatalog.Find("TheSecond")!;
+        var step = Assert.Single(env.Steps!);
+        Assert.Equal(9, step.Type);
+        Assert.True(step.High > step.Low);
+        var d = Gen(Drummed(), "TheSecond").Difficulties[0].Map;
+        var rings = d.Lights.Where(l => l.Type == 9).ToList();
+        Assert.All(rings, l => Assert.InRange(l.Value, step.Low, step.High));
+        Assert.Contains(rings, l => l.Value == step.High);
+        Assert.Equal(step.Low, rings[^1].Value);
+    }
+
+    [Fact]
+    public void TheBusiestRoleGoesToTheGroupMappersSwitchOnMostOften()
+    {
+        // The Second: curated maps switch the runway lasers (2/3) on most often, so they carry the notes
+        // (left hand on 2)
+        var env = EnvironmentCatalog.Find("TheSecond")!;
+        Assert.Equal(2, env.Groups.Where(g => g.Color >= 0.3).MaxBy(g => g.Rate)!.Id);
+        var d = Gen(Drummed(), "TheSecond").Difficulties[0].Map;
+        var runway = d.GroupLights.Where(x => x.Group == 2).Select(x => Math.Round(x.Beat, 4)).ToHashSet();
+        Assert.All(d.Notes.Where(n => n.Hand == Hand.Left), n => Assert.Contains(Math.Round(n.Beat, 4), runway));
     }
 
     [Fact]

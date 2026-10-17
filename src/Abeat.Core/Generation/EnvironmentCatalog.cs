@@ -33,6 +33,10 @@ public sealed record LightGroupInfo(int Id, double Color, double Rotation, doubl
 /// on the other side that gets identical events.</summary>
 public sealed record BasicLightInfo(int Type, double Share, double Rate, double On, double Transition, double White, int? Mirror);
 
+/// <summary>A basic event type whose value is a position step (The Second's ring spacing), as curated maps
+/// pulse it: share of maps, events per song beat and the low / high step they alternate between.</summary>
+public sealed record StepTypeInfo(int Type, double Share, double Rate, int Low, int High);
+
 /// <param name="Drive">0 live band (backbeat) .. 1 electronic four-on-the-floor.</param>
 /// <param name="Intensity">0 calm .. 1 relentless.</param>
 /// <param name="Darkness">0 bright / happy .. 1 dark / heavy.</param>
@@ -45,9 +49,11 @@ public sealed record EnvironmentCharacter(double Drive, double Intensity, double
 /// <param name="RotationEase">Median length (beats) of the eased light group turns curated maps make here.</param>
 /// <param name="TranslationEase">Median length (beats) of their eased light group moves.</param>
 /// <param name="BasicLights">Basic light types curated maps light next to the groups (group environments).</param>
+/// <param name="Steps">Step types curated maps pulse next to the groups (group environments).</param>
 public sealed record EnvironmentInfo(string Id, string Name, LightingSystem System, EnvironmentCharacter Character,
     IReadOnlySet<int> BasicTypes, IReadOnlyList<LightGroupInfo> Groups, int SurveyMaps, IReadOnlyDictionary<int, int[]> BasicValues,
-    double? RotationEase = null, double? TranslationEase = null, IReadOnlyList<BasicLightInfo>? BasicLights = null)
+    double? RotationEase = null, double? TranslationEase = null, IReadOnlyList<BasicLightInfo>? BasicLights = null,
+    IReadOnlyList<StepTypeInfo>? Steps = null)
 {
     public bool Has(int basicType) => BasicTypes.Contains(basicType);
 
@@ -155,7 +161,11 @@ public static class EnvironmentCatalog
                 ? (p?.BasicLights ?? []).Select(kv => new BasicLightInfo(int.Parse(kv.Key), kv.Value.Share, kv.Value.Rate, kv.Value.On,
                     kv.Value.Transition, kv.Value.White, kv.Value.Mirror)).OrderBy(b => b.Type).ToList()
                 : [];
-            list.Add(new EnvironmentInfo(id, name, sys, c, basic, groups, p?.Maps ?? 0, values, p?.RotationEase, p?.TranslationEase, basicLights));
+            var steps = sys == LightingSystem.Groups
+                ? (p?.Steps ?? []).Select(kv => new StepTypeInfo(int.Parse(kv.Key), kv.Value.Share, kv.Value.Rate, kv.Value.Low, kv.Value.High))
+                    .OrderBy(x => x.Type).ToList()
+                : [];
+            list.Add(new EnvironmentInfo(id, name, sys, c, basic, groups, p?.Maps ?? 0, values, p?.RotationEase, p?.TranslationEase, basicLights, steps));
         }
         return list;
     }
@@ -164,6 +174,7 @@ public static class EnvironmentCatalog
         double RotationRange, int[]? TranslationAxes, double TranslationRange, int? Mirror, int[]? RotationPoses,
         Dictionary<string, double[]>? TranslationValues, Dictionary<string, int[]>? AxisPoses, double? Rate, double? HomeShare);
     sealed record PriorBasicLight(double Share, double Rate, double On, double Transition, double White, int? Mirror);
+    sealed record PriorStep(double Share, double Rate, int Low, int High);
     sealed record PriorEntry(int Maps, Dictionary<string, double>? Basic, Dictionary<string, int[]>? BasicValues, Dictionary<string, PriorGroup>? Groups,
-        double? RotationEase, double? TranslationEase, Dictionary<string, PriorBasicLight>? BasicLights);
+        double? RotationEase, double? TranslationEase, Dictionary<string, PriorBasicLight>? BasicLights, Dictionary<string, PriorStep>? Steps);
 }
