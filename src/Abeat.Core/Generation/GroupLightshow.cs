@@ -170,35 +170,46 @@ public static class GroupLightshow
         lights.AddRange(unique);
     }
 
-    /// <summary>Rotation and translation choreography for every group curated maps move. Quiet sections
-    /// drift slowly; louder ones swing on downbeats, wider and fanned out with energy; over a build-up the
-    /// lights fold together (fan closing, rails pulling in) and burst open on the drop. With two or more
-    /// rotating groups the most-used one traces the melody instead: higher sounds tilt it further.</summary>
+    /// <summary>Rotation and translation choreography for every group curated maps move, between the poses
+    /// mappers use for that group (<see cref="LightGroupInfo.RotationPoses"/>, <see cref="LightGroupInfo.TranslationValues"/>):
+    /// every moving group starts at its home pose (the most used one), quiet sections drift to a nearby
+    /// pose and back, louder ones swing between learned poses on downbeats (further from home with energy),
+    /// over a build-up the lights return home and they burst out to their widest pose on the drop. Mirror
+    /// partners get identical events (the game mirrors the other side). With two or more rotating units the
+    /// most-used one traces the melody instead: higher sounds turn it further from home.</summary>
     static void Motion(SongAnalysis a, DifficultyMap map, EnvironmentInfo env, double end, double maxEnergy,
         List<double> downbeats, List<double> drops, List<BuildUp> builds, List<RhythmEvent> melody)
     {
-        var rotating = env.Groups.Where(g => g.Rotation >= 0.3 && g.RotationAxes.Length > 0).OrderByDescending(g => g.Rotation).ToList();
-        var moving = env.Groups.Where(g => g.Translation >= 0.3 && g.TranslationAxes.Length > 0).OrderByDescending(g => g.Translation).ToList();
+        var rotating = MotionUnits(env.Groups.Where(g => g.Rotation >= 0.3 && g.RotationAxes.Length > 0))
+            .OrderByDescending(u => u.Groups[0].Rotation).ThenBy(u => u.Groups[0].Id).ToList();
+        var moving = MotionUnits(env.Groups.Where(g => g.Translation >= 0.3 && g.TranslationAxes.Length > 0))
+            .OrderByDescending(u => u.Groups[0].Translation).ThenBy(u => u.Groups[0].Id).ToList();
         var tracer = rotating.Count >= 2 && melody.Count >= 16 ? rotating[0] : null;
         var pitch = SongShape.RelativePitch(melody);
         bool InBuild(double b) => builds.Any(x => b >= x.Start && b < x.Drop + 0.01);
+        double start = a.Sections.Count > 0 ? Math.Max(0, Math.Round(a.SecondsToBeat(a.Sections[0].Start))) : 0;
 
-        foreach (var (g, gi) in rotating.Select((g, i) => (g, i)))
+        foreach (var (u, ui) in rotating.Select((u, i) => (u, i)))
         {
+            var g = u.Groups[0];
             int axis = g.RotationAxes[0];
-            double range = g.RotationRange >= 5 ? Math.Min(g.RotationRange, 90) : 30;
-            int dir = gi % 2 == 0 ? 1 : -1; // neighbouring groups swing in mirror
+            var p = RotationPoses.Of(g);
+            // neighbouring units swing in opposite phase so their beams cross
+            bool flip = ui % 2 == 1;
             void Rot(double beat, double deg, double spread, double dur, double wave = 0)
             {
-                if (beat < end) map.GroupRotations.Add(new LightRotation(beat, g.Id, axis, dir * deg, dir * spread, dur, BeatSpread: wave));
+                if (beat >= end) return;
+                double norm = ((deg % 360) + 360) % 360;
+                foreach (var x in u.Groups) map.GroupRotations.Add(new LightRotation(beat, x.Id, axis, norm, spread, dur, BeatSpread: wave));
             }
-            if (g == tracer)
+            Rot(start, p.Home, 0, 0);
+            if (u == tracer)
             {
                 double last = double.NegativeInfinity;
                 foreach (var e in melody.Where(e => e.Beat - last >= 0.5 && !InBuild(e.Beat)))
                 {
                     last = e.Beat;
-                    Rot(e.Beat, pitch(e) * range, range * 0.2, 0.5);
+                    Rot(e.Beat, p.Toward(pitch(e)), p.Reach * 0.15, 0.5);
                 }
             }
             else
@@ -210,48 +221,61 @@ public static class GroupLightshow
                     var bars = downbeats.Where(b => b >= b0 - 0.01 && b < b1 - 0.01 && !InBuild(b)).ToList();
                     if (rel < 0.45)
                     {
-                        // slow drift: a long eased turn every four bars
+                        // slow drift: a long eased turn to the nearest pose and back, every four bars
                         for (int i = 0; i < bars.Count; i += 4)
-                            Rot(bars[i], (i / 4 % 2 == 0 ? 0.35 : -0.35) * range, 0.3 * range, 16, 0);
+                            Rot(bars[i], (i / 4 % 2 == 0) != flip ? p.Near : p.Home, 0, 16);
                     }
                     else
                     {
-                        // swings on downbeats (every bar when loud, every other bar otherwise), fanning wider with energy
+                        // swings on downbeats (every bar when loud, every other bar otherwise) between a learned
+                        // pose and its counterpart, further from home and fanned wider with energy
                         int every = rel >= 0.8 ? 1 : 2;
-                        double amp = range * (0.4 + 0.6 * rel);
+                        var (out1, out2) = p.Swing(0.3 + 0.7 * rel);
+                        double fan = Math.Abs(Angle(out1 - p.Home)) * 0.3 * rel;
                         for (int i = 0; i < bars.Count; i += every)
-                            Rot(bars[i], (i / every % 2 == 0 ? 1 : -1) * amp, amp * rel, Math.Min(4, 2 * every), 0.5);
+                            Rot(bars[i], (i / every % 2 == 0) != flip ? out1 : out2, fan, Math.Min(4, 2 * every), 0.5);
                     }
                 }
             foreach (var bu in builds)
-                Rot(bu.Start, 0, 0, bu.Drop - bu.Start - 0.25); // fold together over the build
+                Rot(bu.Start, p.Home, 0, bu.Drop - bu.Start - 0.25); // gather at home over the build
             foreach (var d in drops)
-                Rot(d, range, 2 * range, 0.5, 0.25); // burst open on the drop
+                Rot(d, p.Wide, p.Reach * 0.5, 0.5, 0.25); // burst out to the widest pose on the drop
+            Rot(end - 2, p.Home, 0, 2); // settle home after the last note
         }
 
-        foreach (var (g, gi) in moving.Select((g, i) => (g, i)))
+        foreach (var u in moving)
         {
+            var g = u.Groups[0];
             int axis = g.TranslationAxes[0];
+            // home = the median distance mappers use, the far side = the percentile further from it
             double range = g.TranslationRange > 0.01 ? g.TranslationRange : 1;
+            var v = g.TranslationValues?.GetValueOrDefault(axis) is { Length: 3 } tv ? tv : [0, 0, range];
+            double home = v[1];
+            double Clamp(double x) => Math.Clamp(x, home - range, home + range);
+            double lo = Clamp(v[0]), hi = Clamp(v[2]);
+            double far = Math.Abs(hi - home) >= Math.Abs(lo - home) ? hi : lo, near = far == hi ? lo : hi;
             void Move(double beat, double dist, double spread, double dur, double wave = 0)
             {
-                if (beat < end) map.GroupTranslations.Add(new LightTranslation(beat, g.Id, axis, dist, spread, dur, wave));
+                if (beat >= end) return;
+                foreach (var x in u.Groups) map.GroupTranslations.Add(new LightTranslation(beat, x.Id, axis, dist, spread, dur, wave));
             }
+            Move(start, home, 0, 0);
             foreach (var sec in a.Sections)
             {
                 double b0 = Math.Round(a.SecondsToBeat(sec.Start)), b1 = a.SecondsToBeat(sec.End);
                 if (b0 >= end) break;
                 double rel = maxEnergy > 0 ? sec.Energy / maxEnergy : 0.5;
-                if (rel < 0.45) { Move(b0, 0, 0, 4); continue; }
-                // pump with the bars: out on the downbeat, back over the bar
+                if (rel < 0.45) { Move(b0, home, 0, 4); continue; }
+                // pump with the bars: out towards the far side on the downbeat, partly back on the next
                 var bars = downbeats.Where(b => b >= b0 - 0.01 && b < b1 - 0.01 && !InBuild(b)).ToList();
                 for (int i = 0; i < bars.Count; i++)
-                    Move(bars[i], (i % 2 == 0 ? 1 : 0.4) * range * rel, range * 0.3 * rel, 1, 0.25);
+                    Move(bars[i], home + (far - home) * rel * (i % 2 == 0 ? 1 : 0.4), (far - home) * 0.3 * rel, 1, 0.25);
             }
             foreach (var bu in builds)
-                Move(bu.Start, -0.2 * range, 0, bu.Drop - bu.Start - 0.25); // pull in over the build
+                Move(bu.Start, home + (near - home) * 0.5, 0, bu.Drop - bu.Start - 0.25); // pull in over the build
             foreach (var d in drops)
-                Move(d, range, range * 0.5, 0.5, 0.5); // and burst out on the drop
+                Move(d, far, (far - home) * 0.5, 0.5, 0.5); // and burst out on the drop
+            Move(end - 2, home, 0, 2);
         }
 
         // one motion per group and beat (later rules win)
@@ -263,18 +287,91 @@ public static class GroupLightshow
         map.GroupTranslations.AddRange(tr);
     }
 
-    /// <summary>Neighbouring groups (consecutive ids) that curated maps use alike form a left/right pair.</summary>
+    /// <summary>Signed angle -180..180.</summary>
+    static double Angle(double deg) => ((deg % 360) + 540) % 360 - 180;
+
+    /// <summary>The angles a group turns between, from the poses mappers use (fallback: ±range/2 about 0).</summary>
+    sealed record RotationPoses(double Home, double[] Others)
+    {
+        public static RotationPoses Of(LightGroupInfo g)
+        {
+            var poses = g.RotationPoses is { Length: > 0 } rp ? rp.Select(x => (double)x).ToArray() : [];
+            if (poses.Length == 0)
+            {
+                double r = g.RotationRange >= 5 ? Math.Min(g.RotationRange, 90) : 30;
+                return new(0, [r / 2, -r / 2]);
+            }
+            double home = poses[0];
+            // the common poses (first 5) within 135° of home: further turns read as a flip, not a sweep
+            var others = poses.Skip(1).Take(5).Where(x => Math.Abs(Angle(x - home)) <= 135).ToArray();
+            return new(home, others.Length > 0 ? others : [home + 45, home - 45]);
+        }
+
+        double Delta(double x) => Angle(x - Home);
+
+        /// <summary>Largest turn from home among the poses.</summary>
+        public double Reach => Others.Max(x => Math.Abs(Delta(x)));
+
+        /// <summary>The pose closest to home.</summary>
+        public double Near => Others.MinBy(x => Math.Abs(Delta(x)));
+
+        /// <summary>The pose furthest from home.</summary>
+        public double Wide => Others.MaxBy(x => Math.Abs(Delta(x)));
+
+        /// <summary>The pose that turns about <paramref name="share"/> of <see cref="Reach"/> from home, and its
+        /// counterpart: the pose nearest the mirrored turn (home when there is none within 30°).</summary>
+        public (double, double) Swing(double share)
+        {
+            double want = share * Reach;
+            double a = Others.MinBy(x => Math.Abs(Math.Abs(Delta(x)) - want));
+            double mirror = Home - Delta(a);
+            double b = Others.Where(x => x != a).DefaultIfEmpty(Home).MinBy(x => Math.Abs(Angle(x - mirror)));
+            return (a, Math.Abs(Angle(b - mirror)) <= 30 ? b : Home);
+        }
+
+        /// <summary>A turn for <paramref name="t"/> in -1..1: 0 is home, ±1 the furthest pose on that side
+        /// (the widest pose either way when the group only turns to one side).</summary>
+        public double Toward(double t)
+        {
+            var side = Others.Where(x => Math.Sign(Delta(x)) == Math.Sign(t)).ToArray();
+            double reach = side.Length > 0 ? side.Max(x => Math.Abs(Delta(x))) * Math.Sign(t) : Delta(Wide);
+            return Home + Math.Abs(t) * reach;
+        }
+    }
+
+    /// <summary>Groups that move together: mirror partners (the lower id first), every other group alone.</summary>
+    static List<Unit> MotionUnits(IEnumerable<LightGroupInfo> groups)
+    {
+        var list = groups.ToList();
+        var ids = list.Select(g => g.Id).ToHashSet();
+        var units = new List<Unit>();
+        foreach (var g in list.OrderBy(g => g.Id))
+        {
+            if (g.Mirror is int m && ids.Contains(m))
+            {
+                if (m < g.Id) continue;
+                units.Add(new Unit([g, list.First(h => h.Id == m)]));
+            }
+            else units.Add(new Unit([g]));
+        }
+        return units;
+    }
+
+    /// <summary>Left/right pairs: mirror partners learned from curated maps, otherwise neighbouring groups
+    /// (consecutive ids) that curated maps use alike.</summary>
     static List<Unit> Pair(List<LightGroupInfo> groups)
     {
         var units = new List<Unit>();
+        var byId = groups.ToDictionary(g => g.Id);
+        var taken = new HashSet<int>();
         for (int i = 0; i < groups.Count; i++)
         {
             var g = groups[i];
-            if (i + 1 < groups.Count && groups[i + 1] is var h && h.Id == g.Id + 1 && Alike(g, h))
-            {
+            if (!taken.Add(g.Id)) continue;
+            if (g.Mirror is int m && byId.TryGetValue(m, out var partner) && taken.Add(m))
+                units.Add(new Unit(g.Id < m ? [g, partner] : [partner, g]));
+            else if (g.Mirror == null && i + 1 < groups.Count && groups[i + 1] is var h && h.Id == g.Id + 1 && h.Mirror == null && Alike(g, h) && taken.Add(h.Id))
                 units.Add(new Unit([g, h]));
-                i++;
-            }
             else units.Add(new Unit([g]));
         }
         return units;

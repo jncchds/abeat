@@ -195,11 +195,15 @@ class Stats:
             "color": 0, "rotation": 0, "translation": 0, "fx": 0,
             "rot_axes": collections.Counter(), "tr_axes": collections.Counter(),
             "rot_max": [], "tr_max": [], "lights": 0, "colors": collections.Counter(), "events": 0,
+            "rot_vals": collections.defaultdict(list), "tr_vals": collections.defaultdict(list),
         })
+        # (group, other group) -> [events of the group with an event of the other at the same beat, identical ones]
+        self.pairs = collections.defaultdict(lambda: [0, 0])
+        self.pair_maps = collections.defaultdict(set)
 
     def add(self, basic, color, rotation, translation, fx):
-        """basic: [(type, value, float)]; color: [(group, filter, [color])]; rotation/translation:
-        [(group, filter, axis, [magnitude])]; fx: [group]."""
+        """basic: [(type, value, float)]; color: [(group, filter, [color], beat)]; rotation/translation:
+        [(group, filter, axis, [magnitude], beat)]; fx: [group]."""
         self.maps += 1
         for t in {b[0] for b in basic}:
             self.basic[t] += 1
@@ -207,7 +211,7 @@ class Stats:
             if t in (8, 9, 12, 13) or t >= 14:
                 self.basic_values[t][v] += 1
         used = collections.defaultdict(set)
-        for g, filt, colors in color:
+        for g, filt, colors, _ in color:
             s = self.groups[g]
             used[g].add("color")
             s["events"] += 1
@@ -215,7 +219,7 @@ class Stats:
             for c in colors:
                 s["colors"][c] += 1
         for kind, rows in (("rotation", rotation), ("translation", translation)):
-            for g, filt, axis, mags in rows:
+            for g, filt, axis, mags, _ in rows:
                 s = self.groups[g]
                 used[g].add(kind)
                 s["lights"] = max(s["lights"], lights_hint(filt))
@@ -224,11 +228,41 @@ class Stats:
                     if kind == "rotation":  # angles are 0..360; 330 is -30
                         mags = [(m + 180) % 360 - 180 for m in mags]
                     s["rot_max" if kind == "rotation" else "tr_max"].append(max(abs(m) for m in mags))
+                    s["rot_vals" if kind == "rotation" else "tr_vals"][axis].extend(mags)
+        self.add_pairs(color, rotation, translation)
         for g in fx:
             used[g].add("fx")
         for g, kinds in used.items():
             for k in kinds:
                 self.groups[g][k] += 1
+
+
+    def add_pairs(self, color, rotation, translation):
+        """Mirror partners: groups that get the same event at the same beat (the game mirrors the right
+        side itself, so mappers send both halves identical values)."""
+        at = collections.defaultdict(lambda: collections.defaultdict(list))
+        for g, filt, colors, b in color:
+            at[("c", round(b, 3))][g].append((json.dumps(filt, sort_keys=True), tuple(colors)))
+        for kind, rows in (("r", rotation), ("t", translation)):
+            for g, filt, axis, mags, b in rows:
+                at[(kind, round(b, 3))][g].append((axis, tuple(round(m, 3) for m in mags)))
+        for groups in at.values():
+            for g, ev in groups.items():
+                for h, ev2 in groups.items():
+                    if g != h:
+                        p = self.pairs[(g, h)]
+                        p[0] += 1
+                        p[1] += sorted(ev) == sorted(ev2)
+                        self.pair_maps[(g, h)].add(self.maps)
+
+    def mirrors(self):
+        """group -> its mirror partner: the group it moves identically with most often (>= 70 % of shared
+        beats, >= 30 times, in >= 3 maps), when that is mutual."""
+        best = {}
+        for (g, h), (n, same) in self.pairs.items():
+            if n >= 30 and same >= 0.7 * n and len(self.pair_maps[(g, h)]) >= 3 and same > best.get(g, (None, 0))[1]:
+                best[g] = (h, same)
+        return {g: h for g, (h, _) in best.items() if best.get(h, (None,))[0] == g}
 
 
 def lights_hint(f):
@@ -249,11 +283,11 @@ def parse_v2(j):
 
 def parse_v3(j):
     basic = [(e.get("et", 0), e.get("i", 0), e.get("f", 1)) for e in j.get("basicBeatmapEvents", [])]
-    color = [(g.get("g", 0), box.get("f", {}), [e.get("c", 0) for e in box.get("e", [])])
+    color = [(g.get("g", 0), box.get("f", {}), [e.get("c", 0) for e in box.get("e", [])], g.get("b", 0))
              for g in j.get("lightColorEventBoxGroups", []) for box in g.get("e", [])]
-    rotation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("r", 0) for e in box.get("l", [])])
+    rotation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("r", 0) for e in box.get("l", [])], g.get("b", 0))
                 for g in j.get("lightRotationEventBoxGroups", []) for box in g.get("e", [])]
-    translation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("t", 0) for e in box.get("l", [])])
+    translation = [(g.get("g", 0), box.get("f", {}), box.get("a", 0), [e.get("t", 0) for e in box.get("l", [])], g.get("b", 0))
                    for g in j.get("lightTranslationEventBoxGroups", []) for box in g.get("e", [])]
     fx = [g.get("g", 0) for g in j.get("vfxEventBoxGroups", [])]
     return basic, color, rotation, translation, fx
@@ -275,11 +309,11 @@ def parse_v4(j, ls):
             evs = [x.get("i", 0) for x in box.get("l", [])]
             bi = box.get("e", 0)
             if typ == 1 and bi < len(cboxes):
-                color.append((gid, filt, [cev[i].get("c", 0) for i in evs if i < len(cev)]))
+                color.append((gid, filt, [cev[i].get("c", 0) for i in evs if i < len(cev)], g.get("b", 0)))
             elif typ == 2 and bi < len(rboxes):
-                rotation.append((gid, filt, rboxes[bi].get("a", 0), [rev[i].get("r", 0) for i in evs if i < len(rev)]))
+                rotation.append((gid, filt, rboxes[bi].get("a", 0), [rev[i].get("r", 0) for i in evs if i < len(rev)], g.get("b", 0)))
             elif typ == 3 and bi < len(tboxes):
-                translation.append((gid, filt, tboxes[bi].get("a", 0), [tev[i].get("t", 0) for i in evs if i < len(tev)]))
+                translation.append((gid, filt, tboxes[bi].get("a", 0), [tev[i].get("t", 0) for i in evs if i < len(tev)], g.get("b", 0)))
             elif typ == 4:
                 fx.append(gid)
     return basic, color, rotation, translation, fx
@@ -301,6 +335,16 @@ def pct(values, q):
     return s[min(len(s) - 1, int(q * len(s)))]
 
 
+def poses(angles):
+    """Angles (-180..180, 15° steps) mappers turn a group to, most used first (>= 4 % of keyframes)."""
+    merged = collections.Counter()
+    for a in angles:
+        r = int(round(((a + 180) % 360 - 180) / 15)) * 15
+        merged[180 if r == -180 else r] += 1
+    tot = sum(merged.values())
+    return [a for a, n in merged.most_common() if n >= 0.04 * tot] if tot else []
+
+
 def summarize(env, st):
     out = {"maps": st.maps}
     if st.maps == 0:
@@ -313,6 +357,7 @@ def summarize(env, st):
     if vals:
         out["basicValues"] = vals
     groups = {}
+    mirrors = st.mirrors()
     for g, s in sorted(st.groups.items()):
         share = {k: round(s[k] / st.maps, 2) for k in ("color", "rotation", "translation", "fx")}
         if max(share.values()) < 0.2:
@@ -322,9 +367,14 @@ def summarize(env, st):
         if s["rot_axes"] and share["rotation"] >= 0.2:
             row["rotationAxes"] = [a for a, n in s["rot_axes"].most_common() if n >= 0.15 * sum(s["rot_axes"].values())]
             row["rotationRange"] = round(pct(s["rot_max"], 0.9), 1)
+            row["rotationPoses"] = poses(s["rot_vals"][row["rotationAxes"][0]])
         if s["tr_axes"] and share["translation"] >= 0.2:
             row["translationAxes"] = [a for a, n in s["tr_axes"].most_common() if n >= 0.15 * sum(s["tr_axes"].values())]
             row["translationRange"] = round(pct(s["tr_max"], 0.9), 2)
+            row["translationValues"] = {str(a): [round(pct(s["tr_vals"][a], q), 2) for q in (0.1, 0.5, 0.9)]
+                                        for a in row["translationAxes"] if s["tr_vals"][a]}
+        if g in mirrors:
+            row["mirror"] = mirrors[g]
         if s["colors"]:
             tot = sum(s["colors"].values())
             row["white"] = round(s["colors"][2] / tot, 2)

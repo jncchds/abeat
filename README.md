@@ -172,8 +172,8 @@ map's own song and compares. Current results on 18 songs / 62 difficulties with 
 | hand strain p90 (swings/s per hand; Easy … Expert+) | 2.7 · 3.1 · 3.5 · 4.0 · 5.8 | 2.8 · 3.2 · 3.9 · 5.1 · 6.5 |
 | mean turn / tip travel between swings | 17° / 1.44 cells | 21° / 1.55 cells |
 
-The environment layouts (`scripts/environment_prior.py`: which light groups, event types, axes and
-ranges curated maps use in each environment, read from BeatSaver without downloading the audio) are
+The environment layouts (`scripts/environment_prior.py`: which light groups, event types, axes,
+ranges, poses and mirror partners curated maps use in each environment, read from BeatSaver without downloading the audio) are
 embedded as `environment-prior.json`; rerun the script when Beat Saber adds environments.
 
 The style prior (`scripts/style_prior.py`: cell and direction shares, figure and double-shape

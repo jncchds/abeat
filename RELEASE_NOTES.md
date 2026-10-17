@@ -3,6 +3,7 @@
 ## v0.2.17 — 2026-10-17
 
 - Songs imported from a Beat Saver map (zip or BeatSaver link) use the map's own cover instead of the one generated from the audio; it drives the map colours and goes into generated versions, and an uploaded cover still overrides it.
+- Light group motion follows how curated mappers place each group: the environment survey now learns every group's mirror partner (Lattice pairs group n with n+7, which the game mirrors itself) and the angles and distances mappers move it to. Lights start at their home pose, swing between learned poses (no more sign-flipped partners or pushes in the wrong direction, e.g. Lattice rails moved up and forward where mappers move them down), gather home over build-ups, burst to their widest pose on drops and settle home at the end.
 
 ## v0.2.16 — 2026-10-08
 

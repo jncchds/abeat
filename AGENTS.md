@@ -245,19 +245,28 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    HTTP range requests (only the .dat files; cached in `work/env-survey`), the basic event types used
    by >= 15 % of maps with value ranges of the special ones, and per light group the share of maps
    lighting / rotating / translating it, the axes, 90th-percentile magnitudes (angles normalized to
-   ±180°) and a light-count lower bound from filters. Classic environments use `LightingGenerator`
+   ±180°) and a light-count lower bound from filters; the poses mappers move each group to (rotation:
+   angles on its main axis in 15° steps used by >= 4 % of keyframes, most used first; translation: 10th /
+   50th / 90th percentile per axis) and its mirror partner (the group that gets identical events at the
+   same beat >= 70 % of the time, mutual; the game mirrors the other side, so partners are sent the same
+   values: Lattice n <-> n+7, Weave 2k <-> 2k+1). Classic environments use `LightingGenerator`
    plus their extra channels: 6/7 flicker with the hats, 10/11 hold the melody, set pieces 16-19 go up
    on loud sections and drops and down in quiet ones (value ranges <= 3 are selectors, e.g.
    Interscope's cars: odd type on loud, even on quiet). Group environments (Weave and later) use
-   `GroupLightshow`: groups lit by >= 30 % of maps, consecutive ids used alike paired as left/right
-   units, roles by prominence (kicks, ambient section wash that breathes in quiet parts, note flashes
+   `GroupLightshow`: groups lit by >= 30 % of maps, mirror partners (else consecutive ids used alike)
+   paired as left/right units, roles by prominence (kicks, ambient section wash that breathes in quiet parts, note flashes
    per hand, white snares, melody holds, downbeat chases, hat flickers; fallbacks share units when an
    environment has few, extra units join the chases). Groups rotated / translated by >= 30 % of maps
-   move along their main axis within their learned range (rotation capped at 90°): slow 16-beat drifts
-   in quiet sections, downbeat swings fanned out with energy in louder ones, bar pumps for rails; over a
-   build-up they fold together (fan closed, rails pulled in) while the chases speed up and the ambient
-   strobes to white, and on the drop everything flashes white and bursts open. With two or more rotating
-   groups the most used one traces the melody (onset brightness within the song's 10th-90th percentile -> tilt). Special events 40-43 fire on
+   move along their main axis between their learned poses, mirror partners together (identical events)
+   and neighbouring units in opposite phase: each starts at its home pose (most used angle / median
+   distance), quiet sections drift to the nearest pose and back over 16 beats, louder ones swing on
+   downbeats between the pose ~(0.3 + 0.7 x energy) of the way to the furthest one (within 135° of home)
+   and the pose mirroring it about home (or home), rails pump towards the far percentile; over a
+   build-up rotations gather home and rails pull towards the near side, while the chases speed up and the ambient
+   strobes to white, and on the drop everything flashes white and bursts out to the widest pose;
+   after the last note every moving group settles home. With two or more rotating
+   groups the most used one traces the melody (onset brightness within the song's 10th-90th percentile -> turn from home towards the
+   furthest pose on that side). Special events 40-43 fire on
    drops with their most common value. Standard/One Saber difficulties of group environments drop the
    classic events (those types mean other things there); 90/360 keep them for GlassDesert. Rotation /
    translation boxes hold the previous value at the box beat and ease in-out to the target, so a move

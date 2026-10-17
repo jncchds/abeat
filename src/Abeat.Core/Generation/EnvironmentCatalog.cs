@@ -10,8 +10,13 @@ public enum LightingSystem { Classic, Groups }
 /// <summary>A light group of a group-lighting environment as curated maps use it: the share of maps
 /// lighting / rotating / moving it, the axes and 90th-percentile magnitudes they use, and a lower bound on
 /// its light count.</summary>
+/// <param name="Mirror">The group on the other side that mappers send the same events (the game mirrors it).</param>
+/// <param name="RotationPoses">Angles (-180..180) mappers turn it to about its first rotation axis, most used first.</param>
+/// <param name="TranslationValues">Per translation axis: 10th percentile, median and 90th percentile of the
+/// distances mappers move it to.</param>
 public sealed record LightGroupInfo(int Id, double Color, double Rotation, double Translation, int Lights,
-    int[] RotationAxes, double RotationRange, int[] TranslationAxes, double TranslationRange);
+    int[] RotationAxes, double RotationRange, int[] TranslationAxes, double TranslationRange,
+    int? Mirror = null, int[]? RotationPoses = null, IReadOnlyDictionary<int, double[]>? TranslationValues = null);
 
 /// <param name="Drive">0 live band (backbeat) .. 1 electronic four-on-the-floor.</param>
 /// <param name="Intensity">0 calm .. 1 relentless.</param>
@@ -119,7 +124,8 @@ public static class EnvironmentCatalog
             if (system == LightingSystem.Classic && basic.Count(t => t is >= 0 and <= 4) < 3) basic = [.. ClassicDefault];
             var groups = (p?.Groups ?? []).Select(kv => new LightGroupInfo(int.Parse(kv.Key), kv.Value.Color, kv.Value.Rotation,
                     kv.Value.Translation, kv.Value.Lights, kv.Value.RotationAxes ?? [], kv.Value.RotationRange,
-                    kv.Value.TranslationAxes ?? [], kv.Value.TranslationRange))
+                    kv.Value.TranslationAxes ?? [], kv.Value.TranslationRange, kv.Value.Mirror, kv.Value.RotationPoses,
+                    kv.Value.TranslationValues?.ToDictionary(t => int.Parse(t.Key), t => t.Value)))
                 .OrderBy(g => g.Id).ToList();
             // a group environment nobody has mapped yet cannot be lit safely; fall back to classic events
             var sys = system == LightingSystem.Groups && groups.Count(g => g.Color > 0) == 0 ? LightingSystem.Classic : system;
@@ -131,6 +137,7 @@ public static class EnvironmentCatalog
     }
 
     sealed record PriorGroup(double Color, double Rotation, double Translation, int Lights, int[]? RotationAxes,
-        double RotationRange, int[]? TranslationAxes, double TranslationRange);
+        double RotationRange, int[]? TranslationAxes, double TranslationRange, int? Mirror, int[]? RotationPoses,
+        Dictionary<string, double[]>? TranslationValues);
     sealed record PriorEntry(int Maps, Dictionary<string, double>? Basic, Dictionary<string, int[]>? BasicValues, Dictionary<string, PriorGroup>? Groups);
 }

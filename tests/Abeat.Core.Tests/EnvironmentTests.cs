@@ -74,6 +74,54 @@ public class EnvironmentTests
     }
 
     [Fact]
+    public void LatticeMirrorsAreLearned()
+    {
+        // the survey pairs each Lattice group with the one the game mirrors (n <-> n + 7)
+        var env = EnvironmentCatalog.Find("Lattice")!;
+        Assert.Equal(8, env.Groups.Single(g => g.Id == 1).Mirror);
+        Assert.Equal(7, env.Groups.Single(g => g.Id == 0).Mirror);
+    }
+
+    [Fact]
+    public void GroupMotionMovesMirrorPartnersTogetherBetweenLearnedPoses()
+    {
+        var a = Drummed();
+        foreach (var env in EnvironmentCatalog.All.Where(e => e.System == LightingSystem.Groups))
+        {
+            var d = Gen(a, env.Id).Difficulties[0].Map;
+            var byId = env.Groups.ToDictionary(g => g.Id);
+            // a mirror pair moves with the lower id's poses
+            LightGroupInfo Lead(int id) => byId[id].Mirror is int m && byId.ContainsKey(m) && m < id ? byId[m] : byId[id];
+            static double Signed(double x) => ((x % 360) + 540) % 360 - 180;
+
+            // partners get identical events (no sign flip: the game mirrors the other side itself)
+            var rot = d.GroupRotations.ToLookup(r => (Math.Round(r.Beat, 4), r.Group));
+            foreach (var r in d.GroupRotations.Where(r => byId[r.Group].Mirror is int m && rot[(Math.Round(r.Beat, 4), m)].Any()))
+                Assert.Equal(r.Degrees, rot[(Math.Round(r.Beat, 4), byId[r.Group].Mirror!.Value)].Single().Degrees);
+
+            // turns stay within the furthest learned pose from home (within 135°)
+            foreach (var r in d.GroupRotations)
+            {
+                var poses = Lead(r.Group).RotationPoses;
+                if (poses is not { Length: > 1 }) continue;
+                double reach = poses.Skip(1).Take(5).Select(p => Math.Abs(Signed(p - poses[0]))).Where(x => x <= 135).DefaultIfEmpty(45).Max();
+                Assert.True(Math.Abs(Signed(r.Degrees - poses[0])) <= reach + 1e-6, $"{env.Id} group {r.Group} turns to {r.Degrees}");
+            }
+
+            // rails move within the distances mappers use on their axis, starting from home
+            foreach (var t in d.GroupTranslations)
+            {
+                var g = Lead(t.Group);
+                if (g.TranslationValues?.GetValueOrDefault(g.TranslationAxes[0]) is not { Length: 3 } v) continue;
+                Assert.InRange(t.Distance, Math.Min(v[0], v[1]) - 1e-6, Math.Max(v[2], v[1]) + 1e-6);
+            }
+            foreach (var first in d.GroupTranslations.GroupBy(t => t.Group).Select(x => x.MinBy(t => t.Beat)!))
+                if (Lead(first.Group).TranslationValues?.GetValueOrDefault(Lead(first.Group).TranslationAxes[0]) is { Length: 3 } v)
+                    Assert.Equal(v[1], first.Distance);
+        }
+    }
+
+    [Fact]
     public void DropsFlashWhiteAndFoldOpen()
     {
         var a = Drummed();
