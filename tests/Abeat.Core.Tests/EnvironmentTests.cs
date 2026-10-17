@@ -82,6 +82,23 @@ public class EnvironmentTests
     }
 
     [Fact]
+    public void EdmCirclesRestAtHomeBetweenSwings()
+    {
+        // curated maps leave EDM's circle rotation groups at 0° and flick them out and back: home is the
+        // pose held longest, not the most keyframed one
+        var env = EnvironmentCatalog.Find("EDM")!;
+        foreach (int id in new[] { 12, 13, 14, 15 })
+        {
+            var g = env.Groups.Single(x => x.Id == id);
+            Assert.Equal(0, g.RotationPoses![0]);
+            Assert.True(g.HomeShare >= 0.5, $"group {id} rests {g.HomeShare}");
+        }
+        var d = Gen(Drummed(), "EDM").Difficulties[0].Map;
+        var turns = d.GroupRotations.Where(r => r.Group == 13 && r.Axis == env.Groups.Single(x => x.Id == 13).RotationAxes[0]).ToList();
+        Assert.True(turns.Count(r => r.Degrees == 0) * 3 >= turns.Count, "group 13 keeps coming home");
+    }
+
+    [Fact]
     public void PyroKeepsItsKicksAndMotion()
     {
         var r = Gen(Drummed(), "Pyro");
