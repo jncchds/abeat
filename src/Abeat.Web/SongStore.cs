@@ -52,6 +52,8 @@ public sealed class SongStore
         Root = Path.GetFullPath(config["ABEAT_DATA"]
             ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "abeat"));
         Directory.CreateDirectory(Path.Combine(Root, "songs"));
+        // the worker finds data/cookies.txt (YouTube sign-in, see fetch.py) through it
+        Environment.SetEnvironmentVariable("ABEAT_DATA", Root);
         foreach (var dir in Directory.EnumerateDirectories(Path.Combine(Root, "songs")))
         {
             var f = Path.Combine(dir, "meta.json");

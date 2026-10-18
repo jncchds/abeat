@@ -120,6 +120,10 @@ public sealed class AnalysisRunner
         psi.RedirectStandardError = true;
         psi.UseShellExecute = false;
         psi.Environment["PYTHONUNBUFFERED"] = "1";
+        // UTF-8 both ways (Windows would otherwise read the output with the console code page)
+        psi.Environment["PYTHONIOENCODING"] = "utf-8";
+        psi.StandardOutputEncoding = System.Text.Encoding.UTF8;
+        psi.StandardErrorEncoding = System.Text.Encoding.UTF8;
         return psi;
     }
 

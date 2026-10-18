@@ -147,6 +147,8 @@ Whisper transcription stays on the CPU (int8). `ABEAT_DEVICE=cpu` forces the CPU
 | `ABEAT_HTTP_PORT` | `8080` | HTTP listener when HTTPS is on |
 | `ABEAT_MARK_AI` | `false` | `true`: the level author of new generations ends in " (AI)". Map files have no AI flag of their own; BeatSaver also asks on upload |
 | `HF_TOKEN` | — | optional Hugging Face token (faster model downloads) |
+| `ABEAT_COOKIES` | `<data>/cookies.txt` | a Netscape `cookies.txt` passed to yt-dlp (see [YouTube asks to sign in](#youtube-asks-to-sign-in)) |
+| `ABEAT_COOKIES_FROM_BROWSER` | — | instead: yt-dlp reads the cookies of a local browser (`firefox`, `chrome`, …; outside Docker) |
 
 Outside Docker: `ABEAT_DATA` (data folder, default `~/.local/share/abeat`; a relative path resolves
 against the project directory), `ABEAT_ANALYSIS_DIR` (the `analysis/` project), `ABEAT_WORKER` (an
@@ -535,6 +537,24 @@ brightness, drum kind `k`, note end `e`), lyrics with word times, preview start.
 | Vocals mapped on instrument sounds | try *vocals: notes* or the RoFormer separator |
 | Re-analysis failed | the previous analysis and versions are kept; the banner shows the error |
 | ArcViewer on a phone shows nothing | open the page over https on port 8443 and accept the certificate once |
+| "Sign in to confirm you're not a bot" | see below |
+
+### YouTube asks to sign in
+
+From some networks (VPNs, shared or flagged addresses) YouTube refuses anonymous downloads with "Sign in to
+confirm you're not a bot". yt-dlp then needs the cookies of a browser that is signed in to YouTube:
+
+1. In a desktop browser, sign in to youtube.com (a spare Google account is safest: the cookies give
+   full access to that account).
+2. Export the youtube.com cookies as a Netscape `cookies.txt`, e.g. with the "Get cookies.txt LOCALLY"
+   extension (Chrome) or "cookies.txt" (Firefox). Then log out in that browser or close the tab without
+   using YouTube there again; YouTube rotates the cookies of open sessions.
+3. Save the file as `cookies.txt` in the data folder: next to the desktop app in `data/` (**File → Open
+   Data Folder**), `./docker-data/data/` for Docker. It is used from the next download on; no restart.
+
+Outside Docker, `ABEAT_COOKIES_FROM_BROWSER=firefox` reads a local Firefox profile directly (Chrome on
+Windows encrypts its cookies so that other programs cannot read them). Details:
+[yt-dlp FAQ](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp).
 
 ## 12. Credits and licences
 

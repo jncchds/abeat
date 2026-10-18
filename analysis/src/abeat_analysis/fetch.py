@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -41,6 +42,21 @@ def _js_runtime() -> list[str]:
             return [] if rt == "deno" else ["--js-runtimes", rt]
     return []
 
+
+def _cookies() -> list[str]:
+    """Cookies of a signed-in browser for sites that ask to sign in (YouTube's "confirm you're not a bot"):
+    ABEAT_COOKIES (a Netscape cookies.txt), else cookies.txt in the data folder (ABEAT_DATA), else
+    ABEAT_COOKIES_FROM_BROWSER (yt-dlp's --cookies-from-browser, e.g. "firefox")."""
+    data = os.environ.get("ABEAT_DATA")
+    for f in (os.environ.get("ABEAT_COOKIES"), data and str(Path(data) / "cookies.txt")):
+        if f and Path(f).is_file():
+            return ["--cookies", f]
+    browser = os.environ.get("ABEAT_COOKIES_FROM_BROWSER")
+    return ["--cookies-from-browser", browser] if browser else []
+
+
+BOT_CHECK_HINT = ("YouTube asks to sign in from this network: save the cookies of a browser signed in to YouTube "
+                  "as cookies.txt in ABeat's data folder (see the manual, 'YouTube asks to sign in') and retry")
 
 CACHE = "fetched.json"
 
@@ -87,12 +103,15 @@ def fetch(url: str, out_dir: Path, log=print) -> Fetched:
     if (hit := _cached(url, out_dir)) is not None:
         log(f"using the already downloaded audio ({hit.path.name})")
         return hit
-    cmd = [sys.executable, "-m", "yt_dlp", *_js_runtime(), "-f", "bestaudio/best", "--no-playlist",
+    cmd = [sys.executable, "-m", "yt_dlp", *_js_runtime(), *_cookies(), "-f", "bestaudio/best", "--no-playlist",
            "--no-progress", "-o", str(out_dir / "%(id)s.%(ext)s"), "--print-json", "--no-simulate", url]
     log(f"downloading {url}")
-    proc = subprocess.run(cmd, capture_output=True, text=True)
+    proc = subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace",
+                          env={**os.environ, "PYTHONIOENCODING": "utf-8"})
     if proc.returncode != 0:
         err = [line for line in proc.stderr.splitlines() if "ERROR" in line] or proc.stderr.splitlines()[-3:]
+        if any("not a bot" in e or "--cookies" in e for e in err):
+            err.append(BOT_CHECK_HINT)
         raise RuntimeError("download failed: " + " | ".join(err))
     info = json.loads(proc.stdout.strip().splitlines()[-1])
     path = Path(info.get("_filename") or info.get("filename") or "")
