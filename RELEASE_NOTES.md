@@ -6,6 +6,7 @@
 - Desktop app: YouTube sign-in inside the app. A failed download shows **Sign in to YouTube** and **Retry download**; the sign-in window is a separate in-app browser whose youtube.com cookies go to `data/cookies.txt` when it closes (yt-dlp keeps them current, the next sign-in resumes from them). Help → YouTube Sign-in opens the manual's section, which has the live sign-in status and sign-in/sign-out buttons.
 - Manual in the app (left panel, Help → Manual / F1 in the desktop app): `docs/MANUAL.md` rendered with its anchors. It now starts with what ABeat consists of (app, server, analysis runtime, ArcViewer, the data folders), a desktop quick start and a tour of the left panel.
 - Release page and manual: run the desktop app from an empty folder; to upgrade, replace the executable with the new one.
+- Manual credits list every part ABeat uses (app, server, desktop shell, analysis runtime, ArcViewer) with its purpose, licence and whether it is bundled, downloaded or build-only; the desktop app ships the .NET and uv licence texts in `resources/licenses`.
 
 ## v0.2.26 — 2026-10-18
 

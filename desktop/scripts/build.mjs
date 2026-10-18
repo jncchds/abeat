@@ -73,6 +73,27 @@ async function fetchUv() {
   fs.rmSync(tmp, { recursive: true, force: true })
 }
 
+/** Licence texts of what the app bundles besides Electron (whose LICENSE and LICENSES.chromium.html
+ *  electron-builder adds): the .NET runtime of the self-contained server and uv. Credits: docs/MANUAL.md. */
+async function licenses() {
+  const dir = path.join(stage, 'licenses')
+  fs.mkdirSync(dir, { recursive: true })
+  const runtimes = execFileSync('dotnet', ['--list-runtimes'], { encoding: 'utf8' })
+  const shared = /Microsoft\.NETCore\.App \S+ \[(.+)\]/.exec(runtimes)?.[1]
+  const dotnetRoot = shared && path.resolve(shared, '..', '..')
+  for (const [from, to] of [['LICENSE.txt', 'dotnet-LICENSE.txt'], ['ThirdPartyNotices.txt', 'dotnet-ThirdPartyNotices.txt']]) {
+    const f = dotnetRoot && path.join(dotnetRoot, from)
+    if (f && fs.existsSync(f)) fs.copyFileSync(f, path.join(dir, to))
+    else console.warn(`warning: .NET ${from} not found next to ${shared}; not bundled`)
+  }
+  for (const f of ['LICENSE-MIT', 'LICENSE-APACHE']) {
+    const url = `https://raw.githubusercontent.com/astral-sh/uv/${UV_VERSION}/${f}`
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`)
+    fs.writeFileSync(path.join(dir, `uv-${f}.txt`), await res.text())
+  }
+}
+
 fs.rmSync(stage, { recursive: true, force: true })
 fs.mkdirSync(stage, { recursive: true })
 
@@ -89,6 +110,7 @@ copy('docker/provision.py', 'provision/provision.py')
 copy('scripts/fetch-arcviewer.sh', 'provision/fetch-arcviewer.sh')
 fs.writeFileSync(path.join(stage, 'VERSION'), version + '\n')
 await fetchUv()
+await licenses()
 
 if (args.has('--stage-only')) {
   console.log(`staged in ${stage}; run "npm start" to try it`)

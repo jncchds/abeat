@@ -617,12 +617,41 @@ cookies file elsewhere. More in the
 
 ## 12. Credits and licences
 
-ABeat is made by **CHDS**, designed and built together with **Claude** (Anthropic's AI assistant).
-It builds on [beat_this](https://github.com/CPJKU/beat_this), [Demucs](https://github.com/facebookresearch/demucs),
-[librosa](https://librosa.org), [torchcrepe](https://github.com/maxrmorrison/torchcrepe),
-[basic-pitch](https://github.com/spotify/basic-pitch) (Apache-2.0),
-[python-audio-separator](https://github.com/nomadkaraoke/python-audio-separator) with BS-RoFormer weights,
-[faster-whisper](https://github.com/SYSTRAN/faster-whisper), torchaudio's MMS aligner,
-[yt-dlp](https://github.com/yt-dlp/yt-dlp) and [deno](https://deno.com).
-[ArcViewer](https://github.com/AllPoland/ArcViewer) by AllPoland (GPL-3.0) is downloaded at runtime and
-served unmodified.
+ABeat is made by **CHDS**, designed and built together with **Claude** (Anthropic's AI assistant). It
+stands on the open-source work below. "Bundled" parts ship inside the desktop app or the Docker image;
+"downloaded" parts are fetched on first start into `runtime/` and `models/` (the analysis runtime);
+"build" parts are only used to make ABeat.
+
+**The app and the server**
+
+| Part | What it is for | Licence | How |
+|---|---|---|---|
+| [.NET / ASP.NET Core](https://dotnet.microsoft.com) | the server and the map generator | MIT | bundled |
+| [StbImageSharp](https://github.com/StbSharp/StbImageSharp) | reading cover images | public domain | bundled |
+| [React](https://react.dev), [React Router](https://reactrouter.com), [axios](https://axios-http.com), [marked](https://marked.js.org) | the user interface, this manual page | MIT | bundled |
+| [Electron](https://www.electronjs.org) (with Chromium and Node.js) | the desktop app's window | MIT; Chromium: BSD and others (`LICENSES.chromium.html` in the app) | bundled (desktop app) |
+| [uv](https://github.com/astral-sh/uv) | installs Python and the analysis runtime | MIT / Apache-2.0 | bundled |
+| [ArcViewer](https://github.com/AllPoland/ArcViewer) by AllPoland | the 3D map preview, served unmodified from ABeat | GPL-3.0 | downloaded |
+| [Vite](https://vite.dev), [TypeScript](https://www.typescriptlang.org), [electron-builder](https://www.electron.build) | building the UI and the desktop app | MIT, Apache-2.0 | build |
+
+**The analysis runtime** (all downloaded on first start)
+
+| Part | What it is for | Licence |
+|---|---|---|
+| [Python](https://www.python.org) | runs the analysis worker | PSF |
+| [PyTorch](https://pytorch.org), torchaudio | runs the ML models (CPU or GPU); torchaudio's MMS aligner times lyric syllables | BSD-3-Clause |
+| [beat_this](https://github.com/CPJKU/beat_this) | beat and downbeat tracking | MIT |
+| [Demucs](https://github.com/facebookresearch/demucs) | separating vocals, drums, bass and the rest | MIT |
+| [python-audio-separator](https://github.com/nomadkaraoke/python-audio-separator) with BS-RoFormer weights | optional higher-quality vocal separation | MIT |
+| [librosa](https://librosa.org), [NumPy](https://numpy.org), [SciPy](https://scipy.org) | onsets, sections, signal processing | ISC, BSD-3-Clause |
+| [torchcrepe](https://github.com/maxrmorrison/torchcrepe) | sung pitch for vocal notes | MIT |
+| [basic-pitch](https://github.com/spotify/basic-pitch) on [ONNX Runtime](https://onnxruntime.ai) | note transcription | Apache-2.0, MIT |
+| [faster-whisper](https://github.com/SYSTRAN/faster-whisper) | optional lyric transcription | MIT |
+| [yt-dlp](https://github.com/yt-dlp/yt-dlp) with [deno](https://deno.com) | downloading YouTube links (deno runs YouTube's player script) | Unlicense, MIT |
+| [FFmpeg](https://ffmpeg.org) via [imageio-ffmpeg](https://github.com/imageio/imageio-ffmpeg) | decoding audio files | LGPL/GPL (FFmpeg), BSD-2-Clause |
+| [soundfile](https://github.com/bastibe/python-soundfile) (libsndfile), [mutagen](https://github.com/quodlibet/mutagen), [Pillow](https://python-pillow.org) | reading and writing audio, tags and covers | BSD-3-Clause / LGPL, GPL-2.0, MIT-CMU |
+
+The models (beat_this, Demucs, BS-RoFormer, Whisper, CREPE) come with their projects' own terms and are
+downloaded from those projects. The desktop app carries the licence texts of what it bundles in its `resources/licenses`
+folder (Electron's next to its executable). Beat Saber is a game by Beat Games; ABeat is not affiliated with it, and
+the maps it makes follow the community's custom level format.
