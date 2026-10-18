@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.2.25 — 2026-10-18
+
+- Desktop app (`desktop/`): an Electron window around the same server, built for Windows x64 (portable .exe), Linux x86_64 (AppImage) and macOS arm64 (.dmg) and published as GitHub Releases by `.github/workflows/desktop-release.yml`. It keeps `data/`, `models/` and `runtime/` next to itself and installs the analysis runtime on first start with the container's `provision.py`, which now also runs on Windows and macOS. ArcViewer works inside the app without HTTPS. Docker is unchanged.
+
 ## v0.2.25 — 2026-10-17
 
 - Rock Mixtape review: a light group's rotation axes come from real turns only (mapping tools write hold-only keyframes on every axis, which listed axes the game doesn't have: Rock Mixtape, EDM, Pyro, Dragons 2, Panic 2, Queen and others stop turning lights on axes the game ignores; Lizzo's rainbow ends gain their real y turns); rails move as often as curated maps move them instead of every bar, and groups beyond the roles join the downbeat chases at their own learned rate, taking turns, instead of all flashing every bar (Rock Mixtape's eyes and equalizer 0.28 -> 0.08 switch-ons per beat, curated 0.06).

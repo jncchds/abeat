@@ -22,6 +22,14 @@ audio ─▶ analysis worker (Python) ─▶ analysis.json + song.egg + cover.jp
 
 ## Quick start
 
+### Desktop app
+
+Download the app for your system from [Releases](https://github.com/jncchds/abeat/releases): a portable
+`.exe` for Windows (x64), an `.AppImage` for Linux (x86_64) and a `.dmg` for macOS (Apple Silicon). It is a
+normal window with nothing to install; it keeps its folders next to itself (`data/`, `models/`,
+`runtime/`) and installs the analysis runtime on first start, as the Docker image does. Details in the
+[manual](docs/MANUAL.md#desktop-app).
+
 ### Docker (web UI)
 
 ```bash
@@ -198,6 +206,7 @@ python3 scripts/style_prior.py work/beatsaver-curated
 | `src/Abeat.Cli` | `abeat generate|analyze|check|movement|settings|synth|fetch-maps|compare|bench` |
 | `src/Abeat.Web` | ASP.NET Core API, serves the built UI from `wwwroot/` |
 | `src/abeat-ui` | React 19 + TypeScript + Vite UI (ABook layout, Beat Saber palette) |
+| `desktop/` | Electron app around the server (`npm run dist` builds it for the current OS) |
 | `tests/` | xUnit tests for the core |
 
 ## Status / next steps

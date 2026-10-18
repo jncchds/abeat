@@ -1,4 +1,6 @@
-"""Installs ABeat's analysis runtime into the /runtime volume on container start (stdlib only).
+"""Installs ABeat's analysis runtime into the /runtime volume on container start (stdlib only). The desktop app
+(desktop/) runs the same script on Windows, Linux and macOS with ABEAT_RUNTIME/ABEAT_ANALYSIS_DIR set to the
+folders next to it.
 
 The image holds the server, the UI and the worker *source*; the Python environment (torch for the
 detected accelerator, beat_this, Demucs, ...), ArcViewer and yt-dlp's JS runtime are installed here once
@@ -48,7 +50,10 @@ def status(state: str, **kw) -> None:
 
 def detect_accel() -> str:
     """NVIDIA when the container sees an NVIDIA device (--gpus), ROCm with /dev/kfd, Intel XPU with an
-    Intel render node, else CPU. NVIDIA GPUs older than Turing need ABEAT_ACCEL=cuda12."""
+    Intel render node, else CPU. NVIDIA GPUs older than Turing need ABEAT_ACCEL=cuda12. macOS (the desktop
+    app) always takes the CPU build (the worker has no Metal path)."""
+    if sys.platform == "darwin":
+        return "cpu"
     if Path("/dev/nvidiactl").exists() or Path("/proc/driver/nvidia/version").exists() or shutil.which("nvidia-smi"):
         return "cuda"
     if Path("/dev/kfd").exists():
@@ -60,6 +65,15 @@ def detect_accel() -> str:
         except OSError:
             pass
     return "cpu"
+
+
+def env_bin(env: Path) -> Path:
+    """The scripts folder of a virtual environment (Scripts on Windows)."""
+    return env / ("Scripts" if os.name == "nt" else "bin")
+
+
+def exe(name: str) -> str:
+    return name + (".exe" if os.name == "nt" else "")
 
 
 def env_key(accel: str, extras: list[str]) -> str:
@@ -90,7 +104,7 @@ def build_env(accel: str, extras: list[str], target: Path) -> None:
 def prefetch(worker_python: Path) -> None:
     code = ("from beat_this.inference import Audio2Beats; Audio2Beats(checkpoint_path='final0', device='cpu', dbn=False)\n"
             "from demucs.pretrained import get_model; get_model('htdemucs')")
-    log("downloading beat_this and Demucs models into /models")
+    log("downloading beat_this and Demucs models")
     subprocess.run([str(worker_python), "-c", code], check=True)
 
 
@@ -139,7 +153,7 @@ def main() -> int:
 
     key = env_key(accel, extras)
     target = RUNTIME / "envs" / f"{accel}-{key}"
-    worker = target / "bin" / "abeat-analyze"
+    worker = env_bin(target) / exe("abeat-analyze")
     info = dict(accel=accel, extras=extras, worker=str(worker))
     try:
         if not (target / ".ready").exists():
@@ -148,7 +162,7 @@ def main() -> int:
             build_env(accel, extras, target)
             if accel != "none" and os.environ.get("ABEAT_PREFETCH", "1") == "1":
                 status("installing", message="downloading models", **info)
-                prefetch(target / "bin" / "python")
+                prefetch(env_bin(target) / exe("python"))
             (target / ".ready").write_text(key)
         # environments of older lockfiles / other accelerators are dead weight
         for old in (RUNTIME / "envs").iterdir():
@@ -165,7 +179,7 @@ def main() -> int:
         log("ready")
         return 0
     except subprocess.CalledProcessError as e:
-        status("failed", message=f"installing the runtime failed ({e}); see the container log", **info)
+        status("failed", message=f"installing the runtime failed ({e}); see the container log (desktop app: runtime/logs)", **info)
         return 1
 
 

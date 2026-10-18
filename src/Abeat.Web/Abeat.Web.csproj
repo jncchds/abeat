@@ -12,6 +12,9 @@
 
   <ItemGroup>
     <Content Remove="data/**" />
+    <!-- a local ArcViewer copy (scripts/fetch-arcviewer.sh); published apps fetch it at runtime -->
+    <Content Remove="arcviewer/**" />
+    <None Remove="arcviewer/**" />
   </ItemGroup>
 
 </Project>

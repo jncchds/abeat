@@ -351,6 +351,24 @@ wheels carry their own CUDA/ROCm/oneAPI libraries, so one image serves all, the 
 driver (compose override files per vendor). The worker picks its torch device in `accel.device()`
 (`ABEAT_DEVICE` overrides). deno for yt-dlp is a wheel in the env. Volumes: /data, /models, /runtime.
 
+## Desktop app
+
+`desktop/` is an Electron shell around the same server (no second implementation). `scripts/build.mjs`
+builds the UI, `dotnet publish -r <rid> --self-contained` the server (wwwroot inside; a machine-local
+`public/bsviewer` is stripped), copies the worker source (pyproject, uv.lock, src), `docker/provision.py`
++ `fetch-arcviewer.sh` and a pinned uv binary into `desktop/stage/`, which electron-builder ships as
+extra resources: Windows portable .exe (x64), Linux AppImage (x64), macOS dmg (arm64, ad-hoc signed;
+PyTorch has no Intel-Mac wheels). `main.js` resolves the home folder (next to the exe / AppImage / .app;
+the user data folder when that is read-only, under /Applications or translocated; `ABEAT_HOME`), copies
+the worker source to `runtime/analysis` (uv installs it editable; the bundle is read-only) when the app
+version changes, runs `uv run --python 3.12 provision.py` with the container's variables pointed at
+`data/`, `models/`, `runtime/` (provision.py handles `Scripts\*.exe` on Windows and takes `cpu` on macOS),
+then starts the server on a free port as `http://localhost:<port>` (localhost, so ArcViewer may fetch
+zips over plain http) and loads it in the window. Child processes run in their own process group
+(taskkill /T on Windows) and stop with the app; `ABEAT_PARENT_PID` also makes the server exit when the
+app dies. Output goes to `runtime/logs/`. `.github/workflows/desktop-release.yml` builds the three on
+their own runners and publishes them as the GitHub Release `v{VERSION}` when a new VERSION reaches main.
+
 ## Evaluation
 
 `FlowAnalyzer` scores any map (v2/v3/v4) with the physical part of the cost model plus wall-clash

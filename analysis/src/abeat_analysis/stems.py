@@ -67,7 +67,10 @@ def roformer_vocals(stereo: np.ndarray, sr: int, workdir, log) -> np.ndarray:
     try:
         # audio-separator shells out to "ffmpeg"; use the bundled imageio-ffmpeg binary
         (work / "bin").mkdir()
-        os.symlink(imageio_ffmpeg.get_ffmpeg_exe(), work / "bin" / "ffmpeg")
+        if os.name == "nt":  # symlinks need extra rights on Windows
+            shutil.copy(imageio_ffmpeg.get_ffmpeg_exe(), work / "bin" / "ffmpeg.exe")
+        else:
+            os.symlink(imageio_ffmpeg.get_ffmpeg_exe(), work / "bin" / "ffmpeg")
         os.environ["PATH"] = str(work / "bin") + os.pathsep + os.environ.get("PATH", "")
         src = work / "mix.wav"
         sf.write(str(src), stereo, sr, subtype="FLOAT")

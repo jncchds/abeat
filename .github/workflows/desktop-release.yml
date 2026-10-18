@@ -1,0 +1,120 @@
+name: Desktop app release
+
+# Builds the desktop app (desktop/) on each platform and publishes them as the GitHub Release v{VERSION}:
+# a Windows x64 portable .exe, a Linux x86_64 AppImage and a macOS arm64 .dmg. Runs when a new VERSION
+# reaches main (a release that already exists is skipped; run it manually to rebuild its files).
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: true
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.v.outputs.version }}
+      build: ${{ steps.v.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: v
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version=$(tr -d '[:space:]' < VERSION)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = workflow_dispatch ] || ! gh release view "v$version" --repo "${{ github.repository }}" > /dev/null 2>&1; then
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release v$version exists; nothing to build"
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    needs: version
+    if: needs.version.outputs.build == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            files: desktop/dist/*.exe
+          - os: ubuntu-latest
+            files: desktop/dist/*.AppImage
+          - os: macos-latest  # Apple Silicon: PyTorch ships no Intel-Mac builds
+            files: desktop/dist/*.dmg
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install UI dependencies
+        working-directory: src/abeat-ui
+        run: npm ci
+
+      - name: Install desktop dependencies
+        working-directory: desktop
+        run: npm ci
+
+      - name: Build
+        working-directory: desktop
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: node scripts/build.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: desktop-${{ matrix.os }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+
+  release:
+    needs: [version, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Release notes
+        run: |
+          awk -v h="## v${{ needs.version.outputs.version }} " 'index($0, h) == 1 { on = 1; next } /^## v/ { on = 0 } on' RELEASE_NOTES.md > notes.md
+          cat >> notes.md <<'EOF'
+
+          ### Desktop app
+          - **Windows** (x64): `ABeat-*-windows-x64.exe`, a portable app; no installation needed.
+          - **Linux** (x86_64): `ABeat-*-linux-x86_64.AppImage`. Make it executable (`chmod +x`) and run it.
+          - **macOS** (Apple Silicon): `ABeat-*-macos-arm64.dmg`. The app is not notarized, so on first
+            start choose Open in System Settings → Privacy & Security, or run
+            `xattr -dr com.apple.quarantine /Applications/ABeat.app`.
+
+          The app keeps `data/`, `models/` and `runtime/` next to itself (in the app data folder when that
+          place is read-only, such as /Applications). The first start installs the analysis runtime
+          (1-5 GB, shown in the app). Docker: `docker pull jncchds/abeat:${{ needs.version.outputs.version }}`.
+          EOF
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v${{ needs.version.outputs.version }}"
+          if gh release view "$tag" > /dev/null 2>&1; then
+            gh release upload "$tag" artifacts/* --clobber
+          else
+            gh release create "$tag" artifacts/* --title "ABeat $tag" --notes-file notes.md --target "${{ github.sha }}"
+          fi

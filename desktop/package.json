@@ -1,0 +1,67 @@
+{
+  "name": "abeat-desktop",
+  "productName": "ABeat",
+  "version": "0.0.0",
+  "description": "Beat Saber automapper",
+  "author": "Kirill Chekanov",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "stage": "node scripts/build.mjs --stage-only",
+    "start": "electron .",
+    "dist": "node scripts/build.mjs"
+  },
+  "build": {
+    "appId": "io.github.jncchds.abeat",
+    "productName": "ABeat",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build-resources"
+    },
+    "files": [
+      "main.js",
+      "loading.html",
+      "build-resources/icon.png",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "stage",
+        "to": ".",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "win": {
+      "target": "portable",
+      "icon": "build-resources/icon.png"
+    },
+    "portable": {
+      "artifactName": "ABeat-${version}-windows-x64.exe"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Audio",
+      "icon": "build-resources/icon.png",
+      "artifactName": "ABeat-${version}-linux-x86_64.AppImage"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.music",
+      "icon": "build-resources/icon.png",
+      "identity": "-",
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false,
+      "artifactName": "ABeat-${version}-macos-arm64.${ext}"
+    },
+    "dmg": {
+      "writeUpdateInfo": false
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.9.0",
+    "electron-builder": "^26.15.3"
+  }
+}

@@ -41,6 +41,37 @@ automatically generated maps to be declared as such.
 
 ## 2. Running ABeat
 
+### Desktop app
+
+[Releases](https://github.com/jncchds/abeat/releases) carry one file per system:
+
+| System | File | Start |
+|---|---|---|
+| Windows 10/11, x64 | `ABeat-<version>-windows-x64.exe` | double-click (portable, no installer) |
+| Linux, x86_64 | `ABeat-<version>-linux-x86_64.AppImage` | `chmod +x` it, then run it (needs FUSE 2, `libfuse2`) |
+| macOS, Apple Silicon | `ABeat-<version>-macos-arm64.dmg` | drag ABeat to a folder; first start: see below |
+
+It opens the same UI as the web version in its own window. Next to the app file it creates:
+
+- `data/`: songs, analyses, maps, playlists, settings (back this up)
+- `models/`: downloaded ML models
+- `runtime/`: Python and the analysis environment, ArcViewer, and `logs/` (server.log, provision.log)
+
+Put the app in its own folder, e.g. `ABeat/`. Where that place is read-only (the mounted `.dmg`,
+`/Applications`) the folders go to the per-user app data folder instead (macOS:
+`~/Library/Application Support/ABeat`); `ABEAT_HOME=<folder>` picks any other place. **File → Open … Folder**
+opens them. The first start installs the analysis runtime (1–5 GB, a banner shows the progress), with
+the PyTorch build for an NVIDIA GPU when `nvidia-smi` is found, else the CPU one (always on macOS). `ABEAT_ACCEL` and `ABEAT_EXTRAS` work as in Docker when set before starting the app. ArcViewer runs
+inside the app without the HTTPS listener (the app is a localhost page).
+
+macOS: the app is not notarized, so macOS refuses the first start; open **System Settings → Privacy &
+Security** and choose **Open Anyway**, or run `xattr -dr com.apple.quarantine /path/to/ABeat.app`. Intel
+Macs are not supported: PyTorch has no Intel-Mac builds any more.
+
+Building it yourself: `cd desktop && npm ci && npm run dist` (needs the tools of [Running without
+Docker](#running-without-docker)); the result is in `desktop/dist/`. `npm run stage && npm start` runs it
+from the source tree.
+
 ### Docker
 
 The image is small (≈420 MB): the server, the web UI and the analysis worker's source. Everything heavy

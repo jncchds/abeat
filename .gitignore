@@ -23,3 +23,9 @@ docker-compose.override.yml
 
 # machine-local UI extensions (see src/abeat-ui/src/extensions.ts)
 src/abeat-ui/src/local/
+
+# desktop app build output (desktop/scripts/build.mjs)
+desktop/stage/
+desktop/dist/
+desktop/home/
+desktop/.cache/

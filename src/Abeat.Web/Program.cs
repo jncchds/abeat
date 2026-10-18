@@ -39,6 +39,18 @@ builder.Services.AddSingleton<AnalysisQueue>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<AnalysisQueue>());
 
 var app = builder.Build();
+// the desktop app (desktop/) passes its pid, so the server also stops when the app is killed or crashes
+if (int.TryParse(builder.Configuration["ABEAT_PARENT_PID"], out var parentPid))
+    _ = Task.Run(async () =>
+    {
+        try
+        {
+            using var parent = System.Diagnostics.Process.GetProcessById(parentPid);
+            await parent.WaitForExitAsync();
+        }
+        catch (ArgumentException) { }  // already gone
+        app.Lifetime.StopApplication();
+    });
 // index.html must revalidate (phones otherwise keep showing an old build after an update); the
 // hashed files under /assets never change, so they can be cached for good
 var staticFiles = new StaticFileOptions
