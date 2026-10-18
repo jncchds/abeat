@@ -1,6 +1,6 @@
 # Release notes
 
-## v0.2.25 — 2026-10-18
+## v0.2.26 — 2026-10-18
 
 - Desktop app (`desktop/`): an Electron window around the same server, built for Windows x64 (portable .exe), Linux x86_64 (AppImage) and macOS arm64 (.dmg) and published as GitHub Releases by `.github/workflows/desktop-release.yml`. It keeps `data/`, `models/` and `runtime/` next to itself and installs the analysis runtime on first start with the container's `provision.py`, which now also runs on Windows and macOS. ArcViewer works inside the app without HTTPS. Docker is unchanged.
 
