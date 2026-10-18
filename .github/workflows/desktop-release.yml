@@ -97,11 +97,16 @@ jobs:
           cat >> notes.md <<'EOF'
 
           ### Desktop app
+
+          **Run it from an empty folder** (it creates its folders next to itself). **To upgrade, just
+          replace the executable with the new one** (macOS: replace ABeat.app); your songs, maps and the
+          installed runtime stay where they are.
+
           - **Windows** (x64): `ABeat-*-windows-x64.exe`, a portable app; no installation needed.
           - **Linux** (x86_64): `ABeat-*-linux-x86_64.AppImage`. Make it executable (`chmod +x`) and run it.
           - **macOS** (Apple Silicon): `ABeat-*-macos-arm64.dmg`. The app is not notarized, so on first
             start choose Open in System Settings → Privacy & Security, or run
-            `xattr -dr com.apple.quarantine /Applications/ABeat.app`.
+            `xattr -dr com.apple.quarantine /path/to/ABeat.app`.
 
           The app keeps `data/`, `models/` and `runtime/` next to itself (in the app data folder when that
           place is read-only, such as /Applications). The first start installs the analysis runtime

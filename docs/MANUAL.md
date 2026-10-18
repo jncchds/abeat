@@ -82,7 +82,8 @@ It opens the same UI as the web version in its own window. Next to the app file 
 - `models/`: downloaded ML models
 - `runtime/`: Python and the analysis environment, ArcViewer, and `logs/` (server.log, provision.log)
 
-Put the app in its own folder, e.g. `ABeat/`. Where that place is read-only (the mounted `.dmg`,
+Run it from an empty folder, e.g. `ABeat/`. To upgrade, replace the app file with the new one (macOS:
+replace ABeat.app); `data/`, `models/` and `runtime/` stay and are used by the new version. Where that place is read-only (the mounted `.dmg`,
 `/Applications`) the folders go to the per-user app data folder instead (macOS:
 `~/Library/Application Support/ABeat`); `ABEAT_HOME=<folder>` picks any other place. **File → Open … Folder**
 opens them, **Help → Manual** (F1) opens this manual. If YouTube links fail with "confirm you're not a
