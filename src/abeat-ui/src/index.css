@@ -683,3 +683,27 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 .vocab-use { font-size: 0.72rem; }
 .vocab-more { margin-top: 1rem; }
 @media (max-width: 600px) { .vocab-grid { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); } }
+
+/* manual page (docs/MANUAL.md) */
+.manual { max-width: 920px; line-height: 1.6; gap: 0; padding-bottom: 4rem; }
+.manual h1 { font-size: 1.8rem; margin: 0 0 1rem; }
+.manual h2 { font-size: 1.35rem; margin: 2.2rem 0 0.6rem; padding-bottom: 0.3rem; border-bottom: 1px solid var(--border); }
+.manual h3 { font-size: 1.08rem; margin: 1.6rem 0 0.4rem; }
+.manual h2, .manual h3 { scroll-margin-top: 1rem; }
+.manual p, .manual ul, .manual ol, .manual table, .manual pre, .manual blockquote { margin: 0 0 0.8rem; }
+.manual ul, .manual ol { padding-left: 1.4rem; }
+.manual li { margin: 0.15rem 0; }
+.manual a { color: var(--accent); }
+.manual code { font-size: 0.88em; background: var(--input-bg); border: 1px solid var(--border); border-radius: 4px; padding: 0.05rem 0.3rem; }
+.manual pre { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; overflow-x: auto; }
+.manual pre code { background: none; border: 0; padding: 0; }
+.manual table { border-collapse: collapse; display: block; overflow-x: auto; font-size: 0.92rem; }
+.manual th, .manual td { border: 1px solid var(--border); padding: 0.35rem 0.6rem; text-align: left; vertical-align: top; }
+.manual th { background: var(--surface); }
+.manual blockquote { border-left: 3px solid var(--accent); padding-left: 0.9rem; color: var(--text-muted); }
+
+/* YouTube sign-in help on a failed download */
+.youtube-signin { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; border-color: var(--warning); }
+.youtube-signin p { margin: 0; color: var(--text-muted); }
+.youtube-signin a { color: var(--accent); }
+.youtube-signin-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }

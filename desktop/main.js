@@ -10,17 +10,18 @@
 //   runtime/  Python, the worker environment, the worker source, ArcViewer, logs
 // When that folder is not writable (a mounted .dmg, /Applications, macOS App Translocation) they go to the
 // per-user app data folder instead; ABEAT_HOME overrides both.
-const { app, BrowserWindow, Menu, dialog, shell } = require('electron')
+const { app, BrowserWindow, Menu, dialog, ipcMain, shell } = require('electron')
 const { spawn, spawnSync } = require('node:child_process')
 const fs = require('node:fs')
 const net = require('node:net')
 const path = require('node:path')
+const youtube = require('./youtube')
 
 const isWin = process.platform === 'win32'
 const isMac = process.platform === 'darwin'
 
-// Ubuntu 23.10+ blocks the unprivileged user namespaces Chromium's sandbox needs for AppImages; the window
-// only ever shows the app's own localhost server
+// Ubuntu 23.10+ blocks the unprivileged user namespaces Chromium's sandbox needs for AppImages (the app's
+// windows show its own localhost server, and youtube.com / Google's sign-in in the YouTube window)
 if (process.env.APPIMAGE) app.commandLine.appendSwitch('no-sandbox')
 
 const resources = app.isPackaged ? process.resourcesPath : path.join(__dirname, 'stage')
@@ -57,6 +58,7 @@ const dirs = {
   runtime: path.join(home, 'runtime'),
 }
 const logs = path.join(dirs.runtime, 'logs')
+const cookiesFile = path.join(dirs.data, 'cookies.txt')
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -101,6 +103,7 @@ function childEnv(analysisDir) {
     ABEAT_RUNTIME_STATUS: path.join(r, 'status.json'),
     ABEAT_ARCVIEWER_DIR: path.join(r, 'arcviewer'),
     ABEAT_PARENT_PID: String(process.pid),
+    ABEAT_DESKTOP: '1',
     TORCH_HOME: path.join(m, 'torch'),
     HF_HOME: path.join(m, 'hf'),
     XDG_CACHE_HOME: path.join(m, 'cache'),
@@ -173,7 +176,7 @@ function createWindow() {
     backgroundColor: '#07070e',
     icon: path.join(__dirname, 'build-resources', 'icon.png'),
     autoHideMenuBar: !isMac,
-    webPreferences: { contextIsolation: true, sandbox: true },
+    webPreferences: { contextIsolation: true, sandbox: true, preload: path.join(__dirname, 'preload.js') },
   })
   mainWindow.loadFile(path.join(__dirname, 'loading.html'))
   // the app's own pages (ArcViewer, previews) open in app windows; anything else in the default browser
@@ -191,6 +194,18 @@ function createWindow() {
   mainWindow.on('closed', () => { mainWindow = null })
 }
 
+// only the app's own pages may use the bridge (not YouTube, not ArcViewer content from elsewhere)
+function fromApp(e) {
+  return !!origin && (e.senderFrame?.url ?? '').startsWith(origin + '/')
+}
+ipcMain.handle('youtube:status', e => fromApp(e) ? youtube.status() : null)
+ipcMain.handle('youtube:sign-in', e => fromApp(e) ? youtube.signIn(mainWindow, cookiesFile) : null)
+ipcMain.handle('youtube:sign-out', e => fromApp(e) ? youtube.signOut(cookiesFile) : null)
+
+function showManual(anchor = '') {
+  if (origin) mainWindow?.loadURL(`${origin}/manual${anchor}`)
+}
+
 function buildMenu() {
   const openFolder = (label, dir) => ({ label, click: () => shell.openPath(dir) })
   const folders = [openFolder('Open Data Folder', dirs.data), openFolder('Open Models Folder', dirs.models),
@@ -201,7 +216,15 @@ function buildMenu() {
     { role: 'editMenu' },
     { role: 'viewMenu' },
     { role: 'windowMenu' },
-    { role: 'help', submenu: [{ label: 'ABeat on GitHub', click: () => shell.openExternal('https://github.com/jncchds/abeat') }] },
+    {
+      role: 'help',
+      submenu: [
+        { label: 'Manual', accelerator: 'F1', click: () => showManual() },
+        { label: 'YouTube Sign-in…', click: () => showManual('#youtube-asks-to-sign-in') },
+        { type: 'separator' },
+        { label: 'ABeat on GitHub', click: () => shell.openExternal('https://github.com/jncchds/abeat') },
+      ],
+    },
   ]))
 }
 

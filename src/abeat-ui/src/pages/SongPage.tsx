@@ -8,6 +8,8 @@ import { cancelJob,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
 import FrontView from '../components/FrontView'
+import YouTubeSignIn from '../components/YouTubeSignIn'
+import { isYouTubeBotCheck } from '../desktop'
 import LyricsPanel from '../components/LyricsPanel'
 import ReportCards from '../components/ReportCards'
 import TapPanel from '../components/TapPanel'
@@ -360,6 +362,12 @@ export default function SongPage() {
     await refresh()
   }
 
+  const retryDownload = async () => {
+    if (!meta) return
+    await reanalyze(id, meta.analysis)
+    await refresh()
+  }
+
   const current = showA ? diffA : diffB
   const versionA = list.find(v => v.id === sideA?.v)
   const versionB = list.find(v => v.id === sideB?.v)
@@ -461,6 +469,7 @@ export default function SongPage() {
           <pre className="log">{log.join('\n')}</pre>
         </div>
       )}
+      {!ready && status === 'Failed' && isYouTubeBotCheck(meta?.error) && <YouTubeSignIn onRetry={retryDownload} />}
 
       {ready && analysis && settings && (
         <>

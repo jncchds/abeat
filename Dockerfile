@@ -16,6 +16,7 @@ COPY src/abeat-ui/package*.json ./
 RUN npm ci
 COPY src/abeat-ui/ ./
 COPY VERSION /VERSION
+COPY docs/MANUAL.md /docs/MANUAL.md
 RUN npx tsc -b && npx vite build --outDir ./dist --emptyOutDir
 
 # ── .NET server ──

@@ -98,7 +98,12 @@ MapEndpoints.Map(app);
 PlaylistEndpoints.Map(app);
 FolderEndpoints.Map(app);
 app.MapGet("/healthz", () => "ok");
-app.MapGet("/api/config", (WorkerRuntime runtime) => new { httpsPort = publicHttpsPort, arcViewer = ArcViewer(), runtime = runtime.Current });
+// youtubeCookies: a cookies.txt for YouTube downloads is in the data folder (manual: "YouTube asks to sign in")
+app.MapGet("/api/config", (WorkerRuntime runtime, SongStore store) => new
+{
+    httpsPort = publicHttpsPort, arcViewer = ArcViewer(), runtime = runtime.Current,
+    youtubeCookies = File.Exists(Path.Combine(store.Root, "cookies.txt")),
+});
 // client-side routes (/songs/{id}) are served by the React app
 app.MapFallbackToFile("index.html", staticFiles);
 

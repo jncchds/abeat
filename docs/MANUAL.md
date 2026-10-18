@@ -4,9 +4,10 @@ ABeat by CHDS turns a song into a playable Beat Saber map: notes for every diffi
 walls, bombs and a lightshow, written as a standard custom level you can load in the game, preview in
 ArcViewer or install with BSManager. This manual describes everything it does and every knob it has.
 
+- [What ABeat consists of](#what-abeat-consists-of)
 - [1. Quick start](#1-quick-start)
 - [2. Running ABeat](#2-running-abeat)
-  - [Docker](#docker) · [GPUs](#gpus) · [Environment variables](#environment-variables) · [Updating](#updating-and-disk-use) · [Running without Docker](#running-without-docker)
+  - [Desktop app](#desktop-app) · [Docker](#docker) · [GPUs](#gpus) · [Environment variables](#environment-variables) · [Updating](#updating-and-disk-use) · [Running without Docker](#running-without-docker)
 - [3. The web app](#3-the-web-app)
   - [Adding songs](#adding-songs) · [The song page](#the-song-page) · [Versions and comparison](#versions-and-comparison) · [Settings panel](#settings-panel) · [Playlists](#playlists) · [Debug panel](#debug-panel)
 - [4. Analysis options](#4-analysis-options)
@@ -17,19 +18,43 @@ ArcViewer or install with BSManager. This manual describes everything it does an
 - [9. Command line](#9-command-line)
 - [10. Files and formats](#10-files-and-formats)
 - [11. Troubleshooting](#11-troubleshooting)
+  - [YouTube asks to sign in](#youtube-asks-to-sign-in)
 - [12. Credits and licences](#12-credits-and-licences)
 
 ---
 
+## What ABeat consists of
+
+ABeat is one program in four parts. You only ever deal with the first; the others work behind it.
+
+| Part | What it does | Where it lives |
+|---|---|---|
+| **The app** | the window you work in: songs, the timeline, settings, versions, playlists, this manual | the desktop app's window, or a browser tab on the Docker/server version |
+| **The server** | keeps your songs, runs analyses one at a time and generates the maps (in seconds) | inside the app (desktop) or the container (Docker) |
+| **The analysis runtime** | listens to the audio: beats and tempo, sections, separated vocals and drums, onsets, lyrics. Python with PyTorch and a few ML models, installed on first start (1–5 GB) | `runtime/` and `models/` |
+| **ArcViewer** | a 3D preview of a map in the browser, made by AllPoland (GPL-3.0), downloaded on first start | `runtime/arcviewer` |
+
+Everything you make is in `data/`: the songs (uploaded or downloaded audio), their analyses, every
+generated version of every map, playlists and settings. Back this folder up; the other two can always
+be downloaded again. Where these folders are: [Desktop app](#desktop-app) (next to the app) or
+[Docker](#docker) (`./docker-data/`).
+
+Downloading from YouTube is done by [yt-dlp](https://github.com/yt-dlp/yt-dlp). From some networks
+YouTube wants you to be signed in first: see [YouTube asks to sign in](#youtube-asks-to-sign-in).
+
 ## 1. Quick start
+
+**Desktop app**: download it from [Releases](https://github.com/jncchds/abeat/releases), put it in a
+folder of its own (it creates its folders next to itself) and start it ([details](#desktop-app)).
+**Docker**:
 
 ```bash
 docker compose up -d          # http://localhost:8080
 ```
 
-1. Open http://localhost:8080. On the very first start a banner says the analysis runtime is being
-   installed (Python, PyTorch and the models: 1–5 GB, a few minutes). You can add songs meanwhile; they
-   wait in the queue.
+1. In the app (Docker: open http://localhost:8080), on the very first start a banner says the analysis
+   runtime is being installed (Python, PyTorch and the models: 1–5 GB, a few minutes). You can add songs
+   meanwhile; they wait in the queue.
 2. Drop an audio file on **Add a song**, or paste a YouTube / YouTube Music link.
 3. The song is analysed (beats, sections, separated stems; a few minutes on a CPU, much less on a GPU)
    and a map for the selected difficulties is generated.
@@ -60,7 +85,8 @@ It opens the same UI as the web version in its own window. Next to the app file 
 Put the app in its own folder, e.g. `ABeat/`. Where that place is read-only (the mounted `.dmg`,
 `/Applications`) the folders go to the per-user app data folder instead (macOS:
 `~/Library/Application Support/ABeat`); `ABEAT_HOME=<folder>` picks any other place. **File → Open … Folder**
-opens them. The first start installs the analysis runtime (1–5 GB, a banner shows the progress), with
+opens them, **Help → Manual** (F1) opens this manual. If YouTube links fail with "confirm you're not a
+bot", see [YouTube asks to sign in](#youtube-asks-to-sign-in). The first start installs the analysis runtime (1–5 GB, a banner shows the progress), with
 the PyTorch build for an NVIDIA GPU when `nvidia-smi` is found, else the CPU one (always on macOS). `ABEAT_ACCEL` and `ABEAT_EXTRAS` work as in Docker when set before starting the app. ArcViewer runs
 inside the app without the HTTPS listener (the app is a localhost page).
 
@@ -187,6 +213,10 @@ The CLI (`dotnet run --project src/Abeat.Cli -- …`) works on its own without t
 [Command line](#9-command-line).
 
 ## 3. The web app
+
+The app is the same in the desktop window and in a browser. The left panel has **Songs** (everything you
+added), **Add song**, **Vocabulary** (the moves the generator learned from human maps), **Manual** (this
+page), your playlists and the most recent songs.
 
 ### Adding songs
 
@@ -541,19 +571,47 @@ brightness, drum kind `k`, note end `e`), lyrics with word times, preview start.
 
 ### YouTube asks to sign in
 
-From some networks (VPNs, shared or flagged addresses) YouTube refuses anonymous downloads with "Sign in to
-confirm you're not a bot". yt-dlp then needs the cookies of a browser that is signed in to YouTube:
+From some networks (VPNs, mobile or shared connections, addresses YouTube has flagged) YouTube refuses
+anonymous downloads: the song fails with "Sign in to confirm you're not a bot". It then only serves people
+who are signed in, so ABeat has to download as you.
 
-1. In a desktop browser, sign in to youtube.com (a spare Google account is safest: the cookies give
-   full access to that account).
-2. Export the youtube.com cookies as a Netscape `cookies.txt`, e.g. with the "Get cookies.txt LOCALLY"
-   extension (Chrome) or "cookies.txt" (Firefox). Then log out in that browser or close the tab without
-   using YouTube there again; YouTube rotates the cookies of open sessions.
-3. Save the file as `cookies.txt` in the data folder: next to the desktop app in `data/` (**File → Open
-   Data Folder**), `./docker-data/data/` for Docker. It is used from the next download on; no restart.
+<div data-youtube-signin></div>
 
-Outside Docker, `ABEAT_COOKIES_FROM_BROWSER=firefox` reads a local Firefox profile directly (Chrome on
-Windows encrypts its cookies so that other programs cannot read them). Details:
+**Desktop app**
+
+1. Click **Sign in to YouTube**: on the failed song, or right here in the manual (the box above shows
+   whether you are signed in).
+2. A YouTube window opens. Sign in as on any website: the password goes to Google, never to ABeat.
+3. Once YouTube shows your account picture, close that window.
+4. Click **Retry download**.
+
+That is all; later downloads use the sign-in too. How it works: the sign-in window is a separate browser
+inside ABeat. When you close it, ABeat saves that window's youtube.com cookies (the "you are signed in"
+tokens a browser keeps) to `data/cookies.txt`, and the downloader (yt-dlp) sends them along with each
+download. YouTube renews them now and then; yt-dlp keeps the file up to date.
+
+**Sign out of YouTube** (in the box above) forgets the sign-in and deletes `cookies.txt`. Do that before you give
+the ABeat folder to someone else: anyone with that file is signed in to your YouTube account, so a spare
+Google account is the safer choice. If a sign-in stops working (downloads fail with the same message
+again), sign in again.
+
+Google occasionally refuses sign-ins from windows like this one ("This browser or app may not be
+secure"). Then use the steps below with your normal browser instead.
+
+**Docker, or without the desktop app**
+
+1. In a desktop browser, open a private window and sign in to youtube.com there.
+2. Export the youtube.com cookies as a Netscape `cookies.txt` with a browser extension (e.g. "Get
+   cookies.txt LOCALLY" for Chrome, "cookies.txt" for Firefox), then close the private window without
+   using YouTube in it again (YouTube renews the cookies of an open session, which makes the exported ones
+   stale).
+3. Save the file as `cookies.txt` in the data folder (Docker: `./docker-data/data/cookies.txt`; desktop
+   app: `data/`, **File → Open Data Folder**). The next download uses it; no restart.
+4. Retry the song (**Retry download** on its page).
+
+Outside Docker, `ABEAT_COOKIES_FROM_BROWSER=firefox` makes yt-dlp read a local Firefox profile directly
+(Chrome on Windows encrypts its cookies against other programs). `ABEAT_COOKIES=<file>` points at a
+cookies file elsewhere. More in the
 [yt-dlp FAQ](https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp).
 
 ## 12. Credits and licences

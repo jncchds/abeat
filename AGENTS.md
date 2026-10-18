@@ -366,7 +366,14 @@ version changes, runs `uv run --python 3.12 provision.py` with the container's v
 then starts the server on a free port as `http://localhost:<port>` (localhost, so ArcViewer may fetch
 zips over plain http) and loads it in the window. Child processes run in their own process group
 (taskkill /T on Windows) and stop with the app; `ABEAT_PARENT_PID` also makes the server exit when the
-app dies. Output goes to `runtime/logs/`. `.github/workflows/desktop-release.yml` builds the three on
+app dies. Output goes to `runtime/logs/`. `preload.js` exposes `window.abeatDesktop` (only to the app's
+own origin) for the YouTube sign-in in `youtube.js`: a `persist:youtube` session with a plain Chrome user
+agent (Google refuses Electron's); closing its window writes the session's youtube.com cookies to
+`data/cookies.txt` (Netscape format, marked as ABeat's), which the worker passes to yt-dlp (fetch.py
+`_cookies`: `ABEAT_COOKIES`, `$ABEAT_DATA/cookies.txt`, `ABEAT_COOKIES_FROM_BROWSER`); the next sign-in loads
+that file back first, since yt-dlp rewrites it as YouTube rotates cookies. The UI (`desktop.ts`) shows the
+sign-in on a failed bot-check download and in the manual page (`/manual`, docs/MANUAL.md bundled via the
+`@manual?raw` alias, `<div data-youtube-signin>` is the slot). `.github/workflows/desktop-release.yml` builds the three on
 their own runners and publishes them as the GitHub Release `v{VERSION}` when a new VERSION reaches main.
 
 ## Evaluation

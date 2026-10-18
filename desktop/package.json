@@ -21,6 +21,8 @@
     },
     "files": [
       "main.js",
+      "preload.js",
+      "youtube.js",
       "loading.html",
       "build-resources/icon.png",
       "package.json"

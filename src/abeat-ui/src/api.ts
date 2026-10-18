@@ -201,7 +201,7 @@ const http = axios.create({ baseURL: '/api' })
 
 /** Analysis runtime installed by the container on first start ("ready" outside Docker). */
 export interface RuntimeState { status: 'installing' | 'ready' | 'failed'; accel?: string | null; extras?: string[] | null; message?: string | null }
-export const getConfig = () => http.get<{ httpsPort: number | null; arcViewer: boolean; runtime?: RuntimeState }>('/config')
+export const getConfig = () => http.get<{ httpsPort: number | null; arcViewer: boolean; runtime?: RuntimeState; youtubeCookies?: boolean }>('/config')
 export const getDefaults = () => http.get<Defaults>('/defaults')
 export interface VocabularyDifficulty {
   maps: number

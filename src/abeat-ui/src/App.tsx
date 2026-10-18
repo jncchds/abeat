@@ -4,6 +4,7 @@ import Sidebar, { SidebarBtn, SidebarDivider, SidebarSection } from './component
 import { PlaylistsProvider, usePlaylists } from './hooks/usePlaylists'
 import { byActivity, SongsProvider, useSongs } from './hooks/useSongs'
 import HomePage from './pages/HomePage'
+import ManualPage from './pages/ManualPage'
 import PlaylistPage from './pages/PlaylistPage'
 import RuntimeBanner from './components/RuntimeBanner'
 import SongPage from './pages/SongPage'
@@ -39,6 +40,7 @@ function Layout() {
         <SidebarBtn icon="🎵" label="Songs" active={location.pathname === '/songs'} onClick={() => navigate('/songs')} />
         <SidebarBtn icon="➕" label="Add song" active={location.pathname === '/'} onClick={() => navigate('/')} />
         <SidebarBtn icon="🧩" label="Vocabulary" active={location.pathname === '/vocabulary'} onClick={() => navigate('/vocabulary')} />
+        <SidebarBtn icon="📖" label="Manual" active={location.pathname === '/manual'} onClick={() => navigate('/manual')} />
         <SidebarDivider />
         <SidebarSection title="Playlists" />
         <div className="sidebar-book-list">
@@ -98,6 +100,7 @@ export default function App() {
             <Route path="/vocabulary" element={<VocabularyPage />} />
             <Route path="/songs/:id" element={<SongPage />} />
             <Route path="/playlists/:id" element={<PlaylistPage />} />
+            <Route path="/manual" element={<ManualPage />} />
           </Route>
         </Routes>
       </BrowserRouter>

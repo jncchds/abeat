@@ -55,8 +55,11 @@ def _cookies() -> list[str]:
     return ["--cookies-from-browser", browser] if browser else []
 
 
-BOT_CHECK_HINT = ("YouTube asks to sign in from this network: save the cookies of a browser signed in to YouTube "
-                  "as cookies.txt in ABeat's data folder (see the manual, 'YouTube asks to sign in') and retry")
+def _bot_check_hint() -> str:
+    if os.environ.get("ABEAT_DESKTOP") == "1":
+        return "YouTube asks to sign in from this network: use Sign in to YouTube (YouTube menu), then retry"
+    return ("YouTube asks to sign in from this network: save the cookies of a browser signed in to YouTube "
+            "as cookies.txt in ABeat's data folder (manual: 'YouTube asks to sign in') and retry")
 
 CACHE = "fetched.json"
 
@@ -111,7 +114,7 @@ def fetch(url: str, out_dir: Path, log=print) -> Fetched:
     if proc.returncode != 0:
         err = [line for line in proc.stderr.splitlines() if "ERROR" in line] or proc.stderr.splitlines()[-3:]
         if any("not a bot" in e or "--cookies" in e for e in err):
-            err.append(BOT_CHECK_HINT)
+            err.append(_bot_check_hint())
         raise RuntimeError("download failed: " + " | ".join(err))
     info = json.loads(proc.stdout.strip().splitlines()[-1])
     path = Path(info.get("_filename") or info.get("filename") or "")
