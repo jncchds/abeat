@@ -175,6 +175,9 @@ public static class GroupLightshow
             Light(For(Role.Melody), e.Beat, side => new LightBox(1, 0, side == 1, 0.5, 0.5, [new(0, c, 0.4 + 0.6 * e.Intensity), new(hold, c, 0, Transition: 1)]));
         }
 
+        Glow(a, lights, units.Where(u => u != For(Role.Ambient)), end, maxEnergy, labelColor);
+        int outroColor = map.Notes.Count > 0 && a.Sections.Count > 0
+            ? labelColor.GetValueOrDefault(a.SectionAt(a.BeatToSeconds(end - 2)).Label, Blue) : Blue;
         Motion(a, map, env, end, maxEnergy, downbeats, drops, builds, melody);
         Accents(a, map, Pair(accents), end, maxEnergy, downbeats, drops);
         Steps(a, map, env, end, maxEnergy, downbeats, drops, builds);
@@ -188,15 +191,83 @@ public static class GroupLightshow
             foreach (var d in drops.Where(d => d < end)) map.Lights.Add(new LightEvent(d, t, v));
         }
 
-        // everything out after the last note
-        foreach (var g in lit.Concat(accents))
-            lights.Add(new LightGroupEvent(end, g.Id, [new LightBox(1, 0, false, 0, 0, [new(0, Blue, 0)])]));
+        // after the last note the stage holds in the last section's colour and dims with the music (the ambient
+        // wash brightest); set pieces go out
+        if (end > 0)
+        {
+            var outro = SongShape.Outro(a, end);
+            foreach (var u in units)
+            {
+                double scale = u == For(Role.Ambient) ? 1 : 0.5;
+                var fade = outro.Select((p, i) => new LightColorEvent(p.Beat - end, outroColor, Math.Round(p.Level * scale, 2), Transition: i == 0 ? 0 : 1)).ToList();
+                foreach (var g in u.Groups) lights.Add(new LightGroupEvent(end, g.Id, [new LightBox(1, 0, false, 0, 0, fade)]));
+            }
+            foreach (var g in accents)
+                lights.Add(new LightGroupEvent(end, g.Id, [new LightBox(1, 0, false, 0, 0, [new(0, Blue, 0)])]));
+        }
 
         // one event per group and beat (later rules win)
         var unique = lights.GroupBy(l => (Math.Round(l.Beat, 4), l.Group)).Select(g => g.Last()).OrderBy(l => l.Beat).ToList();
         lights.Clear();
         lights.AddRange(unique);
     }
+
+    /// <summary>Groups curated maps keep lit at least half the playing time (<see cref="LightGroupInfo.Lit"/>: runways,
+    /// floors, Collider's runway 0.91) glow in the section colour between their flashes instead of going dark. The
+    /// glow covers about that share of the song, loudest sections first, brighter with energy: there the flashes
+    /// fade down to it, and it fades in over a beat at the section start (and out where the next section is dark).
+    /// Groups mappers mostly flash keep flashing out to dark.</summary>
+    static void Glow(SongAnalysis a, List<LightGroupEvent> lights, IEnumerable<Unit> units, double end, double maxEnergy,
+        Dictionary<string, int> labelColor)
+    {
+        var secs = a.Sections.Select(s => (B0: Math.Round(a.SecondsToBeat(s.Start)), B1: Math.Min(a.SecondsToBeat(s.End), end),
+                Rel: maxEnergy > 0 ? s.Energy / maxEnergy : 0.5, Color: labelColor.GetValueOrDefault(s.Label, Blue)))
+            .Where(s => s.B0 < end && s.B1 > s.B0).ToList();
+        double total = secs.Sum(s => s.B1 - s.B0);
+        if (total <= 0) return;
+        foreach (var u in units)
+        {
+            double lit = u.Groups.Max(g => g.Lit ?? 0);
+            if (lit < GlowLit) continue;
+            var glowing = new HashSet<int>();
+            double covered = 0;
+            foreach (int i in Enumerable.Range(0, secs.Count).OrderByDescending(i => secs[i].Rel).ThenBy(i => i))
+            {
+                if (covered >= lit * total) break;
+                glowing.Add(i);
+                covered += secs[i].B1 - secs[i].B0;
+            }
+            double Level(int i) => Math.Round(0.25 + 0.35 * secs[i].Rel, 2);
+            int SectionOf(double beat) => secs.FindIndex(s => beat >= s.B0 && beat < s.B1);
+            var ids = u.Groups.Select(g => g.Id).ToHashSet();
+            for (int k = 0; k < lights.Count; k++)
+            {
+                var e = lights[k];
+                if (!ids.Contains(e.Group) || e.Beat >= end) continue;
+                lights[k] = e with
+                {
+                    Boxes = e.Boxes.Select(box => box with
+                    {
+                        Events = box.Events.Select(ev => SectionOf(e.Beat + ev.Beat) is var i && glowing.Contains(i) && ev.Brightness < Level(i)
+                            ? ev with { Brightness = Level(i), Color = secs[i].Color } : ev).ToList(),
+                    }).ToList(),
+                };
+            }
+            // inserted first so a flash on the same beat wins
+            var starts = new List<LightGroupEvent>();
+            for (int i = 0; i < secs.Count; i++)
+            {
+                bool on = glowing.Contains(i);
+                if (!on && !(i > 0 && glowing.Contains(i - 1))) continue;
+                var fade = new LightColorEvent(1, secs[i].Color, on ? Level(i) : 0, Transition: 1);
+                starts.AddRange(u.Groups.Select(g => new LightGroupEvent(secs[i].B0, g.Id, [new LightBox(1, 0, false, 0, 0, [fade])])));
+            }
+            lights.InsertRange(0, starts);
+        }
+    }
+
+    /// <summary>Groups curated maps keep lit at least this share of the playing time get a resting glow.</summary>
+    public const double GlowLit = 0.5;
 
     /// <summary>Set-piece groups (<paramref name="units"/>, e.g. Pyro's fire) burst as often as curated maps
     /// fire them (<see cref="LightGroupInfo.Rate"/> of the song's beats): on the drops first, then the starts
@@ -313,7 +384,13 @@ public static class GroupLightshow
                 }
             }
             foreach (var d in drops) Add(d, LightValue.WhiteOn, 1.2);
-            Add(end, LightValue.Off, 0);
+            // dim with the music after the last note, in the last section's colour
+            if (end > 0)
+            {
+                int on = a.Sections.Count > 0 && labelColor.GetValueOrDefault(a.SectionAt(a.BeatToSeconds(end - 2)).Label, Blue) == Red ? LightValue.RedOn : LightValue.BlueOn;
+                foreach (var (p, i) in SongShape.Outro(a, end).Select((p, i) => (p, i)))
+                    foreach (int id in ids) map.EnvironmentLights.Add(new LightEvent(p.Beat, id, i == 0 ? on : on + 3, Math.Round(p.Level, 2)));
+            }
         }
         // one event per type and beat (later rules win)
         var unique = map.EnvironmentLights.GroupBy(l => (Math.Round(l.Beat, 4), l.Type)).Select(g => g.Last()).OrderBy(l => l.Beat).ToList();

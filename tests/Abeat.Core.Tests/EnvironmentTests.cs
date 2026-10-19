@@ -257,4 +257,98 @@ public class EnvironmentTests
         Assert.True(EnvironmentCatalog.Find(r1.Map.Environment)!.Character.Drive >= 0.5);
         Assert.Equal(MapWriter.DifficultyJson(r1.Difficulties[0].Map).ToJsonString(), MapWriter.DifficultyJson(r2.Difficulties[0].Map).ToJsonString());
     }
+
+    /// <summary>The drummed song with 32 beats of music after the onsets stop, then 4 s of silence.</summary>
+    static SongAnalysis WithOutro()
+    {
+        var a = Drummed();
+        double spb = 60 / a.Tempo.Bpm, music = 232 * spb, end = music + 4;
+        a.Audio.DurationSec = end;
+        a.Energy.Values = [.. Enumerable.Range(0, (int)end + 1).Select(i => i < 100 * spb ? 0.4 : i < music ? 0.9 : 0)];
+        a.Sections[^1].End = music;
+        return a;
+    }
+
+    [Fact]
+    public void LightsDimWithTheOutroInsteadOfCuttingOut()
+    {
+        var a = WithOutro();
+        foreach (var env in new[] { "DefaultEnvironment", "WeaveEnvironment" })
+        {
+            var d = Gen(a, env).Difficulties[0].Map;
+            double last = d.Notes.Max(n => n.Beat), musicEnd = a.SecondsToBeat(a.Sections[^1].End);
+            Assert.True(musicEnd - last > 16, env);
+            if (env == "DefaultEnvironment")
+            {
+                var back = d.Lights.Where(l => l.Type == 0 && l.Beat > last).ToList();
+                // on in the outro, still lit just before the music stops, dark by the time it has stopped
+                Assert.Contains(back, l => l.Value != LightValue.Off && l.Brightness > 0.3 && l.Beat >= musicEnd - 4);
+                Assert.Equal(0, back[^1].Brightness);
+                Assert.InRange(back[^1].Beat, musicEnd - 1, musicEnd + 2);
+                Assert.DoesNotContain(back, l => l.Value == LightValue.Off);
+                Assert.False(d.Boosts.Where(b => b.Beat <= last + 2).Last().On);
+            }
+            else
+            {
+                var outro = d.GroupLights.Where(g => g.Beat > last).ToList();
+                Assert.NotEmpty(outro);
+                var ev = outro[0].Boxes[0].Events;
+                Assert.True(ev[0].Brightness > 0.3);
+                Assert.Equal(0, ev[^1].Brightness);
+                Assert.InRange(outro[0].Beat + ev[^1].Beat, musicEnd - 1, musicEnd + 2);
+            }
+        }
+    }
+
+    /// <summary>Share of [first note, last note] a light group is lit (brightness over 0.05; transitions hold).</summary>
+    static double LitShare(DifficultyMap d, int group)
+    {
+        var steps = d.GroupLights.Where(g => g.Group == group)
+            .SelectMany(g => g.Boxes.SelectMany(b => b.Events.Select(e => (Beat: g.Beat + e.Beat, e.Brightness)))).OrderBy(x => x.Beat).ToList();
+        double first = d.Notes.Min(n => n.Beat), last = d.Notes.Max(n => n.Beat);
+        int lit = 0, n = 0, k = 0;
+        double level = 0;
+        for (double t = first; t < last; t += 0.25, n++)
+        {
+            while (k < steps.Count && steps[k].Beat <= t) level = steps[k++].Brightness;
+            if (level > 0.05) lit++;
+        }
+        return (double)lit / n;
+    }
+
+    [Fact]
+    public void LightsMappersKeepOnGlowBetweenFlashes()
+    {
+        var collider = EnvironmentCatalog.Find("ColliderEnvironment")!;
+        var runway = collider.Groups.Where(g => g.Lit >= 0.8 && g.Color >= 0.3).ToList();
+        Assert.NotEmpty(runway); // the runway lights (19 / 20)
+        var d = Gen(Drummed(), collider.Id).Difficulties[0].Map;
+        foreach (var g in runway.Where(g => d.GroupLights.Any(x => x.Group == g.Id)))
+            Assert.True(LitShare(d, g.Id) >= 0.6, $"group {g.Id} lit {LitShare(d, g.Id):0.00}");
+
+        // the lights mappers mostly flash (Rock Mixtape's runway lasers) get exactly the events they get without
+        // the learned lit shares; only the ones kept lit change
+        var rock = EnvironmentCatalog.Find("RockMixtapeEnvironment")!;
+        var unlearned = rock with { Groups = rock.Groups.Select(g => g with { Lit = null }).ToList() };
+        var s = new GeneratorSettings { Difficulties = [DifficultyName.Hard], Seed = 1 };
+        var a = Drummed();
+        var with = MapGenerator.GenerateDifficulty(a, s, DifficultyName.Hard, env: rock).Map;
+        var without = MapGenerator.GenerateDifficulty(a, s, DifficultyName.Hard, env: unlearned).Map;
+        string Events(DifficultyMap m, int id) => string.Join(";", m.GroupLights.Where(x => x.Group == id)
+            .Select(x => $"{x.Beat}:" + string.Join(",", x.Boxes.SelectMany(b => b.Events).Select(e => $"{e.Beat}/{e.Color}/{e.Brightness}"))));
+        var flashed = rock.Groups.Where(g => g.Lit < GroupLightshow.GlowLit && g.Color >= 0.3).Select(g => g.Id).ToList();
+        Assert.Contains(18, flashed);
+        foreach (int id in flashed)
+            Assert.Equal(Events(without, id), Events(with, id));
+        Assert.Contains(rock.Groups.Where(g => g.Lit >= GroupLightshow.GlowLit), g => Events(without, g.Id) != Events(with, g.Id));
+    }
+
+    [Fact]
+    public void BoostIsAShortAccent()
+    {
+        var d = Gen(Drummed(), "DefaultEnvironment").Difficulties[0].Map;
+        // on at the drop, off again two bars later even though the loud section goes on
+        Assert.Contains(d.Boosts, b => b.Beat == 100 && b.On);
+        Assert.Contains(d.Boosts, b => b.Beat == 100 + LightingGenerator.BoostBeats && !b.On);
+    }
 }

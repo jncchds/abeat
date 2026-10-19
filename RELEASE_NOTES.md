@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.2.28 — 2026-10-19
+
+- Light colours: the scene no longer wears the note colours all song. Cover palettes give the left/right lights their own hues (each saber hue turned 45° away from the other saber, or a third cover hue), and the boost colours are now the saber colours, used as an accent: boost is on for two bars on drops and at the start of the loudest sections instead of for whole sections.
+- The lights no longer cut to black two beats after the last note: the stage holds in the last section's colour through the outro, dims with the music's loudness and fades out as the music stops (classic lights, group lights and the environments' basic lights); laser speeds settle low.
+- Runway and floor lights stay lit like in curated maps: the environment survey now learns how much of the playing time maps keep each light group lit (`lit`, from the cached maps), and groups kept lit at least half the time glow in the section colour between flashes, over about that share of the song, loudest sections first. Runways were lit 25-55 % of the playing time in most environments (curated 70-94 %), now 71-97 %; runways mappers only flash (Rock Mixtape, Panic 2.0, The Second) keep flashing.
+
 ## v0.2.27 — 2026-10-18
 
 - YouTube's "Sign in to confirm you're not a bot": downloads use a `cookies.txt` from the data folder (or `ABEAT_COOKIES`, `ABEAT_COOKIES_FROM_BROWSER`) and the error now says how to add one (manual: "YouTube asks to sign in"). Worker output is read as UTF-8 on Windows (no more "youΓÇÖre").

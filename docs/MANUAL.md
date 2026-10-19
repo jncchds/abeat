@@ -463,13 +463,16 @@ in the analyzer.
 The web app shows Standard; the other modes are in the zip and in ArcViewer.
 
 **Lights**, classic (Default environment): each section gets a palette (repeated parts the same),
-notes flash the side lasers in their saber's colour, kicks pulse the back lasers, snares flash the
-centre, hats flicker the rings in loud parts, rings spin and zoom, colour boost in the loudest parts.
-Without drum labels (no stems) the back lasers pulse on the downbeats.
+notes flash the side lasers on their saber's side, kicks pulse the back lasers, snares flash the
+centre, hats flicker the rings in loud parts, rings spin and zoom. With cover colours the lights have
+hues of their own; the boost colours (the note colours) flash up for two bars on drops and at the start
+of the loudest parts. After the last note the lights stay on in the last section's colour and dim with
+the music instead of switching off. Without drum labels (no stems) the back lasers pulse on the downbeats.
 
 **Pyro** (environment setting): PyroEnvironment with a v3 group lightshow: ambient section colour,
 downbeat chases, note flashes per hand, snares in white, kicks, melody notes, hat flickers, and light
-groups that turn to a new pose at every section. Its file format is checked against a curated Pyro map;
+groups that turn to a new pose at every section. In every group environment, lights that curated maps keep
+on most of the time (runways, floors) glow in the section colour between their flashes instead of going dark. Its file format is checked against a curated Pyro map;
 it has not been verified in the game yet.
 
 **Arcs** connect a held melody note to the same hand's next note when the sound lasts. **Chains** follow
