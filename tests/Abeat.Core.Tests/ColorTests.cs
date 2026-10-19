@@ -25,6 +25,43 @@ public class ColorTests
         Assert.True(c.SaberRight.B > c.SaberRight.R); // teal right
     }
 
+    static double Hue(Rgb c)
+    {
+        double max = Math.Max(c.R, Math.Max(c.G, c.B)), d = max - Math.Min(c.R, Math.Min(c.G, c.B));
+        double h = d == 0 ? 0 : max == c.R ? 60 * ((c.G - c.B) / d % 6) : max == c.G ? 60 * ((c.B - c.R) / d + 2) : 60 * ((c.R - c.G) / d + 4);
+        return h < 0 ? h + 360 : h;
+    }
+
+    static double Gap(double a, double b)
+    {
+        double d = Math.Abs(a - b) % 360;
+        return d > 180 ? 360 - d : d;
+    }
+
+    [Theory]
+    [InlineData(0)]  // two hues
+    [InlineData(1)]  // a third hue
+    [InlineData(2)]  // one hue
+    public void SceneLightsKeepClearOfTheNoteColoursAndBoostWearsThem(int kind)
+    {
+        var img = Cover(64, 64, (x, y) => kind switch
+        {
+            0 => y < 32 ? ((byte)240, (byte)40, (byte)40) : ((byte)40, (byte)90, (byte)240),
+            1 => y < 24 ? ((byte)240, (byte)40, (byte)40) : y < 44 ? ((byte)40, (byte)90, (byte)240) : ((byte)60, (byte)220, (byte)60),
+            _ => ((byte)200, (byte)40, (byte)200),
+        });
+        var c = CoverPalette.FromPixels(img, 64, 64)!;
+        double l = Hue(c.SaberLeft), r = Hue(c.SaberRight);
+        foreach (var scene in new[] { c.EnvLeft, c.EnvRight })
+        {
+            Assert.True(Gap(Hue(scene), l) >= 40, $"scene {scene.Hex} vs left {c.SaberLeft.Hex}");
+            Assert.True(Gap(Hue(scene), r) >= 40, $"scene {scene.Hex} vs right {c.SaberRight.Hex}");
+        }
+        Assert.True(Gap(Hue(c.EnvLeft), Hue(c.EnvRight)) >= 50);
+        Assert.True(Gap(Hue(c.EnvLeftBoost), l) < 5);
+        Assert.True(Gap(Hue(c.EnvRightBoost), r) < 5);
+    }
+
     [Fact]
     public void GreyCoversKeepTheGameColoursAndOverridesWin()
     {

@@ -17,6 +17,11 @@ work/env-survey) and writes src/Abeat.Core/Generation/environment-prior.json:
   (STEP_TYPES: The Second's ring spacing) as mappers pulse them.
 
     python3 scripts/environment_prior.py [maps per environment, default 14]
+    python3 scripts/environment_prior.py --lit-only   # only (re)compute the lit shares from the cache
+
+Per light group and basic light type it also stores `lit`: the median share of the playing time (first to
+last note) the maps keep it lit, maps that never light it counting as dark (runways and floors mappers keep
+on vs lights they only flash).
 """
 import collections
 import statistics
@@ -235,6 +240,24 @@ class Stats:
         self.basic_all = collections.defaultdict(collections.Counter)  # type 8-12 -> every value it takes
         self.basic_pairs = collections.defaultdict(list)  # (type, other) -> per map [same-beat events, identical]
         self.steps = collections.defaultdict(list)       # type 8-13 -> per map (events / song beats, low, high)
+        # per map: share of the playing time each group / basic light type is lit (maps leaving it dark count 0)
+        self.lit_maps = 0
+        self.lit_groups = collections.defaultdict(list)
+        self.lit_basic = collections.defaultdict(list)
+
+    def add_lit(self, shares):
+        if shares is None:
+            return
+        groups, types = shares
+        self.lit_maps += 1
+        for g, s in groups.items():
+            self.lit_groups[g].append(s)
+        for t, s in types.items():
+            self.lit_basic[t].append(s)
+
+    def lit(self, values):
+        """Median lit share over the maps measured, the ones that never light it counting as dark."""
+        return round(statistics.median(values + [0.0] * (self.lit_maps - len(values))), 2) if self.lit_maps else None
 
     def add(self, basic, color, rotation, translation, fx):
         """basic: [(type, value, float, beat)]; color: [(group, filter, [color], beat, switched on)];
@@ -492,6 +515,96 @@ def parse_v4(j, ls):
     return basic, color, rotation, translation, fx
 
 
+LIT = 0.05  # brightness above which a light counts as on
+
+
+def note_span(j, ls=None):
+    """First and last note beat of a difficulty (any format)."""
+    beats = [n.get("_time", 0) for n in j.get("_notes", []) if n.get("_type", 0) != 3]
+    beats += [n.get("b", 0) for n in j.get("colorNotes", [])]
+    return (min(beats), max(beats)) if beats else None
+
+
+def color_brightness(j, ls):
+    """{group: [(beat, brightness, transition)]} from v3 / v4 colour event boxes (filters and strobes ignored)."""
+    out = collections.defaultdict(list)
+    v = str(j.get("version") or j.get("_version") or "2")
+    if v.startswith("3"):
+        for g in j.get("lightColorEventBoxGroups", []):
+            for box in g.get("e", []):
+                for e in box.get("e", []):
+                    out[g.get("g", 0)].append((g.get("b", 0) + e.get("b", 0), e.get("s", 1), e.get("i", 0)))
+    elif not v.startswith("2"):
+        src = ls or j
+        cev = src.get("lightColorEvents", [])
+        for g in src.get("eventBoxGroups", []):
+            if g.get("t", 1) != 1:
+                continue
+            for box in g.get("e", []):
+                for x in box.get("l", []):
+                    if x.get("i", 0) < len(cev):
+                        e = cev[x.get("i", 0)]
+                        out[g.get("g", 0)].append((g.get("b", 0) + x.get("b", 0), e.get("b", 1), e.get("p", 0)))
+    return out
+
+
+def lit_share(steps, span, dt=0.25):
+    """Share of the span a [(beat, level)] step timeline is above LIT."""
+    steps = sorted(steps)
+    n = max(1, int((span[1] - span[0]) / dt))
+    k, level, lit = 0, 0.0, 0
+    for i in range(n):
+        t = span[0] + i * dt
+        while k < len(steps) and steps[k][0] <= t:
+            level = steps[k][1]
+            k += 1
+        lit += level > LIT
+    return lit / n
+
+
+def lit_shares(j, ls, basic, bpm):
+    """How much of the playing time (first to last note) each light group and basic light type 0-12 is lit:
+    ({group: share}, {type: share}). Basic on / flash hold their brightness, fades last 1.5 s, transitions
+    fading up from dark count from the previous event; group colour events hold their brightness (transitions
+    likewise, "extend" keeps the previous one)."""
+    span = note_span(j, ls)
+    if not span or span[1] - span[0] < 32:
+        return None
+    groups = {}
+    for g, evs in color_brightness(j, ls).items():
+        steps = []
+        for b, s, trans in sorted(evs):
+            if trans == 2 and steps:
+                s = steps[-1][1]
+            if trans == 1 and steps and steps[-1][1] <= LIT < s:
+                steps[-1] = (steps[-1][0], s)
+            steps.append((b, s))
+        groups[g] = lit_share(steps, span)
+    fade = 1.5 * bpm / 60
+    types = {}
+    for t in {e[0] for e in basic if 0 <= e[0] <= 12}:
+        steps = []
+        for _, v, f, b in sorted((e for e in basic if e[0] == t), key=lambda e: e[3]):
+            f = 1 if f is None else f
+            if v == 0:
+                steps.append((b, 0.0))
+            elif v in (3, 7, 11):
+                steps += [(b, f), (b + fade, 0.0)]
+            elif v in (4, 8, 12):
+                if steps and steps[-1][1] <= LIT < f:
+                    steps[-1] = (steps[-1][0], f)
+                steps.append((b, f))
+            elif 1 <= v <= 12:
+                steps.append((b, f))
+        types[t] = lit_share(steps, span)
+    return groups, types
+
+
+def bpm_of(files):
+    info = json.loads(ci(files)["info.dat"].decode("utf-8-sig"))
+    return info.get("_beatsPerMinute") or (info.get("audio") or {}).get("bpm") or 120
+
+
 def parse(j, ls):
     v = str(j.get("version") or j.get("_version") or "2")
     if v.startswith("2"):
@@ -551,6 +664,8 @@ def summarize(env, st):
         mirror = [u for u, v in votes.items() if len(v) >= 3 and sum(v) >= 0.6 * len(v)]
         if mirror:
             row["mirror"] = max(mirror, key=lambda u: sum(votes[u]))
+        if st.lit_maps:
+            row["lit"] = st.lit(st.lit_basic[t])
         lights[str(t)] = row
     for row in lights.values():  # partners are mutual
         if "mirror" in row and lights.get(str(row["mirror"]), {}).get("mirror") != int(next(k for k, r in lights.items() if r is row)):
@@ -578,6 +693,9 @@ def summarize(env, st):
         row["lights"] = max((h for h in lights if sum(n for k, n in lights.items() if k >= h) >= min(3, sum(lights.values()))), default=0)
         if st.on_rates[g]:
             row["rate"] = round(statistics.median(st.on_rates[g]), 3)
+        if st.lit_maps and share["color"] >= 0.2:
+            # how much of the playing time it is lit: runways and floors mappers keep on vs lights they flash
+            row["lit"] = st.lit(st.lit_groups[g])
         if s["rot_axes"] and share["rotation"] >= 0.2:
             # an axis counts when it carries 15 % of the real turns (from two maps or more), or a third of the maps
             # that turn the group really turn it about that axis with 5 % of the turns (Weave's y, Lizzo's rainbow
@@ -639,7 +757,52 @@ def summarize(env, st):
     return out
 
 
+def richest(files, env):
+    """(events, parsed, difficulty, lightshow) of the difficulty with the richest lightshow (>= 50 events)."""
+    best = None
+    for j, ls in env_diffs(files, env):
+        try:
+            p = parse(j, ls)
+        except Exception:
+            continue
+        n = sum(len(x) for x in p)
+        if best is None or n > best[0]:
+            best = (n, p, j, ls)
+    return best if best and best[0] >= 50 else None
+
+
+def lit_only():
+    """Add the lit shares to the existing prior from the cached maps only (every cached map declaring the
+    environment), leaving every other learned value as it is."""
+    with open(OUT) as f:
+        prior = json.load(f)
+    folders = [os.path.join(CACHE, d) for d in sorted(os.listdir(CACHE)) if os.path.isdir(os.path.join(CACHE, d))]
+    cached = [{n: open(os.path.join(d, n), "rb").read() for n in os.listdir(d)} for d in folders]
+    for env in ENVIRONMENTS:
+        out = prior.get(env)
+        if not out or not (out.get("groups") or out.get("basicLights")):
+            continue
+        st = Stats()
+        for files in cached:
+            if "info.dat" not in ci(files):
+                continue
+            best = richest(files, env)
+            if best:
+                st.add_lit(lit_shares(best[2], best[3], best[1][0], bpm_of(files)))
+        for g, row in out.get("groups", {}).items():
+            if row.get("color", 0) >= 0.2:
+                row["lit"] = st.lit(st.lit_groups[int(g)])
+        for t, row in out.get("basicLights", {}).items():
+            row["lit"] = st.lit(st.lit_basic[int(t)])
+        print(f"{env}: {st.lit_maps} maps")
+    with open(OUT, "w") as f:
+        json.dump(prior, f, indent=1)
+    print(f"wrote {OUT}")
+
+
 def main():
+    if sys.argv[1:2] == ["--lit-only"]:
+        return lit_only()
     per_env = int(sys.argv[1]) if len(sys.argv) > 1 else 14
     os.makedirs(CACHE, exist_ok=True)
     prior = {}
@@ -658,17 +821,10 @@ def main():
                 print(f"  {map_id}: {e}", file=sys.stderr)
                 continue
             # one difficulty per map (the richest lightshow) so long maps with many difficulties don't dominate
-            best = None
-            for j, ls in env_diffs(files, env):
-                try:
-                    p = parse(j, ls)
-                except Exception:
-                    continue
-                n = sum(len(x) for x in p)
-                if best is None or n > best[0]:
-                    best = (n, p)
-            if best and best[0] >= 50:
+            best = richest(files, env)
+            if best:
                 st.add(*best[1])
+                st.add_lit(lit_shares(best[2], best[3], best[1][0], bpm_of(files)))
                 used += 1
         prior[env] = summarize(env, st)
         g = prior[env].get("groups", {})

@@ -6,8 +6,10 @@ namespace Abeat.Core.Generation;
 /// <summary>A colour scheme taken from the song's cover art. The cover's hues are binned by how much
 /// vivid colour they carry; the strongest hue and the strongest one at least 70° away (or a split
 /// complement when the cover has one hue) become the sabers, the warmer one on the left as red is in the
-/// default scheme. Lights use the same hues, boost lights a third hue from the cover (or both turned
-/// by 30°), walls the cover's main hue. Covers with almost no colour keep the game's colours.</summary>
+/// default scheme. The scene lights get hues of their own (a third cover hue, or the saber hues turned
+/// apart) so the stage only wears the note colours as an accent: the boost lights, switched on for drops and
+/// loud moments, are the saber hues. Walls take the cover's main hue. Covers with almost no colour keep the
+/// game's colours.</summary>
 public static class CoverPalette
 {
     const int Bins = 24;
@@ -94,19 +96,39 @@ public static class CoverPalette
         var (sl, sr) = swap ? (s2v, s1v) : (s1v, s2v);
 
         static double Vivid(double s) => Math.Clamp(s, 0.75, 1);
-        var boostLeft = third is { } t ? Hue(t) : (left + 330) % 360;
-        var boostRight = third is not null ? (Hue(third.Value) + 40) % 360 : (right + 30) % 360;
-        if (HueGap(boostLeft, boostRight) < 50) boostRight = (boostLeft + 60) % 360;
+        var (sceneLeft, sceneRight) = SceneHues(left, right, third is { } t ? Hue(t) : null);
         return new ColorScheme(
             SaberLeft: FromHsv(left, Vivid(sl), 1),
             SaberRight: FromHsv(right, Vivid(sr), 1),
-            EnvLeft: FromHsv(left, Vivid(sl + 0.1), 1),
-            EnvRight: FromHsv(right, Vivid(sr + 0.1), 1),
-            EnvLeftBoost: FromHsv(boostLeft, 0.9, 1),
-            EnvRightBoost: FromHsv(boostRight, 0.9, 1),
+            EnvLeft: FromHsv(sceneLeft, 0.85, 1),
+            EnvRight: FromHsv(sceneRight, 0.85, 1),
+            // boost is the accent: drops and the loudest moments light the stage in the note colours
+            EnvLeftBoost: FromHsv(left, Vivid(sl + 0.1), 1),
+            EnvRightBoost: FromHsv(right, Vivid(sr + 0.1), 1),
             Obstacles: FromHsv(h1, 0.85, 0.9),
             EnvWhite: Mix(FromHsv(h1, 1, 1), new Rgb(1, 1, 1), 0.85));
     }
+
+    /// <summary>The scene's two hues, kept apart from the sabers so the stage doesn't wear the note colours
+    /// all song: each saber hue turned 45° away from the other saber, and a third cover hue (when there is
+    /// one, >= 40° from both sabers) taking the side whose turned hue it is nearer.</summary>
+    internal static (double Left, double Right) SceneHues(double left, double right, double? third)
+    {
+        double Away(double h, double other)
+        {
+            double plus = (h + SceneTurn) % 360, minus = (h + 360 - SceneTurn) % 360;
+            return HueGap(plus, other) >= HueGap(minus, other) ? plus : minus;
+        }
+        double l = Away(left, right), r = Away(right, left);
+        if (third is { } t)
+        {
+            if (HueGap(t, l) <= HueGap(t, r)) { if (HueGap(t, r) >= 50) l = t; }
+            else if (HueGap(t, l) >= 50) r = t;
+        }
+        return (l, r);
+    }
+
+    const double SceneTurn = 45;
 
     static double HueGap(double a, double b)
     {

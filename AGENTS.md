@@ -230,13 +230,19 @@ Authoritative design notes. Keep in sync with the code after architectural chang
 6. **Bombs** (`BombGenerator`): reset bombs where the natural reversal would cut, accent bombs on
    strong single-hand hits (Hard+); checked against `SaberPath` so no bomb is in a swing path.
 7. **Lights** (`LightingGenerator`): section palettes (repeated labels share colours), downbeat
-   pulses, per-note laser flashes, ring spins/zooms, colour boost in the loudest sections. With
+   pulses, per-note laser flashes, ring spins/zooms, a two-bar colour boost (`BoostBeats`) at the starts of the loudest
+   sections and on drops. With
    labelled drum hits the drummer plays the lights instead of the downbeat pulses: kicks (s >= 0.3)
    pulse the back lasers, snares flash the centre, hats flicker the rings in loud sections (each
    light at most every quarter beat). Build-ups (`SongShape.BuildUps`: from the start of the section
    a drop ends, at most 16 beats, to the drop; drops are `SongShape.Drops`, shared with the drop pause)
    spin the rings every bar, then beat, then half beat, with laser speeds rising 2 -> 8 and the back
-   lasers strobing; drops flash every light white (values 9-12), zoom the rings and switch the boost on.
+   lasers strobing; drops flash every light white (values 9-12), zoom the rings and switch the boost on for two bars.
+   **Outro** (`SongShape.Outro`, all lightshows): from two beats after the last note the stage holds in the last
+   section's colour (classic back lasers / rings at full level, the rest at 0.6; the group ambient wash full, other
+   lit units half; basic light types full) at 0.8 x the music's energy (checked every two beats, >= 0.15 at the
+   start), held until a beat before the energy falls under 0.12 for good (or the audio ends), then a transition
+   to dark: no hard cut while music plays, and at least a two-beat fade.
    **Environments** (`EnvironmentCatalog`, `GeneratorSettings.Environment`): all 46 environments of
    moddable Beat Saber (up to 1.40; GlassDesert stays the 90/360 one), each with a display name, a
    lighting system and a character (drive: band backbeat .. four-on-the-floor, intensity, darkness,
@@ -261,7 +267,9 @@ buildings start lowered) and its mirror partner (the group that gets identical e
    turns / moves (`RotationEase` / `TranslationEase`, e.g. Lattice 0.75 / 0.75 beats, Weave 0.5, Coldplay 3.75), each
    group's `Rate` (median share of song beats it is switched on), `RotationRate` (median share of song beats a map
    turning it turns it to a pose: Lizzo's rainbow 0.05, its top lasers 0.2), `TranslationRate` (the same for moves: Rock
-   Mixtape's back lasers 0.05, its eyes 0.35) and, for group environments, `BasicLights`: the
+   Mixtape's back lasers 0.05, its eyes 0.35), `Lit` (median share of the playing time, first to last note, a map keeps it
+   lit, maps leaving it dark counting 0; `--lit-only` recomputes just this from the cache: Collider's runway 0.91, Monstercat 2's
+   runway rings 0.84, Rock Mixtape's runway lasers 0.14) and, for group environments, `BasicLights`: the
    basic light types 0-7, plus 8-12 where they switch lights (values within 0-12, >= 3 kinds, >= 80 % off / on /
    transition; ring and laser-speed steps spread over every value: Lizzo's peaches 7 <-> 8, Britney / Metallica /
    Coldplay / Monstercat 2's 8), lit by >= 30 % of maps (events per beat, on / transition / white shares, the type
@@ -278,7 +286,10 @@ buildings start lowered) and its mirror partner (the group that gets identical e
    environment has few; extra units join the downbeat chases every power of two of bars near the median lit group's
    rate / theirs, taking turns, e.g. Rock Mixtape's eyes every fourth bar; likewise in build-up chase steps), the busier roles (notes, kicks, melody, snares, chases, hats, then
    the ambient wash) going to the groups curated maps switch on more often (The Second: notes on the runway 2/3). Groups switched on under a quarter as often as the median lit group
-   (Pyro's fire 12/13: 0.034 vs 0.23) take no role: they burst (on, off a beat later) as often as curated maps fire
+   (Pyro's fire 12/13: 0.034 vs 0.23) take no role and burst instead (below). Groups mappers keep lit >= half the playing time (`Lit` >= `GlowLit`
+   0.5; runways, floors) glow in the section colour between their flashes (`Glow`): in the loudest sections covering about `Lit`
+   of the song their flashes fade down to 0.25 + 0.35 x energy instead of dark, fading in over a beat at those sections' starts
+   (runways lit 25-55 % of the playing time before, 71-97 % after; curated 70-94 %). The set pieces burst (on, off a beat later) as often as curated maps fire
    them, on drops first, then loud section starts and the loudest sections' downbeats, a bar apart. The basic light
    types get `DifficultyMap.EnvironmentLights` (replacing the classic events outside 90/360): one event per power-of-two
    step near 1 / rate (doubled in quiet sections), "on" in the section colour at its start, then on / transition values
@@ -315,8 +326,10 @@ buildings start lowered) and its mirror partner (the group that gets identical e
    StbImageSharp, sampled to ~96 px) is binned into 24 hues weighted by saturation x value (pixels under
    0.25 of either ignored; under 4 % colourful coverage keeps the game colours); the top hue and the top
    one >= 70° away with >= 12 % of its weight (else +150°) are the sabers, the one nearer 15° (red-orange)
-   on the left; lights use the same hues (saturation >= 0.75), boost lights a third cover hue >= 40° from
-   both (else the saber hues turned by 30°), walls the top hue, white a 15 % tint of it. Hand-set slots
+   on the left; the scene lights get their own hues so the stage doesn't wear the note colours all song: each
+   saber hue turned 45° away from the other saber, a third cover hue (>= 40° from both sabers) replacing the turned
+   hue it is nearer when it stays >= 50° from the other one; the boost lights are the saber hues (the accent:
+   boost is on for two bars on drops and loudest section starts), walls the top hue, white a 15 % tint of it. Hand-set slots
    ("#rrggbb") apply over the cover's colours or, with those off, over the game defaults; the UI's Detect
    copies the cover palette into the overrides. Written as an Info v2.1 `_colorSchemes` entry (plus
    `_environmentNames` [environment, GlassDesert] so 90/360 keep theirs) and SongCore `_colorLeft` ...

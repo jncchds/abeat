@@ -32,6 +32,34 @@ public static class SongShape
         return picked;
     }
 
+    /// <summary>How the stage dims after the last note instead of cutting to black: brightness points
+    /// (beat, 0..1) from <paramref name="from"/> following the music's loudness (checked every two beats, a
+    /// point where it changes), held until a beat before the music goes quiet for good (energy under 0.12)
+    /// or the audio ends, then dark. The first point is at least 0.15 and the fade at least two beats long, so
+    /// a song that stops with its last note still fades rather than cuts.</summary>
+    public static List<(double Beat, double Level)> Outro(SongAnalysis a, double from)
+    {
+        double hop = a.Energy.HopSec > 0 ? a.Energy.HopSec : 0.1;
+        double dur = a.Audio.DurationSec > 0 ? a.Audio.DurationSec : a.Energy.Values.Count * hop;
+        double t0 = a.BeatToSeconds(from), quiet = t0;
+        for (double t = t0; t < dur; t += hop)
+            if (a.EnergyAt(t) >= 0.12) quiet = t;
+        double last = Math.Max(from + 2, Math.Round(a.SecondsToBeat(quiet) * 4) / 4);
+        double Level(double b)
+        {
+            double s0 = a.BeatToSeconds(b), s1 = Math.Min(a.BeatToSeconds(b + 2), Math.Max(s0, quiet)), sum = 0;
+            int n = 0;
+            for (double t = s0; t <= s1; t += hop) { sum += a.EnergyAt(t); n++; }
+            return Math.Round(Math.Clamp(0.8 * (n > 0 ? sum / n : 0), 0, 0.8), 2);
+        }
+        var points = new List<(double Beat, double Level)> { (from, Math.Max(0.15, Level(from))) };
+        for (double b = from + 2; b < last - 1.01; b += 2)
+            if (Math.Abs(Level(b) - points[^1].Level) >= 0.08) points.Add((b, Level(b)));
+        if (last - 1 > points[^1].Beat + 1) points.Add((last - 1, points[^1].Level)); // hold until the music stops
+        points.Add((last, 0));
+        return points;
+    }
+
     /// <summary>The wind-up before each drop: from the start of the section the drop ends (or 16 beats
     /// before it, whichever is later) to the drop, at least 4 beats long.</summary>
     public static List<BuildUp> BuildUps(SongAnalysis a, IReadOnlyList<double> drops)

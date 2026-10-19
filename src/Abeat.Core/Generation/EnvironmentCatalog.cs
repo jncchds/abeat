@@ -21,11 +21,13 @@ public enum LightingSystem { Classic, Groups }
 /// from home (The Weeknd's ring sets start lowered and rise on the first big moment).</param>
 /// <param name="RotationRate">Median share of song beats on which maps that turn it turn it to a pose.</param>
 /// <param name="TranslationRate">Median share of song beats on which maps that move it move it to a position.</param>
+/// <param name="Lit">Median share of the playing time curated maps keep it lit (runways and floors mappers keep
+/// on: Collider's runway 0.91; lights they only flash: Rock Mixtape's runway lasers 0.14).</param>
 public sealed record LightGroupInfo(int Id, double Color, double Rotation, double Translation, int Lights,
     int[] RotationAxes, double RotationRange, int[] TranslationAxes, double TranslationRange,
     int? Mirror = null, int[]? RotationPoses = null, IReadOnlyDictionary<int, double[]>? TranslationValues = null,
     IReadOnlyDictionary<int, int[]>? AxisPoses = null, double? Rate = null, double HomeShare = 0, double? RotationRate = null,
-    IReadOnlyDictionary<int, double>? TranslationIntro = null, double? TranslationRate = null)
+    IReadOnlyDictionary<int, double>? TranslationIntro = null, double? TranslationRate = null, double? Lit = null)
 {
     /// <summary>The poses mappers turn it to about <paramref name="axis"/> (null when unknown).</summary>
     public int[]? PosesOn(int axis) =>
@@ -35,8 +37,8 @@ public sealed record LightGroupInfo(int Id, double Color, double Rotation, doubl
 /// <summary>A basic light type (0-7, or 8-12 where they switch lights: Lizzo's peaches 7/8) of a group environment
 /// as curated maps use it next to the groups (e.g. Pyro: 4 runway, 2/3 projectors, 1 logo): share of maps, events per song beat, the share of
 /// "on" and "transition" values among its events, the share of white among its lit events, and the type
-/// on the other side that gets identical events.</summary>
-public sealed record BasicLightInfo(int Type, double Share, double Rate, double On, double Transition, double White, int? Mirror);
+/// on the other side that gets identical events, and the median share of the playing time it is lit.</summary>
+public sealed record BasicLightInfo(int Type, double Share, double Rate, double On, double Transition, double White, int? Mirror, double? Lit = null);
 
 /// <summary>A basic event type whose value is a position step (The Second's ring spacing), as curated maps
 /// pulse it: share of maps, events per song beat and the low / high step they alternate between.</summary>
@@ -157,7 +159,7 @@ public static class EnvironmentCatalog
                     kv.Value.TranslationAxes ?? [], kv.Value.TranslationRange, kv.Value.Mirror, kv.Value.RotationPoses,
                     kv.Value.TranslationValues?.ToDictionary(t => int.Parse(t.Key), t => t.Value),
                     kv.Value.AxisPoses?.ToDictionary(t => int.Parse(t.Key), t => t.Value), kv.Value.Rate, kv.Value.HomeShare ?? 0, kv.Value.RotationRate,
-                    kv.Value.TranslationIntro?.ToDictionary(t => int.Parse(t.Key), t => t.Value), kv.Value.TranslationRate))
+                    kv.Value.TranslationIntro?.ToDictionary(t => int.Parse(t.Key), t => t.Value), kv.Value.TranslationRate, kv.Value.Lit))
                 .OrderBy(g => g.Id).ToList();
             // a group environment nobody has mapped yet cannot be lit safely; fall back to classic events
             var sys = system == LightingSystem.Groups && groups.Count(g => g.Color > 0) == 0 ? LightingSystem.Classic : system;
@@ -165,7 +167,7 @@ public static class EnvironmentCatalog
             var values = (p?.BasicValues ?? []).ToDictionary(kv => int.Parse(kv.Key), kv => kv.Value);
             var basicLights = sys == LightingSystem.Groups
                 ? (p?.BasicLights ?? []).Select(kv => new BasicLightInfo(int.Parse(kv.Key), kv.Value.Share, kv.Value.Rate, kv.Value.On,
-                    kv.Value.Transition, kv.Value.White, kv.Value.Mirror)).OrderBy(b => b.Type).ToList()
+                    kv.Value.Transition, kv.Value.White, kv.Value.Mirror, kv.Value.Lit)).OrderBy(b => b.Type).ToList()
                 : [];
             var steps = sys == LightingSystem.Groups
                 ? (p?.Steps ?? []).Select(kv => new StepTypeInfo(int.Parse(kv.Key), kv.Value.Share, kv.Value.Rate, kv.Value.Low, kv.Value.High))
@@ -179,8 +181,8 @@ public static class EnvironmentCatalog
     sealed record PriorGroup(double Color, double Rotation, double Translation, int Lights, int[]? RotationAxes,
         double RotationRange, int[]? TranslationAxes, double TranslationRange, int? Mirror, int[]? RotationPoses,
         Dictionary<string, double[]>? TranslationValues, Dictionary<string, int[]>? AxisPoses, double? Rate, double? HomeShare,
-        double? RotationRate, Dictionary<string, double>? TranslationIntro, double? TranslationRate);
-    sealed record PriorBasicLight(double Share, double Rate, double On, double Transition, double White, int? Mirror);
+        double? RotationRate, Dictionary<string, double>? TranslationIntro, double? TranslationRate, double? Lit);
+    sealed record PriorBasicLight(double Share, double Rate, double On, double Transition, double White, int? Mirror, double? Lit);
     sealed record PriorStep(double Share, double Rate, int Low, int High);
     sealed record PriorEntry(int Maps, Dictionary<string, double>? Basic, Dictionary<string, int[]>? BasicValues, Dictionary<string, PriorGroup>? Groups,
         double? RotationEase, double? TranslationEase, Dictionary<string, PriorBasicLight>? BasicLights, Dictionary<string, PriorStep>? Steps);

@@ -15,6 +15,9 @@ public static class LightingGenerator
     const int Back = 0, Ring = 1, LeftLaser = 2, RightLaser = 3, Center = 4, RingSpin = 8, RingZoom = 9, LeftSpeed = 12, RightSpeed = 13;
     const int ExtraLeft = 6, ExtraRight = 7, Extra2Left = 10, Extra2Right = 11;
 
+    /// <summary>How long a boost accent (drop, loudest section start) keeps the note colours on the stage.</summary>
+    public const double BoostBeats = 8;
+
     public static void Generate(SongAnalysis a, DifficultyMap map, IReadOnlyList<RhythmEvent> events, EnvironmentInfo? env = null)
     {
         env ??= EnvironmentCatalog.Default;
@@ -41,7 +44,9 @@ public static class LightingGenerator
             int speed = (int)Math.Round(1 + rel * 7);
             lights.Add(new LightEvent(b0, LeftSpeed, speed));
             lights.Add(new LightEvent(b0, RightSpeed, speed));
+            // boost (the note colours) is an accent: the first two bars of the loudest sections
             map.Boosts.Add(new BoostEvent(b0, high));
+            if (high) map.Boosts.Add(new BoostEvent(Math.Min(b0 + BoostBeats, b1), false));
 
             if (drums.Count > 0)
             {
@@ -77,10 +82,20 @@ public static class LightingGenerator
         // group environments give these basic types other meanings
         if (env.System == LightingSystem.Classic) Extras(a, map, events, env, maxEnergy, lastNoteBeat);
 
-        // fade everything out after the last note
+        // after the last note the stage holds in the last section's colours and dims with the music
         double end = lastNoteBeat + 2;
+        bool lastRed = a.Sections.Count > 0 && labelColor.GetValueOrDefault(a.SectionAt(a.BeatToSeconds(lastNoteBeat)).Label);
+        var outro = SongShape.Outro(a, end);
         foreach (int t in new[] { Back, Ring, LeftLaser, RightLaser, Center, ExtraLeft, ExtraRight, Extra2Left, Extra2Right }.Where(t => t <= Center || env.System == LightingSystem.Classic && env.Has(t)))
-            lights.Add(new LightEvent(end, t, LightValue.Off));
+        {
+            bool red = t switch { Back => lastRed, Ring or Center => !lastRed, _ => t % 2 == 0 };
+            double scale = t is Back or Ring ? 1 : 0.6;
+            // switched on at the first point, then transitions (fades from the previous event) to each level
+            foreach (var (p, i) in outro.Select((p, i) => (p, i)))
+                lights.Add(new LightEvent(p.Beat, t, i == 0 ? LightValue.On(red) : LightValue.On(red) + 3, Math.Round(p.Level * scale, 2)));
+        }
+        foreach (int t in new[] { LeftSpeed, RightSpeed }) lights.Add(new LightEvent(end, t, 1));
+        lights.Add(new LightEvent(end, RingSpin, 0));
         map.Boosts.Add(new BoostEvent(end, false));
 
         // one event per type and beat: later rules (drops, build-ups) override the section and note ones
@@ -126,6 +141,7 @@ public static class LightingGenerator
             lights.Add(new LightEvent(d, RingZoom, 0));
             lights.Add(new LightEvent(d, RingSpin, 0));
             map.Boosts.Add(new BoostEvent(d, true));
+            map.Boosts.Add(new BoostEvent(d + BoostBeats, false));
         }
     }
 
