@@ -137,8 +137,15 @@ public sealed record FlowWeights
     public double Repetition { get; init; } = 0.5;
 }
 
-public sealed record GeneratorSettings
+public sealed record GeneratorSettings : IJsonOnDeserialized
 {
+    /// <summary>Settings saved before a layer existed get its default weight (a saved table replaces
+    /// the whole default dictionary, which would silently switch new layers off).</summary>
+    void IJsonOnDeserialized.OnDeserialized()
+    {
+        foreach (var (k, v) in new GeneratorSettings().LayerWeights) LayerWeights.TryAdd(k, v);
+    }
+
     public List<DifficultyName> Difficulties { get; init; } = [.. Enum.GetValues<DifficultyName>()];
     /// <summary>Extra game modes written next to Standard, for the same difficulties: "OneSaber",
     /// "90Degree", "360Degree" (rotations on the Standard notes).</summary>
@@ -156,6 +163,8 @@ public sealed record GeneratorSettings
         ["full"] = 0.5, ["low"] = 0.9, ["mid"] = 1.0, ["high"] = 0.35,
         // demucs stems: vocals lead, drums keep the pulse, the mix only fills gaps
         ["vocals"] = 1.5, ["drums"] = 0.9, ["other"] = 0.6, ["bass"] = 0.4, ["mix"] = 0.25,
+        // the lead line across the pitched stems (whichever voice or instrument carries it)
+        ["melody"] = 0.8,
     };
     /// <summary>Weight of drum-stem hits by kind (kick "k", snare "s", hat/cymbal "h") on top of the
     /// drums layer weight.</summary>

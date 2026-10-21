@@ -23,6 +23,9 @@ public sealed class SongAnalysis
     public string? PitchedSource { get; set; }
     /// <summary>Transcribed lyrics with word times (vocal onsets from lyrics only).</summary>
     public LyricsInfo? Lyrics { get; set; }
+    /// <summary>Where the lead melody is and which stem carries it; its notes are the "melody" layer.
+    /// Null without stems or with an older worker.</summary>
+    public MelodyInfo? Melody { get; set; }
     public string Cover { get; set; } = "cover.jpg";
     public PreviewInfo Preview { get; set; } = new();
 
@@ -133,6 +136,22 @@ public sealed class Onset
     public string? K { get; set; }
     /// <summary>Transcribed notes only: when the note ends (seconds).</summary>
     public double? E { get; set; }
+    /// <summary>Melody layer only: the stem the note came from ("vocals" / "other").</summary>
+    public string? Src { get; set; }
+}
+
+public sealed class MelodyInfo
+{
+    /// <summary>Stretches where one stem carries the lead (rests under 1.5 s bridged).</summary>
+    public List<MelodySegment> Segments { get; set; } = [];
+}
+
+public sealed class MelodySegment
+{
+    public double Start { get; set; }
+    public double End { get; set; }
+    /// <summary>Stem carrying the lead: "vocals" or "other".</summary>
+    public string Src { get; set; } = "";
 }
 
 public sealed class LyricsInfo

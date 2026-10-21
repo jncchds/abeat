@@ -64,6 +64,7 @@ def analyze(args: argparse.Namespace) -> int:
         f"p98={grid.max_dev_ms:.0f}ms ({tr.backend})")
     st = None
     lyrics = None
+    melody = None
     vocal_source = None
     pitched_source = None
     roformer = False  # vocals from BS-RoFormer
@@ -128,6 +129,15 @@ def analyze(args: argparse.Namespace) -> int:
             else:
                 layers[name] = features.tonal_onsets(sig, sr, refine=name != "vocals")
         layer_source = "demucs+roformer" if roformer else "demucs"
+        flux = {k: layers[k] for k in ("vocals", "other") if k in layers}
+        if args.melody == "auto":
+            try:
+                from . import melody as melody_mod
+
+                layers["melody"], melody = melody_mod.extract(
+                    st, sr, log, out, flux, out / "stems" / "melody.npz" if args.keep_stems else None)
+            except ImportError as e:
+                log(f"melody needs the 'ml' extra ({e.name} missing); skipping")
         vocal_source = "flux"
         pitched_source = "flux"
         if args.pitched == "notes":
@@ -209,6 +219,7 @@ def analyze(args: argparse.Namespace) -> int:
         "pitchedSource": pitched_source if st is not None else None,
         "layers": layers,
         "lyrics": lyrics,
+        "melody": melody,
         "cover": "cover.jpg",
         "preview": {"startSec": round(loudest["start"], 2), "durationSec": 12.0},
     }
@@ -325,6 +336,9 @@ def main(argv: list[str] | None = None) -> int:
                         "lyrics syllables (Whisper + forced alignment, extra 'lyrics')")
     a.add_argument("--pitched", choices=["flux", "notes"], default="flux",
                    help="other/bass onsets (needs --stems): spectral flux, or notes transcribed by basic-pitch")
+    a.add_argument("--melody", choices=["auto", "off"], default="auto",
+                   help="lead melody line across the pitched stems (needs --stems and the 'ml' extra): "
+                        "CREPE picks the leading stem, basic-pitch gives its notes (layer 'melody')")
     a.add_argument("--whisper-model", default="small", help="faster-whisper model for --vocals lyrics")
     a.add_argument("--lyrics-file", help="lyrics text (repeats written out) for --vocals lyrics; skips transcription")
     a.add_argument("--bpm", type=float, default=None, help="override detected BPM (implies a constant tempo)")

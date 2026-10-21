@@ -42,7 +42,10 @@ export interface SongMeta {
 /** A song-list folder; folders nest two levels at most (a sub-folder has a top-level parent). */
 export interface Folder { id: string; name: string; parentId?: string | null; createdUtc: string }
 
-export interface Onset { t: number; s: number; br: number }
+/** `e`: end of a transcribed note; `src`: stem a melody note came from. */
+export interface Onset { t: number; s: number; br: number; e?: number; src?: string }
+/** Stretch where one stem carries the lead melody. */
+export interface MelodySegment { start: number; end: number; src: string }
 export interface Section { start: number; end: number; label: string; energy: number }
 
 export interface Analysis {
@@ -59,6 +62,8 @@ export interface Analysis {
   vocalSource?: string | null
   layers: Record<string, Onset[]>
   lyrics?: { source: string; language?: string | null; words: { w: string; t: number; e: number }[] } | null
+  /** Where the lead melody is and which stem carries it; its notes are the "melody" layer. */
+  melody?: { segments: MelodySegment[] } | null
 }
 
 /** `a`: counter-clockwise cut angle offset in degrees. */

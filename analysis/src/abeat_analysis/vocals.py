@@ -33,7 +33,7 @@ def _onset(t: float, s: float, br: float) -> dict:
     return {"t": round(float(t), 4), "s": round(float(min(1.0, max(0.0, s))), 3), "br": round(float(min(1.0, max(0.0, br))), 3)}
 
 
-def _pitch(y16: np.ndarray, log: Log) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _pitch(y16: np.ndarray, log: Log, label: str = "vocal pitch (CREPE tiny)") -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Per 10 ms frame: MIDI pitch, periodicity (voicing confidence) and A-weighted loudness (dB)."""
     import torch
     import torchcrepe
@@ -41,7 +41,7 @@ def _pitch(y16: np.ndarray, log: Log) -> tuple[np.ndarray, np.ndarray, np.ndarra
     from .accel import device
 
     audio = torch.from_numpy(np.ascontiguousarray(y16)).float()[None]
-    log("vocal pitch (CREPE tiny)")  # "full" is ~25x slower on CPU for little gain in onset timing
+    log(label)  # CREPE "full" is ~25x slower on CPU than "tiny" for little gain in onset timing
     with torch.no_grad():
         f0, per = torchcrepe.predict(audio, SR16, HOP, 50.0, 1100.0, model="tiny", decoder=torchcrepe.decode.viterbi,
                                      return_periodicity=True, batch_size=1024, device=device())

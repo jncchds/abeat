@@ -199,7 +199,7 @@ public static class MapEndpoints
         {
             var dir = Path.Combine(store.WorkDir(id), "stems");
             return Directory.Exists(dir)
-                ? Results.Ok(Directory.EnumerateFiles(dir).Select(f => new { name = Path.GetFileNameWithoutExtension(f), file = Path.GetFileName(f), bytes = new FileInfo(f).Length }).OrderBy(x => x.name))
+                ? Results.Ok(Directory.EnumerateFiles(dir, "*.flac").Select(f => new { name = Path.GetFileNameWithoutExtension(f), file = Path.GetFileName(f), bytes = new FileInfo(f).Length }).OrderBy(x => x.name))
                 : Results.Ok(Array.Empty<object>());
         });
 

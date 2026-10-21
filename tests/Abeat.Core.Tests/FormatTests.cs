@@ -60,6 +60,22 @@ public class FormatTests
         }
         finally { Directory.Delete(dir, true); }
     }
+
+    /// <summary>Official v4 maps time their beats with BPMInfo.dat regions, not the Info BPM.</summary>
+    [Fact]
+    public void AudioDataRegionsSetTheTempo()
+    {
+        var j = System.Text.Json.Nodes.JsonNode.Parse("""
+            { "version": "4.0.0", "songFrequency": 44100, "bpmData": [
+              { "si": 0, "ei": 44100, "sb": 0, "eb": 2 },
+              { "si": 44100, "ei": 132300, "sb": 2, "eb": 8 } ] }
+            """)!.AsObject();
+        var t = MapReader.AudioDataTempo(j)!;
+        Assert.Equal(120, t.Bpm, 6);          // 2 beats in the first second
+        Assert.Equal(1.0, t.BeatToSeconds(2), 6);
+        Assert.Equal(3.0, t.BeatToSeconds(8), 6); // then 6 beats in 2 s (180 BPM)
+        Assert.Null(MapReader.AudioDataTempo(System.Text.Json.Nodes.JsonNode.Parse("""{ "bpmData": [] }""")!.AsObject()));
+    }
 }
 
 public class BeatSaverKeyTests

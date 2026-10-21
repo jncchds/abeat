@@ -9,6 +9,40 @@ namespace Abeat.Core.Tests;
 
 public class RhythmTests
 {
+    /// <summary>Notes on the melody line carry its pitch and held length; the drums around it don't.</summary>
+    [Fact]
+    public void MelodyLayerMarksItsNotes()
+    {
+        var a = TestSongs.Fake();
+        double spb = 60 / a.Tempo.Bpm;
+        // a violin line on the off-beats of every other beat, held for most of a beat
+        var melody = Enumerable.Range(4, 96).Select(i => new Onset
+        {
+            T = (2 * i + 0.5) * spb, S = 0.9, Br = 0.1 + 0.2 * (i % 5), E = (2 * i + 1.3) * spb, Src = "other",
+        }).ToList();
+        var song = new SongAnalysis
+        {
+            Tempo = a.Tempo, Audio = a.Audio, Energy = a.Energy, Sections = a.Sections,
+            Layers = new() { ["drums"] = a.Layers["low"], ["melody"] = melody },
+        };
+        var s = new GeneratorSettings();
+        var events = RhythmSelector.Select(song, s.Profile(DifficultyName.Expert), s);
+        var onMelody = events.Where(e => melody.Any(m => Math.Abs(m.T - e.Time) < 0.01)).ToList();
+        Assert.True(onMelody.Count > 40);
+        Assert.All(onMelody, e =>
+        {
+            var m = melody.First(m => Math.Abs(m.T - e.Time) < 0.01);
+            Assert.True(e.Melody);
+            Assert.Equal(m.Br, e.Brightness);
+            Assert.Equal(m.E!.Value - e.Time, e.Sustain, 3);
+        });
+        Assert.All(events.Except(onMelody), e => Assert.False(e.Melody));
+
+        // weight 0: the layer is ignored and nothing counts as melody (no pitched layers either)
+        var off = s with { LayerWeights = new(s.LayerWeights) { ["melody"] = 0 } };
+        Assert.DoesNotContain(RhythmSelector.Select(song, off.Profile(DifficultyName.Expert), off), e => e.Melody);
+    }
+
     [Fact]
     public void TripletsOnlyForSongsWithTripletFeel()
     {

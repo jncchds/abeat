@@ -169,7 +169,7 @@ public static class LightingGenerator
         }
         if (env.Has(Extra2Left) && env.Has(Extra2Right))
         {
-            var melody = events.Where(e => RhythmSelector.MelodyLayers.Contains(e.Layer) && e.Beat <= lastNoteBeat).ToList();
+            var melody = events.Where(e => e.Melody && e.Beat <= lastNoteBeat).ToList();
             var pitch = SongShape.RelativePitch(melody);
             foreach (var e in melody)
             {

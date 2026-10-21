@@ -16,6 +16,13 @@ public sealed record RhythmEvent
     public double Energy { get; init; }
     public string Layer { get; init; } = "";
     public bool IsDouble { get; init; }
+    /// <summary>The note follows the lead melody: a "melody" layer note is on its slot, or, for analyses
+    /// without that layer, its strongest layer is a pitched one (<see cref="RhythmSelector.MelodyLayers"/>).
+    /// Melody notes carry the melody's pitch as <see cref="Brightness"/>, a sustain and a pitch slope.</summary>
+    public bool Melody { get; init; }
+    /// <summary>The pitch line <see cref="PitchSlope"/> is measured along: "melody", or the layer itself
+    /// for analyses without a melody layer.</summary>
+    public string Line { get; init; } = "";
     /// <summary>Label of the section (A, B, ...); repeated parts share a label.</summary>
     public string Section { get; init; } = "A";
     /// <summary>Grid beats since the start of the section (snapped to the section's first downbeat).</summary>
@@ -60,7 +67,15 @@ public static class RhythmSelector
         /// <summary>Time (seconds) of the strongest contributing onset: where the note goes.</summary>
         public double Time;
         public double TimeWeight;
+        /// <summary>Strongest "melody" layer note on the slot: its weight, pitch (brightness) and end.</summary>
+        public double MelodyWeight, MelodyBr, MelodyEnd;
     }
+
+    /// <summary>The song has a lead melody line and the settings weigh it.</summary>
+    static bool HasMelody(SongAnalysis a, GeneratorSettings s) =>
+        a.Layers.TryGetValue(MelodyLayer, out var m) && m.Count > 0 && s.LayerWeights.GetValueOrDefault(MelodyLayer) > 0;
+
+    public const string MelodyLayer = "melody";
 
     public static List<RhythmEvent> Select(SongAnalysis a, DifficultyProfile p, GeneratorSettings s)
     {
@@ -128,6 +143,7 @@ public static class RhythmSelector
         }
         ClearBeforeDrops(a, p, accepted, drops);
 
+        bool hasMelody = HasMelody(a, s);
         var events = accepted.Select(i =>
         {
             var sl = slots[i];
@@ -135,6 +151,8 @@ public static class RhythmSelector
             double t = sl.Time;
             var sec = a.SectionAt(a.BeatToSeconds(gridBeat));
             double secBeat = Math.Round(a.SecondsToBeat(sec.Start));
+            string layer = sl.ByLayer.MaxBy(kv => kv.Value).Key;
+            bool melody = hasMelody ? sl.MelodyWeight > 0 : MelodyLayers.Contains(layer);
             return new RhythmEvent
             {
                 Section = sec.Label,
@@ -143,15 +161,16 @@ public static class RhythmSelector
                 GridBeat = gridBeat,
                 Time = t,
                 Strength = sl.Score / maxScore,
-                Brightness = sl.BrightnessWeight > 0 ? sl.BrightnessSum / sl.BrightnessWeight : 0.5,
+                Brightness = hasMelody && melody ? sl.MelodyBr : sl.BrightnessWeight > 0 ? sl.BrightnessSum / sl.BrightnessWeight : 0.5,
                 Energy = a.EnergyAt(t),
-                Layer = sl.ByLayer.MaxBy(kv => kv.Value).Key,
+                Layer = layer,
+                Melody = melody,
                 Drum = sl.Drum,
-                NoteEnd = sl.EndByLayer.GetValueOrDefault(sl.ByLayer.MaxBy(kv => kv.Value).Key),
+                NoteEnd = hasMelody ? (melody ? sl.MelodyEnd : 0) : sl.EndByLayer.GetValueOrDefault(layer),
             };
         }).OrderBy(e => e.Time).ToList();
 
-        events = AddExpression(a, events);
+        events = AddExpression(a, events, hasMelody);
         var forced = drops.Select(d => events.FindIndex(e => Math.Abs(e.GridBeat - (double)d / SlotsPerBeat) < 1e-6)).Where(i => i >= 0).ToHashSet();
         return MarkDoubles(events, p, forced);
     }
@@ -162,7 +181,7 @@ public static class RhythmSelector
     public static readonly HashSet<string> MelodyLayers = ["vocals", "other", "mid"];
 
     /// <summary>Sustain, pitch slope and intensity per event (see <see cref="RhythmEvent"/>).</summary>
-    static List<RhythmEvent> AddExpression(SongAnalysis a, List<RhythmEvent> events)
+    static List<RhythmEvent> AddExpression(SongAnalysis a, List<RhythmEvent> events, bool hasMelody)
     {
         var onsetTimes = a.Layers.ToDictionary(kv => kv.Key, kv => kv.Value.Select(o => o.T).Order().ToArray());
         var words = a.VocalSource == "lyrics" ? a.Lyrics?.Words ?? [] : [];
@@ -177,17 +196,19 @@ public static class RhythmSelector
         {
             var e = events[i];
             double sustain = 0, slope = 0;
-            if (MelodyLayers.Contains(e.Layer) && onsetTimes.TryGetValue(e.Layer, out var times))
+            // one melody line when the song has one, else each pitched layer is its own line
+            string line = hasMelody ? MelodyLayer : e.Layer;
+            if (e.Melody && onsetTimes.TryGetValue(line, out var times))
             {
                 // a transcribed note knows how long it is held; flux onsets only know the next onset
                 sustain = e.NoteEnd > e.Time ? Math.Min(e.NoteEnd - e.Time, 4) : Sustain(a, e.Time, times, words);
-                if (lastByLayer.TryGetValue(e.Layer, out var prev) && e.Time - prev.Time < 1.5)
+                if (lastByLayer.TryGetValue(line, out var prev) && e.Time - prev.Time < 1.5)
                     slope = Math.Clamp(e.Brightness - prev.Brightness, -1, 1);
-                lastByLayer[e.Layer] = e;
+                lastByLayer[line] = e;
             }
             double nextT = i + 1 < events.Count ? events[i + 1].Time : double.PositiveInfinity;
             var (count, burst) = Burst(a, e, nextT, onsetTimes);
-            result.Add(e with { Sustain = sustain, PitchSlope = slope, Intensity = intensity[i], BurstCount = count, BurstSec = burst });
+            result.Add(e with { Line = line, Sustain = sustain, PitchSlope = slope, Intensity = intensity[i], BurstCount = count, BurstSec = burst });
         }
         return result;
     }
@@ -304,6 +325,12 @@ public static class RhythmSelector
                 slot.ByLayer[layer] = slot.ByLayer.GetValueOrDefault(layer) + contribution;
                 if (o.K is { Length: > 0 } kind && contribution > slot.DrumScore) { slot.Drum = kind[0]; slot.DrumScore = contribution; }
                 if (o.E is { } end) slot.EndByLayer[layer] = Math.Max(end, slot.EndByLayer.GetValueOrDefault(layer));
+                if (layer == MelodyLayer && contribution > slot.MelodyWeight)
+                {
+                    slot.MelodyWeight = contribution;
+                    slot.MelodyBr = o.Br;
+                    slot.MelodyEnd = o.E ?? 0;
+                }
             }
         }
 
