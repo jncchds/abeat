@@ -86,8 +86,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      through the song whichever voice or instrument carries it. Stems don't tell: violin and synth
      leads land in "other" or in "vocals" (Everlasting's trance lead sits in the vocal stem at -1 dB,
      Artemis' violin in "other"), and singers stop for instrumental breaks. CREPE-tiny on both pitched
-     stems gives pitch + periodicity; lead score = periodicity x stem's share of the pitched loudness
-     x sqrt(level); a Viterbi path over {none, vocals, other} (start/stop cost 0.3, stem switch 1.0,
+     stems gives pitch + periodicity; lead score = periodicity x min(1, stem's share of the pitched
+     loudness / 0.5) x sqrt(level) (a stem as loud as the other counts fully: with the plain share, voice
+     and violin playing together halved each other below the "none" level); a Viterbi path over {none, vocals, other} (start/stop cost 0.3, stem switch 1.0,
      stem blips < 150 ms smoothed) picks the leading stem; "none" where no stem is clearly pitched
      (drum breaks, pads, silence). Notes: basic-pitch notes of the leading stem on CREPE's pitch
      (an octave off only as fallback), refined to the attack, plus repeated notes (bow changes) from
@@ -100,6 +101,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      0.8, 0.637 at 1.2, 0.590 at 1.5 with vocals 1.0 (instrument-led songs 0.598 / 0.599 / 0.591).
      Mappers skip many melody notes, so its worth is in expression (one pitch line, held lengths) and
      lights. Snapping notes to the stem's flux onsets did not tighten timing (vocal flux lags ~20 ms).
+     Tap check (Heavy Weight, one right-hand run of melody + vocals, 698 taps, ~40 ms late against the
+     official map, 64 % of taps on a map note): the melody catches 58 % of taps (violin-led stretches
+     62 %, sung stretches 33 %, where taps follow the beat rather than the vocal line's note changes);
+     the full-share rule took it from 55 % and bench melody recall from 0.37 to 0.40 (P 0.56 -> 0.55).
+     A higher "none" level (0.3 / 0.35) lost on both.
    - links are downloaded once: `work/download/fetched.json` (+ `cover.bin`) records the file and
      metadata, so re-analysis never calls yt-dlp again (older downloads are found by video id)
    - stems kept in `work/stems` are reused by a re-analysis of the same audio (length check), so
