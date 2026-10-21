@@ -47,7 +47,7 @@ Prebuilt images (amd64, arm64) are on Docker Hub as [`jncchds/abeat`](https://hu
 
 ### Local
 
-Requirements: .NET 10 SDK, Node.js 20+ and [uv](https://docs.astral.sh/uv/) (it installs its own Python).
+Requirements: .NET 10 SDK, Node.js 22 (or 20.19+) and [uv](https://docs.astral.sh/uv/) (it installs its own Python).
 
 ```bash
 cd analysis && uv sync --extra ml --extra cpu && cd ..   # torch flavor: cpu, cuda, cuda12, rocm or xpu; add --extra lyrics / roformer
@@ -81,8 +81,8 @@ links only work for maps published on BeatSaver.
 (or librosa), a constant-BPM grid fit (or, for drifting live recordings, a tempo map written as v3
 BPM events), phase refinement against a sharp attack envelope (spectral-flux
 envelopes lag ~50 ms, which players feel), downbeats, energy curve, novelty-based sections with
-labels for repeated parts, and onsets per layer (frequency bands, or [Demucs](https://github.com/facebookresearch/demucs)
-stems with `--stems`). The audio is padded so grid beat 0 is at t = 0 and written as `song.egg`.
+labels for repeated parts, and onsets per layer ([Demucs](https://github.com/facebookresearch/demucs)
+stems, the default, or frequency bands with `--no-stems`). The audio is padded so grid beat 0 is at t = 0 and written as `song.egg`.
 
 **Vocal onsets** (per song, re-analysis reuses the stems): *spectral flux* (default); *sung notes*,
 flux onsets kept only where a pitched voice follows (CREPE);
@@ -110,7 +110,10 @@ angle leans and the melody lights. The timeline shows it tinted by the stem carr
 triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×
 energy, and picked bar by bar to hit a notes-per-second target that follows section energy. Notes are
 not snapped: each lands at the detected time of its sound (corrected for the stem's detection lag). Strong,
-isolated hits become doubles, spread over the sections (calm parts get nearly as many as loud ones, as in curated maps). Before a drop the map pauses for a beat or two and lands on a double. Vocal, bass and other stems use spectral-flux onsets (one per sung
+isolated hits become doubles, spread over the sections (calm parts get nearly as many as loud ones, as in curated maps). Before a drop the map pauses for a beat or two and lands on a double.
+**Taps**: tap along with the song (*Tap beats*, two runs) to mark where you want notes; each run's latency is
+removed, taps snap onto the song's onsets, and tapped moments get notes first (*tap priority*), with a
+double where both runs tapped. Vocal, bass and other stems use spectral-flux onsets (one per sung
 syllable or note) rather than energy rises, which fired on consonants and breaths.
 
 **Flow planning** (`FlowPlanner` + `SwingCostModel`): beam search over both sabers' states (position,
@@ -123,8 +126,8 @@ last swing direction, parity). Each candidate cut is scored for:
   use on that difficulty. A hand crosses to the other side of the grid only where a known move takes it;
   the **Vocabulary** page shows every one of them drawn on the grid; note height never follows the audio, so easier levels keep notes lower
   like human maps do (top row: ~18 % of notes on Easy, ~26 % on Expert+)
-- *musical fit*: accents prefer big vertical swings; one saber follows the
-  melody (vocals) and the other the rhythm (drums, bass), swapping at section changes
+- *musical fit*: accents prefer big vertical swings; hand roles as players tap along: one hand leads the
+  drops, the other the rest, and the support hand takes the bar downbeats
 - *dynamics*: loud moments pull to the outer columns and bigger moves, soft ones stay small and central
 - *bursts*: one hand may flick back and forth faster than its usual limit (down to the difficulty's burst
   gap, up to 4 notes in a row, 6 on Expert+) when each flick is a clean reversal in place, as curated maps
@@ -140,7 +143,7 @@ most one per 30-120 s, as rare as in curated maps).
 All of them leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the
 settings.
 
-**Walls** (`WallGenerator`): dodge walls in note-free gaps, side walls in calm sections and short
+**Walls** (`WallGenerator`): dodge walls in note-free gaps, side walls in calm sections (only while notes are played) and short
 rhythm walls in the outer lanes (full height where free, long enough to make the controller buzz) on the strongest kicks and snares of loud sections, as
 most curated maps have; full-width crouch walls before drops are optional (off by default). No wall
 ever holds a note or bomb.
@@ -222,7 +225,6 @@ python3 scripts/style_prior.py work/beatsaver-curated
 - Calibrate `FlowWeights` and the flow score against curated BeatSaver maps (`abeat check`).
 - Learned rhythm selection (which onsets humans map) trained on BeatSaver maps, exported to ONNX.
 - Smarter bomb patterns.
-- Desktop packaging (e.g. Photino window around the same web UI).
 - Optional Chroma (custom colours, gradients, lighting) and Noodle Extensions (custom note/wall paths) output, declared as map requirements/suggestions.
 
 ## Credits
