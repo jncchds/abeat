@@ -240,6 +240,9 @@ export interface SongColors { cover: Record<string, string> | null; game: Record
 export const getColors = (id: string) => http.get<SongColors>(`/songs/${id}/colors`)
 export const getEnvironments = (id: string, seed: number) => http.get<EnvironmentSuggestions>(`/songs/${id}/environments`, { params: { seed } })
 export const getSettings = (id: string) => http.get<GeneratorSettings>(`/songs/${id}/settings`)
+/** Speed and density limits that let Expert+ use every tap, the other difficulties scaled by the same ratios. */
+export interface TapFit { taps: number; minGapSec: number; minHandGapSec: number; busiestBarNps: number; overrides: Record<string, ProfileOverride> }
+export const fitTaps = (id: string, s: GeneratorSettings) => http.post<TapFit>(`/songs/${id}/fit-taps`, s)
 export const generate = (id: string, s: GeneratorSettings, draft: boolean) =>
   http.post<{ version: Version; difficulties: Difficulty[] }>(`/songs/${id}/generate`, s, { params: { draft } })
 export const getVersions = (id: string) => http.get<Version[]>(`/songs/${id}/versions`)

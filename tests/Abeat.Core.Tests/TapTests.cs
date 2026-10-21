@@ -72,6 +72,41 @@ public class TapTests
     }
 
     [Fact]
+    public void FitToTapsLetsExpertPlusUseEveryTap()
+    {
+        var a = TestSongs.Fake();
+        double spb = 60 / 128.0;
+        // a run of sixteenths for four bars (too dense for the default E+ ceiling) and a few pairs 70 ms apart
+        var taps = Enumerable.Range(0, 64).Select(i => 80 * spb + i * spb / 4)
+            .Concat(Enumerable.Range(0, 5).SelectMany(i => new[] { (40 + 8 * i) * spb, (40 + 8 * i) * spb + 0.07 }))
+            .Order().ToArray();
+        TapAligner.Apply(a, [(taps, null)]);
+        double Covered(GeneratorSettings s)
+        {
+            var times = MapGenerator.GenerateDifficulty(a, s, DifficultyName.ExpertPlus).Events.Select(e => e.Time).ToList();
+            return a.Layers[TapAligner.Layer].Count(t => times.Any(x => Math.Abs(x - t.T) < 0.01)) / (double)a.Taps!.Count;
+        }
+        var fit = TapFit.Fit(a, new GeneratorSettings())!;
+        var fitted = new GeneratorSettings { ProfileOverrides = fit.Overrides };
+        double before = Covered(new GeneratorSettings()), after = Covered(fitted);
+        Assert.True(before < 0.95, $"default limits drop taps: {before:P0}");
+        Assert.Equal(1.0, after);
+
+        // the other difficulties move by the same ratios as Expert+
+        var top = DifficultyProfile.Default(DifficultyName.ExpertPlus);
+        double r = fit.Overrides[DifficultyName.ExpertPlus].MaxNps!.Value / top.MaxNps;
+        Assert.True(r > 1);
+        Assert.Equal(Math.Round(DifficultyProfile.Default(DifficultyName.Hard).MaxNps * r, 1), fit.Overrides[DifficultyName.Hard].MaxNps);
+        Assert.True(fit.Overrides[DifficultyName.Easy].MinGapSec < DifficultyProfile.Default(DifficultyName.Easy).MinGapSec);
+
+        var res = MapGenerator.GenerateDifficulty(a, fitted, DifficultyName.ExpertPlus);
+        Assert.Equal(0, res.Report.WallClashes + res.Report.BombHits);
+    }
+
+    [Fact]
+    public void FitToTapsNeedsTaps() => Assert.Null(TapFit.Fit(TestSongs.Fake(), new GeneratorSettings()));
+
+    [Fact]
     public void WithoutTapsThePriorityChangesNothing()
     {
         var a = TestSongs.Fake();

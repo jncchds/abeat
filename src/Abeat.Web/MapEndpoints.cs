@@ -250,6 +250,11 @@ public static class MapEndpoints
         api.MapGet("/songs/{id}/settings", (string id, SongStore store) =>
             store.Get(id) is null ? Results.NotFound() : Results.Ok(store.Settings(id)));
 
+        // Speed and density limits that let Expert+ use every tap (the others scaled alike); nothing is saved,
+        // the UI puts them into the settings. 404 without taps.
+        api.MapPost("/songs/{id}/fit-taps", (string id, GeneratorSettings settings, SongStore store) =>
+            store.Analysis(id) is { } a && TapFit.Fit(a, settings) is { } fit ? Results.Ok(fit) : Results.NotFound());
+
         // Generate with the given settings and save them as the song's settings. Appends a new version;
         // draft=true (auto-regenerate) replaces the newest version if it is a draft too.
         api.MapPost("/songs/{id}/generate", async (string id, GeneratorSettings settings, bool? draft, SongStore store) =>

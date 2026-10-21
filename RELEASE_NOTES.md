@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.3.1 — 2026-10-21
+
+- **Fit to taps**: a new button in the Speed and density settings sets the limits so Expert+ has room for every tap you recorded: max notes/s for the busiest tapped bar, the min gap for the two closest taps, the hand gap for every other tap (the burst gap follows). Easy to Expert move by the same ratios to their built-in values, so they stay as far below Expert+ as before. Only loosens, only when pressed, and does nothing without taps; each difficulty's "reset" undoes it. On a test song with a bar of sixteenth taps, Expert+ went from missing some taps to a note on all of them.
+
 ## v0.3.0 — 2026-10-21
 
 - Lead melody: with stems, the analysis finds one melody line through the song, whoever carries it: a singer, a violin, a synth. Stems can't tell (Demucs often puts violin and synth leads in the vocal stem), so CREPE pitch on the vocal and other stems decides which one leads, moment by moment, or that nothing does (drum breaks, pads), and basic-pitch gives that stem's notes. It is the new `melody` layer (weight 0.8): its notes carry the melody's pitch and held length, so arcs, angle leans and the melody lights follow one line instead of whichever stem was loudest. The timeline shows it tinted by the stem carrying it (pink vocals, teal other). Adds ~2 min per song on a 4-core CPU, cached with the stems; the app and CLI always run it (the worker alone skips it with `--melody off`).

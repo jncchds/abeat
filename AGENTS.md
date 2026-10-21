@@ -156,6 +156,11 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    time. Without taps nothing changes, whatever the priority. Four tapped songs, taps with a note at
    priority 0 -> 1: Expert+ 42-64 % -> 94-99 %, Expert 37-60 % -> 94-95 %, Easy 15-30 % -> 43-51 % (coarse
    grid, min gaps); notes +2-30 % (Bangaranga's taps are denser than its Expert target), clashes 0.
+   Fit to taps (`TapFit`, `POST /api/songs/{id}/fit-taps`, button in the Speed and density settings; only on
+   request, never automatic): Expert+ limits loosened until every tap fits: MaxNps >= busiest tapped bar x
+   (1 + DoubleRate) (the selector's tapped-bar ceiling), MinGapSec <= closest two taps, MinSameHandGapSec <=
+   every other tap (hands alternate through a run), BurstGapSec <= hand gap; never tightened, floor 0.04 s.
+   Every difficulty gets the same ratio to its built-in value as Expert+ (BaseNps unchanged) as profile overrides.
    The `melody` layer (weight 0.8) marks its slots' events `Melody`: they take the melody note's pitch as
    brightness and its end as `NoteEnd`, and pitch slopes run along that one line (`RhythmEvent.Line`);
    without a melody layer (or at weight 0) the pitched layers (`vocals/other/mid`) count as melody as
@@ -521,7 +526,9 @@ move, `--write-prior` rewrites the prior.
 - Tap along: `GET|PUT /api/songs/{id}/taps` (`taps.json`: run 0 right hand, run 1 left, song.egg seconds);
   the UI scores them in `utils/taps.ts` (per-hand median offset removed, ±70 ms matching). `SongStore.Analysis`
   applies `TapAligner` (layer `taps`, `analysis.taps`), PUT invalidates the cached analysis and the UI reloads it;
-  the settings' `tapPriority` slider sets how strongly taps claim notes.
+  the settings' `tapPriority` slider sets how strongly taps claim notes; `POST /api/songs/{id}/fit-taps`
+  (body: settings) returns `TapFit` limits for every difficulty (404 without taps), which the UI puts into
+  `profileOverrides`.
 - Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
   human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served as
   version `human`. From the UI: `POST /api/songs` with a `.zip` and `POST /api/songs/url` with a BeatSaver

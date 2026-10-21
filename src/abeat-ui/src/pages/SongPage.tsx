@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { extensions } from '../extensions'
 import { cancelJob,
-  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong, resetCover, setSongFolder, uploadCover,
+  audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, fitTaps, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong, resetCover, setSongFolder, uploadCover,
   getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
   type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type EnvironmentEntry, type EnvironmentSuggestions, type GeneratorSettings, type SongColors, type SongMeta, type TapRun, type Version,
 } from '../api'
@@ -569,6 +569,11 @@ export default function SongPage() {
               <SettingsPanel settings={settings} defaults={defaults} profiles={profiles} environments={environments} envSuggestions={envSuggestions}
                 songColors={colors?.id === id ? colors.c : undefined}
                 layers={Object.keys(analysis.layers)} tapCount={analysis.taps?.count}
+                onFitTaps={async () => {
+                  const { data: r } = await fitTaps(id, settings)
+                  onSettings({ ...settings, profileOverrides: r.overrides })
+                  return r
+                }}
                 layerSource={analysis.layerSource} onChange={onSettings} />
             </div>
           </div>

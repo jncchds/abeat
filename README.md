@@ -113,7 +113,8 @@ not snapped: each lands at the detected time of its sound (corrected for the ste
 isolated hits become doubles, spread over the sections (calm parts get nearly as many as loud ones, as in curated maps). Before a drop the map pauses for a beat or two and lands on a double.
 **Taps**: tap along with the song (*Tap beats*, two runs) to mark where you want notes; each run's latency is
 removed, taps snap onto the song's onsets, and tapped moments get notes first (*tap priority*), with a
-double where both runs tapped. Vocal, bass and other stems use spectral-flux onsets (one per sung
+double where both runs tapped. *Fit to taps* (Speed and density settings, only when pressed) loosens
+Expert+'s limits so every tap gets its note and moves the other difficulties by the same ratios. Vocal, bass and other stems use spectral-flux onsets (one per sung
 syllable or note) rather than energy rises, which fired on consonants and breaths.
 
 **Flow planning** (`FlowPlanner` + `SwingCostModel`): beam search over both sabers' states (position,

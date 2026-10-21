@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import type { DifficultyProfile, EnvironmentEntry, EnvironmentSuggestions, GeneratorSettings, ProfileOverride, SongColors } from '../api'
+import type { DifficultyProfile, EnvironmentEntry, EnvironmentSuggestions, GeneratorSettings, ProfileOverride, SongColors, TapFit } from '../api'
+import { errorText } from '../api'
 import { DIFFICULTIES, diffLabel, fmtNum } from '../utils/format'
 import ToggleField from './ToggleField'
 import { FLOW_HINTS, FLOW_INTRO, GENERAL_HINTS, hintText, LAYER_HINTS, LAYER_INTRO, TOGGLE_HINTS } from '../utils/settingHints'
@@ -17,6 +18,8 @@ interface Props {
   layerSource: string
   /** Tapped moments of the song after alignment (0 or undefined: none recorded). */
   tapCount?: number
+  /** Sets every difficulty's speed and density limits so Expert+ can use every tap (only with taps). */
+  onFitTaps?: () => Promise<TapFit>
   onChange: (s: GeneratorSettings) => void
 }
 
@@ -24,16 +27,17 @@ const MODES: [string, string][] = [['OneSaber', 'One Saber'], ['90Degree', '90°
 
 const LIMITS: [keyof DifficultyProfile, string, string, number, number, number][] = [
   ['baseNps', 'notes/s', 'Notes per second at mid energy, scaled up in loud sections and down in calm ones (e.g. 3 = about three notes a second in an average part)', 0.5, 12, 0.1],
-  ['maxNps', 'max notes/s', 'Cap on notes per second in the loudest parts (and for bars with many taps); the busiest bar never goes above it', 1, 16, 0.1],
-  ['minGapSec', 'min gap s', 'Shortest time in seconds between two notes of any hand (0.1 s = at most ten notes a second)', 0.05, 0.6, 0.01],
-  ['minSameHandGapSec', 'hand gap s', 'Shortest time in seconds between two notes of the same hand; the other hand may play in between', 0.08, 0.6, 0.01],
-  ['burstGapSec', 'burst gap s', 'Quick back-and-forth flicks of one hand (up to 4 notes, 6 on Expert+) may be this close; set it to the hand gap for no bursts', 0.05, 0.6, 0.01],
+  ['maxNps', 'max notes/s', 'Cap on notes per second in the loudest parts (and for bars with many taps); the busiest bar never goes above it', 1, 24, 0.1],
+  ['minGapSec', 'min gap s', 'Shortest time in seconds between two notes of any hand (0.1 s = at most ten notes a second)', 0.04, 0.6, 0.01],
+  ['minSameHandGapSec', 'hand gap s', 'Shortest time in seconds between two notes of the same hand; the other hand may play in between', 0.04, 0.6, 0.01],
+  ['burstGapSec', 'burst gap s', 'Quick back-and-forth flicks of one hand (up to 4 notes, 6 on Expert+) may be this close; set it to the hand gap for no bursts', 0.04, 0.6, 0.01],
 ]
 
 const WEIGHT_MAX: Record<string, number> = { reset: 100, slowReset: 10, tooFast: 60, crossover: 10, visionBlock: 8 }
 
 /** Generator settings; every committed change produces a new settings object for the parent. */
-export default function SettingsPanel({ settings: s, defaults, profiles, environments = [], envSuggestions, songColors, layers, layerSource, tapCount, onChange }: Props) {
+export default function SettingsPanel({ settings: s, defaults, profiles, environments = [], envSuggestions, songColors, layers, layerSource, tapCount, onFitTaps, onChange }: Props) {
+  const [fitNote, setFitNote] = useState<string | null>(null)
   const set = (patch: Partial<GeneratorSettings>) => onChange({ ...s, ...patch })
   const setLimits = (d: string, o: ProfileOverride | undefined) => {
     const next = { ...(s.profileOverrides ?? {}) }
@@ -107,6 +111,20 @@ export default function SettingsPanel({ settings: s, defaults, profiles, environ
       {profiles && s.difficulties.length > 0 && (
         <fieldset>
           <legend>Speed and density</legend>
+          {onFitTaps && (
+            <div className="fit-taps">
+              <button className="btn-secondary" disabled={!tapCount}
+                title={tapCount
+                  ? 'Loosen the limits so Expert+ has room for every tap: max notes/s for the busiest tapped bar, the min gap for the closest two taps, the hand gap for every other tap. The other difficulties move by the same ratios. Only loosens; "reset" per difficulty undoes it.'
+                  : 'No taps recorded for this song yet (Tap beats in the player bar)'}
+                onClick={() => onFitTaps()
+                  .then(r => setFitNote(`${r.taps} taps: busiest bar ${fmtNum(r.busiestBarNps)} notes/s, closest ${fmtNum(r.minGapSec)} s, every other ${fmtNum(r.minHandGapSec)} s`))
+                  .catch(e => setFitNote(errorText(e)))}>
+                Fit to taps
+              </button>
+              {fitNote && <span className="muted">{fitNote}</span>}
+            </div>
+          )}
           {s.difficulties.filter(d => profiles[d]).map(d => {
             const o = s.profileOverrides?.[d] ?? {}
             return (
