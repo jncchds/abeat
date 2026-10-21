@@ -98,6 +98,36 @@ export function drawNote(g: CanvasRenderingContext2D, cx: number, cy: number, si
   g.fill()
 }
 
+/** Colours of the stems that can carry the melody. */
+export const MELODY_COLORS: Record<string, string> = { vocals: '#ff3dbb', other: '#00e5c7' }
+
+/** The melody row: stretches tinted by the stem carrying the lead (named where there is room), each
+ * note a tick at its start and a line, higher for higher notes, for as long as it is held. */
+function drawMelody(g: CanvasRenderingContext2D, a: Analysis, y: number, X: (t: number) => number, t0: number, t1: number, muted: string) {
+  const h = LAYOUT.layerH
+  for (const s of a.melody?.segments ?? []) {
+    if (s.end < t0 || s.start > t1) continue
+    g.fillStyle = MELODY_COLORS[s.src] ?? muted
+    g.globalAlpha = 0.16
+    g.fillRect(X(s.start), y, X(s.end) - X(s.start), h)
+    g.globalAlpha = 0.9
+    const x = Math.max(X(s.start), 0) + 46
+    if (X(s.end) - x > 60) g.fillText(s.src, x, y + 8)
+  }
+  for (const o of a.layers.melody) {
+    if ((o.e ?? o.t) < t0 || o.t > t1) continue
+    g.fillStyle = MELODY_COLORS[o.src ?? ''] ?? muted
+    const ny = y + 1 + (1 - o.br) * (h - 3)
+    g.globalAlpha = 0.5
+    g.fillRect(X(o.t), ny, Math.max(1, X(o.e ?? o.t) - X(o.t)), 1.5)
+    g.globalAlpha = 0.25 + 0.75 * o.s
+    g.fillRect(X(o.t), y + 1, 2, h - 2)
+  }
+  g.globalAlpha = 1
+  g.fillStyle = muted
+  g.fillText('melody', 2, y + 8)
+}
+
 /** Ring in the version's colour around a note the other version does not have. */
 function drawRing(g: CanvasRenderingContext2D, cx: number, cy: number, size: number, color: string) {
   g.strokeStyle = color
@@ -187,6 +217,10 @@ export function drawTimeline(canvas: HTMLCanvasElement, a: Analysis, tracks: Tra
   g.font = '10px Inter, system-ui, sans-serif'
   layers.forEach((name, i) => {
     const y = LAYOUT.layersTop + i * LAYOUT.layerH
+    if (name === 'melody') {
+      drawMelody(g, a, y, X, t0, t1, muted)
+      return
+    }
     g.fillStyle = muted
     g.fillText(name, 2, y + 8)
     g.fillStyle = text

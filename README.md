@@ -99,6 +99,13 @@ drive arcs). `--roformer` takes the vocal stem from BS-RoFormer
 cleaner vocals, but slow without a GPU. With lyrics, sections whose words repeat (a returning chorus)
 share a label even when the arrangement changes.
 
+**Lead melody** (with stems): one melody line through the song, whether a singer, a violin or a synth
+carries it. Stems can't tell (a violin or synth lead often lands in the "vocal" stem), so
+[CREPE](https://github.com/maxrjones/torchcrepe) pitch on the vocal and other stems decides which one
+leads, moment by moment, or that nothing does (drum breaks, pads); basic-pitch gives that stem's notes.
+The line becomes the `melody` layer: its notes are favoured when choosing notes, and they drive arcs,
+angle leans and the melody lights. The timeline shows it tinted by the stem carrying it.
+
 **Rhythm selection** (`RhythmSelector`): onsets are grouped into 1/12-beat grid slots (sixteenths, and
 triplets only for songs with a triplet feel), scored by layer weight × strength × metric position ×
 energy, and picked bar by bar to hit a notes-per-second target that follows section energy. Notes are

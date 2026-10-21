@@ -265,6 +265,9 @@ scrolls with the music).
 - sections, coloured per label (repeated parts share a colour) with their energy, and the energy curve;
 - bar and beat lines;
 - one strip per onset layer (stems or frequency bands), darker = stronger;
+- with stems, the **melody** strip: the lead line, tinted pink where the vocal stem carries it and teal
+  where another instrument does (a violin or synth lead may sit in either stem); each note is a tick
+  plus a line, higher for higher notes, as long as it is held; untinted stretches have no clear melody;
 - the lyrics, when the vocals were aligned to lyrics;
 - twelve note lanes (top row first, columns left to right) with notes (cut arrow or dot, angle offsets
   shown), arcs, chains, bombs and walls (red: dodge walls, amber: crouch walls);
@@ -402,7 +405,7 @@ writes the defaults to edit for the CLI.
 | `angleOffsets` | on | cut angles leaning with the melody (Normal+) |
 | `dropPause` | on | short pause and a double on each drop |
 | `levelAuthor` | ABeat by CHDS | mapper name in the map |
-| `layerWeights` | vocals 1.5, drums 0.9, other 0.6, bass 0.4, mix 0.25 (bands: mid 1.0, low 0.9, full 0.5, high 0.35) | how much each layer counts when choosing notes |
+| `layerWeights` | vocals 1.5, drums 0.9, melody 0.8, other 0.6, bass 0.4, mix 0.25 (bands: mid 1.0, low 0.9, full 0.5, high 0.35) | how much each layer counts when choosing notes |
 | `drumWeights` | kick 1.0, snare 1.0, hat 0.6 | extra factor for drum hits by kind (humans map kicks and snares more than hats) |
 | `profileOverrides` | — | per-difficulty profile (below), for files edited by hand |
 

@@ -21,4 +21,14 @@ public class SettingsTests
         Assert.Equal(d.Subdivision, p.Subdivision);
         Assert.Equal(DifficultyProfile.Default(DifficultyName.Expert), s.Profile(DifficultyName.Expert));
     }
+
+    /// <summary>Settings saved before the melody layer existed get its default weight; saved weights stay.</summary>
+    [Fact]
+    public void SavedLayerWeightsGainNewLayers()
+    {
+        var json = """{ "layerWeights": { "vocals": 0.7, "drums": 0.9 } }""";
+        var s = JsonSerializer.Deserialize<GeneratorSettings>(json, GeneratorSettings.JsonOptions)!;
+        Assert.Equal(0.7, s.LayerWeights["vocals"]);
+        Assert.Equal(new GeneratorSettings().LayerWeights["melody"], s.LayerWeights["melody"]);
+    }
 }

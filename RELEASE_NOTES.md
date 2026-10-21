@@ -1,6 +1,10 @@
 # Release notes
 
-## v0.2.28 — 2026-10-19
+## v0.2.28 — 2026-10-21
+
+- Lead melody: with stems, the analysis finds one melody line through the song, whoever carries it: a singer, a violin, a synth. Stems can't tell (Demucs often puts violin and synth leads in the vocal stem), so CREPE pitch on the vocal and other stems decides which one leads, moment by moment, or that nothing does (drum breaks, pads), and basic-pitch gives that stem's notes. It is the new `melody` layer (weight 0.8): its notes carry the melody's pitch and held length, so arcs, angle leans and the melody lights follow one line instead of whichever stem was loudest. The timeline shows it tinted by the stem carrying it (pink vocals, teal other). Adds ~2 min per song on a 4-core CPU, cached with the stems; `--melody off` skips it.
+- Official (v4) maps line up again: their beat timing in BPMInfo.dat is now read, so the Human version of OST songs (Lindsey Stirling, Queen, Linkin Park, Coldplay and more) no longer drifts off the timeline and the comparison scores mean something (Heavy Weight F1 0.15-0.21 -> 0.59-0.76). v4 maps show their mappers instead of "ABeat by CHDS".
+- Settings saved before a new onset layer existed get its default weight instead of switching it off.
 
 - Light colours: the scene no longer wears the note colours all song. Cover palettes give the left/right lights their own hues (each saber hue turned 45° away from the other saber, or a third cover hue), and the boost colours are now the saber colours, used as an accent: boost is on for two bars on drops and at the start of the loudest sections instead of for whole sections.
 - The lights no longer cut to black two beats after the last note: the stage holds in the last section's colour through the outro, dims with the music's loudness and fades out as the music stops (classic lights, group lights and the environments' basic lights); laser speeds settle low.

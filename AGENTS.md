@@ -82,6 +82,24 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      one onset per vowel group, shifted ~70 ms earlier (CTC peaks lag) and snapped to the nearest
      vocal attack; words are stored in `analysis.json` `lyrics` and drawn on the timeline.
      Pitch-only note segmentation was tried and timed onsets worse than flux (CREPE window blur).
+   - lead melody (`--melody auto|off`, default on with stems and the `ml` extra, `melody.py`): one line
+     through the song whichever voice or instrument carries it. Stems don't tell: violin and synth
+     leads land in "other" or in "vocals" (Everlasting's trance lead sits in the vocal stem at -1 dB,
+     Artemis' violin in "other"), and singers stop for instrumental breaks. CREPE-tiny on both pitched
+     stems gives pitch + periodicity; lead score = periodicity x stem's share of the pitched loudness
+     x sqrt(level); a Viterbi path over {none, vocals, other} (start/stop cost 0.3, stem switch 1.0,
+     stem blips < 150 ms smoothed) picks the leading stem; "none" where no stem is clearly pitched
+     (drum breaks, pads, silence). Notes: basic-pitch notes of the leading stem on CREPE's pitch
+     (an octave off only as fallback), refined to the attack, plus repeated notes (bow changes) from
+     the stem's flux onsets where the pitch holds. Written as layer `melody` (`src` = stem, `e` = end,
+     `br` = pitch in the song's melody range) and `analysis.json` `melody.segments`. CREPE and basic-pitch
+     results are cached in `work/stems/melody.npz` (keyed by the stems), ~2 min per song on a 4-core CPU.
+     Bench (36 songs with stems, 99 difficulties): melody onsets match the hardest human difficulty with
+     P 0.56 / R 0.37 (vocals flux 0.64 / 0.31, other flux 0.60 / 0.28; 77 % of human notes fall inside
+     melody stretches, R 0.42 there). As a note source it is neutral: F1 0.639 without, 0.641 at weight
+     0.8, 0.637 at 1.2, 0.590 at 1.5 with vocals 1.0 (instrument-led songs 0.598 / 0.599 / 0.591).
+     Mappers skip many melody notes, so its worth is in expression (one pitch line, held lengths) and
+     lights. Snapping notes to the stem's flux onsets did not tighten timing (vocal flux lags ~20 ms).
    - links are downloaded once: `work/download/fetched.json` (+ `cover.bin`) records the file and
      metadata, so re-analysis never calls yt-dlp again (older downloads are found by video id)
    - stems kept in `work/stems` are reused by a re-analysis of the same audio (length check), so
@@ -114,6 +132,10 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    keeps the slot position for structure (`BeatInSection`, phrase steps, section repeats, drops). The
    min gap is checked in seconds on those times; an onset off its slot by more than ~0.3 of a grid step
    still contributes nothing, which keeps lower difficulties to their subdivision.
+   The `melody` layer (weight 0.8) marks its slots' events `Melody`: they take the melody note's pitch as
+   brightness and its end as `NoteEnd`, and pitch slopes run along that one line (`RhythmEvent.Line`);
+   without a melody layer (or at weight 0) the pitched layers (`vocals/other/mid`) count as melody as
+   before. Saved settings without the new layer key get its default weight on load.
    Each event also carries expression data: `Sustain` (melody layers only: time to the layer's next
    onset, cut at the end of a sung word with lyrics or where energy falls below 60 %), `PitchSlope`
    (brightness change from the previous note of the same melody layer) and `Intensity` (rank of
@@ -439,7 +461,10 @@ move, `--write-prior` rewrites the prior.
   difficulty) plus `human`; `GET|DELETE /versions/{v}`, `GET /versions/{v}/settings`;
   `GET /compare?a=&ad=&b=&bd=` runs `MapComparer` on any two (version, difficulty) pairs (B = reference).
   All versions are re-timed onto the current analysis grid (`Generations.OnGrid`, through both tempo maps), so they stay
-  aligned after a re-analysis.
+  aligned after a re-analysis. A map's tempo comes from v3 `bpmEvents` / v2 type-100 events or, for v4 maps
+  (official ones), the BPMInfo.dat `bpmData` regions (beat span over sample span each); v2 `_customData._BPMChanges`
+  are editor-only (notes stay in Info-BPM beats). Without the regions, official maps drifted off the timeline
+  (Heavy Weight's notes are half-beats of the stated 89 BPM: F1 0.15-0.21 -> 0.59-0.76).
 - Playlists (`PlaylistStore`, `data/playlists/{id}.json`): entries are (song, generation). `/api/playlists`
   CRUD, `POST /{id}/entries`, `GET /{id}/download.zip` (one folder per entry with Info.dat `_songSubName`
   set to "ABeat #n", plus a `.bplist` referencing each map by level hash = SHA-1 of Info.dat + difficulty

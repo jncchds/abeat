@@ -57,6 +57,10 @@ public static class MapReader
         {
             map.SongName = (string?)info["song"]?["title"] ?? "";
             map.SongAuthor = (string?)info["song"]?["author"] ?? "";
+            // mappers are listed per difficulty; official maps leave them empty
+            map.LevelAuthor = string.Join(", ", (info["difficultyBeatmaps"]?.AsArray() ?? [])
+                .SelectMany(d => d?["beatmapAuthors"]?["mappers"]?.AsArray() ?? []).Select(m => (string?)m)
+                .Where(m => !string.IsNullOrWhiteSpace(m)).Distinct());
             map.Bpm = (double?)info["audio"]?["bpm"] ?? 120;
             map.SongFile = (string?)info["audio"]?["songFilename"] ?? map.SongFile;
             map.CoverFile = (string?)info["coverImageFilename"] ?? map.CoverFile;
@@ -80,7 +84,21 @@ public static class MapReader
         // tempo changes are per difficulty in the files but the same in practice; use the first readable set
         if (map.Difficulties.FirstOrDefault(d => d.TempoChanges is { Count: > 0 }) is { } withTempo)
             map.Tempo = new TempoMap(withTempo.TempoChanges!.Prepend((0, map.Bpm)));
+        else if ((string?)info["audio"]?["audioDataFilename"] is { } audioData && open(audioData) is { } audioText
+            && AudioDataTempo(JsonNode.Parse(audioText)!.AsObject()) is { } regions)
+            map.Tempo = regions;
         return map;
+    }
+
+    /// <summary>Tempo from a v4 audio data file (BPMInfo.dat): regions mapping beat spans to sample spans,
+    /// as official maps use them instead of BPM events. Null when there are none.</summary>
+    public static TempoMap? AudioDataTempo(JsonObject j)
+    {
+        double freq = (double?)j["songFrequency"] ?? 44100;
+        var regions = j["bpmData"]?.AsArray().Select(r => (sb: Num(r, "sb"), eb: Num(r, "eb"), si: Num(r, "si"), ei: Num(r, "ei")))
+            .Where(r => r.eb > r.sb && r.ei > r.si).OrderBy(r => r.sb).ToList();
+        if (regions is not { Count: > 0 }) return null;
+        return new TempoMap(regions.Select(r => (r.sb, (r.eb - r.sb) * 60 / ((r.ei - r.si) / freq))));
     }
 
     public static DifficultyMap ReadDifficulty(JsonObject j, DifficultyName name)

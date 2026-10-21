@@ -166,7 +166,7 @@ public static class GroupLightshow
                 if (notes.Groups.Length == 2) lights.Add(new LightGroupEvent(n.Beat, notes.Groups[(int)n.Hand].Id, [Flash(c, 1, 0.5)]));
                 else lights.Add(new LightGroupEvent(n.Beat, notes.Groups[0].Id, [Flash(c, 1, 0.5, sections: 2, part: (int)n.Hand)]));
             }
-        var melody = events.Where(e => RhythmSelector.MelodyLayers.Contains(e.Layer)).ToList();
+        var melody = events.Where(e => e.Melody).ToList();
         var pitch = SongShape.RelativePitch(melody);
         foreach (var e in melody)
         {

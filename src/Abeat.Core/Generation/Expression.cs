@@ -21,9 +21,9 @@ public static class Expression
         foreach (var e in events)
         {
             if (e.PitchSlope == 0) continue;
-            // a line, not jitter: the previous step of this layer moved the same way
-            bool line = lastSlope.TryGetValue(e.Layer, out double prev) && Math.Sign(prev) == Math.Sign(e.PitchSlope) && Math.Abs(prev) >= SlopeThreshold / 2;
-            lastSlope[e.Layer] = e.PitchSlope;
+            // a line, not jitter: the previous step of this line moved the same way
+            bool line = lastSlope.TryGetValue(e.Line, out double prev) && Math.Sign(prev) == Math.Sign(e.PitchSlope) && Math.Abs(prev) >= SlopeThreshold / 2;
+            lastSlope[e.Line] = e.PitchSlope;
             if (!line || e.IsDouble || Math.Abs(e.PitchSlope) < SlopeThreshold) continue;
             if (!index.TryGetValue(Math.Round(e.Beat, 4), out var at) || at.Count != 1) continue;
             var (n, i) = at[0];
