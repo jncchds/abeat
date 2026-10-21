@@ -33,6 +33,28 @@ public class PlanningTests
     }
 
     [Theory]
+    [InlineData(DifficultyName.Normal)]
+    [InlineData(DifficultyName.Expert)]
+    public void PairStreaksComeFromTheVocabulary(DifficultyName d)
+    {
+        var a = TestSongs.Fake();
+        StreakReport Streaks(double w)
+        {
+            var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Weights = new FlowWeights { PairStreak = w } }, d);
+            Assert.Equal(0, r.Report.Resets + r.Report.WallClashes + r.Report.BombHits);
+            return StreakAnalyzer.Analyze(r.Map, a.TempoMap)!;
+        }
+        var prior = StylePrior.For(d)!;
+        Assert.True(prior.PairStreaks!.Count > 500);
+        StreakReport off = Streaks(0), on = Streaks(new FlowWeights().PairStreak);
+        Assert.True(on.PairWindows > 50, $"{on.PairWindows} two-hand windows");
+        // matched to curated maps, not maximised: closer to their share than without, never far above it
+        double target = prior.PairStreakShare;
+        Assert.True(Math.Abs(on.Pair4 - target) < Math.Abs(off.Pair4 - target), $"known two-hand streaks {off.Pair4:P0} -> {on.Pair4:P0}, curated {target:P0}");
+        Assert.InRange(on.Pair4, target - 0.1, target + 0.1);
+    }
+
+    [Theory]
     [InlineData(DifficultyName.Easy)]
     [InlineData(DifficultyName.Hard)]
     [InlineData(DifficultyName.ExpertPlus)]

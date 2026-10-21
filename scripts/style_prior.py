@@ -4,7 +4,7 @@
 Writes src/Abeat.Core/Generation/style-prior.json: per difficulty, the distribution of cut
 directions and of grid cells per hand, the figure vocabulary (hand + cell + cut direction that
 mappers actually use), the move vocabulary (one hand's figure -> its next figure), the streak
-vocabulary (runs of 3-16 consecutive figures of one hand) and the vocabulary of double shapes, plus density / doubles / dots rates
+vocabulary (runs of 3-16 consecutive figures of one hand, and 4 note moments of both hands) and the vocabulary of double shapes, plus density / doubles / dots rates
 for reference. Hands are pooled with their mirror image so both vocabularies stay symmetric.
 
     python3 scripts/style_prior.py work/beatsaver-curated
@@ -37,6 +37,28 @@ STREAK_LENGTHS = [3, 4, 6, 8, 12, 16]
 STREAK_MIN_MAPS = 2
 # a pause longer than this (seconds) between two notes of a hand ends its streak (MovementAnalyzer.MaxGapSec)
 STREAK_GAP_SEC = 1.5
+# two-hand (pair) streaks: 4 consecutive note moments of both hands, each a token: a left note (figure), a
+# right note (108 + figure) or a double (216 + left figure * 108 + right figure); a window counts only when
+# both hands play in it (one hand alone is a per-hand streak). Longer joint runs almost never recur.
+PAIR_LENGTH = 4
+
+
+def pair_token(moment):
+    """Token of one note moment (notes sorted, a stack's lowest note per hand) and of its mirror image."""
+    first = {}
+    for n in moment:
+        first.setdefault(n[1], n)
+    if len(first) == 2:
+        l, r = first[0], first[1]
+        ml, mr = mirror(*r[1:]), mirror(*l[1:])  # mirror image: the right note becomes the left one
+        return 216 + figure(*l[2:]) * 108 + figure(*r[2:]), 216 + figure(*ml[1:]) * 108 + figure(*mr[1:])
+    (c, n), = first.items()
+    mc, mx, my, md = mirror(*n[1:])
+    return c * 108 + figure(*n[2:]), mc * 108 + figure(mx, my, md)
+
+
+def both_hands(window):
+    return any(t >= 216 for t in window) or len({t // 108 for t in window}) == 2
 
 
 def open_map(path):
@@ -147,6 +169,7 @@ def main(root, extra=(), streaks_only=False):
                "str": {L: [collections.Counter(), collections.Counter()] for L in STREAK_LENGTHS},
                "strMaps": {L: [collections.Counter(), collections.Counter()] for L in STREAK_LENGTHS},
                "str4ByMap": [], "streakOnly": 0,
+               "pair": collections.Counter(), "pairMaps": collections.Counter(), "pairByMap": [],
                "stk": [collections.Counter(), collections.Counter()], "stkMaps": [collections.Counter(), collections.Counter()], "stacked": [],
                "nps": [], "doubles": [], "dots": [], "maps": 0} for k in ORDER}
     paths = sorted(set(glob.glob(os.path.join(root, "*/"))) | set(glob.glob(os.path.join(root, "*.zip")))) + list(extra)
@@ -186,6 +209,30 @@ def main(root, extra=(), streaks_only=False):
                 for h in (0, 1):
                     a["str"][L][h].update(streaks[L][h])
                     a["strMaps"][L][h].update(k for k, n in streaks[L][h].items() if n >= MIN_USES)
+            # two-hand streaks: every 4 note moments in a row (a pause ends the run), with their mirror image;
+            # a window that is its own mirror image counts once
+            pairs = collections.Counter()
+            moments = collections.defaultdict(list)
+            for n in notes:
+                moments[round(n[0], 3)].append(n)
+            run, last = [], None
+            for t in sorted(moments) + [None]:
+                if t is None or (last is not None and (t - last) * spb > STREAK_GAP_SEC):
+                    for i in range(len(run) - PAIR_LENGTH + 1):
+                        w = tuple(x[0] for x in run[i:i + PAIR_LENGTH])
+                        if both_hands(w):
+                            mw = tuple(x[1] for x in run[i:i + PAIR_LENGTH])
+                            pairs[w] += 1
+                            if mw != w:
+                                pairs[mw] += 1
+                    run = []
+                if t is None:
+                    break
+                run.append(pair_token(moments[t]))
+                last = t
+            a["pairByMap"].append(pairs)
+            a["pair"].update(pairs)
+            a["pairMaps"].update(k for k, n in pairs.items() if n >= MIN_USES)
             if path in streak_only:
                 a["streakOnly"] += 1
                 continue
@@ -284,6 +331,13 @@ def main(root, extra=(), streaks_only=False):
                 known = sum(n for h in (0, 1) for k, n in own[h].items()
                             if a["strMaps"][4][h][k] - (1 if n >= MIN_USES else 0) >= STREAK_MIN_MAPS)
                 shares.append(known / occ)
+        pair_streaks = sorted(k for k, n in a["pairMaps"].items() if n >= STREAK_MIN_MAPS)
+        pair_shares = []
+        for own in a["pairByMap"]:
+            occ = sum(own.values())
+            if occ:
+                known = sum(n for k, n in own.items() if a["pairMaps"][k] - (1 if n >= MIN_USES else 0) >= STREAK_MIN_MAPS)
+                pair_shares.append(known / occ)
         out["difficulties"][k] = {
             "maps": a["maps"],
             "streakMaps": a["maps"] + a["streakOnly"],
@@ -305,6 +359,11 @@ def main(root, extra=(), streaks_only=False):
             "streaks": {str(L): [[".".join(map(str, k)) for k in streaks[L][h]] for h in (0, 1)] for L in STREAK_LENGTHS},
             "streakShare": mean(shares),
             "streakUse": {str(L): [[a["strMaps"][L][h][k] for k in streaks[L][h]] for h in (0, 1)] for L in STREAK_LENGTHS},
+            # two-hand streaks: 4 note moments of both hands as tokens joined by "." (see pair_token), maps using
+            # each, and the leave-one-out share of two-hand 4-windows that are known ones
+            "pairStreaks": [".".join(map(str, k)) for k in pair_streaks],
+            "pairStreakUse": [a["pairMaps"][k] for k in pair_streaks],
+            "pairStreakShare": mean(pair_shares),
         }
         mcover = sum(a["mov"][h][m] for h in (0, 1) for m in moves[h]) / max(1, sum(sum(a["mov"][h].values()) for h in (0, 1)))
         cover = sum(a["fig"][h][f] for h in (0, 1) for f in figures[h]) / sum(sum(a["fig"][h].values()) for h in (0, 1))
@@ -316,6 +375,8 @@ def main(root, extra=(), streaks_only=False):
               f"figures {len(figures[1]):3} ({cover:.1%} of notes, top row {sum(1 for f in figures[1] if f // 36 == 2)})  "
               f"double shapes {len(doubles):3} ({dcover:.1%})  moves {len(moves[1]):3} ({mcover:.1%})  "
               f"stacked {mean(a['stacked']):.1%} in {len(stacks[1])} shapes")
+        pcover = sum(a["pair"][k] for k in pair_streaks) / max(1, sum(a["pair"].values()))
+        print(f"           pair streaks {len(pair_streaks)} ({pcover:.1%})  pair share {mean(pair_shares):.1%}")
         print(f"           streak share {mean(shares):.1%}  streaks " + "  ".join(f"{L}: {len(streaks[L][1])} ({scover[L]:.1%})" for L in STREAK_LENGTHS))
     path = os.path.join(os.path.dirname(__file__), "..", "src", "Abeat.Core", "Generation", "style-prior.json")
     # indented, with each innermost array on one line (as diff-friendly as it is small)

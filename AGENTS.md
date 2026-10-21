@@ -210,6 +210,18 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      15 -> 42 % (target 49 %), notes in 8+ runs 0 -> 37 %. `StreakAnalyzer` (bench "strk4 g/h", "long g/h";
      `Comparison.GeneratedStreaks`) measures the known 4-streak share and the share of notes in 8+ note runs
      built from known 4-streaks
+   - two-hand streak vocabulary (`FlowWeights.PairStreak`, 3): 4 note moments in a row across both hands
+     (`pairStreaks`), each a token: left note = figure, right note = 108 + figure, double = 216 + left figure x
+     108 + right figure (a hand's lowest note by x then y); a pause over 1.5 s between moments ends a run, and
+     only windows with both hands in them count (one hand alone is a per-hand streak). Mirror = hands swapped +
+     figures mirrored, pooled into one list; used >= 2 times in >= 2 maps: 957 / 1799 / 2877 / 3586 / 2604,
+     covering 25 / 25 / 26 / 24 / 10 % of human two-hand windows (8+ moment runs almost never recur, so only 4).
+     Beam nodes carry the path's last 3 tokens (`HistJ`, `MomentT`) and how many two-hand windows were known.
+     Cost: PairStreak x MatchCost(share of known two-hand windows vs `pairStreakShare`, leave-one-out:
+     18 / 19 / 19 / 17 / 6 %), added per candidate for single notes and per paired double in `ExpandDouble`.
+     Bench (16 refs, taps off) "pair4 g/h": without it 0-3 %; weight 1: 9 / 12 / 13 / 12 / 3 %; weight 3:
+     14 / 16 / 17 / 15 / 4 % (the human column, 10-26 %, is in-sample: those maps are in the corpus), with flow,
+     resets, F1 and per-hand streaks unchanged. `StreakReport.Pair4`/`PairWindows` measure it
    - stacks: a cut may be a stack, one swing through 2-3 notes lined up along its direction (head
      first, the hand leaves from the last), when (hand, head figure, length) is in the stack vocabulary
      (>= 10 % of maps; 0 / 6 / 7 / 17 / 32 shapes). Cost 1.5 x MatchCost(stacked share of notes vs
@@ -562,8 +574,9 @@ move, `--write-prior` rewrites the prior.
   sidebar lists the 10 songs with the most recent generated version (`lastGeneratedUtc` on `GET
   /api/songs`, computed from the newest saved version, else the add time); the **Songs** page (`/songs`)
   lists and filters all of them; the **Vocabulary** page (`/vocabulary`, `GET /api/vocabulary` = the
-  embedded style-prior.json) draws every streak (per length: notes numbered, earlier ones faded), move,
-  stack, double shape and figure per difficulty on a 4x3 grid, sorted by how many maps use it (`streakUse`,
+  embedded style-prior.json) draws every streak (per length: notes numbered, earlier ones faded), two-hand
+  streak (both hands' notes numbered in one grid, a double under one number; "alternating only" filter), move,
+  stack, double shape and figure per difficulty on a 4x3 grid, sorted by how many maps use it (`streakUse`, `pairStreakUse`,
   `figureUse`, `moveUse`, `stackUse`, `doubleUse`)
   (blue saber = accent, red saber = secondary). Canvases redraw per animation frame from the
   `<audio>` element's current time.

@@ -126,7 +126,8 @@ last swing direction, parity). Each candidate cut is scored for:
   one), stacks (one swing through 2-3 lined-up notes) and double shapes that curated mappers commonly
   use on that difficulty, plus streaks: runs of 3-16 notes of one hand that recur in human maps. Each hand
   continues known streaks about as often as human maps do, so overlapping ones chain into long human-made
-  runs. Learned from 89 curated BeatSaver maps and 85 official maps (OST 4-8 and music packs).
+  runs; two-hand streaks (4 notes in a row across both hands, like left-right-left-right, doubles included)
+  are matched the same way. Learned from 89 curated BeatSaver maps and 85 official maps (OST 4-8 and music packs).
   A hand crosses to the other side of the grid only where a known move takes it;
   the **Vocabulary** page shows every one of them drawn on the grid; note height never follows the audio, so easier levels keep notes lower
   like human maps do (top row: ~18 % of notes on Easy, ~26 % on Expert+)

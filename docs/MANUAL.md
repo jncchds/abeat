@@ -471,6 +471,8 @@ in the analyzer.
 | `styleCell`, `styleDirection` | 0.7, 0.6 | keep the mix of cells and cut directions like curated human maps |
 | `figure` | 25 | a note (hand + cell + direction) or double shape outside the difficulty's human vocabulary |
 | `move` | 6 | a move from the hand's previous note outside the human move vocabulary |
+| `streak` | 1 | each hand continues known streaks (runs of 4-16 of its notes from human maps) about as often as human maps do |
+| `pairStreak` | 3 | both hands together play known two-hand streaks (4 notes in a row across both hands, like left-right-left-right) about as often as human maps do |
 | `stackAccent` | 3 | stacks lean towards strong hits (curated stacks sit on the beat 74 % of the time) |
 | `emphasis` | 0.8 | strong accents prefer big vertical swings |
 | `noise` | 0.6 | random variety (what the seed changes) |

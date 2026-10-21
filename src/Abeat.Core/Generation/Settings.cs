@@ -109,6 +109,12 @@ public sealed record FlowWeights
     /// known streaks chain into long runs built from human pieces. A flat bonus instead overshot human maps
     /// 2-4x on Easy-Hard.</summary>
     public double Streak { get; init; } = 1.0;
+    /// <summary>Two-hand streaks of the difficulty's vocabulary (<see cref="StylePrior.PairStreaks"/>: 4 note moments
+    /// in a row across both hands, e.g. left-right-left-right, doubles included, used in at least two curated
+    /// maps): the share of moments completing a known one is matched to curated maps
+    /// (<see cref="StylePrior.PairStreakShare"/>, 6-19 %), counted over windows with both hands in them. Without it
+    /// generated maps had 0-3 %; weight 1 reached 3-13 %, 3 reaches 4-17 % with no loss of flow.</summary>
+    public double PairStreak { get; init; } = 3.0;
     /// <summary>Stacks (one swing through 2-3 lined-up notes, from the stack vocabulary) lean towards strong
     /// hits: curated stacks sit on the beat 74 % of the time (single notes 45 %).</summary>
     public double StackAccent { get; init; } = 3;

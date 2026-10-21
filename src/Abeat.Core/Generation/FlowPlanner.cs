@@ -51,6 +51,12 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         public int[] HistL = [], HistR = [];
         /// <summary>Cuts that had three earlier figures since the hand's pause, and those of them completing a known 4-note streak.</summary>
         public int StreakEligible, StreakKnown;
+        /// <summary>The path's last note moments of both hands (<see cref="StylePrior.PairToken"/>, oldest first,
+        /// up to <see cref="StylePrior.PairLength"/> - 1) since the last pause, and when the last one was.</summary>
+        public int[] HistJ = [];
+        public double MomentT = double.NegativeInfinity;
+        /// <summary>Moments completing a two-hand 4-window (both hands in it), and those of them that are known two-hand streaks.</summary>
+        public int PairEligible, PairKnown;
 
         public HandState State(Hand h) => h == Hand.Left ? Left : Right;
     }
@@ -105,6 +111,8 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         var lastDir = hand == Hand.Left ? node.LastDirL : node.LastDirR;
         var target = oneSaber ? PhraseTargets.ForOneSaber(e, seed, style) : PhraseTargets.For(hand, e, seed, style);
         var streak = StreakPrefixes(node, hand, e.Time);
+        // a double's two-hand streak is scored once both cuts are paired (ExpandDouble)
+        var pair = e.IsDouble ? null : PairPrefix(node, e.Time);
 
         foreach (var d in Swing.Directional.Append(CutDirection.Any))
         {
@@ -136,6 +144,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                                 : StylePrior.MatchCost(node.StreakEligible - node.StreakKnown, node.StreakEligible, 1 - style!.StreakShare));
                         if (best >= 6) c -= model.Weights.Streak * 0.5 * (Math.Log2(best) - 2);
                     }
+                    if (pair is { } pp) c += PairCost(node, pp, StylePrior.PairToken(hand, StylePrior.Figure(x, y, d)));
                     if (style != null)
                     {
                         int handNotes = hand == Hand.Left ? node.NotesL : node.NotesR;
@@ -196,6 +205,34 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         }
         return new StreakPrefix(prefix, n);
     }
+
+    /// <summary>Hash of the path's last 3 note moments when a cut here completes a 4-window, and which hands
+    /// they hold (bit 0 left, bit 1 right; a double both).</summary>
+    readonly record struct PairPrefixes(ulong Prefix, int Hands);
+
+    PairPrefixes? PairPrefix(Node node, double t)
+    {
+        if (oneSaber || style?.PairStreaks is null || model.Weights.PairStreak == 0) return null;
+        if (node.HistJ.Length < StylePrior.PairLength - 1 || t - node.MomentT > Evaluation.MovementAnalyzer.MaxGapSec) return null;
+        int hands = 0;
+        foreach (int tok in node.HistJ) hands |= tok >= 216 ? 3 : tok >= 108 ? 2 : 1;
+        return new PairPrefixes(StylePrior.StreakHash(node.HistJ), hands);
+    }
+
+    /// <summary>Two-hand streaks: the share of moments completing a known one is matched to curated maps,
+    /// for windows with both hands in them.</summary>
+    double PairCost(Node node, PairPrefixes p, int token)
+    {
+        if ((p.Hands | (token >= 216 ? 3 : token >= 108 ? 2 : 1)) != 3) return 0;
+        double share = style!.PairStreakShare;
+        return model.Weights.PairStreak * (style.HasPairStreak(StylePrior.StreakStep(p.Prefix, token))
+            ? StylePrior.MatchCost(node.PairKnown, node.PairEligible, share)
+            : StylePrior.MatchCost(node.PairEligible - node.PairKnown, node.PairEligible, 1 - share));
+    }
+
+    static int Token(Cut a, Cut? b) => b is not { } bb ? StylePrior.PairToken(a.Hand, StylePrior.Figure(a.X, a.Y, a.Dir))
+        : a.Hand == Hand.Left ? StylePrior.PairDoubleToken(StylePrior.Figure(a.X, a.Y, a.Dir), StylePrior.Figure(bb.X, bb.Y, bb.Dir))
+        : StylePrior.PairDoubleToken(StylePrior.Figure(bb.X, bb.Y, bb.Dir), StylePrior.Figure(a.X, a.Y, a.Dir));
 
     /// <summary>Movement bucket and strain of the move from the hand's last swing to this cut, or null when
     /// the hand is idle or resting (see <see cref="Evaluation.MovementAnalyzer"/>).</summary>
@@ -280,12 +317,14 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         const int perHand = 10;
         var left = Candidates(node, Hand.Left, e, i).OrderBy(c => c.cost).Take(perHand).ToList();
         var right = Candidates(node, Hand.Right, e, i).OrderBy(c => c.cost).Take(perHand).ToList();
+        var pp = PairPrefix(node, e.Time);
         foreach (var l in left)
         foreach (var r in right)
         {
             double pair = PairCost(l.cut, r.cut, l.swing, r.swing);
             if (double.IsPositiveInfinity(pair)) continue;
             if (style != null && !style.HasDouble(l.cut.X, l.cut.Y, l.cut.Dir, r.cut.X, r.cut.Y, r.cut.Dir)) pair += model.Weights.Figure;
+            if (pp is { } p) pair += PairCost(node, p, Token(l.cut, r.cut));
             Add(next, node, node.Cost + l.cost + r.cost + pair, l.cut, r.cut, e.Time, l.swing, r.swing);
         }
     }
@@ -318,9 +357,22 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
             LastHand = a.Hand, LastDirL = parent.LastDirL, LastDirR = parent.LastDirR,
             Counts = (int[])parent.Counts.Clone(), NotesL = parent.NotesL, NotesR = parent.NotesR, Moves = parent.Moves, Stacked = parent.Stacked,
             HistL = parent.HistL, HistR = parent.HistR, StreakEligible = parent.StreakEligible, StreakKnown = parent.StreakKnown,
+            HistJ = parent.HistJ, MomentT = t, PairEligible = parent.PairEligible, PairKnown = parent.PairKnown,
         };
         Apply(n, a, t, sa);
         if (b is { } bb) Apply(n, bb, t, sb);
+        if (!oneSaber && style?.PairStreaks is not null)
+        {
+            // a pause ends the two-hand streak
+            var hist = t - parent.MomentT <= Evaluation.MovementAnalyzer.MaxGapSec ? parent.HistJ : [];
+            int[] window = [.. hist, Token(a, b)];
+            if (window.Length == StylePrior.PairLength && StylePrior.BothHands(window))
+            {
+                n.PairEligible++;
+                if (style.HasPairStreak(StylePrior.StreakHash(window))) n.PairKnown++;
+            }
+            n.HistJ = window.Length < StylePrior.PairLength ? window : window[1..];
+        }
 
         long key = Key(n);
         if (!next.TryGetValue(key, out var existing) || existing.Cost > cost) next[key] = n;

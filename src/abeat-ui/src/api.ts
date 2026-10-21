@@ -228,6 +228,12 @@ export interface VocabularyDifficulty {
   /** Maps the streaks were learned from: the curated maps plus official ones. */
   streakMaps?: number
   streakUse?: Record<string, number[][]>
+  /** Two-hand streaks: 4 note moments in a row, tokens joined by "." (first moment first): a left note is its
+   *  figure, a right note 108 + figure, a double 216 + left figure * 108 + right figure. */
+  pairStreaks?: string[]
+  pairStreakUse?: number[]
+  /** Share of human two-hand 4-windows that are known two-hand streaks (leave-one-out): what the planner matches. */
+  pairStreakShare?: number
 }
 export const getVocabulary = () => http.get<{ difficulties: Record<string, VocabularyDifficulty> }>('/vocabulary')
 export const getSongs = () => http.get<SongMeta[]>('/songs')

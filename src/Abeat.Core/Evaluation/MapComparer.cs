@@ -40,7 +40,7 @@ public sealed record Comparison
         $"strain {GeneratedMovement.StrainP90:0.0}/{HumanMovement.StrainP90:0.0}  travel {GeneratedMovement.TravelMean:0.00}/{HumanMovement.TravelMean:0.00}  " +
         $"angle {GeneratedMovement.AngleMean:0}/{HumanMovement.AngleMean:0}°" +
         (GeneratedRepetition is { } gr && HumanRepetition is { } hr ? $"  repeat {gr.Same:P0}/{hr.Same:P0} (aligned {gr.Aligned:P0}/{hr.Aligned:P0})" : "") +
-        (GeneratedStreaks is { } gs && HumanStreaks is { } hs ? $"  streak4 {gs.Known4:P0}/{hs.Known4:P0}  long {gs.Long:P0}/{hs.Long:P0}" : "");
+        (GeneratedStreaks is { } gs && HumanStreaks is { } hs ? $"  streak4 {gs.Known4:P0}/{hs.Known4:P0}  long {gs.Long:P0}/{hs.Long:P0}  pair4 {gs.Pair4:P0}/{hs.Pair4:P0}" : "");
 }
 
 public static class MapComparer

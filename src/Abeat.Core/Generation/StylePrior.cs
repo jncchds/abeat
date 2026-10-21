@@ -32,6 +32,13 @@ public sealed class StylePrior
     /// <summary>Share of a curated map's notes (with three earlier notes since the hand's last pause) that complete
     /// a 4-note streak other curated maps use: the share the planner matches.</summary>
     public double StreakShare { get; init; }
+    /// <summary>Two-hand streaks: 4 note moments in a row of both hands (<see cref="PairToken"/> /
+    /// <see cref="PairDoubleToken"/>, first moment first) as <see cref="StreakHash"/> values, each with both hands
+    /// in it. Null when the prior has none.</summary>
+    public HashSet<ulong>? PairStreaks { get; init; }
+    /// <summary>Share of a curated map's two-hand 4-windows (4 note moments since the last pause with both hands
+    /// in them) that are two-hand streaks other curated maps use: the share the planner matches.</summary>
+    public double PairStreakShare { get; init; }
     public double Nps { get; init; }
     public double Doubles { get; init; }
     public double Dots { get; init; }
@@ -74,6 +81,26 @@ public sealed class StylePrior
         return h ^ (h >> 29);
     }
     public static ulong StreakHash(IEnumerable<int> figures) => figures.Aggregate(StreakSeed, StreakStep);
+
+    /// <summary>Length of a two-hand streak, in note moments.</summary>
+    public const int PairLength = 4;
+    /// <summary>Token of a note moment where one hand plays (a stack by its first note).</summary>
+    public static int PairToken(Hand h, int figure) => (int)h * 108 + figure;
+    /// <summary>Token of a double: both hands at once.</summary>
+    public static int PairDoubleToken(int left, int right) => 216 + left * 108 + right;
+    /// <summary>Whether a window of note moments has both hands in it (a double counts as both).</summary>
+    public static bool BothHands(ReadOnlySpan<int> tokens)
+    {
+        bool l = false, r = false;
+        foreach (int t in tokens)
+        {
+            if (t >= 216) return true;
+            if (t >= 108) r = true; else l = true;
+        }
+        return l && r;
+    }
+
+    public bool HasPairStreak(ulong hash) => PairStreaks is not null && PairStreaks.Contains(hash);
 
     public bool HasStreak(Hand h, int length, ulong hash) =>
         Streaks is not null && Streaks[(int)h].TryGetValue(length, out var set) && set.Contains(hash);
@@ -131,6 +158,9 @@ public sealed class StylePrior
                     streaks.EnumerateObject().ToDictionary(l => int.Parse(l.Name), l => l.Value[h].EnumerateArray()
                         .Select(x => StreakHash(x.GetString()!.Split('.').Select(int.Parse))).ToHashSet())).ToArray() : null,
                 StreakShare = v.TryGetProperty("streakShare", out var share) ? share.GetDouble() : 0,
+                PairStreaks = v.TryGetProperty("pairStreaks", out var pairs)
+                    ? pairs.EnumerateArray().Select(x => StreakHash(x.GetString()!.Split('.').Select(int.Parse))).ToHashSet() : null,
+                PairStreakShare = v.TryGetProperty("pairStreakShare", out var pshare) ? pshare.GetDouble() : 0,
                 Nps = v.GetProperty("nps").GetDouble(),
                 Doubles = v.GetProperty("doubles").GetDouble(),
                 Dots = v.GetProperty("dots").GetDouble(),

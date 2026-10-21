@@ -4,9 +4,10 @@ import { BLUE, RED } from '../utils/draw'
 
 const DIFFS = ['Easy', 'Normal', 'Hard', 'Expert', 'ExpertPlus']
 const DIFF_LABEL: Record<string, string> = { ExpertPlus: 'Expert+' }
-type Kind = 'streaks' | 'moves' | 'stacks' | 'doubles' | 'figures'
+type Kind = 'streaks' | 'pairs' | 'moves' | 'stacks' | 'doubles' | 'figures'
 const KINDS: { id: Kind; label: string; hint: string }[] = [
   { id: 'streaks', label: 'Streaks', hint: "Runs of one hand's notes in a row (1 = first, faded = earlier), used twice in at least two maps (curated and official OST 4-8 and music packs); a pause over 1.5 s ends a run. The planner rewards a hand for continuing the longest known streak, so overlapping streaks chain into long human-made runs." },
+  { id: 'pairs', label: 'Two hands', hint: "4 notes in a row across both hands (1 = first, faded = earlier; a double is both hands at once, under one number), used twice in at least two maps; a pause over 1.5 s ends a run. The planner plays known ones about as often as human maps do." },
   { id: 'moves', label: 'Moves', hint: "One hand's note and its next note (faded = from, solid = to). The planner pays for a move outside this list, so crossings happen only where a known move leads." },
   { id: 'stacks', label: 'Stacks', hint: 'One swing through notes lined up along the cut; the swing meets the faded-edged head first and leaves from the last note.' },
   { id: 'doubles', label: 'Doubles', hint: 'Both hands at once.' },
@@ -23,7 +24,16 @@ const figText = (f: Fig) => `${DIR_NAME[f.d]} ${f.x},${f.y}`
 const crosses = (hand: number, f: Fig) => hand === 0 ? f.x >= 2 : f.x <= 1
 const step = (d: number) => [Math.sign(Math.round(DIR_VEC[d][0] * 1000)), Math.sign(Math.round(DIR_VEC[d][1] * 1000))]
 
-interface Entry { key: string; use: number; label: string; crossing: boolean; notes: { f: Fig; c: number; faded?: boolean; opacity?: number }[]; arrow?: [Fig, Fig]; path?: Fig[]; seq?: Fig[] }
+interface Entry {
+  key: string; use: number; label: string; crossing: boolean; notes: { f: Fig; c: number; faded?: boolean; opacity?: number }[]
+  arrow?: [Fig, Fig]; path?: Fig[]; seq?: Fig[]
+  /** Order numbers to print per cell (streaks). */
+  order?: { f: Fig; n: number }[]
+  alternating?: boolean
+}
+
+/** A two-hand streak token: the notes of one moment, as [hand, figure] pairs. */
+const pairNotes = (t: number): [number, Fig][] => t >= 216 ? [[0, fig(Math.floor((t - 216) / 108))], [1, fig((t - 216) % 108)]] : [[Math.floor(t / 108), fig(t % 108)]]
 
 function entries(v: VocabularyDifficulty, kind: Kind, hand: number, len: string): Entry[] {
   switch (kind) {
@@ -33,7 +43,22 @@ function entries(v: VocabularyDifficulty, kind: Kind, hand: number, len: string)
         const seq = k.split('.').map(Number).map(fig)
         // later notes on top, earlier ones faded
         return { key: k, use: use[i] ?? 0, label: seq.map(f => DIR_NAME[f.d]).join(''), crossing: seq.some(f => crosses(hand, f)),
-          notes: seq.map((f, j) => ({ f, c: hand, opacity: 0.3 + 0.7 * (j + 1) / seq.length })), seq }
+          notes: seq.map((f, j) => ({ f, c: hand, opacity: 0.3 + 0.7 * (j + 1) / seq.length })), seq, order: seq.map((f, j) => ({ f, n: j + 1 })) }
+      })
+    }
+    case 'pairs': {
+      const list = v.pairStreaks ?? [], use = v.pairStreakUse ?? []
+      return list.map((k, i) => {
+        const moments = k.split('.').map(Number).map(pairNotes)
+        const notes = moments.flatMap((m, j) => m.map(([c, f]) => ({ f, c, opacity: 0.3 + 0.7 * (j + 1) / moments.length })))
+        const hands = moments.map(m => m.length === 2 ? 2 : m[0][0])
+        return {
+          key: k, use: use[i] ?? 0, notes,
+          label: moments.map(m => m.map(([c, f]) => (c === 0 ? 'L' : 'R') + DIR_NAME[f.d]).join('+')).join(' '),
+          crossing: moments.some(m => m.length === 2 ? m[0][1].x > m[1][1].x : crosses(m[0][0], m[0][1])),
+          order: moments.flatMap((m, j) => m.map(([, f]) => ({ f, n: j + 1 }))),
+          alternating: hands.every((h, j) => h !== 2 && (j === 0 || h !== hands[j - 1])),
+        }
       })
     }
     case 'moves':
@@ -105,10 +130,10 @@ function Diagram({ e }: { e: Entry }) {
         const mx = (x1 + x2) / 2 - uy * CELL * 0.35, my = (y1 + y2) / 2 + ux * CELL * 0.35
         return <path d={`M${x1 + ux * cut},${y1 + uy * cut} Q${mx},${my} ${x2 - ux * cut},${y2 - uy * cut}`} fill="none" stroke="var(--text)" strokeWidth={1.6} markerEnd="url(#vocab-arrow)" />
       })()}
-      {e.seq && (() => {
+      {e.order && (() => {
         // order numbers per cell, in a corner so the arrows stay readable
         const byCell = new Map<string, number[]>()
-        e.seq.forEach((f, j) => { const k = `${f.x},${f.y}`; byCell.set(k, [...(byCell.get(k) ?? []), j + 1]) })
+        e.order.forEach(({ f, n }) => { const k = `${f.x},${f.y}`; byCell.set(k, [...(byCell.get(k) ?? []), n]) })
         return [...byCell].map(([k, nums]) => {
           const [x, y] = k.split(',').map(Number)
           return <text key={k} x={cx(x) + CELL * 0.48} y={cy(y) + CELL * 0.48} textAnchor="end" fontSize={7} fill="var(--text)">{nums.join(',')}</text>
@@ -130,9 +155,10 @@ export default function VocabularyPage() {
   const [hand, setHand] = useState(1)
   const [streakLen, setStreakLen] = useState('4')
   const [crossingOnly, setCrossingOnly] = useState(false)
+  const [alternatingOnly, setAlternatingOnly] = useState(false)
   // "show more" applies to the list it was pressed on
   const [more, setMore] = useState({ key: '', limit: PAGE })
-  const listKey = `${diff}|${kind}|${hand}|${crossingOnly}|${streakLen}`
+  const listKey = `${diff}|${kind}|${hand}|${crossingOnly}|${alternatingOnly}|${streakLen}`
   const limit = more.key === listKey ? more.limit : PAGE
 
   useEffect(() => { getVocabulary().then(r => setData(r.data.difficulties)).catch(e => setError(errorText(e))) }, [])
@@ -140,14 +166,14 @@ export default function VocabularyPage() {
 
   const v = data?.[diff]
   const all = useMemo(() => v ? entries(v, kind, hand, streakLen).sort((a, b) => b.use - a.use || a.key.localeCompare(b.key)) : [], [v, kind, hand, streakLen])
-  const shown = crossingOnly ? all.filter(e => e.crossing) : all
+  const shown = all.filter(e => (!crossingOnly || e.crossing) && (kind !== 'pairs' || !alternatingOnly || e.alternating))
   const crossingCount = all.filter(e => e.crossing).length
 
   return (
     <div className="page">
       <div className="page-header">
         <h2>Vocabulary</h2>
-        {v && <span className="muted">{kind === 'streaks' && v.streakMaps
+        {v && <span className="muted">{(kind === 'streaks' || kind === 'pairs') && v.streakMaps
           ? `learned from ${v.streakMaps} maps (${v.maps} curated, ${v.streakMaps - v.maps} official)`
           : `learned from ${v.maps} curated maps`}</span>}
       </div>
@@ -168,7 +194,7 @@ export default function VocabularyPage() {
             ))}
           </div>
         )}
-        {kind !== 'doubles' && (
+        {kind !== 'doubles' && kind !== 'pairs' && (
           <div className="diff-tabs">
             <button className={hand === 0 ? 'active' : ''} onClick={() => setHand(0)}>Left</button>
             <button className={hand === 1 ? 'active' : ''} onClick={() => setHand(1)}>Right</button>
@@ -178,18 +204,25 @@ export default function VocabularyPage() {
           <input type="checkbox" checked={crossingOnly} onChange={e => setCrossingOnly(e.target.checked)} />
           {kind === 'doubles' ? 'crossed hands only' : 'on the other side only'} ({crossingCount})
         </label>
+        {kind === 'pairs' && (
+          <label className="vocab-check">
+            <input type="checkbox" checked={alternatingOnly} onChange={e => setAlternatingOnly(e.target.checked)} />
+            alternating only (L R L R) ({all.filter(e => e.alternating).length})
+          </label>
+        )}
       </div>
       <p className="muted vocab-hint">
         {KINDS.find(k => k.id === kind)!.hint} Sorted by how many curated maps use each (at least twice).
-        {kind !== 'doubles' && ' Hands are pooled with their mirror image, so Left is Right mirrored.'}
+        {kind === 'pairs' && v?.pairStreakShare != null && ` In human maps ${(v.pairStreakShare * 100).toFixed(0)} % of 4 notes in a row with both hands are one of these.`}
+        {kind !== 'doubles' && (kind === 'pairs' ? ' Pooled with their mirror image (hands swapped).' : ' Hands are pooled with their mirror image, so Left is Right mirrored.')}
       </p>
-      {v && <p className="muted">{shown.length} {kind}{kind === 'streaks' ? ` of ${streakLen} notes` : ''}{v.stacked && kind === 'stacks' ? ` · ${(v.stacked * 100).toFixed(1)} % of notes sit in stacks` : ''}</p>}
+      {v && <p className="muted">{shown.length} {kind === 'pairs' ? 'two-hand streaks' : kind}{kind === 'streaks' ? ` of ${streakLen} notes` : ''}{v.stacked && kind === 'stacks' ? ` · ${(v.stacked * 100).toFixed(1)} % of notes sit in stacks` : ''}</p>}
       <div className="vocab-grid">
         {shown.slice(0, limit).map(e => (
           <div key={e.key} className={`vocab-card${e.crossing ? ' crossing' : ''}`} title={e.label}>
             <Diagram e={e} />
             <span className="vocab-label">{e.label}</span>
-            <span className="muted vocab-use">{e.use} / {kind === 'streaks' ? v!.streakMaps ?? v!.maps : v!.maps} maps{e.crossing ? ' · crosses' : ''}</span>
+            <span className="muted vocab-use">{e.use} / {kind === 'streaks' || kind === 'pairs' ? v!.streakMaps ?? v!.maps : v!.maps} maps{e.crossing ? ' · crosses' : ''}</span>
           </div>
         ))}
       </div>

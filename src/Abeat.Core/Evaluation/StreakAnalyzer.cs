@@ -8,7 +8,10 @@ namespace Abeat.Core.Evaluation;
 /// <param name="Known8">The same for streaks of 8+ notes.</param>
 /// <param name="Long">Share of all hand notes inside a run of 8+ notes where every 4 in a row is a known streak:
 /// long streaks built from human pieces.</param>
-public sealed record StreakReport(double Known4, double Known8, double Long, int Notes);
+/// <param name="Pair4">Share of two-hand 4-windows (4 note moments in a row since the last pause, both hands in
+/// them) that are two-hand streaks from the vocabulary.</param>
+/// <param name="PairWindows">How many two-hand 4-windows the map has.</param>
+public sealed record StreakReport(double Known4, double Known8, double Long, int Notes, double Pair4 = 0, int PairWindows = 0);
 
 /// <summary>How much of a map's per-hand note sequence is made of the streak vocabulary
 /// (<see cref="StylePrior.Streaks"/>), read the way scripts/style_prior.py learns it: one figure per hand
@@ -57,7 +60,33 @@ public static class StreakAnalyzer
             }
             Flush();
         }
+        var (pairs, pairKnown) = Pairs(map, tempo, prior);
         return new StreakReport(eligible4 > 0 ? (double)known4 / eligible4 : 0, eligible8 > 0 ? (double)known8 / eligible8 : 0,
-            total > 0 ? (double)inLong / total : 0, total);
+            total > 0 ? (double)inLong / total : 0, total, pairs > 0 ? (double)pairKnown / pairs : 0, pairs);
+    }
+
+    /// <summary>Two-hand 4-windows and how many are known two-hand streaks: one token per note moment (a hand's
+    /// first note by x then y; both hands = a double), runs broken by pauses between moments.</summary>
+    static (int windows, int known) Pairs(DifficultyMap map, TempoMap tempo, StylePrior prior)
+    {
+        if (prior.PairStreaks is null) return (0, 0);
+        int windows = 0, known = 0;
+        var run = new List<int>();
+        double last = double.NegativeInfinity;
+        foreach (var g in map.Notes.GroupBy(n => Math.Round(n.Beat, 3)).OrderBy(g => g.Key))
+        {
+            double t = tempo.BeatToSeconds(g.Key);
+            if (t - last > MovementAnalyzer.MaxGapSec) run.Clear();
+            last = t;
+            int? Fig(Hand h) => g.Where(n => n.Hand == h).OrderBy(n => n.X).ThenBy(n => n.Y).Select(n => (int?)StylePrior.Figure(n.X, n.Y, n.Direction)).FirstOrDefault();
+            var (l, r) = (Fig(Hand.Left), Fig(Hand.Right));
+            run.Add(l is { } lf && r is { } rf ? StylePrior.PairDoubleToken(lf, rf) : l is { } lo ? StylePrior.PairToken(Hand.Left, lo) : StylePrior.PairToken(Hand.Right, r!.Value));
+            if (run.Count < StylePrior.PairLength) continue;
+            var window = run.GetRange(run.Count - StylePrior.PairLength, StylePrior.PairLength);
+            if (!StylePrior.BothHands(window.ToArray())) continue;
+            windows++;
+            if (prior.HasPairStreak(StylePrior.StreakHash(window))) known++;
+        }
+        return (windows, known);
     }
 }

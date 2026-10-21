@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.3.2 — 2026-10-21
+
+- **Two-hand streaks**: the vocabulary now also knows 4 notes in a row across both hands (left-right-left-right, right-right-left-right, with doubles too), 950-3600 of them per difficulty, learned from the same curated and official maps. The generator plays known ones about as often as human maps do instead of almost never: on 16 songs with taps off, two-hand streaks went from 0-3 % to 14-17 % of two-hand stretches on Easy to Expert (human maps 17-19 %) and 4 % on Expert+ (6 %), with no loss of flow or timing. They are matched, not maximised. New flow weight **pair streak** (default 3, 0 = off); the Vocabulary page has a **Two hands** tab with both hands' notes numbered in one grid and an "alternating only" filter; `abeat bench` shows the share as "pair4".
+
 ## v0.3.1 — 2026-10-21
 
 - **Fit to taps**: a new button in the Speed and density settings sets the limits so Expert+ has room for every tap you recorded: max notes/s for the busiest tapped bar, the min gap for the two closest taps, the hand gap for every other tap (the burst gap follows). Easy to Expert move by the same ratios to their built-in values, so they stay as far below Expert+ as before. Only loosens, only when pressed, and does nothing without taps; each difficulty's "reset" undoes it. On a test song with a bar of sixteenth taps, Expert+ went from missing some taps to a note on all of them.
