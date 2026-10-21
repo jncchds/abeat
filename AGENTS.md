@@ -246,7 +246,9 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      1.0 / 1.6 a minute, four in five none; one per 8-16 beats had made ~3.4/min), doubles get two chains or none
 5. **Walls** (`WallGenerator`): crouch walls before energy jumps (Hard+, `CrouchWalls`, off by default:
    2-10 % of curated maps have any full-width overhead wall), dodge walls in note-free gaps (Normal+),
-   side walls in calm sections, and rhythm walls (`RhythmWalls`): ~0.15 s walls (rounded to 1/8 beat) at lane
+   side walls in calm sections (6 beats, lanes 0/3, from 4 beats after the first note to 4 before the last and only
+   over stretches with notes: empty calm intros/outros had made a third of all long walls, 2.6 per difficulty
+   against curated 0.13), and rhythm walls (`RhythmWalls`): ~0.15 s walls (rounded to 1/8 beat) at lane
    0/3, full height where the lane is free so a saber resting there vibrates on each hit (Bytrius' style),
    else y 2 / height 3 (clear of lower notes), alternating sides, on the strongest
    kick/snare hits (drum strength above the song's median; `low` band onsets without stems), strongest

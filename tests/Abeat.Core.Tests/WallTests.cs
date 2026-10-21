@@ -29,6 +29,25 @@ public class WallTests
     }
 
     [Fact]
+    public void LongSideWallsStayInsideThePlayedPart()
+    {
+        // calm first half: side walls frame it, but not from beat 0 nor past the last note
+        var a = TestSongs.Fake();
+        foreach (var d in new[] { DifficultyName.Normal, DifficultyName.Expert })
+        {
+            var map = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), d).Map;
+            double first = map.Notes.Min(n => n.Beat), last = map.Notes.Max(n => n.Beat);
+            var side = map.Obstacles.Where(o => o.Duration >= 2).ToList();
+            Assert.All(side, o =>
+            {
+                Assert.True(o.Beat >= first + 4 - 1e-6, $"wall at {o.Beat} before first note {first} + 4");
+                Assert.True(o.Beat + o.Duration <= last - 4 + 1e-6, $"wall to {o.Beat + o.Duration} after last note {last} - 4");
+                Assert.True(map.Notes.Count(n => n.Beat >= o.Beat && n.Beat <= o.Beat + o.Duration) >= 2, "frames notes");
+            });
+        }
+    }
+
+    [Fact]
     public void CrouchWallsAreOptIn()
     {
         var a = TestSongs.Fake();
