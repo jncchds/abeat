@@ -14,7 +14,7 @@ const FIELDS: Field[] = [
     options: [['flux', 'Energy changes (fast)'], ['notes', 'Sung notes (pitch)'], ['lyrics', 'Lyric syllables (slowest)']],
   },
   {
-    key: 'pitched', label: 'Bass and melody rhythm', hint: 'Transcribed notes also drive note rows (pitch) and arcs (held notes)',
+    key: 'pitched', label: 'Bass and melody rhythm', hint: 'Transcribed notes also give their pitch to angle leans and lights, and their length to arcs (held notes)',
     options: [['flux', 'Energy changes (fast)'], ['notes', 'Transcribed notes (basic-pitch)']],
   },
   {

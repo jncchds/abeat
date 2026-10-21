@@ -66,7 +66,7 @@ export default function HomePage() {
 
         <div className="card">
           <h3>Analysis options</h3>
-          <label>
+          <label title="Finds the beats and fits the beat grid: beat_this (neural network) is more accurate, librosa is quicker; auto uses beat_this when the worker has it">
             Beat tracker
             <select value={beats} onChange={e => setBeats(e.target.value)}>
               <option value="auto">auto (beat_this if installed)</option>

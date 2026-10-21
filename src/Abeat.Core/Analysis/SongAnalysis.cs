@@ -26,6 +26,9 @@ public sealed class SongAnalysis
     /// <summary>Where the lead melody is and which stem carries it; its notes are the "melody" layer.
     /// Null without stems or with an older worker.</summary>
     public MelodyInfo? Melody { get; set; }
+    /// <summary>The user's tap-along runs after alignment (<see cref="TapAligner"/>); their taps are the
+    /// "taps" layer. Not part of analysis.json: added by whoever loads the song's taps.</summary>
+    public TapInfo? Taps { get; set; }
     public string Cover { get; set; } = "cover.jpg";
     public PreviewInfo Preview { get; set; } = new();
 

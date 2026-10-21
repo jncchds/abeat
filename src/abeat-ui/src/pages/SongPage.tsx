@@ -175,7 +175,11 @@ export default function SongPage() {
   const onTaps = (runs: TapRun[]) => {
     const stamped = runs.map(r => ({ ...r, padSec: r.padSec ?? pad }))
     setTaps({ id, runs: stamped })
-    putTaps(id, stamped).catch(e => setError(errorText(e)))
+    // the server re-aligns the taps layer: reload the analysis so the timeline and settings show it
+    putTaps(id, stamped)
+      .then(() => getAnalysis(id))
+      .then(a => setLoaded(l => (l?.id === id ? { ...l, analysis: a.data } : l)))
+      .catch(e => setError(errorText(e)))
   }
 
   const analysis = data?.analysis ?? null
@@ -489,7 +493,7 @@ export default function SongPage() {
             )}
           </Player>
 
-          {tapOpen && <TapPanel audio={audio} runs={tapRuns} refs={tapRefs} onChange={onTaps} onClose={() => setTapOpen(false)} />}
+          {tapOpen && <TapPanel audio={audio} runs={tapRuns} refs={tapRefs} aligned={analysis?.taps} onChange={onTaps} onClose={() => setTapOpen(false)} />}
 
           {sideA ? <div className="compare-bar">
             <SidePicker name="A" color={SIDE_A} side={sideA} versions={list} labels={labels} onChange={n => setSide('a', n)} songId={id} />
@@ -553,16 +557,18 @@ export default function SongPage() {
             <div className="card settings-card">
               <div className="settings-head">
                 <h3>Generator settings</h3>
-                <ToggleField label="Auto" checked={autoRegen} onChange={setAutoRegen} />
+                <ToggleField label="Auto" checked={autoRegen} onChange={setAutoRegen}
+                  title="Regenerate as soon as a setting changes; the result replaces the newest version while it is still a draft, so tweaking doesn't fill the history" />
                 <button onClick={() => runGenerate(settings, false)} disabled={generating}
                   title="Adds a new version (auto-regenerate only updates a draft)">
                   {generating ? 'Generating…' : 'Generate new version'}
                 </button>
-                <button className="btn-secondary" disabled={!defaults} onClick={() => defaults && onSettings(structuredClone(defaults))}>Defaults</button>
+                <button className="btn-secondary" disabled={!defaults} onClick={() => defaults && onSettings(structuredClone(defaults))}
+                  title="Put every generator setting back to its built-in default (saved for this song on the next generation)">Defaults</button>
               </div>
               <SettingsPanel settings={settings} defaults={defaults} profiles={profiles} environments={environments} envSuggestions={envSuggestions}
                 songColors={colors?.id === id ? colors.c : undefined}
-                layers={Object.keys(analysis.layers)}
+                layers={Object.keys(analysis.layers)} tapCount={analysis.taps?.count}
                 layerSource={analysis.layerSource} onChange={onSettings} />
             </div>
           </div>
@@ -679,13 +685,13 @@ function Player({ audio, tempo, follow, setFollow, children }: PlayerProps) {
         {playing ? '❚❚' : '▶'}
       </button>
       <span ref={timeRef} className="mono time" />
-      <label className="inline-select">
+      <label className="inline-select" title="Playback speed (0.5 = half speed, handy for tapping along to fast parts)">
         speed
         <select defaultValue="1" onChange={e => setRate(audio, +e.target.value)}>
           <option>0.5</option><option>0.75</option><option>1</option>
         </select>
       </label>
-      <label className="inline-check"><input type="checkbox" checked={follow} onChange={e => setFollow(e.target.checked)} /> follow</label>
+      <label className="inline-check" title="Keep the timeline scrolled to the playhead while playing"><input type="checkbox" checked={follow} onChange={e => setFollow(e.target.checked)} /> follow</label>
       <span className="spacer" />
       {children}
     </div>

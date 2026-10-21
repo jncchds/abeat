@@ -144,6 +144,7 @@ public static class MapEndpoints
                 .Select(r => r with { Taps = (r.Taps ?? []).Where(t => double.IsFinite(t) && t >= 0).Order().ToArray() })
                 .ToArray();
             File.WriteAllText(store.TapsPath(id), JsonSerializer.Serialize(new TapsRequest(runs), JsonSerializerOptions.Web));
+            store.InvalidateAnalysis(id); // re-aligns the taps layer
             return Results.NoContent();
         });
 
