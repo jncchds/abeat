@@ -279,6 +279,8 @@ public sealed class SongStore
         // an uploaded cover lives next to work/ so a re-analysis keeps it; an imported map's own cover
         // beats the one the analysis extracted or generated
         if ((CustomCover(id) ?? ReferenceCover(id)) is { } cover) loaded.Cover = Path.GetRelativePath(loaded.Directory, cover);
+        // the user's tap-along runs, aligned onto this analysis, are the "taps" layer
+        TapAligner.Apply(loaded, TapAligner.LoadRuns(TapsPath(id)));
         return analysisCache[id] = loaded;
     }
 

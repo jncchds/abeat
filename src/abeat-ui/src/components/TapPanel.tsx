@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { TapRun } from '../api'
+import type { TapInfo, TapRun } from '../api'
 import { compareBoth, compareHand, HANDS, mergeTaps, TAP_COLORS, type TapRef } from '../utils/taps'
 
 
@@ -7,6 +7,8 @@ interface Props {
   audio: HTMLAudioElement | null
   runs: TapRun[]
   refs: TapRef[]
+  /** How the server aligned the runs for the generator (null: no taps). */
+  aligned?: TapInfo | null
   onChange: (runs: TapRun[]) => void
   onClose: () => void
 }
@@ -15,7 +17,7 @@ const pct = (x: number) => `${Math.round(x * 100)}%`
 const ms = (s: number) => `${s >= 0 ? '+' : ''}${Math.round(s * 1000)} ms`
 
 /** Records one tap-along run per hand (right first): the song plays from the start and every key press or pad tap is a note. */
-export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props) {
+export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose }: Props) {
   const [recording, setRecording] = useState<number | null>(null)
   const [count, setCount] = useState(0)
   const taps = useRef<number[]>([])
@@ -92,6 +94,13 @@ export default function TapPanel({ audio, runs, refs, onChange, onClose }: Props
         One run per hand, right hand first: the song plays from the start, press any key (or tap the pad) on every note that hand
         would cut. Esc stops early; Append from playhead adds taps to a run from where the player is. Each run is shifted by its median offset, then matched (±70 ms) to the notes of the same
         hand; "any" also counts notes of the other hand. Both runs together are compared with all notes and doubles.
+      </p>
+      <p className="muted tap-hint">
+        The generator gives each tap a note (see tap priority in the settings); the runs only mark moments, not hands, and
+        taps of both runs together ask for a double.
+        {aligned && aligned.count > 0 && <> Aligned to the song: latency {aligned.offsetsSec.map((o, k) =>
+          `${HANDS[k]?.toLowerCase() ?? `run ${k + 1}`} ${aligned.confident[k] ? ms(o) : 'unclear, unshifted'}`).join(', ')}; {aligned.count} taps,
+          {' '}{pct(aligned.snapped / aligned.count)} on an onset of the song, {aligned.doubles.length} doubles.</>}
       </p>
 
       {recording !== null

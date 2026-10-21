@@ -166,6 +166,12 @@ public sealed record GeneratorSettings : IJsonOnDeserialized
         // the lead line across the pitched stems (whichever voice or instrument carries it)
         ["melody"] = 0.8,
     };
+    /// <summary>How strongly tapped moments (the "taps" layer, <see cref="Analysis.TapAligner"/>) claim notes: a tapped
+    /// grid slot ranks this many times the song's strongest sound above its own score, so at 1 every tap is
+    /// picked before any untapped sound of its bar, and bars with more taps than their density target get
+    /// notes for them (up to the difficulty's max NPS). Lower values let strong music win over taps;
+    /// 0 ignores the taps.</summary>
+    public double TapPriority { get; init; } = 1.0;
     /// <summary>Weight of drum-stem hits by kind (kick "k", snare "s", hat/cymbal "h") on top of the
     /// drums layer weight.</summary>
     public Dictionary<string, double> DrumWeights { get; init; } = new() { ["k"] = 1.0, ["s"] = 1.0, ["h"] = 0.6 };

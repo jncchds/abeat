@@ -36,6 +36,9 @@ usage:
       --reanalyze              ignore cached analysis
       --modes <l>              extra game modes: onesaber,90,360 (same difficulties as Standard)
       --environment auto|<name>     auto (default) picks one that suits the song; or e.g. weave, pyro, billie
+      --taps <taps.json>       tap-along runs ({"runs":[{"taps":[sec..],"padSec":p}]}, as the web app saves
+                               them): aligned to the song, each tap asks for a note
+      --tap-priority <x>       how strongly taps claim notes (default 1 = before any untapped sound; 0 = ignore)
       --no-lights, --no-walls, --no-zip
   abeat analyze <audio> [-o <work dir>] [--beats ..] [--no-stems] [--vocals ..] [--bpm x] [--tempo ..]
   abeat check <map folder | zip | Info.dat>   flow report for any map (compare with human maps)
@@ -147,6 +150,8 @@ static async Task<int> Generate(Options o)
     if (o.Has("no-walls")) s = s with { Walls = false };
     if (o.Get("modes") is { } modes) s = s with { Modes = ParseModes(modes) };
     if (o.Get("environment") is { } env) s = s with { Environment = env };
+    if (o.Get("taps") is { } tapsFile) TapAligner.Apply(a, TapAligner.LoadRuns(tapsFile));
+    if (o.Get("tap-priority") is { } tp) s = s with { TapPriority = double.Parse(tp, CultureInfo.InvariantCulture) };
 
     PrintAnalysisSummary(a);
     var sw = Stopwatch.StartNew();
@@ -159,6 +164,14 @@ static async Task<int> Generate(Options o)
         var layers = d.Events.GroupBy(e => e.Layer).OrderByDescending(g => g.Count())
             .Select(g => $"{g.Key} {100.0 * g.Count() / d.Events.Count:0}%");
         Console.WriteLine($"             notes led by: {string.Join(", ", layers)}  (hand roles kept {d.HandRoleShare:P0})");
+        if (a.Layers.GetValueOrDefault(TapAligner.Layer) is { Count: > 0 } taps)
+        {
+            var times = d.Events.Select(e => e.Time).Order().ToArray();
+            int hit = taps.Count(t => times.Any(x => Math.Abs(x - t.T) < 0.03));
+            var doubles = d.Events.Where(e => e.IsDouble).Select(e => e.Time).ToArray();
+            int dHit = a.Taps!.Doubles.Count(t => doubles.Any(x => Math.Abs(x - t) < 0.03));
+            Console.WriteLine($"             taps with a note: {hit}/{taps.Count} ({(double)hit / taps.Count:P0}), tapped doubles kept {dHit}/{a.Taps.Doubles.Count}");
+        }
     }
     foreach (var d in result.Extra)
     {
@@ -190,6 +203,9 @@ static void PrintAnalysisSummary(SongAnalysis a)
     Console.WriteLine($"  bpm {a.Tempo.Bpm:0.##} ({a.Tempo.Backend}, fit residual {a.Tempo.ResidualMs:0.0} ms{drift})");
     Console.WriteLine($"  duration {a.Audio.DurationSec:0.0}s, pad {a.Audio.PadSec:0.000}s, layers [{string.Join(", ", a.Layers.Select(kv => $"{kv.Key}:{kv.Value.Count}"))}] ({a.LayerSource})");
     Console.WriteLine($"  sections: {string.Join(" ", a.Sections.Select(s => $"{s.Label}@{s.Start:0}s/{s.Energy:0.00}"))}");
+    if (a.Taps is { } t)
+        Console.WriteLine($"  taps: {t.Count} after merging, latency {string.Join(" / ", t.OffsetsSec.Zip(t.Confident, (o, c) => $"{o * 1000:+0;-0} ms{(c ? "" : " (unclear, kept)")}"))}, "
+            + $"{(double)t.Snapped / Math.Max(1, t.Count):P0} on an onset, {t.Doubles.Count} doubles");
 }
 
 static int Check(Options o)

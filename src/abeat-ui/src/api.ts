@@ -64,6 +64,8 @@ export interface Analysis {
   lyrics?: { source: string; language?: string | null; words: { w: string; t: number; e: number }[] } | null
   /** Where the lead melody is and which stem carries it; its notes are the "melody" layer. */
   melody?: { segments: MelodySegment[] } | null
+  /** The tap-along runs after alignment; their taps are the "taps" layer. Null without taps. */
+  taps?: TapInfo | null
 }
 
 /** `a`: counter-clockwise cut angle offset in degrees. */
@@ -163,6 +165,8 @@ export interface GeneratorSettings {
   beamWidth: number
   weights: Record<string, number>
   layerWeights: Record<string, number>
+  /** How strongly tapped moments claim notes (1: before any untapped sound; 0: taps ignored). */
+  tapPriority?: number
   lights: boolean
   walls: boolean
   dodgeWalls: boolean
@@ -249,6 +253,9 @@ export const getStems = (id: string) => http.get<StemFile[]>(`/songs/${id}/stems
 export const stemUrl = (id: string, file: string) => `/api/songs/${id}/stems/${encodeURIComponent(file)}`
 export const getLyrics = (id: string) => http.get<{ text: string }>(`/songs/${id}/lyrics`)
 export const putLyrics = (id: string, text: string) => http.put(`/songs/${id}/lyrics`, { text })
+/** Tap runs aligned onto the song: latency removed per run, taps merged, how many sit on an onset, doubles. */
+export interface TapInfo { offsetsSec: number[]; confident: boolean[]; count: number; snapped: number; doubles: number[] }
+
 /** One tap-along run: song.egg seconds of every tap, and that song.egg's padding (re-analysis may change it). */
 export interface TapRun { recordedUtc: string; taps: number[]; padSec?: number }
 export const getTaps = (id: string) => http.get<{ runs: TapRun[] }>(`/songs/${id}/taps`)

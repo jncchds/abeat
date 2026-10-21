@@ -3,6 +3,8 @@ interface ToggleFieldProps {
   onChange: (checked: boolean) => void
   label: string
   hint?: string
+  /** Hover text: what the switch does. */
+  title?: string
   disabled?: boolean
 }
 
@@ -10,9 +12,9 @@ interface ToggleFieldProps {
  * Switch-style boolean field. Replaces the bare native checkbox, which sat oddly next to the
  * app's rounded inputs and buttons.
  */
-export default function ToggleField({ checked, onChange, label, hint, disabled }: ToggleFieldProps) {
+export default function ToggleField({ checked, onChange, label, hint, title, disabled }: ToggleFieldProps) {
   return (
-    <label className={'toggle-field' + (disabled ? ' toggle-field-disabled' : '')}>
+    <label className={'toggle-field' + (disabled ? ' toggle-field-disabled' : '')} title={title}>
       <input
         type="checkbox"
         className="toggle-input"

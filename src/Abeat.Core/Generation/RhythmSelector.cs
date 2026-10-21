@@ -69,6 +69,10 @@ public static class RhythmSelector
         public double TimeWeight;
         /// <summary>Strongest "melody" layer note on the slot: its weight, pitch (brightness) and end.</summary>
         public double MelodyWeight, MelodyBr, MelodyEnd;
+        /// <summary>Tap priority: <see cref="GeneratorSettings.TapPriority"/> x how well the tap sits on the slot.</summary>
+        public double Tap;
+        /// <summary>Both tap runs hit this slot.</summary>
+        public bool TapDouble;
     }
 
     /// <summary>The song has a lead melody line and the settings weigh it.</summary>
@@ -83,6 +87,8 @@ public static class RhythmSelector
         if (slots.Count == 0) return [];
 
         double maxScore = slots.Values.Max(x => x.Score);
+        // tapped slots first: the user asked for a note there
+        double Priority(Slot x) => x.Score + x.Tap * maxScore;
         int grid = SlotsPerBeat / p.Subdivision;
         int minGridSlots = p.AllowTriplets ? Math.Min(grid, SlotsPerBeat / 3) : grid;
         // notes sit at their onset times, up to half a grid step off their slot, so the min gap is
@@ -115,9 +121,12 @@ public static class RhythmSelector
             carry = target - count;
 
             var candidates = slots.Values
-                .Where(x => x.Index >= barStart && x.Index < barStart + barSlots && x.Score > 0.08 * maxScore)
-                .OrderByDescending(x => x.Score + rng.NextDouble() * 1e-3)
+                .Where(x => x.Index >= barStart && x.Index < barStart + barSlots && (x.Score > 0.08 * maxScore || x.Tap > 0))
+                .OrderByDescending(x => Priority(x) + rng.NextDouble() * 1e-3)
                 .ToList();
+            // more taps than the bar's target: a note for each, up to the difficulty's ceiling
+            int tapped = candidates.Count(x => x.Tap > 0);
+            if (tapped > count) count = Math.Max(count, Math.Min(tapped, (int)Math.Floor(p.MaxNps * (t1 - t0) / (1 + p.DoubleRate))));
             int taken = 0;
             foreach (var c in candidates)
             {
@@ -141,7 +150,7 @@ public static class RhythmSelector
                 }
             if (taken < count) carry += Math.Min(count - taken, 2); // let a sparse bar donate a little to the next
         }
-        ClearBeforeDrops(a, p, accepted, drops);
+        ClearBeforeDrops(a, p, accepted, drops, slots.Where(kv => kv.Value.Tap > 0).Select(kv => kv.Key).ToHashSet());
 
         bool hasMelody = HasMelody(a, s);
         var events = accepted.Select(i =>
@@ -171,8 +180,10 @@ public static class RhythmSelector
         }).OrderBy(e => e.Time).ToList();
 
         events = AddExpression(a, events, hasMelody);
-        var forced = drops.Select(d => events.FindIndex(e => Math.Abs(e.GridBeat - (double)d / SlotsPerBeat) < 1e-6)).Where(i => i >= 0).ToHashSet();
-        return MarkDoubles(events, p, forced);
+        int EventAt(int slot) => events.FindIndex(e => Math.Abs(e.GridBeat - (double)slot / SlotsPerBeat) < 1e-6);
+        var forced = drops.Select(EventAt).Where(i => i >= 0).ToHashSet();
+        var wanted = accepted.Where(i => slots[i].TapDouble).Select(EventAt).Where(i => i >= 0).ToHashSet();
+        return MarkDoubles(events, p, forced, wanted);
     }
 
     /// <summary>Bars quieter than this (outros, silence) get no pulse notes.</summary>
@@ -273,14 +284,14 @@ public static class RhythmSelector
 
     /// <summary>A breath before each drop: no notes for about 0.9 s (1-2 beats) before it, a note on the
     /// drop itself (made a double later) and room for both hands to recover after it.</summary>
-    static void ClearBeforeDrops(SongAnalysis a, DifficultyProfile p, SortedSet<int> accepted, List<int> drops)
+    static void ClearBeforeDrops(SongAnalysis a, DifficultyProfile p, SortedSet<int> accepted, List<int> drops, HashSet<int> tapped)
     {
         int pause = Math.Clamp((int)Math.Round(a.SecondsToBeat(0.9)), 1, 2) * SlotsPerBeat;
         int after = (int)Math.Ceiling(a.SecondsToBeat(p.MinSameHandGapSec) * SlotsPerBeat - 1e-6);
         pause = Math.Max(pause, after); // both hands play the drop double, so both need their recovery time
         foreach (int d in drops)
         {
-            accepted.RemoveWhere(i => i >= d - pause && i < d + after && i != d);
+            accepted.RemoveWhere(i => i >= d - pause && i < d + after && i != d && !tapped.Contains(i)); // a tap beats the breath
             accepted.Add(d);
         }
     }
@@ -295,6 +306,7 @@ public static class RhythmSelector
 
         foreach (var (layer, onsets) in a.Layers)
         {
+            if (layer == TapAligner.Layer) continue; // not a sound of the song: AddTaps
             if (!s.LayerWeights.TryGetValue(layer, out double w) || w <= 0) continue;
             double layerLag = lag.GetValueOrDefault(layer);
             // compare layers by rank, not raw strength: a vocal stem has a few sharp spikes and soft
@@ -358,7 +370,42 @@ public static class RhythmSelector
             double t = a.BeatToSeconds((double)slot.Index / SlotsPerBeat);
             slot.Score = (slot.Score + metric * Math.Min(1, slot.Score * 2)) * offGrid * (0.4 + 0.6 * a.EnergyAt(t));
         }
+        AddTaps(a, s, slots, grid, triplets);
         return slots;
+    }
+
+    /// <summary>Tapped moments (<see cref="TapAligner"/>) mark their slot with <see cref="GeneratorSettings.TapPriority"/>
+    /// times how close the tap is to it (the same grid-error falloff as onsets, so a tap between a coarse
+    /// difficulty's grid steps counts little there), and the note goes to the tap's time. A tap on a
+    /// slot without a sound gets the median slot score, so doubles and swing size treat it as an
+    /// ordinary hit.</summary>
+    static void AddTaps(SongAnalysis a, GeneratorSettings s, Dictionary<int, Slot> slots, int grid, bool triplets)
+    {
+        if (s.TapPriority <= 0 || !a.Layers.TryGetValue(TapAligner.Layer, out var taps) || taps.Count == 0) return;
+        double median = slots.Count > 0 ? slots.Values.Select(x => x.Score).Order().ElementAt(slots.Count / 2) : 1;
+        var doubles = a.Taps?.Doubles.ToHashSet() ?? [];
+        foreach (var o in taps)
+        {
+            if (o.T < s.LeadInSec) continue;
+            double exact = a.SecondsToBeat(o.T) * SlotsPerBeat;
+            int index = (int)Math.Round(exact / grid) * grid;
+            double err = Math.Abs(exact - index) / grid;
+            if (triplets)
+            {
+                int trip = (int)Math.Round(exact / 4) * 4;
+                double errTrip = Math.Abs(exact - trip) / 4;
+                if (errTrip < err * 0.4 && err > 0.25) { index = trip; err = errTrip; }
+            }
+            double priority = s.TapPriority * (1 - Math.Min(1, err * 1.6));
+            if (priority <= 0) continue;
+            if (!slots.TryGetValue(index, out var slot)) slots[index] = slot = new Slot { Index = index, ByLayer = { [TapAligner.Layer] = 0 } };
+            if (priority <= slot.Tap) continue;
+            slot.Tap = priority;
+            slot.Time = o.T;
+            slot.TimeWeight = double.PositiveInfinity;
+            slot.Score = Math.Max(slot.Score, median);
+            slot.TapDouble |= doubles.Contains(o.T);
+        }
     }
 
     /// <summary>Whether the song has a triplet feel: a real share of the most percussive layer's onset
@@ -426,11 +473,15 @@ public static class RhythmSelector
     /// <summary>Doubles spread over the sections, strongest hits first within each: curated maps put a
     /// median 14 % of hits in calm sections and 19 % in the loudest on doubles, so a section's share only
     /// leans gently on its energy.</summary>
-    static List<RhythmEvent> MarkDoubles(List<RhythmEvent> events, DifficultyProfile p, HashSet<int> forced)
+    /// <param name="wanted">Events both tap runs hit: doubles wherever both hands have their recovery time.</param>
+    static List<RhythmEvent> MarkDoubles(List<RhythmEvent> events, DifficultyProfile p, HashSet<int> forced, HashSet<int> wanted)
     {
-        if (events.Count < 3 || p.DoubleRate <= 0) return events.Select((e, i) => forced.Contains(i) ? e with { IsDouble = true } : e).ToList();
         // both hands hit a double, so each needs its own same-hand recovery time around it
         double minGap = p.MinSameHandGapSec;
+        bool Room(int i) => (i == 0 || events[i].Time - events[i - 1].Time >= minGap)
+                         && (i == events.Count - 1 || events[i + 1].Time - events[i].Time >= minGap);
+        forced = [.. forced, .. wanted.Where(Room)];
+        if (events.Count < 3 || p.DoubleRate <= 0) return events.Select((e, i) => forced.Contains(i) ? e with { IsDouble = true } : e).ToList();
         double maxEnergy = Math.Max(1e-9, events.Max(e => e.Energy));
         var order = new HashSet<int>();
         foreach (var section in Enumerable.Range(0, events.Count).GroupBy(i => events[i].Section))
@@ -438,8 +489,7 @@ public static class RhythmSelector
             double rel = section.Average(i => events[i].Energy) / maxEnergy;
             int want = (int)Math.Round(section.Count() * p.DoubleRate * (0.75 + 0.35 * rel));
             order.UnionWith(section
-                .Where(i => (i == 0 || events[i].Time - events[i - 1].Time >= minGap)
-                         && (i == events.Count - 1 || events[i + 1].Time - events[i].Time >= minGap))
+                .Where(Room)
                 .OrderByDescending(i => events[i].Strength)
                 .Take(want));
         }
