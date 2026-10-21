@@ -58,7 +58,8 @@ docker compose up -d          # http://localhost:8080
 2. Drop an audio file on **Add a song**, or paste a YouTube / YouTube Music link.
 3. The song is analysed (beats, sections, separated stems; a few minutes on a CPU, much less on a GPU)
    and a map for the selected difficulties is generated.
-4. On the song page: listen and watch the timeline, tweak settings (the map regenerates in seconds),
+4. On the song page: listen and watch the timeline, tweak settings and press **Generate new version** (or
+   switch on **Auto** to regenerate on every change; it takes seconds),
    **⬇ Zip** (download) or open it in **ArcViewer** from the **Versions** list under the timeline.
 
 Only use audio you have the rights to. Generated maps are for your own use; BeatSaver requires
@@ -201,7 +202,7 @@ docker run --rm -v abeat-data:/from -v "$PWD/docker-data/data:/to" alpine cp -a 
 
 ### Running without Docker
 
-Requirements: .NET 10 SDK, [uv](https://docs.astral.sh/uv/), Node 22 (for the UI).
+Requirements: .NET 10 SDK, [uv](https://docs.astral.sh/uv/), Node.js 22 (or 20.19+; for the UI).
 
 ```bash
 cd analysis && uv sync --extra ml --extra cpu      # or cuda / cuda12 / rocm / xpu; add --extra lyrics, --extra roformer
@@ -270,7 +271,8 @@ scrolls with the music).
   plus a line, higher for higher notes, as long as it is held; untinted stretches have no clear melody;
 - the lyrics, when the vocals were aligned to lyrics;
 - twelve note lanes (top row first, columns left to right) with notes (cut arrow or dot, angle offsets
-  shown), arcs, chains, bombs and walls (red: dodge walls, amber: crouch walls);
+  shown), arcs, chains, bombs and walls (red: walls standing on the floor, amber: raised walls, i.e.
+  crouch walls and the raised rhythm walls above a note);
 - flow issues of version A as triangles under the lanes (resets, vision blocks, crossovers, clashes,
   strain spikes).
 
@@ -289,8 +291,9 @@ is one (see [Reading the reports](#8-reading-the-reports)).
 
 Every generation is kept as a **version** (time, app version, and timing F1 against the human map per
 difficulty). Pick any version and difficulty as **A** (gold) and **B** (violet); the human map, when
-imported, is a version too. **Auto-regenerate** (on by default) writes a *draft* that the next change
-replaces, so tweaking doesn't flood the history; **Generate** keeps a version for good. Per version:
+imported, is a version too. **Auto** (auto-regenerate, off by default) regenerates on every settings change
+and writes a *draft* that the next change replaces, so tweaking doesn't flood the history; **Generate new
+version** keeps a version for good. Per version:
 load its settings back, delete it, or prune everything except A and B.
 
 The comparison card shows A against B: timing F1, precision/recall at ±50 ms, median offset,
@@ -312,17 +315,31 @@ B): your median offset (latency, removed before matching), F1, precision (taps t
 runs and compares them with all notes; the doubles line counts the moments both hands hit. A run stopped
 early only counts up to where it stopped. Runs are saved per song in `taps.json`, with the padding of the song.egg they were recorded on, so a re-analysis doesn't shift them.
 
+The generator uses the taps too: every tap is a moment you want a note on. The two runs only mark moments
+(they don't decide which hand plays the note); a moment both runs tapped asks for a double. Before use the
+taps are lined up with the song: each run's latency (how late you tapped, searched between -60 and +160 ms)
+is removed, and each tap moves onto the song's onset within 35 ms if there is one. The panel shows the
+latency found per run, the share of taps on an onset and the doubles; the timeline gets a *taps* row with
+the aligned taps. **Tap priority** in the settings sets how strongly taps claim notes: at 1 (default) every
+tap gets its note before any other sound of its bar, and bars with more taps than usual get extra notes (up
+to the difficulty's max notes/s); lower values let strong music win; 0 ignores the taps. Lower difficulties
+still keep their grid and minimum gaps, so they keep about half of the taps. Without taps the setting does
+nothing.
+
 ### Settings panel
 
-Changes regenerate the map at once (with auto-regenerate on). Every setting is described in the
+Changes regenerate the map at once (with auto-regenerate on). Hover over any setting to see what it does,
+what its value means and its default; every setting is also described in the
 [reference](#6-generator-settings-reference). Sections:
 
 - **Difficulties**: Easy … Expert+ (all on by default).
 - **Extra modes**: One Saber, 90°, 360° (written next to Standard; see [Game modes](#7-game-modes-lights-and-environments)).
-- **Environment**: Default (classic lights) or Pyro (v3 group lightshow).
+- **Environment**: Auto (picks one that suits the song, named in the list) or any Beat Saber environment,
+  grouped by classic and group lights; **Cover colours** / **Detect** and the eight colour swatches set the
+  saber, light and wall colours.
 - **General**: density, seed (a different seed gives a different but equally valid map), beam width,
-  and switches for lights, bombs, walls (dodge, crouch), arcs, chains, angle offsets, pause before drops.
-- **Flow weights**: every cost of the planner, each a slider (hover for a hint).
+  tap priority (how strongly your taps claim notes, see [Tapping along](#tapping-along)), and switches for lights, bombs, walls (dodge, crouch, rhythm), arcs, chains, angle offsets, pause before drops.
+- **Flow weights**: every cost of the planner, each a slider: higher = the planner avoids that more, 0 = not considered.
 - **Onset layers**: how much each stem or band counts when choosing which sounds become notes.
 
 ### Playlists
@@ -345,8 +362,9 @@ download each stem and `analysis.json`.
 | Beat tracker | **auto**, beat_this, librosa | beat_this (neural, accurate) when installed, else librosa |
 | Stems | **on**, off | Demucs separates drums, bass, vocals and other. Off: frequency bands of the mix (faster, no vocal focus, no drum labels) |
 | Vocal separator | **Demucs**, RoFormer | BS-RoFormer gives cleaner vocals (less bleed from leads and pads, fewer false vocal notes). Needs the `roformer` extra and, in practice, a GPU: a 4-core CPU needs about 35 minutes per minute of audio (Cancel stops it); its 640 MB model downloads on first use |
-| Vocal onsets | **flux**, notes, lyrics | *flux*: every new sung sound. *notes*: only where a pitched voice follows (CREPE), the melody steers the row. *lyrics*: one note per syllable, from lyrics you paste (or a Whisper transcription with the `lyrics` extra), aligned to the vocals |
-| Other/bass onsets | **flux**, notes | *notes*: transcribed by basic-pitch; real pitch for rows and angles, real note lengths for arcs. Timing is about the same as flux |
+| Vocal onsets | **flux**, notes, lyrics | *flux*: every new sung sound. *notes*: only where a pitched voice follows (CREPE), with the voice's pitch for angle leans and lights. *lyrics*: one note per syllable, from lyrics you paste (or a Whisper transcription with the `lyrics` extra), aligned to the vocals |
+| Other/bass onsets | **flux**, notes | *notes*: transcribed by basic-pitch; real pitch for angle leans and lights, real note lengths for arcs. Timing is about the same as flux |
+| Lead melody | **on** with stems | one melody line across the vocal and other stems (CREPE decides which leads, basic-pitch gives its notes): the `melody` layer, arcs, angle leans and melody lights follow it. Adds ~2 min per song on a CPU, cached with the stems. Always on in the app and the CLI; the worker alone skips it with `--melody off` |
 | Tempo | **auto**, constant, variable | *auto*: one BPM, unless the song really changes tempo (live band, slow parts speeding up). With stems the tempo is read from the drum stem: the BPM that puts kick and snare on the beats, and bars followed through tempo changes, used only when they sit clearly (>= 15 %) better on the drums than one BPM. Stretches where the drums have no clear beat (rolls, fills) follow the beat tracker instead. Without stems the beat tracker decides, which is less precise |
 | BPM override | number | forces a constant BPM (CLI `--bpm`) |
 
@@ -367,15 +385,18 @@ when the arrangement changes.
 3. **Flow** (`FlowPlanner`): a beam search over both sabers places every note (hand, cell, cut
    direction) so the swings flow: parity (forehand/backhand) is respected, resets are avoided, the hands
    move like in curated human maps (cell and direction mix, turn angles and travel, strain per
-   difficulty), rows follow the pitch, loud moments swing bigger, one saber follows the melody and the
-   other the rhythm. When a part of the song comes back, a second pass makes it echo the patterns of
+   difficulty), loud moments swing bigger, one hand leads the drops and the other the rest (the support
+   hand takes the bar downbeats), as players tap along. Note rows come from the human cell mix, never from
+   the pitch, so easier levels stay low like human maps. When a part of the song comes back, a second pass makes it echo the patterns of
    its first occurrence.
 4. **Expression**: angle offsets that lean with a rising or falling melody, arcs over held notes,
    chains over rolls and stutters too fast for single notes.
-5. **Walls and bombs**: crouch walls before big energy jumps, dodge walls in gaps, side walls in calm
-   parts; bombs that signal resets and decorate accents. Nothing is ever placed where a saber or the
+5. **Walls and bombs**: dodge walls in gaps, side walls in calm parts (only while notes are played, never
+   over an empty intro or outro), short rhythm walls in the outer lanes on the strongest kicks and snares,
+   optional crouch walls before drops; bombs that signal resets and decorate accents. Nothing is ever placed where a saber or the
    player has to be.
-6. **Lights**: section palettes, notes flashing in their saber's colour, the drums playing the lasers.
+6. **Lights**: section palettes, notes flashing in their saber's colour, the drums playing the lasers;
+   group environments get their own v3 lightshow (see [Lights](#7-game-modes-lights-and-environments)).
 7. **Output**: Info.dat (v2.1) and one v3.3 file per difficulty and mode, `song.egg`, `cover.jpg`, zip.
 
 Every generated map is checked by the same analyzer that scores human maps; resets, wall clashes and
@@ -390,21 +411,26 @@ writes the defaults to edit for the CLI.
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `difficulties` | Expert, ExpertPlus | which difficulties to write |
+| `difficulties` | all five (CLI: Expert, ExpertPlus unless `-d`) | which difficulties to write |
 | `modes` | none | extra modes: `OneSaber`, `90Degree`, `360Degree` |
 | `density` | 1.0 | notes-per-second multiplier |
 | `seed` | 1 | variation; the same seed always gives the same map |
 | `beamWidth` | 64 | search width: higher = better flow, slower |
 | `leadInSec` | 1.5 | note-free time at the start |
 | `lights` | on | lightshow |
-| `environment` | Default | `Default` (classic events) or `Pyro` (v3 group lights) |
-| `walls`, `dodgeWalls`, `crouchWalls` | on | walls, single-lane walls in gaps (Normal+), overhead walls before drops (Hard+) |
+| `environment` | Auto | `Auto` (one that suits the song) or an environment id or name (`PyroEnvironment`, `Pyro`, `The First`, …); older `Default` means The First |
+| `coverColors` | on | saber, light and wall colours from the cover art |
+| `colorOverrides` | — | colours set by hand (`#rrggbb` per slot: saberLeft, saberRight, envLeft, envRight, envLeftBoost, envRightBoost, obstacles, envWhite) |
+| `walls`, `dodgeWalls` | on | walls at all; single-lane walls in note-free gaps (Normal+) |
+| `crouchWalls` | off | full-width overhead walls before drops (Hard+); few curated maps use them |
+| `rhythmWalls` | on | short outer-lane walls on the strongest kicks and snares of loud sections |
 | `bombs` | on | reset bombs (Normal+) and accent bombs (Hard+) |
 | `arcs` | on | arcs over held melody notes |
 | `chains` | on | chains over fast rolls (Hard+) |
 | `angleOffsets` | on | cut angles leaning with the melody (Normal+) |
 | `dropPause` | on | short pause and a double on each drop |
 | `levelAuthor` | ABeat by CHDS | mapper name in the map |
+| `tapPriority` | 1.0 | how strongly tap-along taps claim notes: 1 = before any untapped sound of the bar (bars may get extra notes up to max notes/s), 0 = ignore the taps |
 | `layerWeights` | vocals 1.5, drums 0.9, melody 0.8, other 0.6, bass 0.4, mix 0.25 (bands: mid 1.0, low 0.9, full 0.5, high 0.35) | how much each layer counts when choosing notes |
 | `drumWeights` | kick 1.0, snare 1.0, hat 0.6 | extra factor for drum hits by kind (humans map kicks and snares more than hats) |
 | `profileOverrides` | — | per-difficulty profile (below), for files edited by hand |
@@ -413,15 +439,16 @@ writes the defaults to edit for the CLI.
 
 | Field | Easy | Normal | Hard | Expert | Expert+ | Meaning |
 |---|---|---|---|---|---|---|
-| NoteJumpSpeed | 10 | 11 | 13 | 16 | 18 | how fast notes approach |
-| JumpDistance (m) | 18 | 20 | 22 | 24 | 26 | converted to a jump offset for the BPM |
-| BaseNps / MaxNps | 1.5/2.4 | 2.1/3.3 | 2.7/4.2 | 3.3/5.4 | 4.2/7.5 | notes per second at mid energy / at most |
-| MinGapSec | 0.45 | 0.3 | 0.22 | 0.16 | 0.12 | minimum time between any two notes |
-| MinSameHandGapSec | 0.45 | 0.36 | 0.36 | 0.25 | 0.21 | minimum time between notes of one hand |
+| NoteJumpSpeed | 12 | 13 | 14 | 16 | 17.5 | how fast notes approach |
+| JumpDistance (m) | 23 | 21 | 20 | 19.5 | 18 | converted to a jump offset for the BPM |
+| BaseNps / MaxNps | 1.5/2.4 | 2.4/3.3 | 3.1/4.2 | 3.7/5.4 | 4.5/7.5 | notes per second at mid energy / at most |
+| MinGapSec | 0.35 | 0.2 | 0.15 | 0.12 | 0.1 | minimum time between any two notes |
+| MinSameHandGapSec | 0.45 | 0.3 | 0.24 | 0.18 | 0.13 | minimum time between notes of one hand |
+| BurstGapSec | 0.3 | 0.18 | 0.14 | 0.12 | 0.1 | quick one-hand flicks (up to 4 in a row, 6 on Expert+) may be this close |
 | Subdivision | 1 | 2 | 2 | 4 | 4 | finest grid: beats, eighths, sixteenths |
 | AllowTriplets | – | – | – | yes | yes | triplets in songs with a triplet feel |
 | DoubleRate | 0.15 | 0.17 | 0.17 | 0.15 | 0.22 | share of moments that become two-hand doubles |
-| DotCost | 0.5 | 0.8 | 1.6 | 2.2 | 2.2 | cost of a dot note (lower = more dots) |
+| DotCost | 1.6 | 1.6 | 1.6 | 2.2 | 2.2 | cost of a dot note (lower = more dots) |
 | BombRate | – | – | 0.04 | 0.06 | 0.08 | chance of an accent bomb on a strong one-hand hit |
 
 ### Flow weights
@@ -436,18 +463,21 @@ in the analyzer.
 | `angle` | 1.2 | turning away from a clean reversal of the last swing |
 | `travel` | 0.9 | saber travel between swings beyond 1.25 cells |
 | `visionBlock` | 2.0 | notes in the middle centre that hide what follows |
-| `crossover` | 3.0 | a hand reaching into the other hand's side |
+| `crossover` | 3.0 | a hand reaching past where the other hand just cut (arms crossing) |
 | `handClash` | 8 | the other hand cut the same cell less than 0.3 s ago (the sabers meet) |
 | `tooFast` | 25 | the same hand faster than the profile's same-hand gap |
+| `burst` | 0 | quick one-hand flicks below the hand gap (0: left to the effort and strain priors) |
 | `horizontal` | 0 | extra cost for horizontal cuts |
 | `styleCell`, `styleDirection` | 0.7, 0.6 | keep the mix of cells and cut directions like curated human maps |
-| `pitch` | 0.5 | note row follows the pitch of the sound |
+| `figure` | 25 | a note (hand + cell + direction) or double shape outside the difficulty's human vocabulary |
+| `move` | 6 | a move from the hand's previous note outside the human move vocabulary |
+| `stackAccent` | 3 | stacks lean towards strong hits (curated stacks sit on the beat 74 % of the time) |
 | `emphasis` | 0.8 | strong accents prefer big vertical swings |
 | `noise` | 0.6 | random variety (what the seed changes) |
 | `repeat` | 0.5 | the exact same note as the hand's last one |
 | `stagnation` | 1.2 | a hand staying on the same cell |
 | `target` | 0.45 | pull towards per-phrase target cells (movement around the grid; repeated sections move alike) |
-| `handRole` | 0.8 | a melody note on the rhythm hand or vice versa (roles swap per section) |
+| `handRole` | 1.5 | a single note on the "wrong" hand: one hand leads the drops, the other the rest, the support hand takes bar downbeats |
 | `dynamics` | 1.0 | swing size follows how hard the moment hits |
 | `movementStyle` | 1.0 | match the human mix of turns and travel between swings |
 | `effort` | 2.0 | match the human mix of strain (effective swings per second per hand) |
@@ -465,14 +495,14 @@ in the analyzer.
 
 The web app shows Standard; the other modes are in the zip and in ArcViewer.
 
-**Lights**, classic (Default environment): each section gets a palette (repeated parts the same),
+**Lights**, classic environments (The First, Origins, … up to Interscope): each section gets a palette (repeated parts the same),
 notes flash the side lasers on their saber's side, kicks pulse the back lasers, snares flash the
 centre, hats flicker the rings in loud parts, rings spin and zoom. With cover colours the lights have
 hues of their own; the boost colours (the note colours) flash up for two bars on drops and at the start
 of the loudest parts. After the last note the lights stay on in the last section's colour and dim with
 the music instead of switching off. Without drum labels (no stems) the back lasers pulse on the downbeats.
 
-**Pyro** (environment setting): PyroEnvironment with a v3 group lightshow: ambient section colour,
+**Group environments** (Weave and later, e.g. Pyro): a v3 group lightshow laid out from how curated maps use each environment's light groups: ambient section colour,
 downbeat chases, note flashes per hand, snares in white, kicks, melody notes, hat flickers, and light
 groups that turn to a new pose at every section. In every group environment, lights that curated maps keep
 on most of the time (runways, floors) glow in the section colour between their flashes instead of going dark. Its file format is checked against a curated Pyro map;
@@ -480,7 +510,7 @@ it has not been verified in the game yet.
 
 **Arcs** connect a held melody note to the same hand's next note when the sound lasts. **Chains** follow
 a note with links along its cut when a roll or stutter follows it. **Angle offsets** tilt cuts 15° (30°
-on Expert+ for leaps) with a rising or falling melody.
+on Expert and Expert+ for leaps) with a rising or falling melody.
 
 ## 8. Reading the reports
 
@@ -488,7 +518,7 @@ on Expert+ for leaps) with a rising or falling melody.
 |---|---|
 | **flow score** | 0–100, 100 = perfectly smooth; curated human maps average about 85, generated ones about 93 |
 | **resets** | swings that need a re-wind (same parity twice without time); generated maps have none |
-| **vision blocks / crossovers / clashes** | hidden notes, hands crossing, sabers meeting: doubles where one saber swings into the other's note or both swings start (or end) in the same spot, and one hand cutting the cell the other cut less than 0.2 s before |
+| **vision blocks / crossovers / clashes** | hidden notes, hands crossing, sabers meeting: doubles where one saber swings into the other's note or both swings start (or end) in the same spot, and one hand cutting the cell the other cut less than 0.3 s before |
 | **strain** | 90th percentile of effective swings per second per hand (turns and travel make a swing count more); *spikes* = moves above the difficulty's human ceiling |
 | **plays like** | the difficulty the hand movement corresponds to, from curated maps (1 Easy … 9 Expert+) |
 | **turn / travel** | mean turn away from a clean back-and-forth, mean saber-tip travel between swings (cells) |
@@ -521,7 +551,7 @@ Options of `generate` (most also apply to `analyze`):
 | `-o, --out <dir>` | output folder |
 | `-d, --difficulties <list>` | `easy,normal,hard,expert,expertplus` or `all` |
 | `--modes <list>` | `onesaber,90,360` |
-| `--environment default\|pyro` | lighting environment |
+| `--environment auto\|<name>` | environment: auto (default, suits the song) or e.g. `weave`, `pyro`, `billie` |
 | `--density <x>`, `--seed <n>`, `--beam <n>` | as in the settings |
 | `--settings <file.json>` | generator settings file |
 | `--work <dir>` | analysis folder (default `work/<name>`) |
@@ -532,6 +562,7 @@ Options of `generate` (most also apply to `analyze`):
 | `--pitched flux\|notes` | other/bass onsets |
 | `--tempo auto\|constant\|variable`, `--bpm <x>` | tempo handling |
 | `--reanalyze` | ignore the cached analysis |
+| `--taps <taps.json>`, `--tap-priority <x>` | tap-along runs to align and give notes; their priority |
 | `--no-lights`, `--no-walls`, `--no-zip` | leave those out |
 
 The worker can also be run directly: `analysis/.venv/bin/abeat-analyze analyze <audio> -o <dir> [--stems demucs|roformer] [--vocals …] [--pitched …] [--tempo …]`.
@@ -559,7 +590,9 @@ with BSManager or ModAssistant-compatible tools.
 
 `analysis.json`: times in seconds of `song.egg`, whose beat 0 is at 0 s. Tempo (BPM, tempo changes,
 beats, downbeats), energy curve, sections (start, end, label, energy), onset layers (time, strength,
-brightness, drum kind `k`, note end `e`), lyrics with word times, preview start.
+brightness, drum kind `k`, note end `e`, melody stem `src`), the lead melody's stretches (`melody.segments`),
+lyrics with word times, preview start. Taps are not in it: the app aligns `taps.json` onto it when it loads
+the song (the *taps* layer).
 
 ## 11. Troubleshooting
 

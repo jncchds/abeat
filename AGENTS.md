@@ -138,6 +138,24 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    keeps the slot position for structure (`BeatInSection`, phrase steps, section repeats, drops). The
    min gap is checked in seconds on those times; an onset off its slot by more than ~0.3 of a grid step
    still contributes nothing, which keeps lower difficulties to their subdivision.
+   Taps (`TapAligner`, Core/Analysis): the song's tap-along runs (`taps.json`) are aligned when the web store
+   loads the analysis (CLI: `--taps`) and become layer `taps` plus `SongAnalysis.Taps` (latency per run,
+   snapped share, doubles); not part of analysis.json. Per run: moved onto the current song.egg padding, then
+   the latency in -60..+160 ms that puts the most taps within 20 ms of a strong onset (top half by strength per
+   layer; 5 ms steps, 3-step smoothing; unshifted when the peak lift is < 1.15 or the run has < 16 taps). The
+   hit rate repeats every sixteenth (Heavy Weight's peaks at -120 / +55 / +220 ms), so only latencies a tapper
+   can have are searched; one shift per run (the lag drifts ±10 ms per 30 s). Found: Heavy Weight +60 ms (the
+   official map says ~40-55), Bangaranga +15 / -5, Everlasting 0 / +30, Lighter +70. Each tap snaps to the
+   nearest strong onset within 35 ms (any onset within 20 ms), else keeps its time (80-88 % snap); the runs
+   merge, taps of both within 50 ms are one double. The runs are only moments, not hands.
+   In `RhythmSelector` the taps layer is no sound of the song: `AddTaps` marks each tap's slot with
+   `TapPriority` (default 1) x (1 - 1.6 x grid error), sets the note time to the tap and gives sound-less tap
+   slots the median slot score. Bars rank candidates by score + tap x max score (at 1 every tap goes before
+   any untapped sound), a bar with more tapped slots than its target gets that many notes up to MaxNps,
+   drop pauses keep tapped notes, and both-run taps become doubles where both hands have their recovery
+   time. Without taps nothing changes, whatever the priority. Four tapped songs, taps with a note at
+   priority 0 -> 1: Expert+ 42-64 % -> 94-99 %, Expert 37-60 % -> 94-95 %, Easy 15-30 % -> 43-51 % (coarse
+   grid, min gaps); notes +2-30 % (Bangaranga's taps are denser than its Expert target), clashes 0.
    The `melody` layer (weight 0.8) marks its slots' events `Melody`: they take the melody note's pitch as
    brightness and its end as `NoteEnd`, and pitch slopes run along that one line (`RhythmEvent.Line`);
    without a melody layer (or at weight 0) the pitched layers (`vocals/other/mid`) count as melody as
@@ -452,6 +470,11 @@ move, `--write-prior` rewrites the prior.
   (`Generations`: `generation.json` with app version, draft flag and the BPM/padding it was written
   on, its `settings.json`, `map/` + `map.zip`). File based; survives restarts via the Docker volume.
   A pre-history `map/` folder is moved into `generations/` on first access.
+- Small read-only endpoints: `GET /healthz` ("ok", container health check), `GET /api/defaults` (default
+  `GeneratorSettings`, built-in difficulty profiles, the environment list), `GET /api/songs/{id}/environments?seed=`
+  (song character and the 8 best-suited environments, `auto` = what Auto picks), `GET /api/songs/{id}/colors`
+  (cover colour scheme, null for a near-grey cover, and the game's defaults), `GET /api/songs/{id}/analysis.json`
+  (the worker's file as a download, without the taps layer that `/analysis` adds).
 - `ABEAT_MARK_AI=true`: `Generations.Save` appends " (AI)" to the level author (map files have no AI flag).
 - `AnalysisQueue`: one analysis at a time; with `ABEAT_AUTO_GENERATE=true` (default off) it then generates
   with the song's saved settings (also for `/admin/import`), otherwise maps are made from the song page. Every analysis writes `work.next/` (seeded with the cached
@@ -496,7 +519,9 @@ move, `--write-prior` rewrites the prior.
   Nothing under `src/local/` (or files it relies on that a local tool installs) belongs in the repo.
 - Lyrics: `GET|PUT /api/songs/{id}/lyrics` (`lyrics.txt`), passed to the worker on re-analysis.
 - Tap along: `GET|PUT /api/songs/{id}/taps` (`taps.json`: run 0 right hand, run 1 left, song.egg seconds);
-  the UI scores them in `utils/taps.ts` (per-hand median offset removed, ±70 ms matching).
+  the UI scores them in `utils/taps.ts` (per-hand median offset removed, ±70 ms matching). `SongStore.Analysis`
+  applies `TapAligner` (layer `taps`, `analysis.taps`), PUT invalidates the cached analysis and the UI reloads it;
+  the settings' `tapPriority` slider sets how strongly taps claim notes.
 - Reference maps: `POST /api/admin/import {path}` (loopback only) imports an analysis work dir or a
   human map folder with its `abeat-work` analysis; the human map is kept in `reference/` and served as
   version `human`. From the UI: `POST /api/songs` with a `.zip` and `POST /api/songs/url` with a BeatSaver
