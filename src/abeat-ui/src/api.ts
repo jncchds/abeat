@@ -223,6 +223,11 @@ export interface VocabularyDifficulty {
   stackUse: number[][]
   doubleShapes: [number, number][]
   doubleUse: number[]
+  /** Per streak length ("3", "4", "6"...), per hand: runs of one hand's figures joined by "." (first note first). */
+  streaks?: Record<string, string[][]>
+  /** Maps the streaks were learned from: the curated maps plus official ones. */
+  streakMaps?: number
+  streakUse?: Record<string, number[][]>
 }
 export const getVocabulary = () => http.get<{ difficulties: Record<string, VocabularyDifficulty> }>('/vocabulary')
 export const getSongs = () => http.get<SongMeta[]>('/songs')

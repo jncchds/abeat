@@ -3,6 +3,8 @@
 ## v0.3.1 — 2026-10-21
 
 - **Fit to taps**: a new button in the Speed and density settings sets the limits so Expert+ has room for every tap you recorded: max notes/s for the busiest tapped bar, the min gap for the two closest taps, the hand gap for every other tap (the burst gap follows). Easy to Expert move by the same ratios to their built-in values, so they stay as far below Expert+ as before. Only loosens, only when pressed, and does nothing without taps; each difficulty's "reset" undoes it. On a test song with a bar of sixteenth taps, Expert+ went from missing some taps to a note on all of them.
+- **Streaks**: the vocabulary now knows runs of 4, 6, 8, 12 and 16 notes of one hand (and 3), not just pairs. Each hand continues known streaks about as often as human maps do (Expert+ 26 % of notes, Normal 58 %), and overlapping ones chain into long runs made entirely of human pieces: on a test song, notes inside 8+ note runs went from 0 % to 37 % on Normal, with no loss of flow. A plain bonus overshot (three quarters of all notes on Easy-Hard, humans a fifth), so it is matched instead. Exact runs past 8 notes rarely repeat between maps, so 12- and 16-note streaks are few. The Vocabulary page has a **Streaks** tab per length; `abeat bench` shows the streak share ("strk4") and the share in long runs ("long") next to the human map's.
+- The vocabulary also learns from 85 official maps (OST 4-8, Coldplay, Imagine Dragons, Billie Eilish, Lady Gaga, Electronic Mixtape, Shock Drops, The Weeknd), whose difficulty levels are strict, and from the curated maps saved in the new format, which were skipped before. Easier levels keep lower: Easy uses 23 figures with 2 on the top row (was 30 and 7).
 
 ## v0.3.0 — 2026-10-21
 

@@ -124,7 +124,10 @@ last swing direction, parity). Each candidate cut is scored for:
   arms crossing, vision blocks, over-extension
 - *figures and moves*: only figures (hand + cell + cut direction), moves (a hand's figure to its next
   one), stacks (one swing through 2-3 lined-up notes) and double shapes that curated mappers commonly
-  use on that difficulty. A hand crosses to the other side of the grid only where a known move takes it;
+  use on that difficulty, plus streaks: runs of 3-16 notes of one hand that recur in human maps. Each hand
+  continues known streaks about as often as human maps do, so overlapping ones chain into long human-made
+  runs. Learned from 89 curated BeatSaver maps and 85 official maps (OST 4-8 and music packs).
+  A hand crosses to the other side of the grid only where a known move takes it;
   the **Vocabulary** page shows every one of them drawn on the grid; note height never follows the audio, so easier levels keep notes lower
   like human maps do (top row: ~18 % of notes on Easy, ~26 % on Expert+)
 - *musical fit*: accents prefer big vertical swings; hand roles as players tap along: one hand leads the

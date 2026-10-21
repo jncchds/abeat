@@ -344,7 +344,7 @@ static async Task<int> Bench(Options o)
     if (rows.Count == 0) return 1;
 
     Console.WriteLine();
-    Console.WriteLine($"{"difficulty",-11} {"n",3} {"F1",5} {"P",5} {"R",5} {"offset",7} {"nps gen/hum",12} {"flow gen/hum",13} {"resets g/h",11} {"dirΔ",5} {"posΔ",5} {"strain g/h",11} {"travel g/h",11} {"angle g/h",10} {"sharp g/h",10} {"above g/h",10} {"repeat g/h",10}");
+    Console.WriteLine($"{"difficulty",-11} {"n",3} {"F1",5} {"P",5} {"R",5} {"offset",7} {"nps gen/hum",12} {"flow gen/hum",13} {"resets g/h",11} {"dirΔ",5} {"posΔ",5} {"strain g/h",11} {"travel g/h",11} {"angle g/h",10} {"sharp g/h",10} {"above g/h",10} {"repeat g/h",10} {"strk4 g/h",10} {"long g/h",10}");
     foreach (var g in rows.GroupBy(r => r.c.Difficulty).OrderBy(g => g.Key).Append(rows.GroupBy(_ => (DifficultyName)99).First()))
     {
         var c = g.Select(r => r.c).ToList();
@@ -358,7 +358,9 @@ static async Task<int> Bench(Options o)
             $"{c.Average(x => x.GeneratedMovement.AngleMean),4:0}/{c.Average(x => x.HumanMovement.AngleMean),-5:0} " +
             $"{c.Average(x => x.GeneratedMovement.SharpTurns),4:P0}/{c.Average(x => x.HumanMovement.SharpTurns),-5:P0} " +
             $"{c.Average(x => x.GeneratedMovement.AboveLevel),4:P0}/{c.Average(x => x.HumanMovement.AboveLevel),-5:P0} " +
-            $"{c.Average(x => x.GeneratedRepetition?.Same ?? 0),4:P0}/{c.Average(x => x.HumanRepetition?.Same ?? 0),-5:P0}");
+            $"{c.Average(x => x.GeneratedRepetition?.Same ?? 0),4:P0}/{c.Average(x => x.HumanRepetition?.Same ?? 0),-5:P0} " +
+            $"{c.Average(x => x.GeneratedStreaks?.Known4 ?? 0),4:P0}/{c.Average(x => x.HumanStreaks?.Known4 ?? 0),-5:P0} " +
+            $"{c.Average(x => x.GeneratedStreaks?.Long ?? 0),4:P0}/{c.Average(x => x.HumanStreaks?.Long ?? 0),-5:P0}");
     }
     var csv = o.Get("csv") ?? Path.Combine(dir, "bench.csv");
     File.WriteAllLines(csv, rows.Select(r => string.Join(',', r.map, r.c.Difficulty, r.humanBpm, r.c.F1.ToString("0.000"), r.c.Precision.ToString("0.000"),

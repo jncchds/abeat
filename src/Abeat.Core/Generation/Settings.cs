@@ -102,6 +102,13 @@ public sealed record FlowWeights
     /// <summary>A move (the hand's previous figure -> this one) outside the difficulty's human move
     /// vocabulary (<see cref="StylePrior"/>), which covers 79-92 % of curated moves.</summary>
     public double Move { get; init; } = 6;
+    /// <summary>Streaks of the difficulty's vocabulary (<see cref="StylePrior.Streaks"/>: runs of 3-16 consecutive
+    /// figures of one hand used in at least two curated maps): the share of notes completing a known 4-note
+    /// streak is matched to curated maps (<see cref="StylePrior.StreakShare"/>, 14-49 %), and a cut completing a
+    /// 6+ note streak gets x 0.5 (log2 length - 2) on top (6 notes 0.29, 8 notes 0.5, 16 notes 1). Overlapping
+    /// known streaks chain into long runs built from human pieces. A flat bonus instead overshot human maps
+    /// 2-4x on Easy-Hard.</summary>
+    public double Streak { get; init; } = 1.0;
     /// <summary>Stacks (one swing through 2-3 lined-up notes, from the stack vocabulary) lean towards strong
     /// hits: curated stacks sit on the beat 74 % of the time (single notes 45 %).</summary>
     public double StackAccent { get; init; } = 3;

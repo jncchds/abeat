@@ -184,14 +184,32 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    - figure vocabulary (`FlowWeights.Figure`, 25): a figure (hand, cell, direction; One Saber: either
      hand's) or double shape (left figure, right figure) outside the difficulty's vocabulary in
      `style-prior.json` pays this, so it only appears when nothing else fits (0 % on generated maps).
-     Vocabulary = used >= 2 times by >= 10 % of the difficulty's curated maps (doubles: 5 %), hands
-     pooled with their mirror image. Curated playlist 1116456 + map 37114 (89 maps): Easy 30 figures
-     per hand (7 top-row), Normal 39 (7), Hard 48 (11), Expert 70 (20), Expert+ 96 (30), covering
-     97-99.7 % of human notes; top-row share 18 / 21 / 24 / 26 / 26 %
+     Vocabulary = used >= 2 times by >= 10 % of the difficulty's maps (doubles: 5 %), hands
+     pooled with their mirror image. Corpus (`scripts/style_prior.py`, v2/v3 and v4 maps): curated playlist
+     1116456 + map 37114 (89 BeatSaver maps, their v4 ones included since v0.3.1) + 85 official maps imported
+     into the app (`--app-data`/`--folders`: OST Vol. 4-8, Coldplay, Imagine Dragons, Billie Eilish, Lady Gaga,
+     Electronic Mixtape, Shock Drops, The Weeknd), whose difficulty labels are strict where BeatSaver's are not
+     (`--streaks-only` would limit them to streaks). Maps per difficulty 115 / 124 / 135 / 148 / 170: Easy 23
+     figures per hand (2 top-row), Normal 34 (5), Hard 44 (7), Expert 58 (13), Expert+ 93 (29), covering
+     95.6-99.5 % of human notes (official easy levels stay low: before them Easy had 30 figures, 7 top-row)
    - move vocabulary (`FlowWeights.Move`, 6): a hand's previous figure -> this figure outside the
-     difficulty's moves (used >= 2 times by >= 5 % of maps, mirror-pooled: 143 / 244 / 271 / 549 / 927 per
-     hand, covering 90 / 92 / 89 / 88 / 79 % of curated moves) pays this. Crossings come only from these
+     difficulty's moves (used >= 2 times by >= 5 % of maps, mirror-pooled: 145 / 195 / 289 / 429 / 711 per
+     hand, covering 89 / 90 / 91 / 89 / 81 % of human moves) pays this. Crossings come only from these
      moves (curated: 8 / 17 / 23 / 28 / 35 % of notes on the other hand's half; generated ~15-25 %)
+   - streak vocabulary (`FlowWeights.Streak`, 1): runs of 3 / 4 / 6 / 8 / 12 / 16 consecutive figures of one
+     hand (a stack counts by its first note, a pause over 1.5 s ends a run), mirror-pooled, used >= 2 times in
+     >= 2 maps (an absolute count: exact runs past 6-8 notes rarely recur between maps). 4-note streaks per
+     hand 392 / 1056 / 2146 / 3188 / 3474, 8-note 53 / 115 / 206 / 203 / 65, 16-note 0-2. `StylePrior` keeps them
+     as order-dependent hashes per hand and length; every streak's tails are streaks too, so lookups stop at
+     the first unknown length. Beam nodes carry each hand's last 15 figures since its pause (`HistL`/`HistR`)
+     and how many cuts completed a known 4-note streak. Cost: Streak x MatchCost(share of cuts completing a
+     known 4-note streak vs `streakShare`, the human share counted leave-one-out: 47 / 58 / 57 / 49 / 26 %),
+     minus Streak x 0.5 (log2 L - 2) for a cut completing a known L >= 6 streak. Overlapping 4-note streaks
+     chain into long runs made of human pieces. A flat bonus (Streak x (log2 L - 1)) overshot human maps:
+     bench refs, 4-note streak share Easy 76 % vs 17 %, Hard 74 % vs 27 %; matched on the synthetic song Normal
+     15 -> 42 % (target 49 %), notes in 8+ runs 0 -> 37 %. `StreakAnalyzer` (bench "strk4 g/h", "long g/h";
+     `Comparison.GeneratedStreaks`) measures the known 4-streak share and the share of notes in 8+ note runs
+     built from known 4-streaks
    - stacks: a cut may be a stack, one swing through 2-3 notes lined up along its direction (head
      first, the hand leaves from the last), when (hand, head figure, length) is in the stack vocabulary
      (>= 10 % of maps; 0 / 6 / 7 / 17 / 32 shapes). Cost 1.5 x MatchCost(stacked share of notes vs
@@ -544,7 +562,8 @@ move, `--write-prior` rewrites the prior.
   sidebar lists the 10 songs with the most recent generated version (`lastGeneratedUtc` on `GET
   /api/songs`, computed from the newest saved version, else the add time); the **Songs** page (`/songs`)
   lists and filters all of them; the **Vocabulary** page (`/vocabulary`, `GET /api/vocabulary` = the
-  embedded style-prior.json) draws every move, stack, double shape and figure per difficulty on a 4x3
-  grid, sorted by how many curated maps use it (`figureUse`, `moveUse`, `stackUse`, `doubleUse`)
+  embedded style-prior.json) draws every streak (per length: notes numbered, earlier ones faded), move,
+  stack, double shape and figure per difficulty on a 4x3 grid, sorted by how many maps use it (`streakUse`,
+  `figureUse`, `moveUse`, `stackUse`, `doubleUse`)
   (blue saber = accent, red saber = secondary). Canvases redraw per animation frame from the
   `<audio>` element's current time.

@@ -24,6 +24,14 @@ public sealed class StylePrior
     public double Stacked { get; init; }
     /// <summary>Moves in the vocabulary, per hand, indexed from figure * 108 + to figure; null when the prior has none.</summary>
     public bool[][]? Moves { get; init; }
+    /// <summary>Streaks in the vocabulary: runs of one hand's consecutive figures (first note first), per
+    /// hand, per length in <see cref="StreakLengths"/>, as <see cref="StreakHash"/> values. Null when the prior has none.
+    /// Every streak's shorter tails are streaks too (a run used twice in two maps has tails used as often),
+    /// so a lookup can stop at the first length that is not known.</summary>
+    public Dictionary<int, HashSet<ulong>>[]? Streaks { get; init; }
+    /// <summary>Share of a curated map's notes (with three earlier notes since the hand's last pause) that complete
+    /// a 4-note streak other curated maps use: the share the planner matches.</summary>
+    public double StreakShare { get; init; }
     public double Nps { get; init; }
     public double Doubles { get; init; }
     public double Dots { get; init; }
@@ -52,6 +60,23 @@ public sealed class StylePrior
 
     public bool HasDouble(int lx, int ly, CutDirection ld, int rx, int ry, CutDirection rd) =>
         DoubleShapes.Contains((Figure(lx, ly, ld), Figure(rx, ry, rd)));
+
+    /// <summary>Streak lengths the prior learns (see scripts/style_prior.py).</summary>
+    public static readonly int[] StreakLengths = [3, 4, 6, 8, 12, 16];
+    /// <summary>Longest learned streak, and how many earlier figures a hand needs to remember for it.</summary>
+    public static int MaxStreak => StreakLengths[^1];
+
+    public const ulong StreakSeed = 0xcbf29ce484222325UL;
+    /// <summary>Order-dependent hash of a run of figures, built first note first: fold <see cref="StreakStep"/> from <see cref="StreakSeed"/>.</summary>
+    public static ulong StreakStep(ulong h, int figure)
+    {
+        h = (h ^ (ulong)(figure + 1)) * 0x100000001B3UL;
+        return h ^ (h >> 29);
+    }
+    public static ulong StreakHash(IEnumerable<int> figures) => figures.Aggregate(StreakSeed, StreakStep);
+
+    public bool HasStreak(Hand h, int length, ulong hash) =>
+        Streaks is not null && Streaks[(int)h].TryGetValue(length, out var set) && set.Contains(hash);
 
     /// <summary>0 for the most common direction, growing with rarity.</summary>
     public double DirectionCost(CutDirection d) => (dirCost ??= ToCost(Directions))[(int)d];
@@ -102,6 +127,10 @@ public sealed class StylePrior
                     foreach (var m in h.EnumerateArray()) allowed[m.GetInt32()] = true;
                     return allowed;
                 }).ToArray() : null,
+                Streaks = v.TryGetProperty("streaks", out var streaks) ? new[] { 0, 1 }.Select(h =>
+                    streaks.EnumerateObject().ToDictionary(l => int.Parse(l.Name), l => l.Value[h].EnumerateArray()
+                        .Select(x => StreakHash(x.GetString()!.Split('.').Select(int.Parse))).ToHashSet())).ToArray() : null,
+                StreakShare = v.TryGetProperty("streakShare", out var share) ? share.GetDouble() : 0,
                 Nps = v.GetProperty("nps").GetDouble(),
                 Doubles = v.GetProperty("doubles").GetDouble(),
                 Dots = v.GetProperty("dots").GetDouble(),

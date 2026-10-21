@@ -10,6 +10,29 @@ namespace Abeat.Core.Tests;
 public class PlanningTests
 {
     [Theory]
+    [InlineData(DifficultyName.Normal)]
+    [InlineData(DifficultyName.Expert)]
+    public void StreaksComeFromTheVocabulary(DifficultyName d)
+    {
+        var a = TestSongs.Fake();
+        StreakReport Streaks(double w)
+        {
+            var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Weights = new FlowWeights { Streak = w } }, d);
+            Assert.Equal(0, r.Report.Resets + r.Report.WallClashes + r.Report.BombHits);
+            return StreakAnalyzer.Analyze(r.Map, a.TempoMap)!;
+        }
+        var prior = StylePrior.For(d)!;
+        Assert.Contains(8, prior.Streaks![1].Keys);
+        Assert.True(prior.Streaks[1][4].Count > 100);
+        StreakReport off = Streaks(0), on = Streaks(1);
+        // matched to curated maps, not maximised: closer to their share than without streaks, never far above it
+        double target = prior.StreakShare;
+        Assert.True(Math.Abs(on.Known4 - target) < Math.Abs(off.Known4 - target), $"known 4-streaks {off.Known4:P0} -> {on.Known4:P0}, curated {target:P0}");
+        Assert.InRange(on.Known4, target - 0.15, target + 0.1);
+        Assert.True(on.Long > off.Long, $"notes in 8+ runs {off.Long:P0} -> {on.Long:P0}");
+    }
+
+    [Theory]
     [InlineData(DifficultyName.Easy)]
     [InlineData(DifficultyName.Hard)]
     [InlineData(DifficultyName.ExpertPlus)]
@@ -82,7 +105,9 @@ public class PlanningTests
             // the fake song's even eighths (0.23 s) fit one hand at Expert's gap, which leaves the hand choice
             // so free that the second A rarely lines up with the first; real songs echo at either gap
             var s = new GeneratorSettings { ProfileOverrides = { [DifficultyName.Expert] = new ProfileOverride { MinSameHandGapSec = 0.25 } } };
-            var r = MapGenerator.GenerateDifficulty(a, s with { Weights = s.Weights with { Repetition = w } }, DifficultyName.Expert);
+            // streaks off: on this flat song the streak share pulls the second A its own way (on real songs the
+            // bench's repeat share stayed at 17-18 % on Expert/Expert+ with streaks on)
+            var r = MapGenerator.GenerateDifficulty(a, s with { Weights = s.Weights with { Repetition = w, Streak = 0 } }, DifficultyName.Expert);
             Assert.Equal(0, r.Report.Resets);
             return RepetitionAnalyzer.Analyze(r.Map, a).Same;
         }

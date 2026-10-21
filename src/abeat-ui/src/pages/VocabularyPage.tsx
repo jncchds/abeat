@@ -4,8 +4,9 @@ import { BLUE, RED } from '../utils/draw'
 
 const DIFFS = ['Easy', 'Normal', 'Hard', 'Expert', 'ExpertPlus']
 const DIFF_LABEL: Record<string, string> = { ExpertPlus: 'Expert+' }
-type Kind = 'moves' | 'stacks' | 'doubles' | 'figures'
+type Kind = 'streaks' | 'moves' | 'stacks' | 'doubles' | 'figures'
 const KINDS: { id: Kind; label: string; hint: string }[] = [
+  { id: 'streaks', label: 'Streaks', hint: "Runs of one hand's notes in a row (1 = first, faded = earlier), used twice in at least two maps (curated and official OST 4-8 and music packs); a pause over 1.5 s ends a run. The planner rewards a hand for continuing the longest known streak, so overlapping streaks chain into long human-made runs." },
   { id: 'moves', label: 'Moves', hint: "One hand's note and its next note (faded = from, solid = to). The planner pays for a move outside this list, so crossings happen only where a known move leads." },
   { id: 'stacks', label: 'Stacks', hint: 'One swing through notes lined up along the cut; the swing meets the faded-edged head first and leaves from the last note.' },
   { id: 'doubles', label: 'Doubles', hint: 'Both hands at once.' },
@@ -22,10 +23,19 @@ const figText = (f: Fig) => `${DIR_NAME[f.d]} ${f.x},${f.y}`
 const crosses = (hand: number, f: Fig) => hand === 0 ? f.x >= 2 : f.x <= 1
 const step = (d: number) => [Math.sign(Math.round(DIR_VEC[d][0] * 1000)), Math.sign(Math.round(DIR_VEC[d][1] * 1000))]
 
-interface Entry { key: string; use: number; label: string; crossing: boolean; notes: { f: Fig; c: number; faded?: boolean }[]; arrow?: [Fig, Fig]; path?: Fig[] }
+interface Entry { key: string; use: number; label: string; crossing: boolean; notes: { f: Fig; c: number; faded?: boolean; opacity?: number }[]; arrow?: [Fig, Fig]; path?: Fig[]; seq?: Fig[] }
 
-function entries(v: VocabularyDifficulty, kind: Kind, hand: number): Entry[] {
+function entries(v: VocabularyDifficulty, kind: Kind, hand: number, len: string): Entry[] {
   switch (kind) {
+    case 'streaks': {
+      const list = v.streaks?.[len]?.[hand] ?? [], use = v.streakUse?.[len]?.[hand] ?? []
+      return list.map((k, i) => {
+        const seq = k.split('.').map(Number).map(fig)
+        // later notes on top, earlier ones faded
+        return { key: k, use: use[i] ?? 0, label: seq.map(f => DIR_NAME[f.d]).join(''), crossing: seq.some(f => crosses(hand, f)),
+          notes: seq.map((f, j) => ({ f, c: hand, opacity: 0.3 + 0.7 * (j + 1) / seq.length })), seq }
+      })
+    }
     case 'moves':
       return v.moves[hand].map((m, i) => {
         const a = fig(Math.floor(m / 108)), b = fig(m % 108)
@@ -57,10 +67,10 @@ const CELL = 26, PAD = 4, W = 4 * CELL + 2 * PAD, H = 3 * CELL + 2 * PAD
 const cx = (x: number) => PAD + x * CELL + CELL / 2
 const cy = (y: number) => PAD + (2 - y) * CELL + CELL / 2
 
-function Note({ f, c, faded }: { f: Fig; c: number; faded?: boolean }) {
+function Note({ f, c, faded, opacity }: { f: Fig; c: number; faded?: boolean; opacity?: number }) {
   const s = CELL * 0.74, r = s / 2, [dx, dy] = DIR_VEC[f.d], x = cx(f.x), y = cy(f.y)
   return (
-    <g opacity={faded ? 0.45 : 1}>
+    <g opacity={opacity ?? (faded ? 0.45 : 1)}>
       <rect x={x - r} y={y - r} width={s} height={s} rx={3} fill={c === 0 ? RED : BLUE} />
       {f.d === 8
         ? <circle cx={x} cy={y} r={r * 0.3} fill="#fff" />
@@ -86,6 +96,7 @@ function Diagram({ e }: { e: Entry }) {
       {[1, 2, 3].map(i => <line key={`v${i}`} x1={PAD + i * CELL} x2={PAD + i * CELL} y1={PAD} y2={PAD + 3 * CELL} stroke="var(--border)" strokeWidth={i === 2 ? 1.5 : 0.5} />)}
       {[1, 2].map(i => <line key={`h${i}`} y1={PAD + i * CELL} y2={PAD + i * CELL} x1={PAD} x2={PAD + 4 * CELL} stroke="var(--border)" strokeWidth={0.5} />)}
       {e.path && <polyline points={e.path.map(f => `${cx(f.x)},${cy(f.y)}`).join(' ')} fill="none" stroke="var(--text-muted)" strokeWidth={CELL * 0.85} strokeLinecap="round" opacity={0.25} />}
+      {e.seq && <polyline points={e.seq.map(f => `${cx(f.x)},${cy(f.y)}`).join(' ')} fill="none" stroke="var(--text-muted)" strokeWidth={1.2} strokeLinejoin="round" opacity={0.6} />}
       {e.notes.map((n, i) => <Note key={i} {...n} />)}
       {e.arrow && !same && (() => {
         const [a, b] = e.arrow, x1 = cx(a.x), y1 = cy(a.y), x2 = cx(b.x), y2 = cy(b.y)
@@ -93,6 +104,15 @@ function Diagram({ e }: { e: Entry }) {
         // bow the arrow so it doesn't hide behind notes it passes over
         const mx = (x1 + x2) / 2 - uy * CELL * 0.35, my = (y1 + y2) / 2 + ux * CELL * 0.35
         return <path d={`M${x1 + ux * cut},${y1 + uy * cut} Q${mx},${my} ${x2 - ux * cut},${y2 - uy * cut}`} fill="none" stroke="var(--text)" strokeWidth={1.6} markerEnd="url(#vocab-arrow)" />
+      })()}
+      {e.seq && (() => {
+        // order numbers per cell, in a corner so the arrows stay readable
+        const byCell = new Map<string, number[]>()
+        e.seq.forEach((f, j) => { const k = `${f.x},${f.y}`; byCell.set(k, [...(byCell.get(k) ?? []), j + 1]) })
+        return [...byCell].map(([k, nums]) => {
+          const [x, y] = k.split(',').map(Number)
+          return <text key={k} x={cx(x) + CELL * 0.48} y={cy(y) + CELL * 0.48} textAnchor="end" fontSize={7} fill="var(--text)">{nums.join(',')}</text>
+        })
       })()}
       {same && <circle cx={cx(e.arrow![1].x)} cy={cy(e.arrow![1].y)} r={CELL * 0.48} fill="none" stroke="var(--text)" strokeWidth={1.2} strokeDasharray="2 2" />}
     </svg>
@@ -108,17 +128,18 @@ export default function VocabularyPage() {
   const [diff, setDiff] = useState(() => stored('vocabDiff') ?? 'ExpertPlus')
   const [kind, setKind] = useState<Kind>(() => (stored('vocabKind') as Kind | null) ?? 'moves')
   const [hand, setHand] = useState(1)
+  const [streakLen, setStreakLen] = useState('4')
   const [crossingOnly, setCrossingOnly] = useState(false)
   // "show more" applies to the list it was pressed on
   const [more, setMore] = useState({ key: '', limit: PAGE })
-  const listKey = `${diff}|${kind}|${hand}|${crossingOnly}`
+  const listKey = `${diff}|${kind}|${hand}|${crossingOnly}|${streakLen}`
   const limit = more.key === listKey ? more.limit : PAGE
 
   useEffect(() => { getVocabulary().then(r => setData(r.data.difficulties)).catch(e => setError(errorText(e))) }, [])
   useEffect(() => { try { localStorage.setItem('vocabDiff', diff); localStorage.setItem('vocabKind', kind) } catch { /* private mode */ } }, [diff, kind])
 
   const v = data?.[diff]
-  const all = useMemo(() => v ? entries(v, kind, hand).sort((a, b) => b.use - a.use || a.key.localeCompare(b.key)) : [], [v, kind, hand])
+  const all = useMemo(() => v ? entries(v, kind, hand, streakLen).sort((a, b) => b.use - a.use || a.key.localeCompare(b.key)) : [], [v, kind, hand, streakLen])
   const shown = crossingOnly ? all.filter(e => e.crossing) : all
   const crossingCount = all.filter(e => e.crossing).length
 
@@ -126,7 +147,9 @@ export default function VocabularyPage() {
     <div className="page">
       <div className="page-header">
         <h2>Vocabulary</h2>
-        {v && <span className="muted">learned from {v.maps} curated maps</span>}
+        {v && <span className="muted">{kind === 'streaks' && v.streakMaps
+          ? `learned from ${v.streakMaps} maps (${v.maps} curated, ${v.streakMaps - v.maps} official)`
+          : `learned from ${v.maps} curated maps`}</span>}
       </div>
       {error && <p className="error-text">{error}</p>}
       <div className="vocab-controls">
@@ -136,6 +159,15 @@ export default function VocabularyPage() {
         <div className="diff-tabs">
           {DIFFS.filter(d => data?.[d]).map(d => <button key={d} className={d === diff ? 'active' : ''} onClick={() => setDiff(d)}>{DIFF_LABEL[d] ?? d}</button>)}
         </div>
+        {kind === 'streaks' && v?.streaks && (
+          <div className="diff-tabs">
+            {Object.keys(v.streaks).map(l => (
+              <button key={l} className={l === streakLen ? 'active' : ''} onClick={() => setStreakLen(l)} title={`${v.streaks![l][hand].length} streaks of ${l} notes`}>
+                {l} notes
+              </button>
+            ))}
+          </div>
+        )}
         {kind !== 'doubles' && (
           <div className="diff-tabs">
             <button className={hand === 0 ? 'active' : ''} onClick={() => setHand(0)}>Left</button>
@@ -151,13 +183,13 @@ export default function VocabularyPage() {
         {KINDS.find(k => k.id === kind)!.hint} Sorted by how many curated maps use each (at least twice).
         {kind !== 'doubles' && ' Hands are pooled with their mirror image, so Left is Right mirrored.'}
       </p>
-      {v && <p className="muted">{shown.length} {kind}{v.stacked && kind === 'stacks' ? ` · ${(v.stacked * 100).toFixed(1)} % of notes sit in stacks` : ''}</p>}
+      {v && <p className="muted">{shown.length} {kind}{kind === 'streaks' ? ` of ${streakLen} notes` : ''}{v.stacked && kind === 'stacks' ? ` · ${(v.stacked * 100).toFixed(1)} % of notes sit in stacks` : ''}</p>}
       <div className="vocab-grid">
         {shown.slice(0, limit).map(e => (
           <div key={e.key} className={`vocab-card${e.crossing ? ' crossing' : ''}`} title={e.label}>
             <Diagram e={e} />
             <span className="vocab-label">{e.label}</span>
-            <span className="muted vocab-use">{e.use} / {v!.maps} maps{e.crossing ? ' · crosses' : ''}</span>
+            <span className="muted vocab-use">{e.use} / {kind === 'streaks' ? v!.streakMaps ?? v!.maps : v!.maps} maps{e.crossing ? ' · crosses' : ''}</span>
           </div>
         ))}
       </div>

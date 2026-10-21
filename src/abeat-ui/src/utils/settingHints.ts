@@ -40,6 +40,7 @@ export const FLOW_HINTS: Record<string, string> = {
   styleDirection: 'Cut directions human maps rarely use at this cell.',
   figure: 'A note (hand + cell + direction) or double shape that human maps of this difficulty never use.',
   move: 'A move from the hand\'s previous note to this one that human maps of this difficulty never make.',
+  streak: 'How closely each hand follows streaks from human maps (runs of 4-16 of its notes): how often it continues a known streak is matched to human maps of this difficulty, with a little extra for 6+ note streaks. 0 = ignore streaks.',
   stackAccent: 'Pulls stacks (one swing through 2-3 lined-up notes) onto strong hits, where curated maps put them.',
   emphasis: 'Strong accents prefer big vertical swings.',
   noise: 'Random jitter for variety; this is what the seed changes. 0 = the same choice whenever costs tie.',

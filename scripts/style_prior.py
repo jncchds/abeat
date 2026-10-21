@@ -3,16 +3,20 @@
 
 Writes src/Abeat.Core/Generation/style-prior.json: per difficulty, the distribution of cut
 directions and of grid cells per hand, the figure vocabulary (hand + cell + cut direction that
-mappers actually use), the move vocabulary (one hand's figure -> its next figure) and the vocabulary
-of double shapes, plus density / doubles / dots rates
+mappers actually use), the move vocabulary (one hand's figure -> its next figure), the streak
+vocabulary (runs of 3-16 consecutive figures of one hand) and the vocabulary of double shapes, plus density / doubles / dots rates
 for reference. Hands are pooled with their mirror image so both vocabularies stay symmetric.
 
-    python3 scripts/style_prior.py work/beatsaver-prior
+    python3 scripts/style_prior.py work/beatsaver-curated
+    # plus the official maps imported into the app, by folder (regex on "Parent/Folder"):
+    python3 scripts/style_prior.py work/beatsaver-curated --app-data src/Abeat.Web/data \
+        --folders "Original Soundtrack Vol\\. [4-8]|Coldplay|Imagine Dragons|Billie Eilish|Lady Gaga|Electronic Mixtape|Shock Drops|The Weeknd"
 """
 import collections
 import glob
 import json
 import os
+import re
 import sys
 import zipfile
 
@@ -27,6 +31,12 @@ STACK_MAPS = 0.1
 # grid step along each cut direction (y up); dots have none
 DIR_STEP = [(0, 1), (0, -1), (-1, 0), (1, 0), (-1, 1), (1, 1), (-1, -1), (1, -1)]
 MIN_USES = 2
+# streaks: runs of one hand's consecutive figures; exact runs past 6-8 notes rarely recur between maps, so
+# a streak counts when it is used MIN_USES times in at least STREAK_MIN_MAPS maps
+STREAK_LENGTHS = [3, 4, 6, 8, 12, 16]
+STREAK_MIN_MAPS = 2
+# a pause longer than this (seconds) between two notes of a hand ends its streak (MovementAnalyzer.MaxGapSec)
+STREAK_GAP_SEC = 1.5
 
 
 def open_map(path):
@@ -44,6 +54,9 @@ def difficulties(path):
     if "info.dat" not in names:
         return
     info = json.loads(read("info.dat").decode("utf-8-sig"))
+    if str(info.get("version", "")).startswith("4"):
+        yield from difficulties_v4(read, names, info)
+        return
     bpm = info.get("_beatsPerMinute")
     for s in info.get("_difficultyBeatmapSets", []):
         if s["_beatmapCharacteristicName"] != "Standard":
@@ -62,6 +75,43 @@ def difficulties(path):
             notes = [n for n in notes if n[1] in (0, 1) and 0 <= n[2] <= 3 and 0 <= n[3] <= 2 and 0 <= n[4] <= 8]
             if len(notes) >= 50:
                 yield d["_difficulty"], bpm, sorted(notes)
+
+
+def difficulties_v4(read, names, info):
+    """Official (v4) maps: notes are indices into colorNotesData, fields left out are 0."""
+    bpm = info["audio"]["bpm"]
+    for d in info.get("difficultyBeatmaps", []):
+        if d.get("characteristic") != "Standard" or d["beatmapDataFilename"].lower() not in names:
+            continue
+        j = json.loads(read(d["beatmapDataFilename"]).decode("utf-8-sig"))
+        data = j.get("colorNotesData", [])
+        notes = []
+        for n in j.get("colorNotes", []):
+            nd = data[n.get("i", 0)] if n.get("i", 0) < len(data) else {}
+            notes.append((n.get("b", 0), nd.get("c", 0), nd.get("x", 0), nd.get("y", 0), nd.get("d", 0)))
+        notes = [n for n in notes if n[1] in (0, 1) and 0 <= n[2] <= 3 and 0 <= n[3] <= 2 and 0 <= n[4] <= 8]
+        if len(notes) >= 50:
+            yield d["difficulty"], bpm, sorted(notes)
+
+
+def app_maps(data_dir, pattern):
+    """Reference maps of the app's songs whose folder path ("Parent/Folder") matches the regex."""
+    folders = {f["id"]: f for f in json.load(open(os.path.join(data_dir, "folders.json")))}
+
+    def path(i):
+        parts = []
+        while i:
+            parts.append(folders[i]["name"])
+            i = folders[i]["parentId"]
+        return "/".join(reversed(parts))
+
+    out = []
+    for meta in sorted(glob.glob(os.path.join(data_dir, "songs", "*", "meta.json"))):
+        fid = json.load(open(meta)).get("folderId")
+        ref = os.path.join(os.path.dirname(meta), "reference")
+        if fid in folders and re.search(pattern, path(fid)) and os.path.isdir(ref):
+            out.append(ref)
+    return out
 
 
 def figure(x, y, d):
@@ -86,17 +136,25 @@ def stack(group):
     return (figure(hx, hy, d), len(group)) if sorted(line) == sorted(cells) else None
 
 
-def main(root):
+def main(root, extra=(), streaks_only=False):
+    """extra: more map folders (official maps, whose difficulties are strict where BeatSaver's labels are
+    not); with streaks_only they join just the streak vocabulary."""
+    streak_only = set(extra) if streaks_only else set()
     acc = {k: {"dir": collections.Counter(), "cell": [collections.Counter(), collections.Counter()],
                "fig": [collections.Counter(), collections.Counter()], "figMaps": [collections.Counter(), collections.Counter()],
                "dbl": collections.Counter(), "dblMaps": collections.Counter(),
                "mov": [collections.Counter(), collections.Counter()], "movMaps": [collections.Counter(), collections.Counter()],
+               "str": {L: [collections.Counter(), collections.Counter()] for L in STREAK_LENGTHS},
+               "strMaps": {L: [collections.Counter(), collections.Counter()] for L in STREAK_LENGTHS},
+               "str4ByMap": [], "streakOnly": 0,
                "stk": [collections.Counter(), collections.Counter()], "stkMaps": [collections.Counter(), collections.Counter()], "stacked": [],
                "nps": [], "doubles": [], "dots": [], "maps": 0} for k in ORDER}
-    paths = sorted(set(glob.glob(os.path.join(root, "*/"))) | set(glob.glob(os.path.join(root, "*.zip"))))
+    paths = sorted(set(glob.glob(os.path.join(root, "*/"))) | set(glob.glob(os.path.join(root, "*.zip")))) + list(extra)
     seen = set()
     for path in paths:
-        key = os.path.splitext(os.path.basename(os.path.normpath(path)))[0]
+        # app references are all called "reference": key them by song id
+        base = os.path.basename(os.path.normpath(path))
+        key = os.path.basename(os.path.dirname(os.path.normpath(path))) if base == "reference" else os.path.splitext(base)[0]
         if key in seen:  # folder extracted next to its zip
             continue
         seen.add(key)
@@ -104,8 +162,34 @@ def main(root):
             if name not in acc:
                 continue
             a = acc[name]
-            a["maps"] += 1
             spb = 60 / bpm
+            streaks = {L: [collections.Counter(), collections.Counter()] for L in STREAK_LENGTHS}
+            for c in (0, 1):
+                run, mrun, last = [], [], None
+                for t in sorted({round(n[0], 3) for n in notes if n[1] == c}) + [None]:
+                    if t is None or (last is not None and (t - last) * spb > STREAK_GAP_SEC):
+                        mc = 1 - c
+                        for L in STREAK_LENGTHS:
+                            for i in range(len(run) - L + 1):
+                                streaks[L][c][tuple(run[i:i + L])] += 1
+                                streaks[L][mc][tuple(mrun[i:i + L])] += 1
+                        run, mrun = [], []
+                    if t is None:
+                        break
+                    cur = next(n for n in notes if n[1] == c and round(n[0], 3) == t)
+                    run.append(figure(*cur[2:]))
+                    _, mx, my, md = mirror(c, *cur[2:])
+                    mrun.append(figure(mx, my, md))
+                    last = t
+            a["str4ByMap"].append(streaks[4])
+            for L in STREAK_LENGTHS:
+                for h in (0, 1):
+                    a["str"][L][h].update(streaks[L][h])
+                    a["strMaps"][L][h].update(k for k, n in streaks[L][h].items() if n >= MIN_USES)
+            if path in streak_only:
+                a["streakOnly"] += 1
+                continue
+            a["maps"] += 1
             a["nps"].append(len(notes) / max(1e-6, (notes[-1][0] - notes[0][0]) * spb))
             beats = collections.defaultdict(list)
             for n in notes:
@@ -173,22 +257,36 @@ def main(root):
 
     mean = lambda xs: round(sum(xs) / len(xs), 4) if xs else 0
     out = {
-        "source": f"{len(seen)} maps from {root}",
+        "source": f"{len(seen) - len(extra)} maps from {root}" + (f" + {len(extra)} official maps" + (" (streaks only)" if streaks_only else "") if extra else ""),
         "figureMaps": FIGURE_MAPS,
         "doubleMaps": DOUBLE_MAPS,
         "moveMaps": MOVE_MAPS,
         "stackMaps": STACK_MAPS,
+        "streakMinMaps": STREAK_MIN_MAPS,
+        "streakGapSec": STREAK_GAP_SEC,
         "difficulties": {},
     }
     for k, a in acc.items():
         if a["maps"] == 0:
             continue
+        streak_maps = a["maps"] + a["streakOnly"]
         figures = [[f for f in range(108) if a["figMaps"][h][f] >= FIGURE_MAPS * a["maps"]] for h in (0, 1)]
         doubles = sorted(s for s, n in a["dblMaps"].items() if n >= DOUBLE_MAPS * a["maps"])
         stacks = [sorted(k for k, n in a["stkMaps"][h].items() if n >= STACK_MAPS * a["maps"]) for h in (0, 1)]
         moves = [sorted(m for m, n in a["movMaps"][h].items() if n >= MOVE_MAPS * a["maps"]) for h in (0, 1)]
+        streaks = {L: [sorted(k for k, n in a["strMaps"][L][h].items() if n >= STREAK_MIN_MAPS) for h in (0, 1)] for L in STREAK_LENGTHS}
+        # how much of a map is made of 4-note streaks other maps use (leave-one-out, so the map's own runs
+        # don't count): the share the planner aims for
+        shares = []
+        for own in a["str4ByMap"]:
+            occ = sum(sum(own[h].values()) for h in (0, 1))
+            if occ:
+                known = sum(n for h in (0, 1) for k, n in own[h].items()
+                            if a["strMaps"][4][h][k] - (1 if n >= MIN_USES else 0) >= STREAK_MIN_MAPS)
+                shares.append(known / occ)
         out["difficulties"][k] = {
             "maps": a["maps"],
+            "streakMaps": a["maps"] + a["streakOnly"],
             "nps": mean(a["nps"]),
             "doubles": mean(a["doubles"]),
             "dots": mean(a["dots"]),
@@ -203,19 +301,36 @@ def main(root):
             "stackUse": [[a["stkMaps"][h][k] for k in stacks[h]] for h in (0, 1)],
             "moves": [[f * 108 + t for f, t in moves[h]] for h in (0, 1)],  # from figure * 108 + to figure
             "moveUse": [[a["movMaps"][h][m] for m in moves[h]] for h in (0, 1)],
+            # per length, per hand: figures of the run joined by "." (first note first), and maps using each
+            "streaks": {str(L): [[".".join(map(str, k)) for k in streaks[L][h]] for h in (0, 1)] for L in STREAK_LENGTHS},
+            "streakShare": mean(shares),
+            "streakUse": {str(L): [[a["strMaps"][L][h][k] for k in streaks[L][h]] for h in (0, 1)] for L in STREAK_LENGTHS},
         }
         mcover = sum(a["mov"][h][m] for h in (0, 1) for m in moves[h]) / max(1, sum(sum(a["mov"][h].values()) for h in (0, 1)))
         cover = sum(a["fig"][h][f] for h in (0, 1) for f in figures[h]) / sum(sum(a["fig"][h].values()) for h in (0, 1))
         dcover = sum(a["dbl"][s] for s in doubles) / max(1, sum(a["dbl"].values()))
+        scover = {L: sum(a["str"][L][h][k] for h in (0, 1) for k in streaks[L][h]) / max(1, sum(sum(a["str"][L][h].values()) for h in (0, 1)))
+                  for L in STREAK_LENGTHS}
         top = max((f // 36 for f in figures[1]), default=0)
         print(f"{k:10} maps {a['maps']:3}  nps {mean(a['nps']):.2f}  doubles {mean(a['doubles']):.0%}  dots {mean(a['dots']):.1%}  "
               f"figures {len(figures[1]):3} ({cover:.1%} of notes, top row {sum(1 for f in figures[1] if f // 36 == 2)})  "
               f"double shapes {len(doubles):3} ({dcover:.1%})  moves {len(moves[1]):3} ({mcover:.1%})  "
               f"stacked {mean(a['stacked']):.1%} in {len(stacks[1])} shapes")
+        print(f"           streak share {mean(shares):.1%}  streaks " + "  ".join(f"{L}: {len(streaks[L][1])} ({scover[L]:.1%})" for L in STREAK_LENGTHS))
     path = os.path.join(os.path.dirname(__file__), "..", "src", "Abeat.Core", "Generation", "style-prior.json")
-    json.dump(out, open(path, "w"), indent=1)
+    # indented, with each innermost array on one line (as diff-friendly as it is small)
+    text = json.dumps(out, indent=1)
+    text = re.sub(r"\[\s*([^\[\]{}]*?)\s*\]", lambda m: "[" + re.sub(r",\s+", ", ", m.group(1)) + "]", text)
+    open(path, "w").write(text)
     print("wrote", os.path.normpath(path))
 
 
 if __name__ == "__main__":
-    main(sys.argv[1] if len(sys.argv) > 1 else "work/beatsaver-prior")
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("root", nargs="?", default="work/beatsaver-curated")
+    ap.add_argument("--app-data", help="the web app's data folder, for --folders")
+    ap.add_argument("--folders", help="regex on app folder paths whose songs' reference maps join the corpus")
+    ap.add_argument("--streaks-only", action="store_true", help="the --folders maps join only the streak vocabulary")
+    args = ap.parse_args()
+    main(args.root, app_maps(args.app_data, args.folders) if args.app_data and args.folders else (), args.streaks_only)

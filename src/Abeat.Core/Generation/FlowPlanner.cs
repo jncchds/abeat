@@ -46,6 +46,11 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         /// then the <see cref="MovementPrior"/> move and strain buckets.</summary>
         public int[] Counts = new int[StrainBase + MovementPrior.StrainBuckets];
         public int NotesL, NotesR, Moves, Stacked;
+        /// <summary>Each hand's last figures (oldest first, up to <see cref="StylePrior.MaxStreak"/> - 1) since its
+        /// last pause, for the streak vocabulary. Never changed in place: shared with the parent until the hand cuts.</summary>
+        public int[] HistL = [], HistR = [];
+        /// <summary>Cuts that had three earlier figures since the hand's pause, and those of them completing a known 4-note streak.</summary>
+        public int StreakEligible, StreakKnown;
 
         public HandState State(Hand h) => h == Hand.Left ? Left : Right;
     }
@@ -99,6 +104,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         bool mustFlip = s.Active && e.Time - s.Time < SwingCostModel.ResetGapSec;
         var lastDir = hand == Hand.Left ? node.LastDirL : node.LastDirR;
         var target = oneSaber ? PhraseTargets.ForOneSaber(e, seed, style) : PhraseTargets.For(hand, e, seed, style);
+        var streak = StreakPrefixes(node, hand, e.Time);
 
         foreach (var d in Swing.Directional.Append(CutDirection.Any))
         {
@@ -115,6 +121,21 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                     if (d == CutDirection.Any) c += profile.DotCost;
                     if (s.Active && s.X == x && s.Y == y && d == lastDir) c += model.Weights.Repeat;
                     c += model.Stagnation(s, x, y) + model.Target(target, x, y) + model.Dynamics(s, e.Intensity, x, y);
+                    if (streak is { } sp)
+                    {
+                        // the longest known streak this cut completes; tails of known streaks are known, so stop at the first miss
+                        int fig = StylePrior.Figure(x, y, d), best = 0;
+                        for (int k = 0; k < sp.Lengths; k++)
+                        {
+                            if (!style!.HasStreak(hand, StylePrior.StreakLengths[k], StylePrior.StreakStep(sp.Prefix[k], fig))) break;
+                            best = StylePrior.StreakLengths[k];
+                        }
+                        if (sp.Lengths >= 2) // three earlier figures: the 4-note share applies
+                            c += model.Weights.Streak * (best >= 4
+                                ? StylePrior.MatchCost(node.StreakKnown, node.StreakEligible, style!.StreakShare)
+                                : StylePrior.MatchCost(node.StreakEligible - node.StreakKnown, node.StreakEligible, 1 - style!.StreakShare));
+                        if (best >= 6) c -= model.Weights.Streak * 0.5 * (Math.Log2(best) - 2);
+                    }
                     if (style != null)
                     {
                         int handNotes = hand == Hand.Left ? node.NotesL : node.NotesR;
@@ -153,6 +174,27 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
                 }
             }
         }
+    }
+
+    /// <summary>Hashes of the hand's last (length - 1) figures for each streak length its history covers.</summary>
+    readonly record struct StreakPrefix(ulong[] Prefix, int Lengths);
+
+    StreakPrefix? StreakPrefixes(Node node, Hand hand, double t)
+    {
+        if (oneSaber || style?.Streaks is null || model.Weights.Streak == 0) return null;
+        var s = node.State(hand);
+        var hist = hand == Hand.Left ? node.HistL : node.HistR;
+        if (!s.Active || t - s.Time > Evaluation.MovementAnalyzer.MaxGapSec || hist.Length < StylePrior.StreakLengths[0] - 1) return null;
+        var prefix = new ulong[StylePrior.StreakLengths.Length];
+        int n = 0;
+        foreach (int len in StylePrior.StreakLengths)
+        {
+            if (hist.Length < len - 1) break;
+            ulong h = StylePrior.StreakSeed;
+            for (int i = hist.Length - (len - 1); i < hist.Length; i++) h = StylePrior.StreakStep(h, hist[i]);
+            prefix[n++] = h;
+        }
+        return new StreakPrefix(prefix, n);
     }
 
     /// <summary>Movement bucket and strain of the move from the hand's last swing to this cut, or null when
@@ -275,6 +317,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
             Left = parent.Left, Right = parent.Right, Cost = cost, Parent = parent, A = a, B = b,
             LastHand = a.Hand, LastDirL = parent.LastDirL, LastDirR = parent.LastDirR,
             Counts = (int[])parent.Counts.Clone(), NotesL = parent.NotesL, NotesR = parent.NotesR, Moves = parent.Moves, Stacked = parent.Stacked,
+            HistL = parent.HistL, HistR = parent.HistR, StreakEligible = parent.StreakEligible, StreakKnown = parent.StreakKnown,
         };
         Apply(n, a, t, sa);
         if (b is { } bb) Apply(n, bb, t, sb);
@@ -285,6 +328,20 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
 
     void Apply(Node n, Cut c, double t, Vec2 swing)
     {
+        if (!oneSaber && style?.Streaks is not null)
+        {
+            // a pause ends the hand's streak
+            var prev = n.State(c.Hand);
+            var hist = prev.Active && t - prev.Time <= Evaluation.MovementAnalyzer.MaxGapSec ? (c.Hand == Hand.Left ? n.HistL : n.HistR) : [];
+            int keep = Math.Min(hist.Length, StylePrior.MaxStreak - 2);
+            int[] next = [.. hist.AsSpan(hist.Length - keep), StylePrior.Figure(c.X, c.Y, c.Dir)];
+            if (next.Length >= 4)
+            {
+                n.StreakEligible++;
+                if (style!.HasStreak(c.Hand, 4, StylePrior.StreakHash(next.Skip(next.Length - 4)))) n.StreakKnown++;
+            }
+            if (c.Hand == Hand.Left) n.HistL = next; else n.HistR = next;
+        }
         if (Move(n.State(c.Hand), t, c.X, c.Y, swing) is var (bucket, strain))
         {
             n.Counts[MoveBase + bucket]++;

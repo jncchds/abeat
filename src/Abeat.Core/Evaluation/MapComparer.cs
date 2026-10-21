@@ -29,6 +29,9 @@ public sealed record Comparison
     /// <summary>Self-repetition across repeated sections (null without an analysis).</summary>
     public RepetitionReport? HumanRepetition { get; init; }
     public RepetitionReport? GeneratedRepetition { get; init; }
+    /// <summary>How much of each map is made of the streak vocabulary (null without a style prior).</summary>
+    public StreakReport? HumanStreaks { get; init; }
+    public StreakReport? GeneratedStreaks { get; init; }
 
     public override string ToString() =>
         $"{Difficulty,-10} F1 {F1,4:0.00} (P {Precision:0.00} R {Recall:0.00}, offset {OffsetMs,4:0} ms)  " +
@@ -36,7 +39,8 @@ public sealed record Comparison
         $"dbl {GeneratedDoubles:P0}/{HumanDoubles:P0}  dirΔ {DirectionDistance:0.00}  posΔ {PositionDistance:0.00}  " +
         $"strain {GeneratedMovement.StrainP90:0.0}/{HumanMovement.StrainP90:0.0}  travel {GeneratedMovement.TravelMean:0.00}/{HumanMovement.TravelMean:0.00}  " +
         $"angle {GeneratedMovement.AngleMean:0}/{HumanMovement.AngleMean:0}°" +
-        (GeneratedRepetition is { } gr && HumanRepetition is { } hr ? $"  repeat {gr.Same:P0}/{hr.Same:P0} (aligned {gr.Aligned:P0}/{hr.Aligned:P0})" : "");
+        (GeneratedRepetition is { } gr && HumanRepetition is { } hr ? $"  repeat {gr.Same:P0}/{hr.Same:P0} (aligned {gr.Aligned:P0}/{hr.Aligned:P0})" : "") +
+        (GeneratedStreaks is { } gs && HumanStreaks is { } hs ? $"  streak4 {gs.Known4:P0}/{hs.Known4:P0}  long {gs.Long:P0}/{hs.Long:P0}" : "");
 }
 
 public static class MapComparer
@@ -72,6 +76,8 @@ public static class MapComparer
             HumanRepetition = analysis is null ? null
                 : RepetitionAnalyzer.Analyze(human, analysis, b => analysis.SecondsToBeat(humanBpm.BeatToSeconds(b) + generatedPadSec)),
             GeneratedRepetition = analysis is null ? null : RepetitionAnalyzer.Analyze(generated, analysis),
+            HumanStreaks = StreakAnalyzer.Analyze(human, humanBpm),
+            GeneratedStreaks = StreakAnalyzer.Analyze(generated, generatedBpm),
         };
     }
 
