@@ -273,7 +273,7 @@ public static class MapEndpoints
             var human = HumanDifficulties(store, id, a);
             var list = new List<object>();
             if (human != null && store.Get(id) is { } m)
-                list.Add(new { id = HumanId, kind = "human", label = $"Human · {m.ReferenceMapper}", difficulties = human.Select(d => d.Difficulty.ToString()),
+                list.Add(new { id = HumanId, kind = "human", label = $"Human · {HumanMapper(store, id) ?? m.ReferenceMapper}", difficulties = human.Select(d => d.Difficulty.ToString()),
                     zip = File.Exists(store.SourcePath(m)) });
             list.AddRange(Generations.List(store, id).Select(g => VersionDto(store, id, a, g, human)));
             return Results.Ok(list);
@@ -352,6 +352,16 @@ public static class MapEndpoints
     const string HumanId = "human";
 
     /// <summary>The imported human map's playable difficulties on the analysis grid, or null.</summary>
+    /// <summary>Mapper of the reference map, read from its Info.dat (the name stored at import came from
+    /// an older reader, which labelled v4 maps "ABeat by CHDS").</summary>
+    static string? HumanMapper(SongStore store, string id)
+    {
+        var dir = store.ReferenceDir(id);
+        if (!Directory.Exists(dir)) return null;
+        try { return Abeat.Core.Formats.MapReader.Read(dir).LevelAuthor is { Length: > 0 } a ? a : "unknown mapper"; }
+        catch (Exception) { return null; }
+    }
+
     static List<DifficultyMap>? HumanDifficulties(SongStore store, string id, SongAnalysis a)
     {
         var dir = store.ReferenceDir(id);
