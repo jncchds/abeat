@@ -35,6 +35,7 @@ STEMS = ("vocals", "other")
 REST = 0.25        # "none" emission: a stem must score above this to lead
 START = 0.3        # cost of the lead starting or stopping
 SWITCH = 1.0       # cost of the lead moving to the other stem (bleed and bow changes make short dips)
+SHARE_FULL = 0.5   # stem share of the pitched loudness from which it counts fully
 CACHE_VERSION = 1
 
 
@@ -132,7 +133,9 @@ def extract(stems: dict[str, np.ndarray], sr: int, log: Log, workdir: Path,
     amp = {k: _rms(stems[k], sr, n) for k in names}
     total = sum(amp.values()) + 1e-9
     level = np.minimum(1.0, total / max(1e-9, np.percentile(total, 90)))
-    lead = np.vstack([z[k + "_per"][:n] * (amp[k] / total) * np.sqrt(level) for k in names])
+    # a stem as loud as the other counts fully (voice and violin together must not halve each other);
+    # only a clearly quieter stem (bleed, accompaniment) is marked down
+    lead = np.vstack([z[k + "_per"][:n] * np.minimum(1.0, amp[k] / total / SHARE_FULL) * np.sqrt(level) for k in names])
     state = lead_path(lead)
 
     found: list[tuple[float, float, float, float, int, int]] = []  # start, end, pitch, strength, stem, octave?
