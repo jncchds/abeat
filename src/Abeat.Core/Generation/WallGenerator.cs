@@ -56,19 +56,32 @@ public static class WallGenerator
         map.Obstacles.Sort((x, y) => x.Beat.CompareTo(y.Beat));
     }
 
+    /// <summary>Long side walls framing calm sections while they are played: from <see cref="SideWallMargin"/>
+    /// beats after the first note to as many before the last, and only over stretches with notes. Calm intros and
+    /// outros used to get them from beat 0 and past the last note, a third of all long walls (2.6 per
+    /// difficulty; curated maps 0.13).</summary>
     static IEnumerable<Obstacle> SideWalls(SongAnalysis a, List<ColorNote> notes, DifficultyProfile p)
     {
+        if (notes.Count == 0) yield break;
+        double first = notes[0].Beat + SideWallMargin, last = notes[^1].Beat - SideWallMargin;
         double maxEnergy = a.Sections.Count > 0 ? a.Sections.Max(x => x.Energy) : 1;
         foreach (var sec in a.Sections)
         {
             double rel = maxEnergy > 0 ? sec.Energy / maxEnergy : 1;
             if (rel > 0.55) continue; // only calm sections
-            double b0 = a.SecondsToBeat(sec.Start), b1 = a.SecondsToBeat(sec.End);
+            double b0 = Math.Max(first, a.SecondsToBeat(sec.Start)), b1 = Math.Min(last, a.SecondsToBeat(sec.End));
             for (double b = Math.Ceiling(b0 / 4) * 4; b + 6 <= b1; b += 8)
+            {
+                double end = b + 6;
+                if (notes.Count(n => n.Beat >= b && n.Beat <= end) < 2) continue; // a note-free stretch: nothing to frame
                 foreach (int lane in new[] { 0, 3 })
                     yield return new Obstacle(b, 6, lane, 0, 1, 5);
+            }
         }
     }
+
+    /// <summary>Beats kept free of side walls after the first note and before the last.</summary>
+    const double SideWallMargin = 4;
 
     /// <summary>Rhythm walls: short walls in lane 0 or 3 (alternating), on the strongest kick and snare hits (above the song's median drum strength), picked strongest first at least
     /// 1.2 s apart in sections at >= 80 % of the loudest section's energy and 2.4 s from 55 % (Easy: 2.4 / 4.8 s).
