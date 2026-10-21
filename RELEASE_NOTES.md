@@ -1,5 +1,11 @@
 # Release notes
 
+## v0.3.3 — 2026-10-21
+
+- **Human map → taps**: a song with a human map has **Use as taps** in the Tap panel. Pick a difficulty and its right-hand and left-hand notes become the two tap runs, with the mapper's exact timing (no latency removed, no snapping onto onsets); notes of both hands at once become doubles. Generate then remakes the map on that rhythm, or builds easier difficulties from it.
+- **Append from playhead** keeps each appended batch as its own recording with its own latency, instead of merging it into the run. Before, taps appended to a human-map run stayed late by the browser's latency (the run as a whole looked latency-free); now a batch of 8+ taps finds its own latency from the song, and a shorter one takes the run's, the song's other recordings' or a typical 65 ms. An appended tap on a human-map note leaves the note's timing. The Tap panel shows each batch's latency.
+- The Tap panel has a **Clear taps** button (was a small "clear" link).
+
 ## v0.3.2 — 2026-10-21
 
 - **Two-hand streaks**: the vocabulary now also knows 4 notes in a row across both hands (left-right-left-right, right-right-left-right, with doubles too), 950-3600 of them per difficulty, learned from the same curated and official maps. The generator plays known ones about as often as human maps do instead of almost never: on 16 songs with taps off, two-hand streaks went from 0-3 % to 14-17 % of two-hand stretches on Easy to Expert (human maps 17-19 %) and 4 % on Expert+ (6 %), with no loss of flow or timing. They are matched, not maximised. New flow weight **pair streak** (default 3, 0 = off); the Vocabulary page has a **Two hands** tab with both hands' notes numbered in one grid and an "alternating only" filter; `abeat bench` shows the share as "pair4".

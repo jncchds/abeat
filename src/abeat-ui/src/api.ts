@@ -268,11 +268,20 @@ export const stemUrl = (id: string, file: string) => `/api/songs/${id}/stems/${e
 export const getLyrics = (id: string) => http.get<{ text: string }>(`/songs/${id}/lyrics`)
 export const putLyrics = (id: string, text: string) => http.put(`/songs/${id}/lyrics`, { text })
 /** Tap runs aligned onto the song: latency removed per run, taps merged, how many sit on an onset, doubles. */
-export interface TapInfo { offsetsSec: number[]; confident: boolean[]; count: number; snapped: number; doubles: number[] }
+export interface TapInfo {
+  offsetsSec: number[]; confident: boolean[]; count: number; snapped: number; doubles: number[]
+  /** Latency removed from each appended batch, per run. */
+  appendedOffsetsSec?: number[][]
+}
 
 /** One tap-along run: song.egg seconds of every tap, and that song.egg's padding (re-analysis may change it). */
-export interface TapRun { recordedUtc: string; taps: number[]; padSec?: number }
+/** exact: a map's note times (the human map's, via tapsFromHuman), kept as they are when aligned.
+ *  appended: batches recorded later from the playhead; each is its own recording, aligned with its own latency. */
+export interface TapRun { recordedUtc: string; taps: number[]; padSec?: number; exact?: boolean | null; appended?: TapBatch[] | null }
+export interface TapBatch { recordedUtc: string; taps: number[] }
 export const getTaps = (id: string) => http.get<{ runs: TapRun[] }>(`/songs/${id}/taps`)
+/** Replaces the tap runs with the human map's notes of one difficulty (right hand, left hand). */
+export const tapsFromHuman = (id: string, difficulty: string) => http.post<{ runs: TapRun[] }>(`/songs/${id}/taps/from-human/${difficulty}`)
 export const putTaps = (id: string, runs: TapRun[]) => http.put(`/songs/${id}/taps`, { runs })
 export const reanalyze = (id: string, o: AnalysisOptions) => http.post<SongMeta>(`/songs/${id}/reanalyze`, o)
 export const cancelJob = (id: string) => http.post<SongMeta>(`/songs/${id}/cancel`)

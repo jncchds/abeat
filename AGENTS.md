@@ -148,6 +148,13 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    official map says ~40-55), Bangaranga +15 / -5, Everlasting 0 / +30, Lighter +70. Each tap snaps to the
    nearest strong onset within 35 ms (any onset within 20 ms), else keeps its time (80-88 % snap); the runs
    merge, taps of both within 50 ms are one double. The runs are only moments, not hands.
+   A run's `appended` batches (Append from playhead) are separate recordings, so each gets its own latency
+   (>= 8 taps, against the strong onsets plus an exact run's notes; a shorter or unclear batch borrows its
+   run's latency, else the median of the song's confident recordings, else `TypicalLagSec` 65 ms):
+   `TapInfo.AppendedOffsetsSec`. Exact runs (`exact`: a human map's notes, `POST
+   /api/songs/{id}/taps/from-human/{difficulty}`) keep their times: no latency, no snapping (an onset within
+   20 ms only lends its brightness), and when an appended tap duplicates a note (same run, < 40 ms) the note's
+   time wins. With exact taps the generator remakes the human map's rhythm, or builds easier levels on it.
    In `RhythmSelector` the taps layer is no sound of the song: `AddTaps` marks each tap's slot with
    `TapPriority` (default 1) x (1 - 1.6 x grid error), sets the note time to the tap and gives sound-less tap
    slots the median slot score. Bars rank candidates by score + tap x max score (at 1 every tap goes before
@@ -553,8 +560,10 @@ move, `--write-prior` rewrites the prior.
   `src/local/*/index.ts`; an extension's `versionLinks(song, version, zipUrl)` adds buttons next to Zip/ArcViewer.
   Nothing under `src/local/` (or files it relies on that a local tool installs) belongs in the repo.
 - Lyrics: `GET|PUT /api/songs/{id}/lyrics` (`lyrics.txt`), passed to the worker on re-analysis.
-- Tap along: `GET|PUT /api/songs/{id}/taps` (`taps.json`: run 0 right hand, run 1 left, song.egg seconds);
-  the UI scores them in `utils/taps.ts` (per-hand median offset removed, ±70 ms matching). `SongStore.Analysis`
+- Tap along: `GET|PUT /api/songs/{id}/taps` (`taps.json`: run 0 right hand, run 1 left, song.egg seconds;
+  per run `exact` and `appended` batches); `POST /api/songs/{id}/taps/from-human/{difficulty}` replaces them
+  with the human map's notes (right/left hand runs, exact). The UI scores them in `utils/taps.ts` (appended
+  batches moved onto their run's latency by `viewRuns`, per-hand median offset removed, ±70 ms matching). `SongStore.Analysis`
   applies `TapAligner` (layer `taps`, `analysis.taps`), PUT invalidates the cached analysis and the UI reloads it;
   the settings' `tapPriority` slider sets how strongly taps claim notes; `POST /api/songs/{id}/fit-taps`
   (body: settings) returns `TapFit` limits for every difficulty (404 without taps), which the UI puts into

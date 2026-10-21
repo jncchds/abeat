@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import type { TapInfo, TapRun } from '../api'
-import { compareBoth, compareHand, HANDS, mergeTaps, TAP_COLORS, type TapRef } from '../utils/taps'
+import { compareBoth, compareHand, HANDS, TAP_COLORS, viewRuns, type TapRef } from '../utils/taps'
 
 
 interface Props {
@@ -11,19 +11,27 @@ interface Props {
   aligned?: TapInfo | null
   onChange: (runs: TapRun[]) => void
   onClose: () => void
+  /** Difficulties of the imported human map (none: no human map). */
+  humanDifficulties?: string[]
+  /** Replaces both runs with the human map's notes of this difficulty. */
+  onFromHuman?: (difficulty: string) => void
 }
+
+const DIFF_LABEL: Record<string, string> = { ExpertPlus: 'Expert+' }
 
 const pct = (x: number) => `${Math.round(x * 100)}%`
 const ms = (s: number) => `${s >= 0 ? '+' : ''}${Math.round(s * 1000)} ms`
 
 /** Records one tap-along run per hand (right first): the song plays from the start and every key press or pad tap is a note. */
-export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose }: Props) {
+export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose, humanDifficulties = [], onFromHuman }: Props) {
   const [recording, setRecording] = useState<number | null>(null)
+  const [humanDiff, setHumanDiff] = useState('')
+  const fromDiff = humanDifficulties.includes(humanDiff) ? humanDiff : humanDifficulties[humanDifficulties.length - 1]
   const [count, setCount] = useState(0)
   const taps = useRef<number[]>([])
-  // appending: the run's taps so far, merged with the new ones on stop
-  const kept = useRef<number[]>([])
+  // appending: the new taps become a batch of the run, aligned on its own (another session, another latency)
   const [appending, setAppending] = useState(false)
+  const appendingRef = useRef(false)
   const pad = useRef<HTMLButtonElement>(null)
   const stopRef = useRef<(() => void) | null>(null)
   const latest = useRef({ runs, onChange })
@@ -43,7 +51,10 @@ export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose
       setRecording(null)
       if (!taps.current.length) return
       const next = [...latest.current.runs]
-      next[recording] = { recordedUtc: new Date().toISOString(), taps: mergeTaps(kept.current, taps.current) }
+      const now = new Date().toISOString(), old = next[recording]
+      next[recording] = appendingRef.current && old
+        ? { ...old, appended: [...(old.appended ?? []), { recordedUtc: now, taps: taps.current }] }
+        : { recordedUtc: now, taps: taps.current }
       latest.current.onChange(next.filter(Boolean))
     }
     const key = (e: KeyboardEvent) => {
@@ -74,7 +85,7 @@ export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose
   const start = (k: number, append = false) => {
     if (!audio) return
     ;(document.activeElement as HTMLElement | null)?.blur()
-    kept.current = append ? runs[k]?.taps ?? [] : []
+    appendingRef.current = append
     setAppending(append)
     taps.current = []
     setCount(0)
@@ -82,7 +93,9 @@ export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose
     setRecording(k)
   }
 
-  const both = runs.length === 2 ? refs.map(r => ({ r, c: compareBoth(r, runs) })) : []
+  // appended batches on their run's latency, for counts and comparisons
+  const view = viewRuns(runs, aligned)
+  const both = view.length === 2 ? refs.map(r => ({ r, c: compareBoth(r, view) })) : []
 
   return (
     <div className="card tap-card">
@@ -119,24 +132,41 @@ export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose
               <div key={k} className="tap-run" style={{ borderColor: TAP_COLORS[k] }}>
                 <b style={{ color: TAP_COLORS[k] }}>{HANDS[k]}</b>
                 <span className="muted">
-                  {runs[k] ? `${runs[k].taps.length} taps · ${new Date(runs[k].recordedUtc).toLocaleString()}` : 'not recorded'}
+                  {runs[k] ? `${view[k].taps.length} taps · ${runs[k].exact ? 'from the human map' : new Date(runs[k].recordedUtc).toLocaleString()}`
+                    + (runs[k].appended?.length ? ` + ${runs[k].appended!.length} appended` + (aligned?.appendedOffsetsSec?.[k]?.length
+                      ? ` (${aligned.appendedOffsetsSec[k].map(ms).join(', ')})` : '') : '') : 'not recorded'}
                 </span>
                 <button className={runs[k] || k > runs.length ? 'btn-secondary' : ''} disabled={!audio || k > runs.length}
                   title={runs[k] ? 'Replace this run: records again from the start of the song' : 'Records from the start of the song'}
                   onClick={() => start(k)}>{runs[k] ? 'Record again' : 'Record'}</button>
                 {runs[k] && (
                   <button className="btn-secondary" disabled={!audio} onClick={() => start(k, true)}
-                    title="Records from the playhead (seek on the timeline first) and adds the taps to this run; a tap on one already there counts once">
+                    title="Records from the playhead (seek on the timeline first) and adds the taps to this run as a batch with its own latency (found from the song, or the run's); a tap on one already there counts once, a human map note winning">
                     Append from playhead
                   </button>
                 )}
               </div>
             ))}
             {runs.length > 0 && (
-              <button className="link-btn" onClick={() => confirm('Delete both tap runs?') && onChange([])}>clear</button>
+              <button className="btn-secondary" title="Deletes both runs (and their appended taps); the generator then ignores taps"
+                onClick={() => confirm('Delete both tap runs?') && onChange([])}>Clear taps</button>
             )}
           </div>
         )}
+
+      {recording === null && onFromHuman && fromDiff && (
+        <div className="tap-human">
+          <span className="muted">From the human map:</span>
+          <select value={fromDiff} onChange={e => setHumanDiff(e.target.value)} title="Which difficulty of the human map becomes the taps">
+            {humanDifficulties.map(d => <option key={d} value={d}>{DIFF_LABEL[d] ?? d}</option>)}
+          </select>
+          <button className="btn-secondary"
+            title="Turns this difficulty's notes into the two runs (right hand, left hand; notes of both hands at once become doubles), with the mapper's exact timing. Generate then remakes the map, or builds easier difficulties on its rhythm. Replaces the recorded runs."
+            onClick={() => (!runs.length || confirm('Replace both tap runs with the human map\'s notes?')) && onFromHuman(fromDiff)}>
+            Use as taps
+          </button>
+        </div>
+      )}
 
       {runs.length > 0 && recording === null && (
         <table className="tap-table">
@@ -145,7 +175,7 @@ export default function TapPanel({ audio, runs, refs, aligned, onChange, onClose
             <tr><th /><th />{refs.map(r => ['offset', 'F1', 'P', 'R', 'any'].map(h => <th key={r.name + h} className="muted">{h}</th>))}</tr>
           </thead>
           <tbody>
-            {runs.map((run, k) => (
+            {view.map((run, k) => (
               <tr key={k}>
                 <td style={{ color: TAP_COLORS[k] }}>{HANDS[k]}</td>
                 <td>{run.taps.length}</td>

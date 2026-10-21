@@ -141,11 +141,30 @@ public static class MapEndpoints
         {
             if (store.Get(id) is null) return Results.NotFound();
             var runs = (req.Runs ?? []).Take(2)
-                .Select(r => r with { Taps = (r.Taps ?? []).Where(t => double.IsFinite(t) && t >= 0).Order().ToArray() })
+                .Select(r => r with
+                {
+                    Taps = Clean(r.Taps),
+                    Appended = r.Appended?.Select(b => b with { Taps = Clean(b.Taps) }).Where(b => b.Taps!.Length > 0).ToArray(),
+                })
                 .ToArray();
             File.WriteAllText(store.TapsPath(id), JsonSerializer.Serialize(new TapsRequest(runs), JsonSerializerOptions.Web));
             store.InvalidateAnalysis(id); // re-aligns the taps layer
             return Results.NoContent();
+        });
+
+        // The human map's notes of one difficulty become the tap runs (right hand, left hand), replacing any
+        // recorded ones: the generator then remakes that map, or builds easier levels on its rhythm.
+        api.MapPost("/songs/{id}/taps/from-human/{difficulty}", (string id, string difficulty, SongStore store) =>
+        {
+            if (store.Analysis(id) is not { } a || HumanDifficulties(store, id, a) is not { } human) return Results.NotFound();
+            if (human.FirstOrDefault(d => d.Difficulty.ToString().Equals(difficulty, StringComparison.OrdinalIgnoreCase)) is not { } map)
+                return Results.NotFound();
+            double[] Times(Hand h) => [.. map.Notes.Where(n => n.Hand == h).Select(n => Math.Round(a.BeatToSeconds(n.Beat), 4)).Distinct().Order()];
+            var now = DateTime.UtcNow;
+            var req = new TapsRequest([new TapRun(now, Times(Hand.Right), a.Audio.PadSec, true), new TapRun(now, Times(Hand.Left), a.Audio.PadSec, true)]);
+            File.WriteAllText(store.TapsPath(id), JsonSerializer.Serialize(req, JsonSerializerOptions.Web));
+            store.InvalidateAnalysis(id);
+            return Results.Ok(req);
         });
 
         api.MapGet("/songs/{id}/analysis", (string id, SongStore store) =>
@@ -351,9 +370,13 @@ public static class MapEndpoints
     static string VocalOption(string? v) => v is "notes" or "lyrics" ? v : "flux";
     public sealed record ImportRequest(string Path);
     public sealed record LyricsRequest(string? Text);
-    /// <summary>PadSec: song.egg padding when recorded; a re-analysis can change it, the UI shifts the taps.</summary>
-    public sealed record TapRun(DateTime RecordedUtc, double[]? Taps, double? PadSec);
+    /// <summary>PadSec: song.egg padding when recorded; a re-analysis can change it, the UI shifts the taps.
+    /// Exact: the taps are a map's note times (no latency or snapping when aligned); null for recorded runs.
+    /// Appended: batches recorded later from the playhead, each aligned with its own latency.</summary>
+    public sealed record TapRun(DateTime RecordedUtc, double[]? Taps, double? PadSec, bool? Exact = null, TapBatch[]? Appended = null);
+    public sealed record TapBatch(DateTime RecordedUtc, double[]? Taps);
     public sealed record TapsRequest(TapRun[]? Runs);
+    static double[] Clean(double[]? taps) => [.. (taps ?? []).Where(t => double.IsFinite(t) && t >= 0).Order()];
 
     const string HumanId = "human";
 

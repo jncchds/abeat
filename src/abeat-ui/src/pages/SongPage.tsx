@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { extensions } from '../extensions'
 import { cancelJob,
   audioUrl, compareVersions, coverUrl, deleteSong, deleteVersion, errorText, fitTaps, generate, getAnalysis, getConfig, getColors, getDefaults, getEnvironments, getSettings, getSong, resetCover, setSongFolder, uploadCover,
-  getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, zipUrl,
+  getTaps, getVersion, getVersions, getVersionSettings, putTaps, reanalyze, tapsFromHuman, zipUrl,
   type Analysis, type Comparison, type Difficulty, type DifficultyProfile, type EnvironmentEntry, type EnvironmentSuggestions, type GeneratorSettings, type SongColors, type SongMeta, type TapRun, type Version,
 } from '../api'
 import DebugPanel from '../components/DebugPanel'
@@ -24,7 +24,7 @@ import { folderOptions, useSongs } from '../hooks/useSongs'
 import { ISSUE_COLOR, SIDE_A, SIDE_B, unmatchedBeats, type Track } from '../utils/draw'
 import { diffLabel, fmtTime } from '../utils/format'
 import { tempoOf, type Tempo } from '../utils/tempo'
-import { tapRef, tapRows, type TapRef } from '../utils/taps'
+import { tapRef, tapRows, viewRuns, type TapRef } from '../utils/taps'
 
 type Mode = 'a' | 'b' | 'both' | 'stack'
 
@@ -170,7 +170,10 @@ export default function SongPage() {
   const pad = data?.analysis.audio.padSec
   // runs moved onto the current song.egg (a re-analysis can change its padding)
   const tapRuns = useMemo(() => (taps.id === id && pad !== undefined
-    ? taps.runs.map(r => ({ ...r, taps: r.taps.map(t => t + pad - (r.padSec ?? pad)), padSec: pad }))
+    ? taps.runs.map(r => {
+      const shift = (ts: number[]) => ts.map(t => t + pad - (r.padSec ?? pad))
+      return { ...r, taps: shift(r.taps), appended: r.appended?.map(b => ({ ...b, taps: shift(b.taps) })), padSec: pad }
+    })
     : []), [taps, id, pad])
   const onTaps = (runs: TapRun[]) => {
     const stamped = runs.map(r => ({ ...r, padSec: r.padSec ?? pad }))
@@ -178,6 +181,13 @@ export default function SongPage() {
     // the server re-aligns the taps layer: reload the analysis so the timeline and settings show it
     putTaps(id, stamped)
       .then(() => getAnalysis(id))
+      .then(a => setLoaded(l => (l?.id === id ? { ...l, analysis: a.data } : l)))
+      .catch(e => setError(errorText(e)))
+  }
+
+  const onTapsFromHuman = (difficulty: string) => {
+    tapsFromHuman(id, difficulty)
+      .then(r => { setTaps({ id, runs: r.data.runs }); return getAnalysis(id) })
       .then(a => setLoaded(l => (l?.id === id ? { ...l, analysis: a.data } : l)))
       .catch(e => setError(errorText(e)))
   }
@@ -209,6 +219,7 @@ export default function SongPage() {
     }
   }
   const list = useMemo(() => (versions?.id === id ? versions.list : []), [versions, id])
+  const humanVersion = list.find(v => v.kind === 'human')
   const labels = useMemo(() => versionLabels(list), [list])
   const byVersion = useMemo(() => (maps.id === id ? maps.byVersion : {}), [maps, id])
 
@@ -258,8 +269,8 @@ export default function SongPage() {
       .filter((r): r is TapRef => !!r)
   }, [analysis, diffA, diffB])
   // rows are aligned to the top track's notes
-  const tapTimeline = useMemo(() => tapRows(tapRuns, (tracks[0]?.d === diffB ? tapRefs.find(r => r.name === 'B') : tapRefs[0]) ?? null),
-    [tapRuns, tapRefs, tracks, diffB])
+  const tapTimeline = useMemo(() => tapRows(viewRuns(tapRuns, analysis?.taps), (tracks[0]?.d === diffB ? tapRefs.find(r => r.name === 'B') : tapRefs[0]) ?? null),
+    [tapRuns, analysis?.taps, tapRefs, tracks, diffB])
   const sideLabel = (s: Side, k: 'A' | 'B') => `${k} · ${labels[s.v] ?? ''} · ${diffLabel(s.d)}`
   const trackLabels = [showA && diffA && sideA ? sideLabel(sideA, 'A') : null, showB && sideB ? sideLabel(sideB, 'B') : null]
     .filter((x): x is string => !!x)
@@ -493,7 +504,8 @@ export default function SongPage() {
             )}
           </Player>
 
-          {tapOpen && <TapPanel audio={audio} runs={tapRuns} refs={tapRefs} aligned={analysis?.taps} onChange={onTaps} onClose={() => setTapOpen(false)} />}
+          {tapOpen && <TapPanel audio={audio} runs={tapRuns} refs={tapRefs} aligned={analysis?.taps} onChange={onTaps} onClose={() => setTapOpen(false)}
+            humanDifficulties={humanVersion?.difficulties} onFromHuman={onTapsFromHuman} />}
 
           {sideA ? <div className="compare-bar">
             <SidePicker name="A" color={SIDE_A} side={sideA} versions={list} labels={labels} onChange={n => setSide('a', n)} songId={id} />

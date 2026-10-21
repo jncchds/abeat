@@ -648,6 +648,7 @@ button.delete-btn:hover { box-shadow: var(--glow-red); }
 
 /* tap-along runs */
 .tap-hint { font-size: 0.8rem; margin-bottom: 0.6rem; }
+.tap-human { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 0.6rem; font-size: 0.85rem; }
 .tap-runs { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; }
 .tap-run { display: flex; align-items: center; gap: 0.6rem; border: 1px solid; border-left-width: 3px; border-radius: 8px; padding: 0.35rem 0.4rem 0.35rem 0.6rem; font-size: 0.85rem; }
 .tap-rec { display: flex; gap: 0.6rem; align-items: stretch; }

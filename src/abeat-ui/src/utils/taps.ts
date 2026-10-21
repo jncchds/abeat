@@ -1,4 +1,4 @@
-import type { Difficulty, TapRun } from '../api'
+import type { Difficulty, TapInfo, TapRun } from '../api'
 import { BLUE, RED, type TapRow } from './draw'
 import type { Tempo } from './tempo'
 
@@ -22,6 +22,20 @@ export function mergeTaps(existing: number[], added: number[]): number[] {
     return !(Math.abs((old[lo] ?? Infinity) - t) <= SAME_TAP_TOL || Math.abs((old[lo - 1] ?? Infinity) - t) <= SAME_TAP_TOL)
   })
   return [...old, ...fresh].sort((a, b) => a - b)
+}
+
+/** All taps of each run: its own plus its appended batches, each batch moved onto the run's own latency
+ *  (from the server's alignment), so a run compares and draws as one recording. */
+export function viewRuns(runs: TapRun[], aligned?: TapInfo | null): TapRun[] {
+  return runs.map((run, k) => {
+    if (!run.appended?.length) return run
+    const base = aligned?.offsetsSec[k] ?? 0
+    const taps = run.appended.reduce((acc, b, j) => {
+      const off = aligned?.appendedOffsetsSec?.[k]?.[j]
+      return mergeTaps(acc, off === undefined ? b.taps : b.taps.map(t => t - (off - base)))
+    }, run.taps)
+    return { ...run, taps }
+  })
 }
 
 /** Note times (seconds) of a shown map: all, per note colour (0 left, 1 right), and the times both hands hit. */

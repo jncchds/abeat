@@ -18,7 +18,7 @@ public class TapTests
     public void LatencyIsRemovedAndTapsSnapToTheOnsets()
     {
         var a = TestSongs.Fake();
-        TapAligner.Apply(a, [(Tapped(a, 0.06, 1), null)]);
+        TapAligner.Apply(a, [new(Tapped(a, 0.06, 1), null)]);
         Assert.NotNull(a.Taps);
         Assert.True(a.Taps!.Confident[0]);
         Assert.InRange(a.Taps.OffsetsSec[0], 0.045, 0.075);
@@ -27,12 +27,33 @@ public class TapTests
     }
 
     [Fact]
+    public void AppendedTapsGetTheirOwnLatency()
+    {
+        var a = TestSongs.Fake();
+        double half = a.Layers["low"][a.Layers["low"].Count / 2].T;
+        // a human map's notes (exact) in the first half, taps appended 70 ms late in the second
+        var notes = a.Layers["low"].Where(o => o.T < half).Select(o => o.T + 0.012).ToArray();
+        var appended = Tapped(a, 0.07, 4).Where(t => t > half).ToArray();
+        TapAligner.Apply(a, [new(notes, null, Exact: true, Appended: [appended])]);
+        Assert.Equal(0, a.Taps!.OffsetsSec[0]);
+        Assert.InRange(a.Taps.AppendedOffsetsSec[0][0], 0.055, 0.085);
+        var layer = a.Layers[TapAligner.Layer].Select(o => o.T).ToHashSet();
+        Assert.All(notes, t => Assert.Contains(t, layer)); // the map's timing is kept, not snapped
+        var onsets = a.Layers["low"].Concat(a.Layers["high"]).Select(o => o.T).ToHashSet();
+        Assert.True(a.Layers[TapAligner.Layer].Count(o => o.T > half && onsets.Contains(o.T)) >= 0.9 * appended.Length, "appended taps land on the onsets");
+
+        // a few taps can't tell their latency: they borrow a typical one instead of staying late
+        TapAligner.Apply(a, [new(notes, null, Exact: true, Appended: [appended[..4]])]);
+        Assert.Equal(TapAligner.TypicalLagSec, a.Taps!.AppendedOffsetsSec[0][0]);
+    }
+
+    [Fact]
     public void RunsMoveOntoTheCurrentPadding()
     {
         var a = TestSongs.Fake();
         a.Audio.PadSec = 1.0;
         // recorded on a song.egg padded 0.3 s less: every tap 0.3 s early on the current one
-        TapAligner.Apply(a, [(Tapped(a, 0.03 - 0.3, 2), 0.7)]);
+        TapAligner.Apply(a, [new(Tapped(a, 0.03 - 0.3, 2), 0.7)]);
         Assert.InRange(a.Taps!.OffsetsSec[0], 0.015, 0.045);
     }
 
@@ -42,7 +63,7 @@ public class TapTests
         var a = TestSongs.Fake();
         var right = Tapped(a, 0.04, 3);
         var left = a.Layers["low"].Where((_, i) => i % 8 == 0).Select(o => o.T + 0.05).ToArray();
-        TapAligner.Apply(a, [(right, null), (left, null)]);
+        TapAligner.Apply(a, [new(right, null), new(left, null)]);
         Assert.InRange(a.Taps!.Doubles.Count, left.Length - 2, left.Length);
         Assert.True(a.Layers[TapAligner.Layer].Count < right.Length + left.Length);
 
@@ -58,7 +79,7 @@ public class TapTests
         var a = TestSongs.Fake();
         // off-beat hats are what the fake song's selector likes least; tap them
         var taps = a.Layers["high"].Where((o, i) => i % 3 == 0 && o.T > 2).Select(o => o.T + 0.05).ToArray();
-        TapAligner.Apply(a, [(taps, null)]);
+        TapAligner.Apply(a, [new(taps, null)]);
         double Covered(GeneratorSettings s)
         {
             var times = MapGenerator.GenerateDifficulty(a, s, DifficultyName.Expert).Events.Select(e => e.Time).ToList();
@@ -80,7 +101,7 @@ public class TapTests
         var taps = Enumerable.Range(0, 64).Select(i => 80 * spb + i * spb / 4)
             .Concat(Enumerable.Range(0, 5).SelectMany(i => new[] { (40 + 8 * i) * spb, (40 + 8 * i) * spb + 0.07 }))
             .Order().ToArray();
-        TapAligner.Apply(a, [(taps, null)]);
+        TapAligner.Apply(a, [new(taps, null)]);
         double Covered(GeneratorSettings s)
         {
             var times = MapGenerator.GenerateDifficulty(a, s, DifficultyName.ExpertPlus).Events.Select(e => e.Time).ToList();

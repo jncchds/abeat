@@ -308,11 +308,18 @@ changed the BPM or the padding.
 plays the song from the start, and every key press (or touch on the pad) is a note that hand would cut.
 Esc stops a run early; **Append from playhead** records from where the player is (seek on the timeline
 first) and adds the taps to the run without removing any; a new tap within 40 ms of one already there
-counts once. The timeline shows the runs as *tap R* / *tap L* rows above the lanes, with taps
+counts once. Each appended batch is its own recording, so it gets its own latency (shown next to the run);
+a batch too short to measure takes the run's, or a typical 65 ms.
+
+**From the human map** (when the song has one): pick a difficulty and **Use as taps**. Its right-hand
+notes become the right run and its left-hand notes the left run, with the mapper's exact timing (no
+latency removed, no snapping); notes of both hands at once become doubles. Generate then remakes the
+map on that rhythm, or builds lower difficulties from it (they thin the taps out to their own limits).
+You can still append your own taps; they are aligned on their own. The timeline shows the runs as *tap R* / *tap L* rows above the lanes, with taps
 that have no note nearby drawn tall. The table scores each hand against the same hand's notes of A (and
 B): your median offset (latency, removed before matching), F1, precision (taps that have a note), recall
 (notes that have a tap) at ±70 ms, and *any* (taps that have a note of either hand). *Both* merges the two
-runs and compares them with all notes; the doubles line counts the moments both hands hit. A run stopped
+runs and compares them with all notes; the doubles line counts the moments both hands hit. **Clear taps** deletes both runs. A run stopped
 early only counts up to where it stopped. Runs are saved per song in `taps.json`, with the padding of the song.egg they were recorded on, so a re-analysis doesn't shift them.
 
 The generator uses the taps too: every tap is a moment you want a note on. The two runs only mark moments
