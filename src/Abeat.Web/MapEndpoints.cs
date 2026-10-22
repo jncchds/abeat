@@ -367,7 +367,7 @@ public static class MapEndpoints
 
     public sealed record UrlRequest(string? Url, string? Beats, bool Stems, string? Vocals);
 
-    static string VocalOption(string? v) => v is "notes" or "lyrics" ? v : "flux";
+    static string VocalOption(string? v) => v is "flux" or "lyrics" ? v : "notes";
     public sealed record ImportRequest(string Path);
     public sealed record LyricsRequest(string? Text);
     /// <summary>PadSec: song.egg padding when recorded; a re-analysis can change it, the UI shifts the taps.

@@ -55,14 +55,29 @@ public static class Expression
     /// <summary>Melody sound covering at least this share of the gap before an arc may be drawn over it.</summary>
     const double MinArcCover = 0.3;
 
+    /// <summary>Held arcs (no tail note) per connected arc: curated maps end 863 of their 11,352 arcs
+    /// without a note (8 % of the connected ones, in about half of the maps that use arcs).</summary>
+    const double HeldArcShare = 0.08;
+
+    /// <summary>A held arc needs a melody note sounding this long (seconds and beats; curated held arcs
+    /// span a median 1.5 beats, quartiles 0.75-2.5) and is cut at <see cref="MaxHeldBeats"/>.</summary>
+    const double MinHeldSec = 0.4, MinHeldBeats = 0.75, MaxHeldBeats = 4;
+
+    /// <summary>Room after a held arc's tail before the hand's next note (curated: the next note follows a
+    /// median 1 beat later, quartiles 0.67-2).</summary>
+    const double HeldRoomBeats = 0.5, HeldRoomSec = 0.25;
+
     /// <summary>Arcs over held melody notes: of all notes followed by the same hand's next note 0.3-2 s
     /// later, the ones whose sound covers the most of that gap get an arc to it, up to
     /// <see cref="ArcShare"/> of those gaps. Skipped when the next swing is a reset (no continuous motion
-    /// to draw) or a gameplay wall passes in between.</summary>
+    /// to draw) or a gameplay wall passes in between. A long melody or vocal note that the hand has no
+    /// next note for (the note ends before the hand cuts again) gets a held arc instead: it follows the
+    /// sound to its end and stops there without a note (<see cref="HeldArc"/>).</summary>
     public static void AddArcs(DifficultyMap map, IReadOnlyList<RhythmEvent> events, TempoMap tempo)
     {
         var byBeat = events.GroupBy(e => Math.Round(e.Beat, 4)).ToDictionary(g => g.Key, g => g.First());
         var candidates = new List<(double cover, Arc arc)>();
+        var held = new List<(double sustain, Arc arc)>();
         int gaps = 0;
         foreach (var hand in new[] { Hand.Left, Hand.Right })
         {
@@ -73,12 +88,16 @@ public static class Expression
                 var n = notes[i];
                 var v = SwingCostModel.EffectiveSwing(state, n.Direction);
                 state = state.After(tempo.BeatToSeconds(n.Beat), n.X, n.Y, n.Direction, v, hand);
+                var e = byBeat.GetValueOrDefault(Math.Round(n.Beat, 4));
+                bool stacked = i > 0 && notes[i - 1].Beat > n.Beat - 1e-4 || i + 1 < notes.Count && notes[i + 1].Beat < n.Beat + 1e-4;
+                if (e is { Melody: true } && !stacked && HeldArc(map, tempo, n, v, e, i + 1 < notes.Count ? notes[i + 1] : null) is { } h)
+                    held.Add((e.Sustain + 0.01 * e.Intensity, h));
                 if (i + 1 >= notes.Count) continue;
                 var tail = notes[i + 1];
                 double gapSec = tempo.Seconds(n.Beat, tail.Beat);
                 if (gapSec < MinArcGapSec || gapSec > MaxArcGapSec) continue;
                 gaps++;
-                if (!byBeat.TryGetValue(Math.Round(n.Beat, 4), out var e)) continue;
+                if (e is null) continue;
                 double cover = Math.Min(1, e.Sustain / gapSec);
                 if (cover < MinArcCover) continue;
                 var tv = SwingCostModel.EffectiveSwing(state, tail.Direction);
@@ -88,8 +107,41 @@ public static class Expression
             }
         }
         int quota = (int)Math.Round(ArcShare(map.Difficulty) * gaps);
-        map.Arcs.AddRange(candidates.OrderByDescending(c => c.cover).ThenBy(c => c.arc.Beat).Take(quota).Select(c => c.arc));
+        var chosen = candidates.OrderByDescending(c => c.cover).ThenBy(c => c.arc.Beat).Take(quota).Select(c => c.arc).ToList();
+        map.Arcs.AddRange(chosen);
+        // a note starts one arc at most; at least one held arc when the map has a few arcs and a held note for it
+        var heads = chosen.Select(a => (Math.Round(a.Beat, 4), a.Hand)).ToHashSet();
+        int heldQuota = Math.Max(quota >= 4 ? 1 : 0, (int)Math.Round(HeldArcShare * quota));
+        map.Arcs.AddRange(held.Where(h => !heads.Contains((Math.Round(h.arc.Beat, 4), h.arc.Hand)))
+            .OrderByDescending(h => h.sustain).ThenBy(h => h.arc.Beat).Take(heldQuota).Select(h => h.arc));
         map.Arcs.Sort((a, b) => a.Beat.CompareTo(b.Beat));
+    }
+
+    /// <summary>Held arc from a melody note whose sound outlasts it with no next note of the hand to
+    /// connect to: it runs to where the note stops sounding (rounded to a quarter beat) and ends in a dot
+    /// (curated held arcs: 55 % end in a dot, a third back in the head's cell, most others one cell away).
+    /// The tail leans one cell towards the hand's next note, or stays in the head's cell when there is none
+    /// or that cell is taken. Null when the note is too short, the hand cuts again before the sound ends
+    /// (that is a connected arc), there is no room after the tail, or a wall is in the way.</summary>
+    static Arc? HeldArc(DifficultyMap map, TempoMap tempo, ColorNote n, Vec2 swing, RhythmEvent e, ColorNote? next)
+    {
+        if (e.Sustain < MinHeldSec) return null;
+        double held = tempo.SecondsToBeat(tempo.BeatToSeconds(n.Beat) + e.Sustain) - n.Beat;
+        double tailBeat = n.Beat + Math.Min(MaxHeldBeats, Math.Round(held * 4) / 4);
+        if (tailBeat - n.Beat < MinHeldBeats) return null;
+        if (next != null && (next.Beat < tailBeat + HeldRoomBeats || tempo.Seconds(tailBeat, next.Beat) < HeldRoomSec)) return null;
+        if (map.Obstacles.Any(o => !IsSideWall(o) && o.Beat < tailBeat && o.Beat + o.Duration > n.Beat)) return null;
+        double until = tailBeat + HeldRoomBeats;
+        bool Free(int x, int y) =>
+            !map.Notes.Any(o => o != n && o.Beat > n.Beat - 1e-4 && o.Beat < until && o.X == x && o.Y == y)
+            && !map.Bombs.Any(b => b.Beat > n.Beat - 1e-4 && b.Beat < until && b.X == x && b.Y == y);
+        var cells = new List<(int X, int Y)>();
+        if (next != null && (next.X, next.Y) != (n.X, n.Y))
+            cells.Add((n.X + Math.Sign(next.X - n.X), n.Y + Math.Sign(next.Y - n.Y)));
+        cells.Add((n.X, n.Y));
+        foreach (var (x, y) in cells)
+            if (Free(x, y)) return new Arc(n.Beat, n.X, n.Y, n.Hand, Swing.FromVector(swing), tailBeat, x, y, CutDirection.Any);
+        return null;
     }
 
     static bool IsSideWall(Obstacle o) => o.Width == 1 && o.X is 0 or 3;

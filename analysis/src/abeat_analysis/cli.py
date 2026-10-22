@@ -331,7 +331,7 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--stems", choices=["none", "demucs", "roformer"], default="none",
                    help="demucs = htdemucs stems; roformer = htdemucs plus BS-RoFormer vocals (extra 'roformer', slow on CPU)")
     a.add_argument("--keep-stems", action="store_true")
-    a.add_argument("--vocals", choices=["flux", "notes", "lyrics"], default="flux",
+    a.add_argument("--vocals", choices=["flux", "notes", "lyrics"], default="notes",
                    help="vocal onsets (needs --stems): spectral flux, sung notes (CREPE pitch) or "
                         "lyrics syllables (Whisper + forced alignment, extra 'lyrics')")
     a.add_argument("--pitched", choices=["flux", "notes"], default="flux",

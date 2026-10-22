@@ -84,7 +84,7 @@ envelopes lag ~50 ms, which players feel), downbeats, energy curve, novelty-base
 labels for repeated parts, and onsets per layer ([Demucs](https://github.com/facebookresearch/demucs)
 stems, the default, or frequency bands with `--no-stems`). The audio is padded so grid beat 0 is at t = 0 and written as `song.egg`.
 
-**Vocal onsets** (per song, re-analysis reuses the stems): *spectral flux* (default); *sung notes*,
+**Vocal onsets** (per song, re-analysis reuses the stems): *spectral flux*; *sung notes* (default),
 flux onsets kept only where a pitched voice follows (CREPE);
 or *lyric syllables*, the lyrics forced-aligned to the vocal stem (MMS aligner) and split into
 syllables at their vowels. Paste the lyrics on the song page (repeats written out), or let Whisper
@@ -134,7 +134,9 @@ last swing direction, parity). Each candidate cut is scored for:
   the **Vocabulary** page shows every one of them drawn on the grid; note height never follows the audio, so easier levels keep notes lower
   like human maps do (top row: ~18 % of notes on Easy, ~26 % on Expert+)
 - *musical fit*: accents prefer big vertical swings; hand roles as players tap along: one hand leads the
-  drops, the other the rest, and the support hand takes the bar downbeats
+  drops, the other the rest, and the support hand takes the bar downbeats. Where a section has a melody or
+  vocal line to follow (20-80 % of its notes), the leading hand becomes the melody hand and plays the
+  melody, the other hand plays the beat; the two swap where the lead swaps (flow weight *melody hand*, 0 = off)
 - *dynamics*: loud moments pull to the outer columns and bigger moves, soft ones stay small and central
 - *bursts*: one hand may flick back and forth faster than its usual limit (down to the difficulty's burst
   gap, up to 4 notes in a row, 6 on Expert+) when each flick is a clean reversal in place, as curated maps
@@ -144,7 +146,10 @@ last swing direction, parity). Each candidate cut is scored for:
 
 **Expression** (`Expression`): the melody notes held longest over the gap to the same hand's next
 note (0.3-2 s later) get an arc to it, both hands at once on a double, on about as many gaps as curated
-mappers use (6-9 % by difficulty); notes in a rising or falling melody line get a small cut-angle offset that leans with it;
+mappers use (6-9 % by difficulty). A long melody or vocal note the hand has nothing after (it sounds
+on and the hand cuts again only later) gets a *held arc* instead: it follows the sound to its end and stops
+there in a dot without a note, next to the head or one cell towards the hand's next note (a few per map,
+about 8 % of the arcs, as in curated maps); notes in a rising or falling melody line get a small cut-angle offset that leans with it;
 notes followed by a roll, flam or stutter too fast for single notes become chains (Hard and up, at
 most one per 30-120 s, as rare as in curated maps).
 All of them leave hands, cells and directions alone, so flow is unaffected. Each can be switched off in the

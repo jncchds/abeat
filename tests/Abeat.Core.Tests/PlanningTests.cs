@@ -155,6 +155,35 @@ public class PlanningTests
         }
     }
 
+    /// <summary>A section with a melody to follow splits the hands: the lead hand takes the melody notes,
+    /// the other hand the rhythm; the planner follows it, and weight 0 turns it off.</summary>
+    [Fact]
+    public void MelodyHandFollowsTheMelody()
+    {
+        var a = TestSongs.Fake();
+        double spb = 60 / a.Tempo.Bpm;
+        // a held line on the offbeats of every other beat, louder than the hats there
+        a.Layers["mid"] = [.. Enumerable.Range(2, 98).Select(i => new Onset { T = (2 * i + 0.5) * spb, S = 1, Br = 0.2 + 0.1 * (i % 5) })];
+        var p = DifficultyProfile.Default(DifficultyName.Expert);
+        var events = RhythmSelector.Select(a, p, new GeneratorSettings());
+        var roles = FlowPlanner.Roles(events, Hand.Left);
+        Assert.Contains(roles, r => r.Melody);
+        for (int i = 0; i < events.Count; i++)
+        {
+            if (!roles[i].Melody) continue;
+            var lead = events[i].Section == "B" ? Hand.Left : Hand.Right;
+            Assert.Equal(events[i].Melody ? lead : (lead == Hand.Left ? Hand.Right : Hand.Left), roles[i].Hand);
+        }
+        Assert.DoesNotContain(FlowPlanner.Roles(events, Hand.Left, melodyHand: false), r => r.Melody);
+
+        var gen = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Expert);
+        Assert.Equal(0, gen.Report.Resets);
+        Assert.NotNull(gen.MelodyHandShare);
+        Assert.True(gen.MelodyHandShare > 0.6, $"melody/rhythm hands kept {gen.MelodyHandShare:0.00}");
+        var off = MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Weights = new FlowWeights { MelodyHand = 0 } }, DifficultyName.Expert);
+        Assert.Null(off.MelodyHandShare);
+    }
+
     /// <summary>The planner follows the roles: the drop hand plays most single notes of the loud section,
     /// the same for every difficulty, and the default seed makes it the left hand.</summary>
     [Fact]

@@ -5,7 +5,8 @@ using Abeat.Core.Model;
 namespace Abeat.Core.Generation;
 
 /// <param name="HandRoleShare">Share of single notes played by their role's hand (see <see cref="FlowPlanner.HandRoles"/>).</param>
-public sealed record GeneratedDifficulty(DifficultyMap Map, IReadOnlyList<RhythmEvent> Events, FlowReport Report, double HandRoleShare);
+/// <param name="MelodyHandShare">The same for the sections split into a melody and a rhythm hand, or null without any.</param>
+public sealed record GeneratedDifficulty(DifficultyMap Map, IReadOnlyList<RhythmEvent> Events, FlowReport Report, double HandRoleShare, double? MelodyHandShare = null);
 
 /// <param name="Difficulties">Standard difficulties.</param>
 /// <param name="Extra">One Saber / 90° / 360° difficulties (<see cref="GeneratorSettings.Modes"/>).</param>
@@ -82,7 +83,7 @@ public static class MapGenerator
         {
             // one hand plays everything: its own recovery time between all notes, and a bit less of them
             p = p with { MinGapSec = Math.Max(p.MinGapSec, p.MinSameHandGapSec), BaseNps = p.BaseNps * 0.8, MaxNps = Math.Min(p.MaxNps, 0.9 / p.MinSameHandGapSec), DoubleRate = 0 };
-            s = s with { Weights = s.Weights with { HandRole = 0, Crossover = 0 } };
+            s = s with { Weights = s.Weights with { HandRole = 0, MelodyHand = 0, Crossover = 0 } };
         }
         var events = RhythmSelector.Select(a, p, s);
         if (oneSaber) events = [.. events.Select(e => e with { IsDouble = false })];
@@ -111,21 +112,25 @@ public static class MapGenerator
         if (s.Lights) LightingGenerator.Generate(a, dm, events, env);
         if (s.Lights && env.System == LightingSystem.Groups) GroupLightshow.Generate(a, dm, events, env);
         var report = FlowAnalyzer.Analyze(dm, a.TempoMap, s.Weights, p.MinSameHandGapSec, p.BurstGapSec, p.BurstNotes);
-        return new GeneratedDifficulty(dm, events, report, HandRoleShare(events, notes, dropHand));
+        var (roleShare, melodyShare) = HandRoleShare(events, notes, dropHand, s.Weights.MelodyHand > 0);
+        return new GeneratedDifficulty(dm, events, report, roleShare, melodyShare);
     }
 
-    static double HandRoleShare(IReadOnlyList<RhythmEvent> events, List<ColorNote> notes, Hand dropHand)
+    static (double all, double? melody) HandRoleShare(IReadOnlyList<RhythmEvent> events, List<ColorNote> notes, Hand dropHand, bool melodyHand)
     {
-        var roles = FlowPlanner.HandRoles(events, dropHand);
+        var roles = FlowPlanner.Roles(events, dropHand, melodyHand);
         var hands = notes.GroupBy(n => n.Beat).ToDictionary(g => g.Key, g => g.Select(n => n.Hand).Distinct().ToList());
-        int total = 0, kept = 0;
+        int total = 0, kept = 0, mTotal = 0, mKept = 0;
         for (int i = 0; i < events.Count; i++)
         {
-            if (events[i].IsDouble || roles[i] is not { } role || !hands.TryGetValue(events[i].Beat, out var h) || h.Count != 1) continue;
+            if (events[i].IsDouble || roles[i] is not ({ } role, var split) || !hands.TryGetValue(events[i].Beat, out var h) || h.Count != 1) continue;
             total++;
             if (h[0] == role) kept++;
+            if (!split) continue;
+            mTotal++;
+            if (h[0] == role) mKept++;
         }
-        return total > 0 ? (double)kept / total : 0;
+        return (total > 0 ? (double)kept / total : 0, mTotal > 0 ? (double)mKept / mTotal : null);
     }
 
     /// <summary>Beat Saber's half-jump duration: start at 4 beats, halve while the jump would exceed

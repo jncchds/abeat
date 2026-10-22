@@ -63,7 +63,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
 
     /// <summary>Hand that should play each event's layer under the hand-role split, or null for events
     /// that belong to neither role.</summary>
-    Hand?[] roles = [];
+    (Hand? Hand, bool Melody)[] roles = [];
 
     /// <summary>Cuts each event should copy (pattern memory), from <see cref="RepeatReference"/>.</summary>
     Dictionary<int, List<Cut>> reference = [];
@@ -73,7 +73,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
     public List<ColorNote> Plan(IReadOnlyList<RhythmEvent> events, IReadOnlyList<ColorNote>? previous = null)
     {
         var w = model.Weights;
-        roles = HandRoles(events, dropHand);
+        roles = Roles(events, dropHand, model.Weights.MelodyHand > 0);
         reference = previous is null ? [] : RepeatReference(events, previous);
         var beam = new List<Node> { new() { Left = HandState.Initial(Hand.Left), Right = HandState.Initial(Hand.Right), LastHand = Hand.Left } };
 
@@ -266,12 +266,25 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         return result;
     }
 
+    /// <summary>Sections whose share of melody events lies in this range split the hands into a melody
+    /// hand and a rhythm hand; with less melody there is nothing to follow, with more there is no rhythm
+    /// left for the other hand.</summary>
+    public const double MinMelodyShare = 0.2, MaxMelodyShare = 0.8;
+
     /// <summary>Lead/support split, as players tap along: one hand leads the loud sections (drops) and the
-    /// other leads the rest, so the hands swap places where the song changes character; the support hand
-    /// takes the bar downbeats.</summary>
-    public static Hand?[] HandRoles(IReadOnlyList<RhythmEvent> events, Hand dropHand)
+    /// other leads the rest, so the hands swap places where the song changes character. In a section with
+    /// a melody to follow (<see cref="MinMelodyShare"/>..<see cref="MaxMelodyShare"/> of its events), the
+    /// lead hand is the melody hand: it takes the melody / vocal notes and the other hand the rest (beat,
+    /// bass, drums); elsewhere the support hand takes the bar downbeats.</summary>
+    /// <param name="melodyHand">Whether to split sections into melody and rhythm hands (weight
+    /// <see cref="FlowWeights.MelodyHand"/> &gt; 0).</param>
+    public static Hand?[] HandRoles(IReadOnlyList<RhythmEvent> events, Hand dropHand, bool melodyHand = true) =>
+        Roles(events, dropHand, melodyHand).Select(r => r.Hand).ToArray();
+
+    /// <summary><see cref="HandRoles"/> with whether each role comes from the melody split.</summary>
+    public static (Hand? Hand, bool Melody)[] Roles(IReadOnlyList<RhythmEvent> events, Hand dropHand, bool melodyHand = true)
     {
-        var roles = new Hand?[events.Count];
+        var roles = new (Hand?, bool)[events.Count];
         if (events.Count == 0) return roles;
         var runs = new List<(int Start, int End, double Energy)>();
         for (int i = 1, start = 0; i <= events.Count; i++)
@@ -284,10 +297,13 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
         foreach (var (start, end, energy) in runs)
         {
             var lead = energy >= loud ? dropHand : Other(dropHand);
+            double melody = (double)Enumerable.Range(start, end - start).Count(i => events[i].Melody) / (end - start);
+            bool split = melodyHand && melody >= MinMelodyShare && melody <= MaxMelodyShare;
             for (int i = start; i < end; i++)
             {
+                if (split) { roles[i] = (events[i].Melody ? lead : Other(lead), true); continue; }
                 double inBar = ((events[i].BeatInSection % 4) + 4) % 4;
-                roles[i] = Math.Min(inBar, 4 - inBar) < 0.05 ? Other(lead) : lead;
+                roles[i] = (Math.Min(inBar, 4 - inBar) < 0.05 ? Other(lead) : lead, false);
             }
         }
         return roles;
@@ -306,7 +322,7 @@ public sealed class FlowPlanner(SwingCostModel model, DifficultyProfile profile,
             foreach (var (cut, cost, swing) in Candidates(node, hand, e, i).OrderBy(c => c.cost).Take(PerNodeSingle))
             {
                 double total = node.Cost + cost;
-                if (roles[i] is { } role && role != hand) total += model.Weights.HandRole;
+                if (roles[i] is ({ } role, var melody) && role != hand) total += melody ? model.Weights.MelodyHand : model.Weights.HandRole;
                 Add(next, node, total, cut, null, e.Time, swing, default);
             }
         }

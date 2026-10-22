@@ -9,7 +9,7 @@ namespace Abeat.Core.Analysis;
 /// <param name="Tempo">"auto" (tempo changes only for drifting songs), "constant" or "variable".</param>
 /// <param name="Pitched">Other/bass onsets: "flux" or "notes" (basic-pitch transcription).</param>
 /// <param name="Separator">"demucs", or "roformer" (BS-RoFormer vocals on top of Demucs; worker extra "roformer").</param>
-public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null, string VocalOnsets = "flux", string Tempo = "auto", string Pitched = "flux", string Separator = "demucs");
+public sealed record AnalysisOptions(string BeatBackend = "auto", bool Stems = true, double? BpmOverride = null, string VocalOnsets = "notes", string Tempo = "auto", string Pitched = "flux", string Separator = "demucs");
 
 /// <summary>Runs the Python analysis worker (analysis/ uv project) as a subprocess.</summary>
 public sealed class AnalysisRunner
@@ -49,7 +49,7 @@ public sealed class AnalysisRunner
         string input = IsUrl(audioPath) ? audioPath : Path.GetFullPath(audioPath);
         var args = new List<string> { "analyze", input, "-o", Path.GetFullPath(workDir), "--beats", options.BeatBackend };
         // keep the separated stems (FLAC in work/stems) for debugging and listening
-        if (options.Stems) args.AddRange(["--stems", options.Separator is "roformer" ? "roformer" : "demucs", "--keep-stems", "--vocals", options.VocalOnsets ?? "flux", "--pitched", options.Pitched is "notes" ? "notes" : "flux"]);
+        if (options.Stems) args.AddRange(["--stems", options.Separator is "roformer" ? "roformer" : "demucs", "--keep-stems", "--vocals", options.VocalOnsets ?? "notes", "--pitched", options.Pitched is "notes" ? "notes" : "flux"]);
         if (lyricsFile != null && File.Exists(lyricsFile)) args.AddRange(["--lyrics-file", Path.GetFullPath(lyricsFile)]);
         if (options.BpmOverride is { } bpm) args.AddRange(["--bpm", bpm.ToString(System.Globalization.CultureInfo.InvariantCulture)]);
         if (options.Tempo is "constant" or "variable") args.AddRange(["--tempo", options.Tempo]);

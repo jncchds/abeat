@@ -132,6 +132,10 @@ public sealed record FlowWeights
     /// <summary>Hand roles (<see cref="FlowPlanner.HandRoles"/>): one hand leads the drops, the other the
     /// rest, the support hand takes bar downbeats. Cost of a single note on the "wrong" hand.</summary>
     public double HandRole { get; init; } = 1.5;
+    /// <summary>Melody hand (<see cref="FlowPlanner.HandRoles"/>): in sections with a melody to follow, the
+    /// lead hand plays the melody / vocal notes and the other hand the rhythm. Cost of a single note on the
+    /// "wrong" hand there (replaces <see cref="HandRole"/> in those sections); 0 = no split.</summary>
+    public double MelodyHand { get; init; } = 1.5;
     /// <summary>Swing size follows intensity: loud hits pull to the outer columns and big moves, soft
     /// ones stay near the centre with small moves.</summary>
     public double Dynamics { get; init; } = 1.0;
@@ -210,7 +214,8 @@ public sealed record GeneratorSettings : IJsonOnDeserialized
     public bool RhythmWalls { get; init; } = true;
     /// <summary>Reset-signalling bombs (Normal and up) and accent bombs (Hard and up).</summary>
     public bool Bombs { get; init; } = true;
-    /// <summary>Arcs from held melody notes to the same hand's next note.</summary>
+    /// <summary>Arcs from held melody notes to the same hand's next note, and held arcs (no tail note) on long
+    /// melody notes the hand has no next note for.</summary>
     public bool Arcs { get; init; } = true;
     /// <summary>Chains on notes followed by a roll or stutter too fast for single notes (Hard and up).</summary>
     public bool Chains { get; init; } = true;

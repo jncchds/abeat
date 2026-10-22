@@ -75,7 +75,7 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      Works end to end; on a 4-core CPU one 8 s chunk takes ~136 s at the model's overlap 4 (~70x real time),
      so the CPU uses overlap 2 (~35x) and logs an estimate: practical only with a GPU.
    - vocal onsets selectable per song (`--vocals`, `AnalysisOptions.VocalOnsets`, `vocals.py`):
-     `flux` (default); `notes`: flux onsets kept only where CREPE-tiny hears a pitched voice in the
+     `flux`; `notes` (default since v0.3.4; falls back to flux without the `ml` extra): flux onsets kept only where CREPE-tiny hears a pitched voice in the
      next 80 ms (drops breaths/consonants/bleed; Cake By The Ocean: 83 % on human notes vs 72 %),
      pitch drives brightness (lights, angle offsets); `lyrics`: MMS forced alignment (torchaudio) of user lyrics
      (`--lyrics-file`, song's `lyrics.txt`) or a faster-whisper transcription (extra `lyrics`),
@@ -256,7 +256,12 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      Soft (1.5 per single note on the wrong hand), so flow still wins; the CLI reports the share of
      notes that kept their role. Tuned against tap-along runs (Bangaranga, Everlasting): per-note hand
      agreement with the taps 40-59 % -> 53-77 %, lead-hand share per section 52-63 % -> 61-79 % (taps 65-80 %).
-     Stem-based roles (melody vs rhythm hand) did not match: taps don't split by stem
+     Stem-based roles (melody vs rhythm hand) did not match taps (taps don't split by stem), but are
+     wanted as a style: melody hand (`FlowWeights.MelodyHand`, 1.5, 0 = off; `FlowPlanner.Roles`): a run
+     whose share of `Melody` events is 0.2-0.8 gives its melody events to the lead hand and the rest to
+     the other hand (no downbeat rule there), so one hand at a time follows the melody / vocals. 5 songs,
+     taps off, Hard-Expert+: rhythm notes on the rhythm hand 20-35 % -> 87-97 %, melody notes on the
+     melody hand 66-85 % -> 78-95 %, flow equal or up to +1.6, no resets (CLI: "melody/rhythm hands")
    - bursts (`DifficultyProfile.BurstGapSec`, Easy..Expert+ 0.3 / 0.18 / 0.14 / 0.12 / 0.1 s): curated maps
      put 5-19 % of a hand's gaps under our regular same-hand gap (in ~70 % of maps), ~70 % of them clean
      back-and-forth flips, runs of 2 (p90 4-7), one grid step finer than the level's usual (eighths on
@@ -301,7 +306,14 @@ Authoritative design notes. Keep in sync with the code after architectural chang
      cover and the best `ArcShare` of the gaps (Easy 6 %, Normal/Hard 7.5 %, Expert/Expert+ 9 %: medians
      of curated maps that use arcs; 93 % of curated arcs join a note to the same hand's next one, median
      0.43 s, a third start on a double) get an arc to the next note, unless that swing is a reset or a
-     gameplay wall passes in between. Generated maps went from ~0 to 4-13 arcs/min (curated median
+     gameplay wall passes in between. Held arcs (`Expression.HeldArc`): a melody note (not in a stack)
+     sounding >= 0.4 s and >= 0.75 beat whose hand cuts again only >= 0.5 beat (and 0.25 s) after the sound
+     ends gets an arc to the sound's end (quarter-beat rounded, <= 4 beats) with no note there, ending in a
+     dot one cell towards the hand's next note (else in the head's cell; the cell must be free until 0.5
+     beat after the tail). Curated maps end 863 of 11,352 arcs without a note (8 % of the connected ones,
+     in about half of the maps; median 1.5 beats; 55 % dot tails; a third back in the head's cell), so the
+     longest ones get 8 % of the connected-arc quota (at least 1 once that quota is >= 4) and never share a
+     head with a connected arc: 1-4 per map. Generated maps went from ~0 to 4-13 arcs/min (curated median
      1 / 6 / 8 / 10 / 11 per minute Easy..Expert+); chains (v3 burst sliders,
      `Chains`, Hard+) on notes followed by a fast run in their layer or the drums (`RhythmEvent.BurstCount`:
      onsets each < min(100 ms, 0.85 sixteenth) apart, so steady sixteenth hats never count): links continue

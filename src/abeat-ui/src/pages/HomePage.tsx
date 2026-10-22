@@ -12,7 +12,7 @@ export default function HomePage() {
   const [url, setUrl] = useState('')
   const [beats, setBeats] = useState('auto')
   const [stems, setStems] = useState(true)
-  const [vocals, setVocals] = useState('flux')
+  const [vocals, setVocals] = useState('notes')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)

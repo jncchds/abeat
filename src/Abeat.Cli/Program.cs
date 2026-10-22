@@ -25,7 +25,7 @@ usage:
       --beats auto|librosa|beat_this   beat tracker (default auto)
       --no-stems               skip Demucs stem separation (faster; vocals not isolated)
       --roformer               vocals from BS-RoFormer (cleaner, slow on CPU; worker extra "roformer")
-      --vocals flux|notes|lyrics   vocal onsets: spectral flux (default), sung notes (pitch), or
+      --vocals flux|notes|lyrics   vocal onsets: spectral flux, sung notes (pitch, default), or
                                lyric syllables (Whisper + forced alignment, worker extra "lyrics")
       --pitched flux|notes     other/bass onsets: spectral flux (default) or notes transcribed by
                                basic-pitch (pitch drives rows, note lengths drive arcs)
@@ -133,7 +133,7 @@ static AnalysisOptions AnalysisOpts(Options o) => new(
     o.Get("beats") ?? "auto",
     !o.Has("no-stems"),
     o.Get("bpm") is { } b ? double.Parse(b, CultureInfo.InvariantCulture) : null,
-    o.Get("vocals") ?? "flux",
+    o.Get("vocals") ?? "notes",
     o.Get("tempo") ?? "auto",
     o.Get("pitched") ?? "flux",
     o.Has("roformer") ? "roformer" : "demucs");
@@ -163,7 +163,7 @@ static async Task<int> Generate(Options o)
         Console.WriteLine($"  {d.Report}  njs {d.Map.NoteJumpSpeed} jd {jd:0.0}");
         var layers = d.Events.GroupBy(e => e.Layer).OrderByDescending(g => g.Count())
             .Select(g => $"{g.Key} {100.0 * g.Count() / d.Events.Count:0}%");
-        Console.WriteLine($"             notes led by: {string.Join(", ", layers)}  (hand roles kept {d.HandRoleShare:P0})");
+        Console.WriteLine($"             notes led by: {string.Join(", ", layers)}  (hand roles kept {d.HandRoleShare:P0}{(d.MelodyHandShare is { } mh ? $", melody/rhythm hands {mh:P0}" : "")})");
         if (a.Layers.GetValueOrDefault(TapAligner.Layer) is { Count: > 0 } taps)
         {
             var times = d.Events.Select(e => e.Time).Order().ToArray();

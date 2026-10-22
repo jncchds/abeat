@@ -15,22 +15,49 @@ public class ExpressionTests
         var a = TestSongs.Melody();
         var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Hard);
         Assert.NotEmpty(r.Map.Arcs);
+        bool Ends(Arc arc) => r.Map.Notes.Any(n => n.Hand == arc.Hand && n.Beat == arc.TailBeat && n.X == arc.TailX && n.Y == arc.TailY);
+        var connected = r.Map.Arcs.Where(Ends).ToList();
+        Assert.NotEmpty(connected);
         foreach (var arc in r.Map.Arcs)
         {
             Assert.Contains(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat == arc.Beat && n.X == arc.X && n.Y == arc.Y);
-            Assert.Contains(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat == arc.TailBeat && n.X == arc.TailX && n.Y == arc.TailY);
             Assert.DoesNotContain(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat > arc.Beat && n.Beat < arc.TailBeat);
         }
         Assert.Equal(0, r.Report.Resets);
         // as sparing as curated maps: about 9 % of the Hard same-hand gaps of 1-4 beats
         int gaps = r.Map.Notes.GroupBy(n => n.Hand).Sum(g => g.OrderBy(n => n.Beat).Zip(g.OrderBy(n => n.Beat).Skip(1))
             .Count(p => p.Second.Beat - p.First.Beat is >= 1 and <= 4));
-        Assert.InRange(r.Map.Arcs.Count, 1, Math.Round(0.09 * gaps));
+        Assert.InRange(connected.Count, 1, Math.Round(0.09 * gaps));
         Assert.Empty(MapGenerator.GenerateDifficulty(a, new GeneratorSettings { Arcs = false }, DifficultyName.Hard).Map.Arcs);
         // percussive layers never hold
         Assert.Empty(MapGenerator.GenerateDifficulty(TestSongs.Fake(), new GeneratorSettings(), DifficultyName.Hard).Map.Arcs);
     }
 
+
+    /// <summary>A held note the hand has nothing after gets an arc that follows the sound and ends in a
+    /// dot without a note, with room before the hand's next note; a few of them, like curated maps.</summary>
+    [Fact]
+    public void LongNotesWithoutANextNoteGetHeldArcs()
+    {
+        var a = TestSongs.Melody();
+        var r = MapGenerator.GenerateDifficulty(a, new GeneratorSettings(), DifficultyName.Hard);
+        var held = r.Map.Arcs.Where(arc => !r.Map.Notes.Any(n => n.Hand == arc.Hand && Math.Abs(n.Beat - arc.TailBeat) < 1e-4)).ToList();
+        Assert.NotEmpty(held);
+        Assert.True(held.Count <= Math.Max(1, r.Map.Arcs.Count / 4), $"{held.Count} of {r.Map.Arcs.Count}");
+        foreach (var arc in held)
+        {
+            Assert.Equal(CutDirection.Any, arc.TailDirection);
+            Assert.InRange(arc.TailBeat - arc.Beat, 0.75, 4);
+            var e = r.Events.Single(e => e.Beat == arc.Beat);
+            Assert.True(e.Melody && e.Sustain >= 0.4);
+            // the tail stays next to the head and the hand cuts again only after it
+            Assert.InRange(Math.Abs(arc.TailX - arc.X), 0, 1);
+            Assert.InRange(Math.Abs(arc.TailY - arc.Y), 0, 1);
+            Assert.DoesNotContain(r.Map.Notes, n => n.Hand == arc.Hand && n.Beat > arc.Beat && n.Beat < arc.TailBeat + 0.5);
+        }
+        // no two arcs start on the same note
+        Assert.Equal(r.Map.Arcs.Count, r.Map.Arcs.Select(x => (x.Beat, x.Hand)).Distinct().Count());
+    }
 
     [Fact]
     public void AnglesLeanWithThePitchLine()

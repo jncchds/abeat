@@ -3,6 +3,9 @@
 ## v0.3.4 — 2026-10-22
 
 - **Tap latency up to +300 ms** (was +160): taps recorded through Bluetooth headphones come ~220 ms late, past the next sixteenth, so the aligner took the wrong grid line and every tap landed one sixteenth late on a drum hit. On Deep Down (vocal taps) the run aligned at -5 ms; it now aligns at +220 ms, matching where the vocal stem's syllables start. Heavy Weight (+60 before) is +220 too; the wired runs of Lighter, Everlasting and Bangaranga keep their latencies. Regenerate tapped songs to pick it up.
+- **Held arcs**: a long melody or vocal note that the hand has no next note for gets an arc that follows the sound to its end and stops there without a note, ending in a dot next to the head or one cell towards that hand's next note. Curated maps end about 8 % of their arcs this way; generated maps now have 1-4 per difficulty, the longest held notes first. Part of the **Arcs** switch.
+- **Melody hand**: in sections with a melody or vocal line to follow, one hand plays the melody and the other the beat, and they swap where the leading hand swaps (drops vs the rest). On 5 songs (taps off), the beat hand now plays 87-97 % of the beat notes (was 20-35 %) and the melody hand 78-95 % of the melody notes (was 66-85 %), with equal or slightly better flow and no resets. New flow weight **melody hand** (default 1.5, 0 = off); the CLI shows how well it was kept.
+- **Sung notes is the default** for vocal onsets (new songs, CLI and worker); it falls back to spectral flux when the worker has no pitch model. Existing songs keep what they were analyzed with.
 
 ## v0.3.3 — 2026-10-21
 
