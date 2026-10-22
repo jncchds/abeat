@@ -27,6 +27,23 @@ public class TapTests
     }
 
     [Fact]
+    public void BluetoothLatencyIsFound()
+    {
+        // wireless headphones: taps on a sung line, every one ~220 ms late, about an eighth on the grid
+        // (Deep Down): the line's off-grid syllables tell it from a tap a little early on the next drum hit
+        var a = TestSongs.Fake();
+        var rng = new Random(5);
+        var vocals = new List<Onset>();
+        for (double t = 2; t < a.Audio.DurationSec - 1; t += 0.25 + rng.NextDouble() * 0.6)
+            vocals.Add(new Onset { T = t, S = 0.5 + 0.5 * rng.NextDouble(), Br = 0.5 });
+        a.Layers["vocals"] = vocals;
+        var taps = vocals.Where(o => o.S >= 0.6).Select(o => o.T + 0.22 + (rng.NextDouble() - 0.5) * 0.02).ToArray();
+        TapAligner.Apply(a, [new(taps, null)]);
+        Assert.True(a.Taps!.Confident[0]);
+        Assert.InRange(a.Taps.OffsetsSec[0], 0.205, 0.235);
+    }
+
+    [Fact]
     public void AppendedTapsGetTheirOwnLatency()
     {
         var a = TestSongs.Fake();

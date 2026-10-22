@@ -141,11 +141,15 @@ Authoritative design notes. Keep in sync with the code after architectural chang
    Taps (`TapAligner`, Core/Analysis): the song's tap-along runs (`taps.json`) are aligned when the web store
    loads the analysis (CLI: `--taps`) and become layer `taps` plus `SongAnalysis.Taps` (latency per run,
    snapped share, doubles); not part of analysis.json. Per run: moved onto the current song.egg padding, then
-   the latency in -60..+160 ms that puts the most taps within 20 ms of a strong onset (top half by strength per
+   the latency in -60..+300 ms that puts the most taps within 20 ms of a strong onset (top half by strength per
    layer; 5 ms steps, 3-step smoothing; unshifted when the peak lift is < 1.15 or the run has < 16 taps). The
    hit rate repeats every sixteenth (Heavy Weight's peaks at -120 / +55 / +220 ms), so only latencies a tapper
-   can have are searched; one shift per run (the lag drifts ±10 ms per 30 s). Found: Heavy Weight +60 ms (the
-   official map says ~40-55), Bangaranga +15 / -5, Everlasting 0 / +30, Lighter +70. Each tap snaps to the
+   can have are searched: wired audio 0..+70 ms, Bluetooth headphones ~+220 ms. The range was -60..+160 until
+   Deep Down (vocal taps): its +220 ms run then aligned at -5 ms, every tap a sixteenth late on a drum hit; the
+   vocal stem's flux peaks 210 ms before the taps, and Heavy Weight's run (+60 then) shows the same. One shift
+   per run (the lag drifts ±10 ms per 30 s). Found: Deep Down / Heavy Weight +220 ms (Bluetooth), Bangaranga
+   +20 / 0, Everlasting +35 / +70, Lighter +70; weighting every layer alike instead of pooling the onsets
+   gives Deep Down a clearer peak but sends an Everlasting run to +265. Each tap snaps to the
    nearest strong onset within 35 ms (any onset within 20 ms), else keeps its time (80-88 % snap); the runs
    merge, taps of both within 50 ms are one double. The runs are only moments, not hands.
    A run's `appended` batches (Append from playhead) are separate recordings, so each gets its own latency

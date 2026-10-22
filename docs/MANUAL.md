@@ -324,7 +324,7 @@ early only counts up to where it stopped. Runs are saved per song in `taps.json`
 
 The generator uses the taps too: every tap is a moment you want a note on. The two runs only mark moments
 (they don't decide which hand plays the note); a moment both runs tapped asks for a double. Before use the
-taps are lined up with the song: each run's latency (how late you tapped, searched between -60 and +160 ms)
+taps are lined up with the song: each run's latency (how late you tapped, searched between -60 and +300 ms, enough for Bluetooth headphones)
 is removed, and each tap moves onto the song's onset within 35 ms if there is one. The panel shows the
 latency found per run, the share of taps on an onset and the doubles; the timeline gets a *taps* row with
 the aligned taps. **Tap priority** in the settings sets how strongly taps claim notes: at 1 (default) every

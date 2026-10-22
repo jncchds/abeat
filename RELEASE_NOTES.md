@@ -1,5 +1,9 @@
 # Release notes
 
+## v0.3.4 — 2026-10-22
+
+- **Tap latency up to +300 ms** (was +160): taps recorded through Bluetooth headphones come ~220 ms late, past the next sixteenth, so the aligner took the wrong grid line and every tap landed one sixteenth late on a drum hit. On Deep Down (vocal taps) the run aligned at -5 ms; it now aligns at +220 ms, matching where the vocal stem's syllables start. Heavy Weight (+60 before) is +220 too; the wired runs of Lighter, Everlasting and Bangaranga keep their latencies. Regenerate tapped songs to pick it up.
+
 ## v0.3.3 — 2026-10-21
 
 - **Human map → taps**: a song with a human map has **Use as taps** in the Tap panel. Pick a difficulty and its right-hand and left-hand notes become the two tap runs, with the mapper's exact timing (no latency removed, no snapping onto onsets); notes of both hands at once become doubles. Generate then remakes the map on that rhythm, or builds easier difficulties from it.

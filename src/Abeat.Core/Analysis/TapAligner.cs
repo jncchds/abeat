@@ -29,8 +29,9 @@ public sealed record TapRunData(double[] Taps, double? PadSec = null, bool Exact
 /// <item>Each run is moved onto the current song.egg padding (a re-analysis can change it).</item>
 /// <item>Its latency is the shift in <see cref="MinLagSec"/>..<see cref="MaxLagSec"/> that puts the most taps
 /// within 20 ms of a strong onset (top half by strength within each layer). The hit rate repeats every
-/// sixteenth (taps and onsets share the grid), so only latencies a tapper can have are searched; the lag
-/// hardly drifts within a run (±10 ms per 30 s on four tapped songs), so one shift per run.</item>
+/// sixteenth (taps and onsets share the grid), so only latencies a tapper can have are searched: wired
+/// audio puts them at 0..+70 ms, Bluetooth headphones near +220 ms (Deep Down and Heavy Weight, checked on
+/// the vocal stem); the lag hardly drifts within a run (±10 ms per 30 s), so one shift per run.</item>
 /// <item>Each tap snaps to the nearest strong onset within <see cref="SnapSec"/> (any onset within 20 ms
 /// otherwise), else keeps its shifted time: a tap where the music has no onset still wants a note.</item>
 /// <item>The runs merge; taps of both runs within <see cref="DoubleSec"/> are one double.</item>
@@ -41,7 +42,7 @@ public sealed record TapRunData(double[] Taps, double? PadSec = null, bool Exact
 public static class TapAligner
 {
     public const string Layer = "taps";
-    public const double MinLagSec = -0.06, MaxLagSec = 0.16;
+    public const double MinLagSec = -0.06, MaxLagSec = 0.30;
     /// <summary>Latency for an appended batch too short to measure when nothing else in the song tells:
     /// what the browser recordings measured (+60 and +70 ms on two tapped songs).</summary>
     public const double TypicalLagSec = 0.065;
